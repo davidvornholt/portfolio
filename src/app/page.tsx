@@ -1,12 +1,26 @@
-'use client';
+import type { ReactNode } from 'react';
+import {
+  BlogTeaser,
+  CTA,
+  Expertise,
+  Hero,
+  SelectedWorks,
+  SiteFooter,
+  SiteHeader,
+} from './components';
 
-import { Button } from '@/shared/ui/presentation/components/button';
+const Page = (): ReactNode => (
+  <>
+    <SiteHeader />
+    <main>
+      <Hero />
+      <SelectedWorks />
+      <Expertise />
+      <BlogTeaser />
+      <CTA />
+    </main>
+    <SiteFooter />
+  </>
+);
 
-export default function Page() {
-  return (
-    <section className="h-screen p-24">
-      <h2 className="text-7xl">Test 123</h2>
-      <Button onClick={() => {}}>Test 123</Button>
-    </section>
-  );
-}
+export default Page;

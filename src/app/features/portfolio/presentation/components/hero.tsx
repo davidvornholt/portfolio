@@ -5,6 +5,7 @@ import { ArrowDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import profileImage from '@/../public/profile-without-bg.png';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -52,7 +53,7 @@ export const Hero = (): ReactNode => (
         <motion.p
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="mb-8 font-serif text-xl italic text-muted-foreground md:text-2xl"
+          className="mb-8 font-serif max-w-2xl text-xl italic text-muted-foreground md:text-2xl"
         >
           &ldquo;Speaking the languages of humans and machines with equal
           precision.&rdquo;
@@ -92,18 +93,18 @@ export const Hero = (): ReactNode => (
       <motion.div
         variants={fadeInScale}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="shrink-0"
+        className="shrink-0 relative"
       >
-        <div className="h-64 w-64 overflow-hidden rounded-full border-4 border-primary/20 shadow-xl shadow-primary/10 md:h-80 md:w-80 lg:h-96 lg:w-96">
-          <Image
-            src="/profile-full.png"
-            alt="David Vornholt"
-            width={384}
-            height={384}
-            priority
-            className="h-full w-full object-cover object-top"
-          />
+        <div className="relative h-80 w-64 overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 to-primary/5 ring-1 ring-border">
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+            <Image
+              src={profileImage}
+              alt="David Vornholt"
+              className="object-cover h-full "
+            />
+          </div>
         </div>
+        <div className="absolute -bottom-4 -left-4 h-full w-full rounded-2xl border border-primary/20" />
       </motion.div>
     </motion.div>
 
@@ -116,9 +117,8 @@ export const Hero = (): ReactNode => (
       <Link
         href="#works"
         aria-label="Scroll to works"
-        className="flex flex-col items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+        className="text-muted-foreground transition-colors hover:text-foreground"
       >
-        <span className="text-xs uppercase tracking-widest">Scroll</span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}

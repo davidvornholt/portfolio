@@ -62,7 +62,7 @@ const SocialIcon = ({ link }: { readonly link: SocialLink }): ReactNode => (
   </a>
 );
 
-export const SiteHeader = (): ReactNode => (
+export const Header = (): ReactNode => (
   <motion.header
     initial={{ opacity: 0, y: -20 }}
     animate={{ opacity: 1, y: 0 }}

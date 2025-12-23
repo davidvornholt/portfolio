@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Inter, Lora } from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
+import { Footer } from '@/shared/page/presentation/components/footer';
 import { cn } from '@/shared/ui/services/utils';
+import { Header } from '../shared/page/presentation/components/header';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -70,7 +72,9 @@ export default function RootLayout({
       <body
         className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${lora.variable} antialiased`}
       >
-        {children}
+        <Header />
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );

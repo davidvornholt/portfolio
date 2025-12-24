@@ -118,7 +118,10 @@ const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => (
         {project.href && (
           <Link
             href={project.href}
-            target="_blank"
+            {...(project.href.startsWith('http') && {
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            })}
             className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
           >
             View Case Study

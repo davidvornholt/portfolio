@@ -11,10 +11,10 @@ type NavItem = {
 };
 
 const navItems: readonly NavItem[] = [
-  { label: 'Works', href: '#works' },
-  { label: 'Expertise', href: '#expertise' },
-  { label: 'Blog', href: '#blog' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Works', href: '/#works' },
+  { label: 'Expertise', href: '/#expertise' },
+  { label: 'Blog', href: '/#blog' },
+  { label: 'Contact', href: '/#contact' },
 ] as const;
 
 const NavLink = ({ item }: { readonly item: NavItem }): ReactNode => (

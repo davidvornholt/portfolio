@@ -6,11 +6,10 @@ import { Button } from './button';
 import { Input } from './input';
 import { Textarea } from './textarea';
 
-function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
+function InputGroup({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
-    <div
+    <fieldset
       data-slot="input-group"
-      role="group"
       className={cn(
         'border-input dark:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 h-9 rounded-md border shadow-xs transition-[color,box-shadow] has-[[data-slot=input-group-control]:focus-visible]:ring-[3px] has-[[data-slot][aria-invalid=true]]:ring-[3px] has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 [[data-slot=combobox-content]_&]:focus-within:border-inherit [[data-slot=combobox-content]_&]:focus-within:ring-0 group/input-group relative flex w-full min-w-0 items-center outline-none has-[>textarea]:h-auto',
         className,
@@ -45,19 +44,31 @@ function InputGroupAddon({
   className,
   align = 'inline-start',
   ...props
-}: React.ComponentProps<'div'> & VariantProps<typeof inputGroupAddonVariants>) {
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof inputGroupAddonVariants>) {
+  const handleAddonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    e.currentTarget.parentElement?.querySelector('input')?.focus();
+  };
+
+  const handleAddonKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.currentTarget.parentElement?.querySelector('input')?.focus();
+    }
+  };
+
   return (
-    <div
-      role="group"
+    <button
+      type="button"
       data-slot="input-group-addon"
       data-align={align}
       className={cn(inputGroupAddonVariants({ align }), className)}
-      onClick={(e) => {
-        if ((e.target as HTMLElement).closest('button')) {
-          return;
-        }
-        e.currentTarget.parentElement?.querySelector('input')?.focus();
-      }}
+      tabIndex={0}
+      onClick={handleAddonClick}
+      onKeyDown={handleAddonKeyDown}
       {...props}
     />
   );

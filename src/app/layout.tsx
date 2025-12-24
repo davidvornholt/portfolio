@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Inter, Lora } from 'next/font/google';
+import {
+  IBM_Plex_Mono,
+  IBM_Plex_Sans,
+  Inter,
+  Source_Serif_4,
+} from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
 import { Footer } from '@/shared/page/presentation/components/footer';
@@ -9,30 +14,20 @@ import { Header } from '../shared/page/presentation/components/header';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const ibmPlexSans = IBM_Plex_Sans({
-  variable: '--font-ibm-plex-sans',
+  variable: '--font-sans',
   subsets: ['latin'],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
-  variable: '--font-ibm-plex-mono',
+  variable: '--font-mono',
   subsets: ['latin'],
   weight: ['400', '700'],
 });
 
-const lora = Lora({
-  variable: '--font-lora',
+const sourceSerif4 = Source_Serif_4({
+  variable: '--font-serif',
   subsets: ['latin'],
 });
-
-// const sourceSerif4 = Source_Serif_4({
-//   variable: "--font-source-serif-4",
-//   subsets: ["latin"],
-// })
-
-// const sourceSans3 = Source_Sans_3({
-//   variable: "--font-source-sans-3",
-//   subsets: ["latin"],
-// })
 
 export const metadata: Metadata = {
   title: 'David Vornholt | Full Stack Developer & Digital Experience Architect',
@@ -70,7 +65,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn('scroll-smooth', inter.variable)}>
       <body
-        className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${lora.variable} antialiased`}
+        className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
       >
         <Header />
         <main>{children}</main>

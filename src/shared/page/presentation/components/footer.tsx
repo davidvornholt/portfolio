@@ -1,34 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Github, Linkedin, Twitter } from 'lucide-react';
 import Link from 'next/link';
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Separator } from '@/shared/ui/presentation/components/separator';
-
-type SocialLink = {
-  readonly label: string;
-  readonly href: string;
-  readonly icon: ComponentType<{ className?: string }>;
-};
-
-const socialLinks: readonly SocialLink[] = [
-  {
-    href: 'https://github.com/davidvornholt',
-    label: 'GitHub',
-    icon: Github,
-  },
-  {
-    href: 'https://linkedin.com/in/davidvornholt',
-    label: 'LinkedIn',
-    icon: Linkedin,
-  },
-  {
-    href: 'https://x.com/davidvornholt',
-    label: 'X (Twitter)',
-    icon: Twitter,
-  },
-] as const;
+import { SocialLinks } from './social-links';
 
 const navLinks = [
   { href: '#works', label: 'Works' },
@@ -74,26 +50,13 @@ export const Footer = (): ReactNode => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
-            {socialLinks.map(({ href, label, icon: Icon }) => (
-              <a
-                key={href}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <Icon className="size-5" />
-              </a>
-            ))}
-          </div>
+          <SocialLinks />
         </div>
 
         <Separator className="my-8" />
 
         <div className="flex flex-col items-center justify-between gap-4 text-center text-sm text-muted-foreground md:flex-row">
-          <p>© {currentYear} David Vornholt. All rights reserved.</p>
+          <p>&copy; {currentYear} David Vornholt. All rights reserved.</p>
           <p className="font-mono text-xs">
             Built with Next.js, Tailwind CSS & TypeScript
           </p>

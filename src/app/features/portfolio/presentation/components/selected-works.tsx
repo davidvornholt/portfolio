@@ -30,6 +30,7 @@ const projects: readonly Project[] = [
       'Leading the digital transformation of an educational institution. Designing platforms to streamline communication between students, teachers, and parents.',
     outcome:
       'Improved workflow efficiency and enhanced accessibility for the entire school community.',
+    href: 'https://www.fes-kirchheim.de',
   },
   {
     id: 'ccbb',
@@ -37,11 +38,12 @@ const projects: readonly Project[] = [
     title: 'Christian Congregation Bietigheim-Bissingen',
     role: 'Full Stack Developer & UI/UX Designer',
     timeline: 'September 2025 – Present',
-    stack: ['Next.js 16', 'TanStack Start', 'Tailwind CSS v4'],
+    stack: ['Next.js 16', 'Framer Motion', 'Bun'],
     description:
       'Redesigning the digital presence of a local church community. Focus on community engagement, event management, and modern user experience.',
     outcome:
       'A clean, welcoming digital home reflecting community values through modern UI/UX and functional reliability.',
+    href: 'https://cg-bibi.de',
   },
 ] as const;
 
@@ -116,6 +118,7 @@ const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => (
         {project.href && (
           <Link
             href={project.href}
+            target="_blank"
             className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
           >
             View Case Study

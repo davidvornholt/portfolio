@@ -182,7 +182,7 @@ export const Expertise = (): ReactNode => (
         </h2>
       </motion.header>
 
-      <div className="mb-16 grid gap-6 md:grid-cols-2">
+      <div className="mb-8 grid gap-6 md:grid-cols-2">
         {expertiseCategories.map((category, index) => (
           <ExpertiseCard key={category.id} category={category} index={index} />
         ))}

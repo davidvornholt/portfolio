@@ -43,7 +43,6 @@ const projects: readonly Project[] = [
       'Redesigning the digital presence of a local church community. Focus on community engagement, event management, and modern user experience.',
     outcome:
       'A clean, welcoming digital home reflecting community values through modern UI/UX and functional reliability.',
-    href: 'https://cg-bibi.de',
   },
 ] as const;
 

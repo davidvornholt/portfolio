@@ -30,7 +30,7 @@ const projects: readonly Project[] = [
       'Leading the digital transformation of an educational institution. Designing platforms to streamline communication between students, teachers, and parents.',
     outcome:
       'Improved workflow efficiency and enhanced accessibility for the entire school community.',
-    href: 'https://www.fes-kirchheim.de',
+    href: '/works/fes-kirchheim',
   },
   {
     id: 'ccbb',

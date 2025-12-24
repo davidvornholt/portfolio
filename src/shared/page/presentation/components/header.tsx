@@ -31,7 +31,7 @@ export const Header = (): ReactNode => (
     initial={{ opacity: 0, y: -20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6, ease: 'easeOut' }}
-    className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg"
+    className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/60 backdrop-saturate-150 backdrop-blur-lg"
   >
     <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
       <Link

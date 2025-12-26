@@ -7,40 +7,17 @@ import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
 
 type BlogPost = {
-  readonly id: string;
   readonly title: string;
   readonly excerpt: string;
   readonly category: string;
   readonly readTime: string;
   readonly href?: string;
+  readonly comingSoon?: boolean;
 };
 
-const blogPosts: readonly BlogPost[] = [
-  {
-    id: 'clean-code-nextjs',
-    title: 'Clean Code in Next.js 16',
-    excerpt:
-      "Applying Uncle Bob's principles to the modern web. How functional programming patterns enhance maintainability in React Server Components.",
-    category: 'Engineering',
-    readTime: '8 min read',
-  },
-  {
-    id: 'functional-multilingual',
-    title: 'Functional Programming for the Multilingual Mind',
-    excerpt:
-      'Exploring the parallels between linguistic structure and code architecture. How thinking in multiple languages shapes better abstractions.',
-    category: 'Philosophy',
-    readTime: '6 min read',
-  },
-  {
-    id: 'digital-experience-architect',
-    title: 'The Digital Experience Architect',
-    excerpt:
-      'Why schools and NGOs need engineering, not just design. Building systems that serve communities with intention and precision.',
-    category: 'Case Study',
-    readTime: '10 min read',
-  },
-] as const;
+type BlogTeaserProps = {
+  readonly posts: readonly BlogPost[];
+};
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -77,7 +54,7 @@ const BlogPostCard = ({
       <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
         {post.excerpt}
       </p>
-      {post.href ? (
+      {post.href && !post.comingSoon ? (
         <Link
           href={post.href}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
@@ -94,7 +71,7 @@ const BlogPostCard = ({
   </motion.article>
 );
 
-export const BlogTeaser = (): ReactNode => (
+export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
   <section id="blog" className="px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
       <motion.header
@@ -118,8 +95,8 @@ export const BlogTeaser = (): ReactNode => (
       </motion.header>
 
       <div className="space-y-8">
-        {blogPosts.map((post, index) => (
-          <BlogPostCard key={post.id} post={post} index={index} />
+        {posts.map((post, index) => (
+          <BlogPostCard key={post.title} post={post} index={index} />
         ))}
       </div>
     </div>

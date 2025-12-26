@@ -1,0 +1,136 @@
+---
+title: "Building the Architect's Portfolio"
+subtitle: "A deep dive into the engineering and philosophy behind a digital editorial experience."
+slug: "building-the-architects-portfolio"
+date: 2026-01-01
+category: "Engineering"
+readTime: "6 min read"
+excerpt: "A deep dive into building an editorial-inspired portfolio with Next.js 16, Effect-TS, and MDX. Exploring the intersection of functional programming and sophisticated design."
+featured: true
+---
+
+<Section>
+
+# 01 The Vision
+
+## Beyond the generic developer grid.
+
+Most developer portfolios follow a predictable cadence: a dark-mode hero, a grid of cards, and a list of progress bars representing "skills." As a **Digital Experience Architect**, I found this format lacking. It treats software development as a commodity rather than a craft. 
+
+For my personal site, I wanted to build something that felt less like a dashboard and more like a **high-end publication**. I call this aesthetic **"Editorial Tech."** It is an attempt to bridge the gap between the rigid logic of functional programming and the fluid elegance of modern typography.
+
+<Callout title="The Architect's Goal">
+  To create a "Proof of Concept" site that demonstrates 100/100 performance metrics while maintaining the sophisticated visual language of a print magazine.
+</Callout>
+
+</Section>
+
+<Section>
+
+# 02 The Stack
+
+## Bleeding edge tools for a zero-latency experience.
+
+Choosing the right tools is the first act of architecture. I opted for **Next.js 16** and **Tailwind CSS v4**—not just for the sake of being current, but for the specific performance gains they offer.
+
+<StatGrid>
+  <StatCard 
+    label="Cold Boot" 
+    value="0s" 
+    subtext="Architecture-level fix" 
+    trend="down" 
+    icon="zap" 
+  />
+  <StatCard 
+    label="Lighthouse" 
+    value="100" 
+    subtext="Across all categories" 
+    trend="up" 
+    icon="gauge" 
+  />
+  <StatCard 
+    label="CSS Bundle" 
+    value="-40%" 
+    subtext="Tailwind v4 optimization" 
+    trend="down" 
+    icon="server" 
+  />
+</StatGrid>
+
+By leveraging **Server-Side Rendering (SSR)** and **Incremental Static Regeneration (ISR)**, I ensured that every project page and blog post loads instantly. In an era where 500ms of latency can lose a user, my goal was an imperceptible "zero-wait" state.
+
+</Section>
+
+<Section>
+
+# 03 Content as Code
+
+## Managing thoughts with Velite and MDX.
+
+A blog shouldn't be a separate entity managed by a heavy CMS. It should be a part of the repository, governed by the same **Clean Code** standards as the UI.
+
+I implemented **Velite** to handle my content pipeline. This allows me to write in **MDX**, treating my prose as code. Every paragraph is standard Markdown, but every case study or technical deep dive can import custom React components for interactivity.
+
+### Why this matters:
+*   **Type Safety:** My content is validated via Zod schemas during the build process.
+*   **Performance:** No external API calls to a headless CMS are required at runtime.
+*   **Version Control:** My thoughts and my code live in the same Git history, providing a unified timeline of my development as an engineer.
+
+</Section>
+
+<Section>
+
+# 04 Visual Precision
+
+## The math of color and type.
+
+Architecture is often found in the details that users don't consciously notice but definitely feel. 
+
+### Typographic Cadence
+I chose **Source Serif 4** for headings to provide an authoritative, intellectual weight. This is balanced by **IBM Plex Sans** for the body—a typeface designed to reflect the relationship between man and machine. It is a subtle nod to my USP: *speaking the languages of humans and machines with equal precision.*
+
+### The OKLCH Color Model
+Instead of HEX or HSL, this portfolio uses the **OKLCH** color space. This allows for "perceptually uniform" brightness.
+
+<FeatureGrid>
+  <FeatureCard 
+    icon="users" 
+    title="Accessibility" 
+    description="OKLCH makes it mathematically easier to ensure contrast ratios stay consistent across themes." 
+  />
+  <FeatureCard 
+    icon="zap" 
+    title="P3 Gamut" 
+    description="Access to more vibrant greens and deep forest tones that are simply impossible in standard sRGB." 
+  />
+  <FeatureCard 
+    icon="lineChart" 
+    title="Predictable Logic" 
+    description="Tweaking lightness doesn't accidentally shift the hue—a dream for architectural consistency." 
+  />
+</FeatureGrid>
+
+</Section>
+
+<Section>
+
+# 05 Final Thoughts
+
+## Logic meets Empathy.
+
+This portfolio is more than a list of links. It is a reflection of my philosophy: that software should be as beautiful as it is functional, and as communicative as it is logical. 
+
+As we enter 2026, I am committed to exploring how we can use these tools—not just to build faster apps, but to build more **meaningful digital experiences** for the communities that need them most.
+
+<Blockquote author="David Vornholt">
+  Software is the only medium where we can architect pure logic into human impact.
+</Blockquote>
+
+</Section>
+
+<CTA
+  title="Want to see the source?"
+  description="The architecture of this portfolio is public. Explore the implementation on GitHub."
+  href="https://github.com/davidvornholt/portfolio"
+  linkText="View Repository"
+/>

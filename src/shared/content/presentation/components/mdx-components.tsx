@@ -13,10 +13,14 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Children, isValidElement, type ReactNode } from 'react';
 
 import { Badge } from '@/shared/ui/presentation/components/badge';
 import { Separator } from '@/shared/ui/presentation/components/separator';
+
+// =============================================================================
+// Animation Presets
+// =============================================================================
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -34,7 +38,209 @@ const staggerContainer = {
   viewport: { once: true, margin: '-100px' },
 };
 
-// Section wrapper with animation
+// =============================================================================
+// Icon Map (for string-based icon references in JSX components)
+// =============================================================================
+
+const iconMap: Record<string, ReactNode> = {
+  zap: <Zap className="h-5 w-5" />,
+  gauge: <Gauge className="h-5 w-5" />,
+  lineChart: <LineChart className="h-5 w-5" />,
+  search: <Search className="h-5 w-5" />,
+  trendingUp: <TrendingUp className="h-5 w-5" />,
+  server: <Server className="h-5 w-5" />,
+  users: <Users className="h-5 w-5" />,
+  checkCircle: <CheckCircle2 className="h-5 w-5" />,
+};
+
+// =============================================================================
+// Utility: Parse Section Header (# NN Title)
+// =============================================================================
+
+const parseSectionHeader = (
+  children: ReactNode,
+): { number: string; title: string } | null => {
+  const text = extractTextContent(children);
+  if (!text) return null;
+
+  // Match pattern: "NN Title" where NN is typically 01, 02, etc.
+  const match = text.match(/^(\d{2})\s+(.+)$/);
+  if (match) {
+    return { number: match[1], title: match[2] };
+  }
+  return null;
+};
+
+const extractTextContent = (children: ReactNode): string => {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (Array.isArray(children)) return children.map(extractTextContent).join('');
+  if (isValidElement(children)) {
+    const props = children.props as { children?: ReactNode };
+    if (props.children) {
+      return extractTextContent(props.children);
+    }
+  }
+  return '';
+};
+
+// =============================================================================
+// Markdown Element Overrides
+// =============================================================================
+
+// H1 → Section with SectionHeader (# 01 The Challenge)
+const H1 = ({ children }: { readonly children: ReactNode }): ReactNode => {
+  const parsed = parseSectionHeader(children);
+
+  if (parsed) {
+    return (
+      <div className="mb-8 flex items-baseline gap-4">
+        <span className="font-mono text-sm font-medium text-primary">
+          {parsed.number}
+        </span>
+        <h2 className="font-serif text-3xl font-semibold text-foreground md:text-4xl">
+          {parsed.title}
+        </h2>
+      </div>
+    );
+  }
+
+  // Fallback for non-numbered H1s
+  return (
+    <h1 className="mb-6 font-serif text-4xl font-semibold text-foreground md:text-5xl">
+      {children}
+    </h1>
+  );
+};
+
+// H2 → Lead paragraph styling
+const H2 = ({ children }: { readonly children: ReactNode }): ReactNode => (
+  <p className="mb-6 text-lg font-medium text-foreground">{children}</p>
+);
+
+// H3 → Subheading
+const H3 = ({ children }: { readonly children: ReactNode }): ReactNode => (
+  <h3 className="mb-4 mt-8 text-xl font-semibold text-foreground">
+    {children}
+  </h3>
+);
+
+// Paragraph → Prose styling
+const Paragraph = ({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode => (
+  <p className="mb-6 leading-relaxed text-foreground/80">{children}</p>
+);
+
+// Strong → Highlight
+const Strong = ({ children }: { readonly children: ReactNode }): ReactNode => (
+  <strong className="font-semibold text-foreground">{children}</strong>
+);
+
+// Emphasis → Italic with serif
+const Emphasis = ({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode => <em className="font-serif italic">{children}</em>;
+
+// Blockquote → Editorial quote card
+const BlockquoteElement = ({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode => {
+  // Extract author from cite element if present
+  let author: string | undefined;
+  let quoteContent: ReactNode = children;
+
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && child.type === 'cite') {
+      const props = child.props as { children?: ReactNode };
+      author = extractTextContent(props.children);
+    }
+  });
+
+  // Filter out cite from quote content
+  if (author) {
+    quoteContent = Children.toArray(children).filter(
+      (child) => !(isValidElement(child) && child.type === 'cite'),
+    );
+  }
+
+  return (
+    <blockquote className="relative mt-8 rounded-lg border border-border bg-card p-8">
+      <div className="absolute -top-3 left-6 bg-background px-2">
+        <span className="font-serif text-4xl text-primary">&ldquo;</span>
+      </div>
+      <div className="font-serif text-lg italic text-foreground">
+        {quoteContent}
+      </div>
+      {author && (
+        <footer className="mt-4 text-sm text-muted-foreground">
+          — {author}
+        </footer>
+      )}
+    </blockquote>
+  );
+};
+
+// Unordered List
+const UnorderedList = ({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode => (
+  <ul className="mb-6 list-disc space-y-2 pl-6 text-foreground/80">
+    {children}
+  </ul>
+);
+
+// Ordered List
+const OrderedList = ({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode => (
+  <ol className="mb-6 list-decimal space-y-2 pl-6 text-foreground/80">
+    {children}
+  </ol>
+);
+
+// List Item
+const ListItem = ({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode => <li>{children}</li>;
+
+// Link
+const Anchor = ({
+  href,
+  children,
+}: {
+  readonly href?: string;
+  readonly children: ReactNode;
+}): ReactNode => (
+  <a
+    href={href}
+    className="font-medium text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:text-primary/80"
+    target={href?.startsWith('http') ? '_blank' : undefined}
+    rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+  >
+    {children}
+  </a>
+);
+
+// Horizontal Rule
+const HorizontalRule = (): ReactNode => <Separator className="my-8" />;
+
+// =============================================================================
+// Section Wrapper (for animated sections in MDX)
+// =============================================================================
+
 type SectionProps = Readonly<{
   children: ReactNode;
   className?: string;
@@ -50,22 +256,11 @@ const Section = ({ children, className = '' }: SectionProps): ReactNode => (
   </motion.section>
 );
 
-// Section Header
-type SectionHeaderProps = Readonly<{
-  number: string;
-  title: string;
-}>;
+// =============================================================================
+// Complex JSX Components (remain as explicit tags)
+// =============================================================================
 
-const SectionHeader = ({ number, title }: SectionHeaderProps): ReactNode => (
-  <div className="mb-8 flex items-baseline gap-4">
-    <span className="font-mono text-sm font-medium text-primary">{number}</span>
-    <h2 className="font-serif text-3xl font-semibold text-foreground md:text-4xl">
-      {title}
-    </h2>
-  </div>
-);
-
-// Callout component
+// Callout
 type CalloutProps = Readonly<{
   title?: string;
   children: ReactNode;
@@ -78,7 +273,7 @@ const Callout = ({ title, children }: CalloutProps): ReactNode => (
   </div>
 );
 
-// Blockquote component
+// Blockquote (explicit JSX version with author prop)
 type BlockquoteProps = Readonly<{
   children: ReactNode;
   author?: string;
@@ -96,18 +291,7 @@ const Blockquote = ({ children, author }: BlockquoteProps): ReactNode => (
   </blockquote>
 );
 
-// Icon map for string-based icon references
-const iconMap: Record<string, ReactNode> = {
-  zap: <Zap className="h-5 w-5" />,
-  gauge: <Gauge className="h-5 w-5" />,
-  lineChart: <LineChart className="h-5 w-5" />,
-  search: <Search className="h-5 w-5" />,
-  trendingUp: <TrendingUp className="h-5 w-5" />,
-  server: <Server className="h-5 w-5" />,
-  users: <Users className="h-5 w-5" />,
-  checkCircle: <CheckCircle2 className="h-5 w-5" />,
-};
-
+// StatCard
 type StatCardProps = Readonly<{
   label: string;
   value: string;
@@ -145,6 +329,7 @@ const StatCard = ({
   </motion.div>
 );
 
+// StatGrid
 type StatGridProps = Readonly<{
   children: ReactNode;
 }>;
@@ -155,13 +340,13 @@ const StatGrid = ({ children }: StatGridProps): ReactNode => (
     initial="initial"
     whileInView="whileInView"
     viewport={{ once: true, margin: '-100px' }}
-    className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+    className="my-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
   >
     {children}
   </motion.div>
 );
 
-// Feature Card
+// FeatureCard
 type FeatureCardProps = Readonly<{
   icon: string;
   title: string;
@@ -191,6 +376,7 @@ const FeatureCard = ({
   </motion.div>
 );
 
+// FeatureGrid
 type FeatureGridProps = Readonly<{
   children: ReactNode;
 }>;
@@ -199,7 +385,7 @@ const FeatureGrid = ({ children }: FeatureGridProps): ReactNode => (
   <div className="mt-8 grid gap-6 md:grid-cols-3">{children}</div>
 );
 
-// Check item for lists
+// CheckItem
 type CheckItemProps = Readonly<{
   title: string;
   description: string;
@@ -217,6 +403,7 @@ const CheckItem = ({ title, description }: CheckItemProps): ReactNode => (
   </div>
 );
 
+// CheckList
 type CheckListProps = Readonly<{
   children: ReactNode;
 }>;
@@ -225,7 +412,7 @@ const CheckList = ({ children }: CheckListProps): ReactNode => (
   <div className="mt-8 space-y-4">{children}</div>
 );
 
-// CTA Section
+// CTA
 type CTAProps = Readonly<{
   title: string;
   description: string;
@@ -260,127 +447,37 @@ const CTA = ({ title, description, href, linkText }: CTAProps): ReactNode => (
   </motion.section>
 );
 
-// Lead paragraph
-type LeadProps = Readonly<{
-  children: ReactNode;
-}>;
+// =============================================================================
+// MDX Component Map Export
+// =============================================================================
 
-const Lead = ({ children }: LeadProps): ReactNode => (
-  <p className="mb-6 text-lg font-medium text-foreground">{children}</p>
-);
-
-// Prose wrapper for body text
-type ProseProps = Readonly<{
-  children: ReactNode;
-}>;
-
-const Prose = ({ children }: ProseProps): ReactNode => (
-  <div className="mt-4 space-y-6 leading-relaxed text-foreground/80">
-    {children}
-  </div>
-);
-
-// Highlight span
-type HighlightProps = Readonly<{
-  children: ReactNode;
-}>;
-
-const Highlight = ({ children }: HighlightProps): ReactNode => (
-  <span className="font-semibold text-foreground">{children}</span>
-);
-
-// Paragraph subheading
-type SubheadingProps = Readonly<{
-  children: ReactNode;
-}>;
-
-const Subheading = ({ children }: SubheadingProps): ReactNode => (
-  <h3 className="mb-4 text-xl font-semibold text-foreground">{children}</h3>
-);
-
-// Export all MDX components
 export const mdxComponents = {
-  // Layout
+  // Markdown element overrides (auto-applied to standard syntax)
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  p: Paragraph,
+  strong: Strong,
+  em: Emphasis,
+  blockquote: BlockquoteElement,
+  ul: UnorderedList,
+  ol: OrderedList,
+  li: ListItem,
+  a: Anchor,
+  hr: HorizontalRule,
+
+  // Explicit JSX components (for complex structured content)
   Section,
-  SectionHeader,
-  Separator,
-
-  // Typography
-  Lead,
-  Prose,
-  Highlight,
-  Subheading,
-
-  // Content blocks
   Callout,
   Blockquote,
-
-  // Stats
   StatGrid,
   StatCard,
-
-  // Features
   FeatureGrid,
   FeatureCard,
-
-  // Check items
   CheckList,
   CheckItem,
-
-  // CTA
   CTA,
-
-  // Standard HTML overrides
-  p: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <p className="leading-relaxed text-foreground/80">{children}</p>
-  ),
-  h1: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <h1 className="mb-6 font-serif text-4xl font-semibold text-foreground md:text-5xl">
-      {children}
-    </h1>
-  ),
-  h2: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <h2 className="mb-4 font-serif text-3xl font-semibold text-foreground md:text-4xl">
-      {children}
-    </h2>
-  ),
-  h3: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <h3 className="mb-3 text-xl font-semibold text-foreground">{children}</h3>
-  ),
-  strong: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <strong className="font-semibold text-foreground">{children}</strong>
-  ),
-  em: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <em className="font-serif italic">{children}</em>
-  ),
-  ul: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <ul className="list-disc space-y-2 pl-6 text-foreground/80">{children}</ul>
-  ),
-  ol: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <ol className="list-decimal space-y-2 pl-6 text-foreground/80">
-      {children}
-    </ol>
-  ),
-  li: ({ children }: { readonly children: ReactNode }): ReactNode => (
-    <li>{children}</li>
-  ),
-  a: ({
-    href,
-    children,
-  }: {
-    readonly href?: string;
-    readonly children: ReactNode;
-  }): ReactNode => (
-    <a
-      href={href}
-      className="font-medium text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:text-primary/80"
-      target={href?.startsWith('http') ? '_blank' : undefined}
-      rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-    >
-      {children}
-    </a>
-  ),
-  hr: (): ReactNode => <Separator className="my-8" />,
+  Separator,
   Badge,
 };
 

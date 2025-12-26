@@ -1,0 +1,15 @@
+# Blog Posts
+
+Place your MDX blog post files here. Each file should have frontmatter with the following fields:
+
+```yaml
+---
+title: "Post Title"
+slug: "post-slug"
+date: 2024-01-15
+category: "Engineering"
+readTime: "5 min"
+excerpt: "A brief summary of the post"
+featured: true
+---
+```

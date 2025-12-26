@@ -1,0 +1,20 @@
+# Works (Case Studies)
+
+Place your MDX case study files here. Each file should have frontmatter with the following fields:
+
+```yaml
+---
+title: "Project Title"
+subtitle: "Project Subtitle"
+slug: "project-slug"
+date: 2024-08-01
+timeline: "August 2024 – Present"
+role: "Your Role"
+techStack:
+  - "Next.js"
+  - "TypeScript"
+liveUrl: "https://example.com"
+videoUrl: "https://youtube.com/watch?v=..."  # optional
+featured: true
+---
+```

@@ -77,7 +77,7 @@ const ProjectCardContent = ({
       <motion.span
         variants={numberHover}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="block font-mono text-6xl font-bold text-muted-foreground/20"
+        className="block font-mono text-6xl font-bold text-muted-foreground/60"
       >
         {project.number}
       </motion.span>

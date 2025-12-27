@@ -1,6 +1,3 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import {
   Award,
   Braces,
@@ -10,6 +7,7 @@ import {
   type LucideIcon,
   Sparkles,
 } from 'lucide-react';
+import { div as MotionDiv, header as MotionHeader } from 'motion/react-client';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
 import { type Certification, CertificationItem } from './certification-item';
@@ -138,7 +136,7 @@ const ExpertiseCard = ({
   const Icon = category.icon;
 
   return (
-    <motion.div
+    <MotionDiv
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
       className="group rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary/20"
@@ -163,7 +161,7 @@ const ExpertiseCard = ({
           </Badge>
         ))}
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 };
 
@@ -174,7 +172,7 @@ const LanguageItem = ({
   readonly language: Language;
   readonly index: number;
 }): ReactNode => (
-  <motion.div
+  <MotionDiv
     {...fadeInUp}
     transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 + index * 0.1 }}
     className="flex items-center justify-between border-b border-border py-4 last:border-b-0"
@@ -189,13 +187,13 @@ const LanguageItem = ({
         {language.proficiency}
       </Badge>
     </div>
-  </motion.div>
+  </MotionDiv>
 );
 
 export const Expertise = (): ReactNode => (
   <section id="expertise" className="bg-muted/30 px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
-      <motion.header
+      <MotionHeader
         {...fadeInUp}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="mb-16"
@@ -206,7 +204,7 @@ export const Expertise = (): ReactNode => (
         <h2 className="font-serif text-4xl font-semibold text-foreground md:text-5xl">
           Expertise & Competencies
         </h2>
-      </motion.header>
+      </MotionHeader>
 
       <div className="mb-8 grid gap-6 md:grid-cols-2">
         {expertiseCategories.map((category, index) => (
@@ -214,7 +212,7 @@ export const Expertise = (): ReactNode => (
         ))}
       </div>
 
-      <motion.div
+      <MotionDiv
         {...fadeInUp}
         transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
         className="rounded-lg border border-border bg-card p-6"
@@ -242,10 +240,10 @@ export const Expertise = (): ReactNode => (
             />
           ))}
         </div>
-      </motion.div>
+      </MotionDiv>
 
       {/* Verified Expertise */}
-      <motion.div
+      <MotionDiv
         {...fadeInUp}
         transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
         className="mt-8"
@@ -273,7 +271,7 @@ export const Expertise = (): ReactNode => (
             />
           ))}
         </div>
-      </motion.div>
+      </MotionDiv>
     </div>
   </section>
 );

@@ -1,7 +1,5 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { Clock, ExternalLink, Users } from 'lucide-react';
+import { header as MotionHeader } from 'motion/react-client';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
 
@@ -28,7 +26,7 @@ export const CaseStudyHero = ({
   techStack,
   liveUrl,
 }: CaseStudyHeroProps): ReactNode => (
-  <motion.header
+  <MotionHeader
     {...fadeInUp}
     transition={{ duration: 0.6, ease: 'easeOut' }}
     className="mx-auto mb-16 max-w-4xl px-6"
@@ -73,5 +71,5 @@ export const CaseStudyHero = ({
         <ExternalLink className="h-4 w-4" />
       </a>
     )}
-  </motion.header>
+  </MotionHeader>
 );

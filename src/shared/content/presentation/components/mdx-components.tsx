@@ -1,6 +1,3 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -13,6 +10,10 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import {
+  div as MotionDiv,
+  section as MotionSection,
+} from 'motion/react-client';
 import { Children, isValidElement, type ReactNode } from 'react';
 
 import { Badge } from '@/shared/ui/presentation/components/badge';
@@ -247,13 +248,13 @@ type SectionProps = Readonly<{
 }>;
 
 const Section = ({ children, className = '' }: SectionProps): ReactNode => (
-  <motion.section
+  <MotionSection
     {...fadeInUp}
     transition={{ duration: 0.6, ease: 'easeOut' }}
     className={`mx-auto mb-20 max-w-4xl px-6 ${className}`}
   >
     {children}
-  </motion.section>
+  </MotionSection>
 );
 
 // =============================================================================
@@ -307,7 +308,7 @@ const StatCard = ({
   trend,
   icon,
 }: StatCardProps): ReactNode => (
-  <motion.div
+  <MotionDiv
     variants={{
       initial: { opacity: 0, y: 20 },
       whileInView: { opacity: 1, y: 0 },
@@ -326,7 +327,7 @@ const StatCard = ({
     <p className="font-mono text-3xl font-bold text-foreground">{value}</p>
     <p className="mt-1 text-sm font-medium text-foreground">{label}</p>
     <p className="text-xs text-muted-foreground">{subtext}</p>
-  </motion.div>
+  </MotionDiv>
 );
 
 // StatGrid
@@ -335,7 +336,7 @@ type StatGridProps = Readonly<{
 }>;
 
 const StatGrid = ({ children }: StatGridProps): ReactNode => (
-  <motion.div
+  <MotionDiv
     variants={staggerContainer}
     initial="initial"
     whileInView="whileInView"
@@ -343,7 +344,7 @@ const StatGrid = ({ children }: StatGridProps): ReactNode => (
     className="my-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
   >
     {children}
-  </motion.div>
+  </MotionDiv>
 );
 
 // FeatureCard
@@ -360,7 +361,7 @@ const FeatureCard = ({
   description,
   delay = 0,
 }: FeatureCardProps): ReactNode => (
-  <motion.div
+  <MotionDiv
     variants={{
       initial: { opacity: 0, y: 20 },
       whileInView: { opacity: 1, y: 0 },
@@ -373,7 +374,7 @@ const FeatureCard = ({
     </div>
     <h3 className="mb-2 font-semibold text-foreground">{title}</h3>
     <p className="text-sm text-muted-foreground">{description}</p>
-  </motion.div>
+  </MotionDiv>
 );
 
 // FeatureGrid
@@ -421,7 +422,7 @@ type CTAProps = Readonly<{
 }>;
 
 const CTA = ({ title, description, href, linkText }: CTAProps): ReactNode => (
-  <motion.section
+  <MotionSection
     {...fadeInUp}
     transition={{ duration: 0.6, ease: 'easeOut' }}
     className="mx-auto max-w-4xl px-6"
@@ -444,7 +445,7 @@ const CTA = ({ title, description, href, linkText }: CTAProps): ReactNode => (
         <ArrowUpRight className="h-4 w-4" />
       </a>
     </div>
-  </motion.section>
+  </MotionSection>
 );
 
 // =============================================================================

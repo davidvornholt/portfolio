@@ -1,7 +1,10 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { ArrowUpRight, Calendar, Code2 } from 'lucide-react';
+import {
+  article as MotionArticle,
+  div as MotionDiv,
+  header as MotionHeader,
+  span as MotionSpan,
+} from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
@@ -74,16 +77,16 @@ const ProjectCardContent = ({
 }): ReactNode => (
   <div className="grid gap-8 md:grid-cols-12 md:gap-12">
     <div className="md:col-span-2">
-      <motion.span
+      <MotionSpan
         variants={numberHover}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="block font-mono text-6xl font-bold text-muted-foreground/60"
       >
         {project.number}
-      </motion.span>
+      </MotionSpan>
     </div>
 
-    <motion.div
+    <MotionDiv
       variants={cardHover}
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className="md:col-span-10"
@@ -139,15 +142,15 @@ const ProjectCardContent = ({
       {project.href && (
         <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
           View Case Study
-          <motion.span
+          <MotionSpan
             variants={arrowHover}
             transition={{ duration: 0.3, ease: 'easeOut' }}
           >
             <ArrowUpRight className="h-4 w-4" />
-          </motion.span>
+          </MotionSpan>
         </span>
       )}
-    </motion.div>
+    </MotionDiv>
   </div>
 );
 
@@ -155,7 +158,7 @@ const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => {
   const isExternal = project.href?.startsWith('http') ?? false;
 
   return (
-    <motion.article
+    <MotionArticle
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       whileHover="hover"
@@ -176,14 +179,14 @@ const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => {
       ) : (
         <ProjectCardContent project={project} />
       )}
-    </motion.article>
+    </MotionArticle>
   );
 };
 
 export const SelectedWorks = (): ReactNode => (
   <section id="works" className="px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
-      <motion.header
+      <MotionHeader
         {...fadeInUp}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="mb-16"
@@ -194,7 +197,7 @@ export const SelectedWorks = (): ReactNode => (
         <h2 className="font-serif text-4xl font-semibold text-foreground md:text-5xl">
           Selected Works
         </h2>
-      </motion.header>
+      </MotionHeader>
 
       <div>
         {projects.map((project) => (

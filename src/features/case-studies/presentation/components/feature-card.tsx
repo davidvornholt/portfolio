@@ -1,6 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
+import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
 
 type FeatureCardProps = {
@@ -16,7 +14,7 @@ export const FeatureCard = ({
   description,
   delay = 0,
 }: FeatureCardProps): ReactNode => (
-  <motion.div
+  <MotionDiv
     variants={{
       initial: { opacity: 0, y: 20 },
       whileInView: { opacity: 1, y: 0 },
@@ -29,5 +27,5 @@ export const FeatureCard = ({
     </div>
     <h3 className="mb-2 font-semibold text-foreground">{title}</h3>
     <p className="text-sm text-muted-foreground">{description}</p>
-  </motion.div>
+  </MotionDiv>
 );

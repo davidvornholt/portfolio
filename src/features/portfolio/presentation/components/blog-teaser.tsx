@@ -1,7 +1,8 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { ArrowRight, Clock, PenLine } from 'lucide-react';
+import {
+  article as MotionArticle,
+  header as MotionHeader,
+} from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
@@ -72,7 +73,7 @@ const BlogPostCard = ({
   const isClickable = post.href && !post.comingSoon;
 
   return (
-    <motion.article
+    <MotionArticle
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
       className="group border-b border-border pb-8 last:border-b-0"
@@ -89,14 +90,14 @@ const BlogPostCard = ({
           <BlogPostCardContent post={post} />
         </div>
       )}
-    </motion.article>
+    </MotionArticle>
   );
 };
 
 export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
   <section id="blog" className="px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
-      <motion.header
+      <MotionHeader
         {...fadeInUp}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="mb-16 flex flex-col justify-between gap-4 md:flex-row md:items-end"
@@ -114,7 +115,7 @@ export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
           Thoughts on software engineering, functional programming, and building
           meaningful digital experiences.
         </p>
-      </motion.header>
+      </MotionHeader>
 
       <div className="space-y-8">
         {posts.map((post, index) => (

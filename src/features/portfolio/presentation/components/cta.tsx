@@ -26,31 +26,15 @@ const getEmailAddress = (): string =>
   `${EMAIL_PARTS.user}@${EMAIL_PARTS.domain}.${EMAIL_PARTS.tld}`;
 
 const EmailLink = (): ReactNode => {
-  const [emailAddress, setEmailAddress] = useState<string | null>(null);
-
-  useEffect((): void => {
-    setEmailAddress(getEmailAddress());
-  }, []);
-
-  const handleClick = useCallback(
-    (event: MouseEvent<HTMLAnchorElement>): void => {
-      event.preventDefault();
-
-      window.location.href = `mailto:${getEmailAddress()}`;
-    },
-    [],
-  );
-
-  const fallbackLabel = 'david [at] vornholt [dot] online';
+  const emailAddress = getEmailAddress();
 
   return (
     <a
-      href={emailAddress ? `mailto:${emailAddress}` : '#'}
-      onClick={handleClick}
+      href={`mailto:${emailAddress}`}
       className="group inline-flex items-center gap-3 rounded-md bg-primary-foreground px-8 py-4 text-base font-medium text-primary transition-all hover:bg-primary-foreground/90"
     >
       <Mail className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
-      {emailAddress ?? fallbackLabel}
+      {emailAddress}
     </a>
   );
 };

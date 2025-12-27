@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import {
+  Award,
   Braces,
   Cloud,
   Code2,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
+import { type Certification, CertificationItem } from './certification-item';
 
 type ExpertiseCategory = {
   readonly id: string;
@@ -94,6 +96,30 @@ const languages: readonly Language[] = [
   { name: 'English', level: 'Full Professional', proficiency: 'C2' },
   { name: 'French', level: 'Intermediate', proficiency: 'B1' },
   { name: 'Spanish', level: 'Intermediate', proficiency: 'B1' },
+] as const;
+
+const certifications: readonly Certification[] = [
+  {
+    issuer: 'Meta',
+    title: 'Front-End Professional Certificate',
+    description:
+      'Specialization in building scalable, accessible web applications and complex UI architectures.',
+    href: 'https://www.coursera.org/account/accomplishments/professional-cert/CLARJJOBU3KW',
+  },
+  {
+    issuer: 'IBM',
+    title: 'DevOps and Software Engineering Professional',
+    description:
+      'Certified in CI/CD pipelines, Docker, Kubernetes, and Cloud-native development.',
+    href: 'https://www.coursera.org/account/accomplishments/verify/ZUBODAYX2VM5',
+  },
+  {
+    issuer: 'UC Irvine',
+    title: 'Specialized Go Programming',
+    description:
+      'Expertise in concurrent systems programming and scalable back-end architecture.',
+    href: 'https://www.coursera.org/account/accomplishments/verify/M0MK09J5OSBX',
+  },
 ] as const;
 
 const fadeInUp = {
@@ -212,6 +238,37 @@ export const Expertise = (): ReactNode => (
             <LanguageItem
               key={language.name}
               language={language}
+              index={index}
+            />
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Verified Expertise */}
+      <motion.div
+        {...fadeInUp}
+        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
+        className="mt-8"
+      >
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
+            <Award className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-foreground">
+              Verified Expertise
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Professional certifications as proof of competence
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {certifications.map((certification, index) => (
+            <CertificationItem
+              key={certification.title}
+              certification={certification}
               index={index}
             />
           ))}

@@ -39,12 +39,12 @@ RUN apk add --no-cache curl
 # Create a non-root user
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/.velite ./.velite
-COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/package.json ./package.json
+COPY --chown=app:app --from=prod-deps /app/node_modules ./node_modules
+COPY --chown=app:app --from=builder /app/public ./public
+COPY --chown=app:app --from=builder /app/.next ./.next
+COPY --chown=app:app --from=builder /app/.velite ./.velite
+COPY --chown=app:app --from=builder /app/next.config.ts ./next.config.ts
+COPY --chown=app:app --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
 

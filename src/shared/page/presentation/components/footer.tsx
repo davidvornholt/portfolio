@@ -56,7 +56,10 @@ export const Footer = (): ReactNode => {
         <Separator className="my-8" />
 
         <div className="flex flex-col items-center justify-between gap-4 text-center text-sm text-muted-foreground md:flex-row">
-          <p>&copy; {currentYear} David Vornholt. All rights reserved.</p>
+          <p>
+            &copy; {currentYear} David Vornholt. All rights reserved. Built with
+            intention in Germany.
+          </p>
           <p className="font-mono text-xs">
             Built with Next.js, Tailwind CSS & TypeScript
           </p>

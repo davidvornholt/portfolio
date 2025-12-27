@@ -7,3 +7,5 @@ test_patterns = ["**/__tests__/**", "**/*.spec.ts", "**/*.spec.js", "**/*.test.t
 [[analyzers]]
   name = "javascript"
   enabled = true
+  [analyzers.meta]
+    skip_doc_coverage = ["function-declaration", "function-expression", "arrow-function-expression", "class-declaration", "class-expression", "method-definition"]

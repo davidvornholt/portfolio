@@ -25,18 +25,12 @@ const fadeInUp = {
   viewport: { once: true, margin: '-100px' },
 };
 
-const BlogPostCard = ({
+const BlogPostCardContent = ({
   post,
-  index,
 }: {
   readonly post: BlogPost;
-  readonly index: number;
 }): ReactNode => (
-  <motion.article
-    {...fadeInUp}
-    transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
-    className="group flex flex-col border-b border-border pb-8 last:border-b-0 md:flex-row md:items-start md:gap-8"
-  >
+  <>
     <div className="mb-4 flex shrink-0 items-center gap-4 md:mb-0 md:w-48">
       <Badge variant="outline" className="text-xs">
         {post.category}
@@ -55,21 +49,49 @@ const BlogPostCard = ({
         {post.excerpt}
       </p>
       {post.href && !post.comingSoon ? (
-        <Link
-          href={post.href}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
-        >
+        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
           Read Article
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </span>
       ) : (
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
           Coming Soon
         </span>
       )}
     </div>
-  </motion.article>
+  </>
 );
+
+const BlogPostCard = ({
+  post,
+  index,
+}: {
+  readonly post: BlogPost;
+  readonly index: number;
+}): ReactNode => {
+  const isClickable = post.href && !post.comingSoon;
+
+  return (
+    <motion.article
+      {...fadeInUp}
+      transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
+      className="group border-b border-border pb-8 last:border-b-0"
+    >
+      {isClickable ? (
+        <Link
+          href={post.href}
+          className="flex cursor-pointer flex-col md:flex-row md:items-start md:gap-8"
+        >
+          <BlogPostCardContent post={post} />
+        </Link>
+      ) : (
+        <div className="flex flex-col md:flex-row md:items-start md:gap-8">
+          <BlogPostCardContent post={post} />
+        </div>
+      )}
+    </motion.article>
+  );
+};
 
 export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
   <section id="blog" className="px-6 py-24 md:py-32">

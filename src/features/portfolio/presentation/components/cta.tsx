@@ -2,13 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
-import {
-  type MouseEvent,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import type { ReactNode } from 'react';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },

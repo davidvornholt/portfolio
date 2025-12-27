@@ -1,5 +1,5 @@
+import { posts } from '@velite';
 import { notFound } from 'next/navigation';
-import { posts } from '#velite';
 
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { MDXContent } from '@/shared/content/presentation/components/mdx-content';

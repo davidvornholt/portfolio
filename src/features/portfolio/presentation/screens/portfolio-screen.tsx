@@ -1,5 +1,5 @@
+import { posts } from '@velite';
 import type { ReactNode } from 'react';
-import { posts } from '#velite';
 import { BlogTeaser } from '../components/blog-teaser';
 import { CTA } from '../components/cta';
 import { Expertise } from '../components/expertise';

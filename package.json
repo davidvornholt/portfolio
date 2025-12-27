@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
+    "prebuild": "bun --bun scripts/velite-build.mjs",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "lint": "bun --bun biome check",

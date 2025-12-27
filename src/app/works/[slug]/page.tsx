@@ -1,5 +1,5 @@
+import { works } from '@velite';
 import { notFound } from 'next/navigation';
-import { works } from '#velite';
 
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { CaseStudyLayout } from '@/shared/content/presentation/components/case-study-layout';

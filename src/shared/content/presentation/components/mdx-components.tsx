@@ -57,6 +57,19 @@ const iconMap: Record<string, ReactNode> = {
 // Utility: Parse Section Header (# NN Title)
 // =============================================================================
 
+const extractTextContent = (children: ReactNode): string => {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (Array.isArray(children)) return children.map(extractTextContent).join('');
+  if (isValidElement(children)) {
+    const props = children.props as { children?: ReactNode };
+    if (props.children) {
+      return extractTextContent(props.children);
+    }
+  }
+  return '';
+};
+
 const parseSectionHeader = (
   children: ReactNode,
 ): { number: string; title: string } | null => {
@@ -69,19 +82,6 @@ const parseSectionHeader = (
     return { number: match[1], title: match[2] };
   }
   return null;
-};
-
-const extractTextContent = (children: ReactNode): string => {
-  if (typeof children === 'string') return children;
-  if (typeof children === 'number') return String(children);
-  if (Array.isArray(children)) return children.map(extractTextContent).join('');
-  if (isValidElement(children)) {
-    const props = children.props as { children?: ReactNode };
-    if (props.children) {
-      return extractTextContent(props.children);
-    }
-  }
-  return '';
 };
 
 // =============================================================================

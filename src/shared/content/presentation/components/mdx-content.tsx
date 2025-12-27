@@ -1,8 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
+// skipcq: JS-C1003
 import * as runtime from 'react/jsx-runtime';
-
 import { mdxComponents } from './mdx-components';
 
 type MDXContentProps = Readonly<{

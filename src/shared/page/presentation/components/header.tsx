@@ -1,6 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
+import { header as MotionHeader } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { SocialLinks } from './social-links';
@@ -27,7 +25,7 @@ const NavLink = ({ item }: { readonly item: NavItem }): ReactNode => (
 );
 
 export const Header = (): ReactNode => (
-  <motion.header
+  <MotionHeader
     initial={{ opacity: 0, y: -20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -49,5 +47,5 @@ export const Header = (): ReactNode => (
 
       <SocialLinks />
     </nav>
-  </motion.header>
+  </MotionHeader>
 );

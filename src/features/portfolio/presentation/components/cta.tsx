@@ -1,7 +1,5 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
+import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
 
 const fadeInUp = {
@@ -35,7 +33,7 @@ const EmailLink = (): ReactNode => {
 
 export const CTA = (): ReactNode => (
   <section id="contact" className="bg-primary px-6 py-24 md:py-32">
-    <motion.div
+    <MotionDiv
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto max-w-3xl text-center"
@@ -55,6 +53,6 @@ export const CTA = (): ReactNode => (
       </p>
 
       <EmailLink />
-    </motion.div>
+    </MotionDiv>
   </section>
 );

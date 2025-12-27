@@ -1,7 +1,5 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { TrendingDown, TrendingUp } from 'lucide-react';
+import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
 
 export type StatItem = {
@@ -17,7 +15,7 @@ type StatCardProps = {
 };
 
 export const StatCard = ({ stat }: StatCardProps): ReactNode => (
-  <motion.div
+  <MotionDiv
     variants={{
       initial: { opacity: 0, y: 20 },
       whileInView: { opacity: 1, y: 0 },
@@ -36,5 +34,5 @@ export const StatCard = ({ stat }: StatCardProps): ReactNode => (
     <p className="font-mono text-3xl font-bold text-foreground">{stat.value}</p>
     <p className="mt-1 text-sm font-medium text-foreground">{stat.label}</p>
     <p className="text-xs text-muted-foreground">{stat.subtext}</p>
-  </motion.div>
+  </MotionDiv>
 );

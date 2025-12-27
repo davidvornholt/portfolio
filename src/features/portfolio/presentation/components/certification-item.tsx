@@ -1,7 +1,5 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import { a as MotionA } from 'motion/react-client';
 import type { ReactNode } from 'react';
 
 type Certification = {
@@ -26,7 +24,7 @@ export const CertificationItem = ({
   certification,
   index,
 }: CertificationItemProps): ReactNode => (
-  <motion.a
+  <MotionA
     {...fadeInUp}
     transition={{ duration: 0.6, ease: 'easeOut', delay: 0.5 + index * 0.1 }}
     href={certification.href}
@@ -48,7 +46,7 @@ export const CertificationItem = ({
     <p className="text-sm leading-relaxed text-muted-foreground">
       {certification.description}
     </p>
-  </motion.a>
+  </MotionA>
 );
 
 export type { Certification };

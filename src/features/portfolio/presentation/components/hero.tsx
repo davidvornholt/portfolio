@@ -1,7 +1,9 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
+import {
+  div as MotionDiv,
+  h1 as MotionH1,
+  p as MotionP,
+} from 'motion/react-client';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -27,39 +29,39 @@ const staggerContainer = {
 
 export const Hero = (): ReactNode => (
   <section className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6 md:px-8 lg:py-16">
-    <motion.div
+    <MotionDiv
       variants={staggerContainer}
       initial="initial"
       animate="animate"
       className="mx-auto flex w-full max-w-6xl flex-col-reverse items-center gap-8 sm:gap-10 md:gap-12 lg:flex-row lg:items-center lg:gap-16 xl:gap-20"
     >
       <div className="flex-1 text-center lg:text-left">
-        <motion.p
+        <MotionP
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="mb-3 text-sm font-medium uppercase tracking-widest text-primary sm:mb-4"
         >
           Full Stack Developer & Digital Experience Architect
-        </motion.p>
+        </MotionP>
 
-        <motion.h1
+        <MotionH1
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="mb-4 font-serif text-5xl font-semibold leading-tight tracking-tight text-foreground sm:mb-5 md:mb-6 md:text-6xl lg:text-7xl"
         >
           David Vornholt
-        </motion.h1>
+        </MotionH1>
 
-        <motion.p
+        <MotionP
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="mx-auto mb-6 max-w-xl font-serif text-xl italic text-muted-foreground sm:mb-7 md:mb-8 md:text-2xl lg:mx-0 lg:max-w-2xl"
         >
           &ldquo;Speaking the languages of humans and machines with equal
           precision.&rdquo;
-        </motion.p>
+        </MotionP>
 
-        <motion.p
+        <MotionP
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-foreground/80 sm:mb-10 md:mb-12 md:text-lg lg:mx-0 lg:max-w-2xl"
@@ -68,9 +70,9 @@ export const Hero = (): ReactNode => (
           programming, I bridge the divide between complex technical systems and
           the people they serve. I build software with the soul of a social
           architect and the mind of a functional engineer.
-        </motion.p>
+        </MotionP>
 
-        <motion.div
+        <MotionDiv
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 lg:justify-start"
@@ -87,10 +89,10 @@ export const Hero = (): ReactNode => (
           >
             Get in Touch
           </Link>
-        </motion.div>
+        </MotionDiv>
       </div>
 
-      <motion.div
+      <MotionDiv
         variants={fadeInScale}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         className="relative shrink-0"
@@ -105,10 +107,10 @@ export const Hero = (): ReactNode => (
           />
         </div>
         <div className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl border border-primary/20 sm:-bottom-4 sm:-left-4" />
-      </motion.div>
-    </motion.div>
+      </MotionDiv>
+    </MotionDiv>
 
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.2, duration: 0.8 }}
@@ -119,13 +121,13 @@ export const Hero = (): ReactNode => (
         aria-label="Scroll to works"
         className="text-muted-foreground transition-colors hover:text-foreground"
       >
-        <motion.div
+        <MotionDiv
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         >
           <ArrowDown className="h-5 w-5" />
-        </motion.div>
+        </MotionDiv>
       </Link>
-    </motion.div>
+    </MotionDiv>
   </section>
 );

@@ -1,6 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
+import { footer as MotionFooter } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Separator } from '@/shared/ui/presentation/components/separator';
@@ -17,7 +15,7 @@ export const Footer = (): ReactNode => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <motion.footer
+    <MotionFooter
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
@@ -65,6 +63,6 @@ export const Footer = (): ReactNode => {
           </p>
         </div>
       </div>
-    </motion.footer>
+    </MotionFooter>
   );
 };

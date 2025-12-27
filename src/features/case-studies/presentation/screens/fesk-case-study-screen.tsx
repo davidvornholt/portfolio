@@ -1,6 +1,3 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -12,6 +9,10 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import {
+  div as MotionDiv,
+  section as MotionSection,
+} from 'motion/react-client';
 import type { ReactNode } from 'react';
 
 import { Separator } from '@/shared/ui/presentation/components/separator';
@@ -104,7 +105,7 @@ export const FeskCaseStudyPage = (): ReactNode => (
     <Separator className="mx-auto mb-16 max-w-4xl" />
 
     {/* The Challenge Section */}
-    <motion.section
+    <MotionSection
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto mb-20 max-w-4xl px-6"
@@ -142,10 +143,10 @@ export const FeskCaseStudyPage = (): ReactNode => (
           </p>
         </div>
       </div>
-    </motion.section>
+    </MotionSection>
 
     {/* Impact Section */}
-    <motion.section
+    <MotionSection
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto mb-20 max-w-4xl px-6"
@@ -156,7 +157,7 @@ export const FeskCaseStudyPage = (): ReactNode => (
         Optimizing for both machines and humans.
       </p>
 
-      <motion.div
+      <MotionDiv
         variants={staggerContainer}
         initial="initial"
         whileInView="whileInView"
@@ -166,11 +167,11 @@ export const FeskCaseStudyPage = (): ReactNode => (
         {stats.map((stat) => (
           <StatCard key={stat.label} stat={stat} />
         ))}
-      </motion.div>
-    </motion.section>
+      </MotionDiv>
+    </MotionSection>
 
     {/* Architecture Section */}
-    <motion.section
+    <MotionSection
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto mb-20 max-w-4xl px-6"
@@ -257,10 +258,10 @@ export const FeskCaseStudyPage = (): ReactNode => (
           </div>
         </div>
       </div>
-    </motion.section>
+    </MotionSection>
 
     {/* UX & Accessibility Section */}
-    <motion.section
+    <MotionSection
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto mb-20 max-w-4xl px-6"
@@ -296,10 +297,10 @@ export const FeskCaseStudyPage = (): ReactNode => (
           delay={0.2}
         />
       </div>
-    </motion.section>
+    </MotionSection>
 
     {/* Verdict Section */}
-    <motion.section
+    <MotionSection
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto mb-20 max-w-4xl px-6"
@@ -329,10 +330,10 @@ export const FeskCaseStudyPage = (): ReactNode => (
           — Feedback from the Administration
         </footer>
       </blockquote>
-    </motion.section>
+    </MotionSection>
 
     {/* CTA Section */}
-    <motion.section
+    <MotionSection
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="mx-auto max-w-4xl px-6"
@@ -358,6 +359,6 @@ export const FeskCaseStudyPage = (): ReactNode => (
           <ArrowUpRight className="h-4 w-4" />
         </a>
       </div>
-    </motion.section>
+    </MotionSection>
   </article>
 );

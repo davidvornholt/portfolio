@@ -1,7 +1,5 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+import { div as MotionDiv } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -14,7 +12,7 @@ export const BackNavigation = ({
   href,
   label,
 }: BackNavigationProps): ReactNode => (
-  <motion.div
+  <MotionDiv
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -27,5 +25,5 @@ export const BackNavigation = ({
       <ArrowLeft className="h-4 w-4" />
       {label}
     </Link>
-  </motion.div>
+  </MotionDiv>
 );

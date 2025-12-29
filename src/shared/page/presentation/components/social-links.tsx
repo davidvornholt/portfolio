@@ -17,7 +17,7 @@ const socialLinks: readonly SocialLink[] = [
   },
   {
     label: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/david-vornholt-055239366/',
+    href: 'https://www.linkedin.com/in/david-vornholt-055239366',
     icon: (
       <LinkedInLogo className="size-5 opacity-60 transition-opacity duration-200 hover:opacity-100" />
     ),

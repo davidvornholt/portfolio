@@ -14,6 +14,7 @@ import {
   div as MotionDiv,
   section as MotionSection,
 } from 'motion/react-client';
+import Image from 'next/image';
 import { Children, isValidElement, type ReactNode } from 'react';
 
 import { Badge } from '@/shared/ui/presentation/components/badge';
@@ -95,14 +96,17 @@ const H1 = ({ children }: { readonly children: ReactNode }): ReactNode => {
 
   if (parsed) {
     return (
-      <div className="mb-8 flex items-baseline gap-4">
-        <span className="font-mono text-sm font-medium text-primary">
+      <header className="mb-8 flex items-baseline gap-4">
+        <span
+          className="font-mono text-sm font-medium text-primary"
+          aria-hidden="true"
+        >
           {parsed.number}
         </span>
         <h2 className="font-serif text-3xl font-semibold text-foreground md:text-4xl">
           {parsed.title}
         </h2>
-      </div>
+      </header>
     );
   }
 
@@ -245,13 +249,19 @@ const HorizontalRule = (): ReactNode => <Separator className="my-8" />;
 type SectionProps = Readonly<{
   children: ReactNode;
   className?: string;
+  ariaLabel?: string;
 }>;
 
-const Section = ({ children, className = '' }: SectionProps): ReactNode => (
+const Section = ({
+  children,
+  className = '',
+  ariaLabel,
+}: SectionProps): ReactNode => (
   <MotionSection
     {...fadeInUp}
     transition={{ duration: 0.6, ease: 'easeOut' }}
     className={`mx-auto mb-20 max-w-4xl px-6 ${className}`}
+    aria-label={ariaLabel}
   >
     {children}
   </MotionSection>
@@ -449,6 +459,63 @@ const CTA = ({ title, description, href, linkText }: CTAProps): ReactNode => (
 );
 
 // =============================================================================
+// Accessible Image Component (requires alt prop)
+// =============================================================================
+
+/**
+ * Responsive MDX Image Component
+ *
+ * Uses Next.js Image with `fill` mode inside an aspect-ratio container.
+ * This prevents CLS by reserving space before the image loads.
+ *
+ * @example
+ * // Default 16:9 aspect ratio
+ * <Image src="/photo.jpg" alt="Description" />
+ *
+ * // Custom aspect ratio (4:3)
+ * <Image src="/photo.jpg" alt="Description" aspectRatio="4/3" />
+ *
+ * // Square (1:1)
+ * <Image src="/photo.jpg" alt="Description" aspectRatio="1/1" />
+ */
+type MDXImageProps = Readonly<{
+  src: string;
+  alt: string;
+  aspectRatio?: string;
+  className?: string;
+  priority?: boolean;
+}>;
+
+const MDXImage = ({
+  src,
+  alt,
+  aspectRatio = '16/9',
+  className = '',
+  priority = false,
+}: MDXImageProps): ReactNode => (
+  <figure className="my-8">
+    <div
+      className="relative w-full overflow-hidden rounded-lg"
+      style={{ aspectRatio }}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
+        className={`object-cover ${className}`}
+        priority={priority}
+      />
+    </div>
+    {alt && (
+      <figcaption className="mt-2 text-center text-sm text-muted-foreground">
+        {alt}
+      </figcaption>
+    )}
+  </figure>
+);
+
+// =============================================================================
 // MDX Component Map Export
 // =============================================================================
 
@@ -466,6 +533,7 @@ export const mdxComponents = {
   li: ListItem,
   a: Anchor,
   hr: HorizontalRule,
+  img: MDXImage,
 
   // Explicit JSX components (for complex structured content)
   Section,
@@ -480,6 +548,7 @@ export const mdxComponents = {
   CTA,
   Separator,
   Badge,
+  Image: MDXImage,
 };
 
 export type MDXComponents = typeof mdxComponents;

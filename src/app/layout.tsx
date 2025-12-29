@@ -7,6 +7,7 @@ import {
 } from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
+import { siteUrl } from '@/config/site';
 import { Footer } from '@/shared/page/presentation/components/footer';
 import { cn } from '@/shared/ui/services/utils';
 import { Header } from '../shared/page/presentation/components/header';
@@ -30,40 +31,100 @@ const sourceSerif4 = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: 'David Vornholt | Full Stack Developer & Digital Experience Architect',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'David Vornholt | Full Stack Developer',
+    template: '%s | David Vornholt',
+  },
   description:
     'Fluent in four languages and the strict logic of functional programming, I bridge the divide between complex technical systems and the people they serve.',
   keywords: [
-    'Full Stack Developer',
     'Digital Experience Architect',
+    'Software Engineering',
+    'Full Stack Developer',
     'TypeScript',
     'Next.js',
     'Clean Code',
     'Functional Programming',
+    'React',
+    'Web Development',
   ],
-  authors: [{ name: 'David Vornholt' }],
+  authors: [{ name: 'David Vornholt', url: siteUrl }],
+  creator: 'David Vornholt',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    siteName: 'David Vornholt',
     title: 'David Vornholt | Full Stack Developer',
     description:
       'Speaking the languages of humans and machines with equal precision.',
-    type: 'website',
-    locale: 'en_US',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 1200,
+        alt: 'David Vornholt - Full Stack Developer',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'David Vornholt | Full Stack Developer',
     description:
       'Speaking the languages of humans and machines with equal precision.',
+    creator: '@davidvornholt',
+    images: ['/og-image.png'],
   },
 };
 
-export default function RootLayout({
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'David Vornholt',
+  jobTitle: 'Digital Experience Architect',
+  url: siteUrl,
+  image: `${siteUrl}/og-image.png`,
+  sameAs: [
+    'https://www.linkedin.com/in/david-vornholt-055239366',
+    'https://github.com/davidvornholt',
+    'https://x.com/davidvornholt',
+  ],
+  knowsAbout: [
+    'Next.js',
+    'TypeScript',
+    'Clean Code',
+    'Functional Programming',
+    'React',
+    'Software Architecture',
+    'Web Development',
+  ],
+} as const;
+
+const RootLayout = ({
   children,
 }: Readonly<{
   children: ReactNode;
-}>) {
+}>): ReactNode => {
   return (
     <html lang="en" className={cn('scroll-smooth', inter.variable)}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+      </head>
       <body
         className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
       >
@@ -73,4 +134,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

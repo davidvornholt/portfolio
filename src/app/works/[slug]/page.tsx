@@ -17,7 +17,7 @@ type Work = (typeof works)[number];
 const getWorkBySlug = (slug: string): Work | undefined =>
   works.find((work) => work.slug === slug);
 
-export const generateStaticParams = (): ReadonlyArray<{ slug: string }> =>
+export const generateStaticParams = (): { slug: string }[] =>
   works.map((work) => ({ slug: work.slug }));
 
 export const generateMetadata = async ({

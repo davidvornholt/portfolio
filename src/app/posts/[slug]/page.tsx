@@ -16,7 +16,7 @@ type Post = (typeof posts)[number];
 const getPostBySlug = (slug: string): Post | undefined =>
   posts.find((post) => post.slug === slug);
 
-export const generateStaticParams = (): ReadonlyArray<{ slug: string }> =>
+export const generateStaticParams = (): { slug: string }[] =>
   posts.map((post) => ({ slug: post.slug }));
 
 export const generateMetadata = async ({

@@ -85,6 +85,7 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
     <>
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackNavigation href="/#works" label="Back to Works" />

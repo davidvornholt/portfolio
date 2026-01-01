@@ -85,6 +85,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
     <>
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackNavigation href="/#blog" label="Back to Blog" />

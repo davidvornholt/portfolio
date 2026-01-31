@@ -1,6 +1,7 @@
 import {
   ArrowUpRight,
   CheckCircle2,
+  Code2,
   Gauge,
   LineChart,
   Search,
@@ -19,6 +20,7 @@ import { Children, isValidElement, type ReactNode } from 'react';
 
 import { Badge } from '@/shared/ui/presentation/components/badge';
 import { Separator } from '@/shared/ui/presentation/components/separator';
+import { SyntaxHighlighter } from './syntax-highlighter';
 
 // =============================================================================
 // Animation Presets
@@ -50,9 +52,11 @@ const iconMap: Record<string, ReactNode> = {
   lineChart: <LineChart className="h-5 w-5" />,
   search: <Search className="h-5 w-5" />,
   trendingUp: <TrendingUp className="h-5 w-5" />,
+  trendingDown: <TrendingDown className="h-5 w-5" />,
   server: <Server className="h-5 w-5" />,
   users: <Users className="h-5 w-5" />,
   checkCircle: <CheckCircle2 className="h-5 w-5" />,
+  code: <Code2 className="h-5 w-5" />,
 };
 
 // =============================================================================
@@ -459,6 +463,119 @@ const CTA = ({ title, description, href, linkText }: CTAProps): ReactNode => (
 );
 
 // =============================================================================
+// Chart Component (for data visualization)
+// =============================================================================
+
+type ChartData = Readonly<{
+  labels: readonly string[];
+  values: readonly number[];
+}>;
+
+type ChartProps = Readonly<{
+  type: 'bar';
+  title: string;
+  data: ChartData;
+  unit?: string;
+}>;
+
+const Chart = ({ title, data, unit = '' }: ChartProps): ReactNode => {
+  const maxValue = Math.max(...data.values);
+
+  return (
+    <MotionDiv
+      {...fadeInUp}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="my-8 rounded-lg border border-border bg-card p-6"
+    >
+      <h4 className="mb-6 text-sm font-medium text-foreground">{title}</h4>
+      <div className="space-y-4">
+        {data.labels.map((label, index) => {
+          const value = data.values[index];
+          const percentage = (value / maxValue) * 100;
+
+          return (
+            <div key={label} className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="font-mono font-medium text-foreground">
+                  {value}
+                  {unit}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <MotionDiv
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${percentage}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                  className="h-full rounded-full bg-primary"
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </MotionDiv>
+  );
+};
+
+// =============================================================================
+// CodeSnippet Component (for syntax-highlighted code blocks)
+// =============================================================================
+
+type CodeSnippetProps = Readonly<{
+  language?: string;
+  title?: string;
+  code?: string;
+  children?: ReactNode;
+}>;
+
+const CodeSnippet = ({
+  language = 'typescript',
+  title,
+  code: codeProp,
+  children,
+}: CodeSnippetProps): ReactNode => {
+  // Extract raw code string from children if code prop not provided
+  const extractCode = (node: ReactNode): string => {
+    if (typeof node === 'string') return node;
+    if (typeof node === 'number') return String(node);
+    if (Array.isArray(node)) return node.map(extractCode).join('');
+    if (isValidElement(node)) {
+      const props = node.props as { children?: ReactNode };
+      if (props.children) return extractCode(props.children);
+    }
+    return '';
+  };
+
+  // Prefer code prop over children for better whitespace preservation
+  const code = (codeProp ?? extractCode(children)).trim();
+
+  return (
+    <MotionDiv
+      {...fadeInUp}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="my-8 overflow-hidden rounded-lg border border-border"
+    >
+      {title && (
+        <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-3">
+          <Code2 className="h-4 w-4 text-muted-foreground" />
+          <span className="font-mono text-xs text-muted-foreground">
+            {title}
+          </span>
+          <Badge variant="outline" className="ml-auto text-xs">
+            {language}
+          </Badge>
+        </div>
+      )}
+      <div className="bg-card">
+        <SyntaxHighlighter code={code} language={language} />
+      </div>
+    </MotionDiv>
+  );
+};
+
+// =============================================================================
 // Accessible Image Component (requires alt prop)
 // =============================================================================
 
@@ -546,6 +663,8 @@ export const mdxComponents = {
   CheckList,
   CheckItem,
   CTA,
+  Chart,
+  CodeSnippet,
   Separator,
   Badge,
   Image: MDXImage,

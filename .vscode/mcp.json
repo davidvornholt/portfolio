@@ -1,8 +1,0 @@
-{
-  "servers": {
-    "shadcn": {
-      "command": "~/.bun/bin/bunx",
-      "args": ["shadcn@latest", "mcp"]
-    }
-  }
-}

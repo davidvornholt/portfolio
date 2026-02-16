@@ -85,7 +85,7 @@ export const Hero = (): ReactNode => (
           </Link>
           <Link
             href="#contact"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground transition-colors hover:bg-accent sm:h-12 sm:px-8"
+            className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground transition-colors hover:bg-secondary sm:h-12 sm:px-8"
           >
             Get in Touch
           </Link>

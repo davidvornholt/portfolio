@@ -20,6 +20,7 @@ import { Children, isValidElement, type ReactNode } from 'react';
 
 import { Badge } from '@/shared/ui/presentation/components/badge';
 import { Separator } from '@/shared/ui/presentation/components/separator';
+import { ColorSwatchComparison } from './color-swatch-comparison';
 import { SyntaxHighlighter } from './syntax-highlighter';
 
 // =============================================================================
@@ -665,6 +666,7 @@ export const mdxComponents = {
   CTA,
   Chart,
   CodeSnippet,
+  ColorSwatchComparison,
   Separator,
   Badge,
   Image: MDXImage,

@@ -13,7 +13,6 @@ type BlogPost = {
   readonly category: string;
   readonly readTime: string;
   readonly href?: string;
-  readonly comingSoon?: boolean;
 };
 
 type BlogTeaserProps = {
@@ -49,16 +48,12 @@ const BlogPostCardContent = ({
       <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
         {post.excerpt}
       </p>
-      {post.href && !post.comingSoon ? (
+      {post.href ? (
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
           Read Article
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </span>
-      ) : (
-        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-          Coming Soon
-        </span>
-      )}
+      ) : null}
     </div>
   </>
 );
@@ -70,15 +65,13 @@ const BlogPostCard = ({
   readonly post: BlogPost;
   readonly index: number;
 }): ReactNode => {
-  const isClickable = post.href && !post.comingSoon;
-
   return (
     <MotionArticle
       {...fadeInUp}
       transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
       className="group border-b border-border pb-8 last:border-b-0"
     >
-      {isClickable ? (
+      {post.href ? (
         <Link
           href={post.href}
           className="flex cursor-pointer flex-col md:flex-row md:items-start md:gap-8"

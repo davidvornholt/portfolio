@@ -97,6 +97,11 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
           <h1 className="mb-4 font-serif text-4xl font-semibold text-foreground md:text-5xl">
             {post.title}
           </h1>
+          {post.subtitle && (
+            <p className="mb-4 text-lg text-muted-foreground">
+              {post.subtitle}
+            </p>
+          )}
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <time dateTime={post.date}>
               {new Date(post.date).toLocaleDateString('en-US', {

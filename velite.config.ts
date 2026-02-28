@@ -23,6 +23,7 @@ const posts = defineCollection({
   pattern: 'posts/**/*.mdx',
   schema: s.object({
     title: s.string().max(99),
+    subtitle: s.string().max(200).optional(),
     slug: s.slug('posts'),
     date: s.isodate(),
     category: s.string(),

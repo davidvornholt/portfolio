@@ -283,7 +283,7 @@ type CalloutProps = Readonly<{
 }>;
 
 const Callout = ({ title, children }: CalloutProps): ReactNode => (
-  <div className="mt-8 rounded-lg border-l-4 border-primary bg-primary/5 p-6">
+  <div className="my-8 rounded-lg border-l-4 border-primary bg-primary/5 p-6">
     {title && <p className="font-medium text-foreground">{title}</p>}
     <div className="mt-2 text-foreground/80">{children}</div>
   </div>
@@ -398,7 +398,7 @@ type FeatureGridProps = Readonly<{
 }>;
 
 const FeatureGrid = ({ children }: FeatureGridProps): ReactNode => (
-  <div className="mt-8 grid gap-6 md:grid-cols-3">{children}</div>
+  <div className="my-8 grid gap-6 md:grid-cols-3">{children}</div>
 );
 
 // CheckItem
@@ -454,7 +454,7 @@ const CTA = ({ title, description, href, linkText }: CTAProps): ReactNode => (
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
       >
         {linkText}
         <ArrowUpRight className="h-4 w-4" />
@@ -524,6 +524,36 @@ const Chart = ({ title, data, unit = '' }: ChartProps): ReactNode => {
 // CodeSnippet Component (for syntax-highlighted code blocks)
 // =============================================================================
 
+/**
+ * MDX JSX template literals often strip leading whitespace from lines.
+ * This heuristic restores 2-space indentation for lines nested inside braces.
+ */
+const reindentCode = (source: string): string => {
+  const lines = source.split('\n');
+  const result: string[] = [];
+  let depth = 0;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Decrease depth for closing braces before writing the line
+    if (trimmed.startsWith('}') || trimmed.startsWith(')')) {
+      depth = Math.max(0, depth - 1);
+    }
+
+    // Only re-indent if the line has no leading whitespace already
+    const needsIndent = line === trimmed && depth > 0;
+    result.push(needsIndent ? `${'  '.repeat(depth)}${trimmed}` : line);
+
+    // Increase depth for opening braces after writing the line
+    if (trimmed.endsWith('{') || trimmed.endsWith('(')) {
+      depth += 1;
+    }
+  }
+
+  return result.join('\n');
+};
+
 type CodeSnippetProps = Readonly<{
   language?: string;
   title?: string;
@@ -550,7 +580,10 @@ const CodeSnippet = ({
   };
 
   // Prefer code prop over children for better whitespace preservation
-  const code = (codeProp ?? extractCode(children)).trim();
+  // MDX compiles JSX template literals and may strip leading whitespace.
+  // Re-indent lines that belong inside a block (between { } delimiters).
+  const raw = (codeProp ?? extractCode(children)).trim();
+  const code = reindentCode(raw);
 
   return (
     <MotionDiv

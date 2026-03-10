@@ -1,11 +1,11 @@
+import { Badge } from '@/shared/ui/presentation/components/badge';
 import { Calendar, ExternalLink, Film, Globe } from 'lucide-react';
 import {
-  article as MotionArticle,
-  div as MotionDiv,
-  span as MotionSpan,
+    article as MotionArticle,
+    div as MotionDiv,
+    span as MotionSpan,
 } from 'motion/react-client';
 import type { ReactNode } from 'react';
-import { Badge } from '@/shared/ui/presentation/components/badge';
 
 type VideoProject = Readonly<{
   id: string;
@@ -13,47 +13,63 @@ type VideoProject = Readonly<{
   title: string;
   date: string;
   language: string;
+  type: string;
   description: string;
   href: string;
 }>;
 
 const videoProjects: readonly VideoProject[] = [
   {
-    id: 'une-journee-normale',
+    id: 'pas-besoin-de-souffrir',
     number: '01',
+    title: 'Pas besoin de souffrir',
+    date: 'February 2026',
+    language: 'French',
+    type: 'Ad',
+    description:
+      'A Duolingo ad proving there is a much simpler, fun, and dust-free way to learn a new language — 5 minutes a day is all it takes, wherever you are.',
+    href: 'https://youtu.be/jMUOCHRh5MY?si=5kwsj5Jruru9_U-q',
+  },
+  {
+    id: 'une-journee-normale',
+    number: '02',
     title: 'Une Journée Normale',
     date: 'March 2025',
     language: 'French',
+    type: 'Short Film',
     description:
       'A short film exploring narrative daily life through the lens of mundane moments transformed into visual poetry.',
     href: 'https://youtu.be/RtGm4i7SXvs',
   },
   {
     id: 'comment-ne-pas-faire-ses-devoirs',
-    number: '02',
+    number: '03',
     title: 'Comment ne pas faire ses devoirs',
     date: 'June 2024',
     language: 'French',
+    type: 'Short Film',
     description:
       'A creative and humorous take on productivity and student life, exploring the art of procrastination.',
     href: 'https://youtu.be/E9z5RkngZE8',
   },
   {
     id: 'das-blut',
-    number: '03',
+    number: '04',
     title: 'Das Blut — Blutaufbau, Bluttransfusionen & mehr',
     date: 'April 2024',
     language: 'German',
+    type: 'Educational',
     description:
       'An educational deep dive into biology and system structures, making complex medical concepts accessible.',
     href: 'https://youtu.be/LbB7rjdWX7U',
   },
   {
     id: 'nous-sommes-louis-et-david',
-    number: '04',
+    number: '05',
     title: 'Nous Sommes Louis et David',
     date: 'September 2023',
     language: 'French',
+    type: 'Short Film',
     description:
       'An early collaborative storytelling project exploring friendship, identity, and cross-cultural connection.',
     href: 'https://youtu.be/2TE7iCxApk0',
@@ -127,18 +143,18 @@ const VideoCard = ({
                 transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="shrink-0 text-muted-foreground transition-colors duration-300 group-hover:text-primary"
               >
-                <ExternalLink className="h-5 w-5" />
+                <ExternalLink className="size-5" />
               </MotionSpan>
             </div>
           </header>
 
           <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
+              <Calendar className="size-4" />
               {project.date}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Globe className="h-4 w-4" />
+              <Globe className="size-4" />
               <Badge
                 variant="secondary"
                 className="font-mono text-xs transition-colors duration-300 group-hover:bg-primary/10"
@@ -147,12 +163,12 @@ const VideoCard = ({
               </Badge>
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Film className="h-4 w-4" />
+              <Film className="size-4" />
               <Badge
                 variant="outline"
                 className="font-mono text-xs transition-colors duration-300 group-hover:border-primary/30"
               >
-                Video
+                {project.type}
               </Badge>
             </span>
           </div>

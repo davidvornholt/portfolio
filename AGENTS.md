@@ -26,10 +26,10 @@ To produce high-quality output, you MUST adhere to the **"Research First, Code S
 - **Identify Conflicts:** Check if the request conflicts with existing architectural constraints (e.g., "Add a `try/catch` block" conflicts with "Use Effect Error Handling").
 - **Ask Before Acting:** If the request is ambiguous, ask clarifying questions instead of making an executive decision.
 
-### 3. The "Zero Assumption" Rule
+If you find yourself making an arbitrary decision (e.g., "I'll just default the timeout to 500ms" or "I'll assume the user ID is an integer"), **STOP**.
 
-- **Never Assume State:** Do not assume a database record exists, a file path is correct, or an environment variable is set.
-- **Verify Logic:** If you are unsure how a specific library function behaves, write a small investigation script or test to verify it first.
+- Ask the user for the specific constraint.
+- **NEVER** assume business logic constants.
 
 ## Skill Utilization
 
@@ -46,6 +46,11 @@ This project uses a specialized knowledge base located in `.agents/skills/`.
   - **Action:** You **MUST** apply the principles from the **[Frontend Design Skill][frontend-design]**. Do not output generic UI; enforce visual hierarchy, consistent spacing, and accessibility compliance.
   - **Styling Rule:** You **MUST** use Tailwind CSS for all styling. Do not introduce or use plain CSS, CSS Modules, styled-components, or inline style objects unless explicitly requested.
   - **Icon Rule:** You **MUST** use `lucide-react` for icons. Do not manually create SVG icons unless explicitly requested.
+  - **Toast Rule:** You **MUST** use `sonner` for toast notifications. Do not use `react-hot-toast`, `react-toastify`, or any other toast library.
+  - **Square Sizing Rule:** When an element has equal width and height, use the `size-*` utility (e.g., `size-8`) instead of separate `w-* h-*` pairs (e.g., `w-8 h-8`).
+- **shadcn/ui Components**
+  - **Trigger:** When adding any UI primitive or generic interactive component (buttons, dialogs, dropdowns, selects, inputs, tables, tabs, cards, badges, alerts, tooltips, popovers, sheets, accordions, etc.).
+  - **Action:** You **MUST** consult the **[shadcn/ui Skill][shadcn-ui]** first. Check whether a shadcn/ui component already exists for the need before hand-coding one. If one exists, install it with `bunx --bun shadcn@latest add @shadcn/<component>` and adapt it to comply with this file's rules. Always prefer shadcn/ui over manually creating generic UI components.
 
 ## Critical Constraints (MUST FOLLOW)
 
@@ -55,6 +60,7 @@ This project uses a specialized knowledge base located in `.agents/skills/`.
 - **NEVER use:** `npm`, `yarn`, `pnpm`, `node`, `ts-node`.
 - **Forbidden Package:** NEVER use or add `@effect/schema`. It has been merged into the main `effect` package and is deprecated.
 - **Scripts:** Use `bunx` instead of `npx`.
+- **Database Tooling:** For database-related work, use Drizzle unless the user explicitly requests a different tool.
 - **Environment:** Bun loads `.env` automatically. Do not use `dotenv`.
 - **Dependency Management (STRICT):**
   - **ALWAYS** use `bun add <package>` to install new dependencies.
@@ -63,17 +69,22 @@ This project uses a specialized knowledge base located in `.agents/skills/`.
 ### Build & Monorepo
 
 - **Turborepo:** Use topological dependencies (`"dependsOn": ["^build"]`).
-- **Workspace Imports:** ALWAYS use package aliases (e.g., `import { Button } from "@repo/ui"`).
+- **Workspace Imports:** ALWAYS use package aliases (e.g., `import { Button } from "@my-repository/ui"`).
 - **Forbidden:** **NEVER** use relative paths to import from other packages (e.g., `../../packages/ui`).
 - **Script Definitions (Workspace Packages):** Script values MUST be:
   - `check-types`: `tsc --noEmit`
   - `lint`: `biome check --error-on-warnings`
   - `lint:fix`: `biome check --write --error-on-warnings`
   - `test`: `bun test` (**do NOT** use `--pass-with-no-tests`)
+- **Operational Workspace Scripts:** Feature-specific operational scripts belong in the owning workspace package (for example `db:generate` and `db:migrate` in `apps/bible-db`), and the root `package.json` should invoke them through `turbo run <task> --filter=<workspace>`.
+- **Turborepo Ownership Pattern (Recommended):**
+  - The workspace that owns the concern defines the concrete script and any tool-specific dependencies.
+  - The root `package.json` exposes convenience wrappers that delegate through Turbo with an explicit `--filter`.
+  - Add matching task definitions in `turbo.json` when caching, outputs, or side effects need to be declared.
 - **Unified Checks:** Define `check` and `check:fix` in the root `package.json` only:
   - `check`: `turbo run lint check-types test`
   - `check:fix`: `turbo run lint:fix check-types test`
-  - Package-level workspaces should expose `lint`, `lint:fix`, `check-types`, and `test` only.
+  - Package-level workspaces must expose `lint`, `lint:fix`, `check-types`, and `test`, and may also expose workspace-owned operational scripts such as `db:*` when they follow the ownership pattern above.
 
 ### Bun Native APIs
 
@@ -85,11 +96,12 @@ This project uses a specialized knowledge base located in `.agents/skills/`.
 
 ### 1. Structure & Naming
 
-- **Scope:** ALL packages MUST be named `@project-name/<package-name>`.
+- **Alias Placeholder Convention:** Use `@my-repository/*` as the documentation example for workspace aliases, and ALWAYS customize that alias to the real project name in the actual repository.
+- **Scope:** ALL packages MUST be named `<actual-project-alias>/<package-name>` using the repository's real customized alias (for example `@my-repository/<package-name>` in documentation examples).
 - **Versioning:** ALL internal packages MUST be set to version `"0.0.0"`. Do not attempt to version internal packages independently.
 - **Internal Dependencies:** When adding a dependency on another workspace package, you MUST use the `workspace:*` protocol to ensure the local version is always used.
-  - *Correct:* `"@project-name/ui": "workspace:*"`
-  - *Incorrect:* `"@project-name/ui": "^1.0.0"`
+  - *Correct:* `"@my-repository/ui": "workspace:*"` (replace `@my-repository` with the actual project alias in the real repo)
+  - *Incorrect:* `"@my-repository/ui": "^1.0.0"`
 
 ### 2. Configuration Inheritance
 
@@ -119,7 +131,11 @@ You are NOT done until you have successfully executed the following sequence wit
     - **New Logic:** Verify that *every* new Effect, Schema, or Utility has a corresponding unit test.
     - **Changed Logic:** Verify that existing tests were updated to reflect behavior changes.
     - **Rule:** If you have written code but have not written/updated the tests for it, **YOU ARE NOT DONE.** Stop here and write the tests.
-2. **Run Unified Check:** `bun run check:fix` (Root script: `turbo run lint:fix check-types test`. Runs type checks, Biome auto-fix, and tests. Ensure all pass—**including the new tests you just verified in Step 1**).
+2. **Mandatory Documentation & Examples Verification:**
+    - **Search** the entire workspace for references to any concept, variable, path, service, or configuration you changed. This includes READMEs, `.env.example` files, inline doc-comments, and any other prose or configuration that mentions the affected area.
+    - **Update** every stale reference so that documentation, examples, and configuration templates stay consistent with the code.
+    - **Rule:** If your change alters environment variables, storage paths, service names, API signatures, architectural patterns, or error types and you have not updated the corresponding documentation, **YOU ARE NOT DONE.** Stop here and fix the docs.
+3. **Run Unified Check:** `bun run check:fix` (Root script: `turbo run lint:fix check-types test`. Runs type checks, Biome auto-fix, and tests. Ensure all pass—**including the new tests you just verified in Step 1**).
 
 *If any step fails, or if you realize during Step 1 that tests are missing, analyze the gap, write/fix the code, and restart the sequence from the beginning.*
 
@@ -142,6 +158,18 @@ If you encounter an error (test failure, build error, or runtime crash), you MUS
     - Do not try a "quick variation."
     - Re-read the error. Check the architecture.
     - If 2 fixes fail, the problem is likely architectural. **Request human intervention** or refactor the approach entirely.
+
+## Database & Migrations (MANDATORY)
+
+- **Default to Drizzle:** For schema definition, migration generation, and database migration execution, use Drizzle unless the user explicitly instructs otherwise.
+- **Own DB Scripts in the DB Workspace:** Database commands such as `db:generate` and `db:migrate` must live in the database-owning workspace package (for example `apps/bible-db/package.json`).
+- **Root Delegation:** The root `package.json` should call workspace-owned database scripts via Turbo wrappers (for example `turbo run db:generate --filter=@my-repository/bible-db`), replacing `@my-repository` with the actual project alias in the real repo.
+- **Never Handwrite Migrations:** Do not create SQL migration files manually. Generate migrations with Drizzle Kit from the schema source of truth.
+- **Drizzle Convention:** Keep `drizzle.config.ts` in the owning workspace, keep generated SQL under that workspace's `drizzle/` directory, and commit the generated migration plus the `drizzle/meta/` journal files together.
+- **Workflow:** After changing schema definitions, run the workspace-owned `db:generate` script to create the migration, review the generated SQL, then run the workspace-owned `db:migrate` script, which should call `drizzle-kit migrate`, against the target database.
+- **Driver Requirement:** The database-owning workspace must keep a Drizzle-supported driver installed for `drizzle-kit migrate` (for Postgres: `pg`, `postgres`, `@neondatabase/serverless`, or `@vercel/postgres`).
+- **No Runtime Auto-Migrations:** Do not wire application runtime code to auto-run migrations unless the user explicitly requests that architecture. Default to the committed Drizzle Kit migration flow.
+- **Single Source of Truth:** Application runtime schema setup must not drift from generated Drizzle migrations. Prefer Drizzle Kit-managed migrations over parallel hand-maintained SQL strings or ad hoc runtime migration wrappers.
 
 ## Project Architecture (MANDATORY)
 
@@ -177,11 +205,13 @@ ALL source code MUST live inside a **`src/`** directory at the root of each app/
 ### TypeScript & Biome
 
 - **Strictness:** No `any`. Use `unknown` + Schema decoding.
-- **Exports:** **NO Default Exports**. Use Named Exports only.
+- **Exports:** **NO Default Exports**. Use Named Exports only. Prefer **inline exports** (`export const myVar = …`) over declaring then exporting separately (`const myVar = …; export { myVar }`). Inline exports keep intent visible at the declaration site and are safer during refactors.
   - *Exception:* Next.js conventions require Default Exports for `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, and `route.ts`.
 - **Imports:** Use `import type` for types. Group imports: External > Internal.
 - **Naming:** `kebab-case` for files/folders. `camelCase` for variables/functions. `PascalCase` for Types/Classes.
 - **Immutability:** Use `const`, `readonly`, and `ReadonlyArray<T>`.
+- **Functions:** Always prefer arrow function expressions assigned to `const` over `function` declarations. Use `const myFunction = () => {}` instead of `function myFunction() {}`.
+  - *Exception:* `function*` generators (e.g., `Effect.gen(function* () { ... })`) where arrow syntax is not applicable.
 
 ### Effect TS Architecture (Strict)
 
@@ -210,6 +240,11 @@ Next.js Server Components are the **boundary** where Effect logic resolves to UI
 - **Preferred:** Use Next.js Native Caching (`use cache` directive) for UI data.
 - **Skill Reference:** Refer to the **[Next Cache Components Skill][next-cache-components-skill]** for implementation details.
 - **Do Not:** Do not use `Bun.redis` directly inside UI components. Use Redis only within backend Effect Services/Layers.
+
+### 3. Accessibility & SEO
+
+- **Accessibility (a11y):** All UI must meet WCAG 2.2 AA. Use semantic HTML elements, proper heading hierarchy, ARIA attributes where needed, visible focus indicators, and keyboard-navigable interactions. Never rely solely on color to convey meaning.
+- **SEO:** Use Next.js `Metadata` API for page titles, descriptions, and Open Graph tags. Use semantic landmarks (`<main>`, `<nav>`, `<header>`, `<footer>`). Ensure all images have descriptive `alt` text. Prefer server-rendered content over client-only rendering for indexable pages.
 
 ### Naming Dictionary
 
@@ -326,23 +361,6 @@ const parseUser = (input: unknown) =>
   Schema.decodeUnknown(User)(input); // Returns Effect<User, ParseError>
 ```
 
-## Interaction Protocol (Anti-Hallucination)
-
-### 1. The "Ambiguity Check"
-
-Before writing any code for a non-trivial request (>5 lines of logic), you MUST:
-
-1. **Restate the Goal:** Briefly summarize what you are about to build.
-2. **Identify Ambiguities:** If requirements are vague (e.g., "make it better"), you MUST ask for clarification.
-3. **Propose a Plan:** List the files you will touch and the Effect layers/services you will use.
-4. **Wait for Confirmation:** (Optional, but recommended for architectural changes) "Shall I proceed?"
-
-### 2. Stop & Ask
-
-If you find yourself making an arbitrary decision (e.g., "I'll just default the timeout to 500ms" or "I'll assume the user ID is an integer"), **STOP**.
-
-- Ask the user for the specific constraint.
-- **NEVER** assume business logic constants.
-
 [next-cache-components-skill]: ./.agents/skills/next-cache-components/SKILL.md
 [frontend-design]: ./.agents/skills/frontend-design/SKILL.md
+[shadcn-ui]: ./.agents/skills/shadcn/SKILL.md

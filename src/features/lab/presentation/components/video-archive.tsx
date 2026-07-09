@@ -1,80 +1,12 @@
-import { Badge } from '@/shared/ui/presentation/components/badge';
 import { Calendar, ExternalLink, Film, Globe } from 'lucide-react';
 import {
-    article as MotionArticle,
-    div as MotionDiv,
-    span as MotionSpan,
+  article as MotionArticle,
+  div as MotionDiv,
+  span as MotionSpan,
 } from 'motion/react-client';
 import type { ReactNode } from 'react';
-
-type VideoProject = Readonly<{
-  id: string;
-  number: string;
-  title: string;
-  date: string;
-  language: string;
-  type: string;
-  description: string;
-  href: string;
-}>;
-
-const videoProjects: readonly VideoProject[] = [
-  {
-    id: 'pas-besoin-de-souffrir',
-    number: '01',
-    title: 'Pas besoin de souffrir',
-    date: 'February 2026',
-    language: 'French',
-    type: 'Ad',
-    description:
-      'A Duolingo ad proving there is a much simpler, fun, and dust-free way to learn a new language — 5 minutes a day is all it takes, wherever you are.',
-    href: 'https://youtu.be/jMUOCHRh5MY?si=5kwsj5Jruru9_U-q',
-  },
-  {
-    id: 'une-journee-normale',
-    number: '02',
-    title: 'Une Journée Normale',
-    date: 'March 2025',
-    language: 'French',
-    type: 'Short Film',
-    description:
-      'A short film exploring narrative daily life through the lens of mundane moments transformed into visual poetry.',
-    href: 'https://youtu.be/RtGm4i7SXvs',
-  },
-  {
-    id: 'comment-ne-pas-faire-ses-devoirs',
-    number: '03',
-    title: 'Comment ne pas faire ses devoirs',
-    date: 'June 2024',
-    language: 'French',
-    type: 'Short Film',
-    description:
-      'A creative and humorous take on productivity and student life, exploring the art of procrastination.',
-    href: 'https://youtu.be/E9z5RkngZE8',
-  },
-  {
-    id: 'das-blut',
-    number: '04',
-    title: 'Das Blut — Blutaufbau, Bluttransfusionen & mehr',
-    date: 'April 2024',
-    language: 'German',
-    type: 'Educational',
-    description:
-      'An educational deep dive into biology and system structures, making complex medical concepts accessible.',
-    href: 'https://youtu.be/LbB7rjdWX7U',
-  },
-  {
-    id: 'nous-sommes-louis-et-david',
-    number: '05',
-    title: 'Nous Sommes Louis et David',
-    date: 'September 2023',
-    language: 'French',
-    type: 'Short Film',
-    description:
-      'An early collaborative storytelling project exploring friendship, identity, and cross-cultural connection.',
-    href: 'https://youtu.be/2TE7iCxApk0',
-  },
-];
+import { Badge } from '@/shared/ui/presentation/components/badge';
+import { type VideoProject, videoProjects } from '../data/video-projects';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },

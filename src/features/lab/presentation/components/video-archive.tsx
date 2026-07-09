@@ -6,59 +6,7 @@ import {
 } from 'motion/react-client';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
-
-type VideoProject = Readonly<{
-  id: string;
-  number: string;
-  title: string;
-  date: string;
-  language: string;
-  description: string;
-  href: string;
-}>;
-
-const videoProjects: readonly VideoProject[] = [
-  {
-    id: 'une-journee-normale',
-    number: '01',
-    title: 'Une Journée Normale',
-    date: 'March 2025',
-    language: 'French',
-    description:
-      'A short film exploring narrative daily life through the lens of mundane moments transformed into visual poetry.',
-    href: 'https://youtu.be/RtGm4i7SXvs',
-  },
-  {
-    id: 'comment-ne-pas-faire-ses-devoirs',
-    number: '02',
-    title: 'Comment ne pas faire ses devoirs',
-    date: 'June 2024',
-    language: 'French',
-    description:
-      'A creative and humorous take on productivity and student life, exploring the art of procrastination.',
-    href: 'https://youtu.be/E9z5RkngZE8',
-  },
-  {
-    id: 'das-blut',
-    number: '03',
-    title: 'Das Blut — Blutaufbau, Bluttransfusionen & mehr',
-    date: 'April 2024',
-    language: 'German',
-    description:
-      'An educational deep dive into biology and system structures, making complex medical concepts accessible.',
-    href: 'https://youtu.be/LbB7rjdWX7U',
-  },
-  {
-    id: 'nous-sommes-louis-et-david',
-    number: '04',
-    title: 'Nous Sommes Louis et David',
-    date: 'September 2023',
-    language: 'French',
-    description:
-      'An early collaborative storytelling project exploring friendship, identity, and cross-cultural connection.',
-    href: 'https://youtu.be/2TE7iCxApk0',
-  },
-];
+import { type VideoProject, videoProjects } from '../data/video-projects';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },

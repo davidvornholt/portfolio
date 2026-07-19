@@ -1,0 +1,15 @@
+keys:
+  # Standalone age identity at ~/.config/sops/age/keys.txt.
+  - &owner_machine age1gxzu2f027zu227f4wyf4jh5sw0w495482qfzv5flmfyjvgzxm3ys8p9muz
+  # Repository-specific GitHub Actions identity; private key: SOPS_AGE_KEY.
+  - &github_actions_ci age1am7tcy8kdlyfu5lzf728gqcj79v0wjmqg63d2mha3ahuev6yxysq97t79f
+creation_rules:
+  - path_regex: secrets/dev\.yaml$
+    key_groups:
+      - age:
+          - *owner_machine
+  - path_regex: secrets/ci\.yaml$
+    key_groups:
+      - age:
+          - *owner_machine
+          - *github_actions_ci

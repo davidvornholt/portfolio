@@ -1,0 +1,58 @@
+import { Mail } from 'lucide-react';
+import { div as MotionDiv } from 'motion/react-client';
+import type { ReactNode } from 'react';
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-100px' },
+};
+
+const EMAIL_PARTS = {
+  user: 'david',
+  domain: 'vornholt',
+  tld: 'online',
+} as const;
+
+const getEmailAddress = (): string =>
+  `${EMAIL_PARTS.user}@${EMAIL_PARTS.domain}.${EMAIL_PARTS.tld}`;
+
+const EmailLink = (): ReactNode => {
+  const emailAddress = getEmailAddress();
+
+  return (
+    <a
+      href={`mailto:${emailAddress}`}
+      className="group inline-flex items-center gap-3 rounded-md bg-primary-foreground px-8 py-4 font-medium text-base text-primary transition-all hover:bg-primary-foreground/90"
+    >
+      <Mail className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
+      {emailAddress}
+    </a>
+  );
+};
+
+export const CTA = (): ReactNode => (
+  <section id="contact" className="bg-primary px-6 py-24 md:py-32">
+    <MotionDiv
+      {...fadeInUp}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="mx-auto max-w-3xl text-center"
+    >
+      <p className="mb-4 font-medium text-primary-foreground/70 text-sm uppercase tracking-widest">
+        Let&apos;s Connect
+      </p>
+
+      <h2 className="mb-6 font-semibold font-serif text-4xl text-primary-foreground md:text-5xl">
+        Ready to Build Something Meaningful?
+      </h2>
+
+      <p className="mb-10 text-lg text-primary-foreground/80 leading-relaxed">
+        Great systems start with a conversation. Whether you have a specific
+        project in mind or want to discuss the intersection of code and
+        community, let&apos;s architect something that lasts.
+      </p>
+
+      <EmailLink />
+    </MotionDiv>
+  </section>
+);

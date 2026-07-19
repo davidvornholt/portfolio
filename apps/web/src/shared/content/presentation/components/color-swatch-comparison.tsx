@@ -9,7 +9,7 @@ import { type ReactNode, useState } from 'react';
 
 type Swatch = Readonly<{
   label: string;
-  color: string;
+  colorClassName: string;
   lightness: string;
   perceivedNote: string;
 }>;
@@ -21,31 +21,31 @@ type Swatch = Readonly<{
 const hslSwatches: ReadonlyArray<Swatch> = [
   {
     label: 'Yellow',
-    color: 'hsl(60, 100%, 50%)',
+    colorClassName: 'bg-comparison-hsl-yellow',
     lightness: '50%',
     perceivedNote: 'Appears almost white',
   },
   {
     label: 'Green',
-    color: 'hsl(120, 100%, 50%)',
+    colorClassName: 'bg-comparison-hsl-green',
     lightness: '50%',
     perceivedNote: 'Bright, dominant',
   },
   {
     label: 'Red',
-    color: 'hsl(0, 100%, 50%)',
+    colorClassName: 'bg-comparison-hsl-red',
     lightness: '50%',
     perceivedNote: 'Medium brightness',
   },
   {
     label: 'Cyan',
-    color: 'hsl(180, 100%, 50%)',
+    colorClassName: 'bg-comparison-hsl-cyan',
     lightness: '50%',
     perceivedNote: 'Relatively bright',
   },
   {
     label: 'Blue',
-    color: 'hsl(240, 100%, 50%)',
+    colorClassName: 'bg-comparison-hsl-blue',
     lightness: '50%',
     perceivedNote: 'Appears nearly black',
   },
@@ -54,31 +54,31 @@ const hslSwatches: ReadonlyArray<Swatch> = [
 const oklchSwatches: ReadonlyArray<Swatch> = [
   {
     label: 'Yellow',
-    color: 'oklch(0.6 0.15 100)',
+    colorClassName: 'bg-comparison-oklch-yellow',
     lightness: '0.6',
     perceivedNote: 'Uniform brightness',
   },
   {
     label: 'Green',
-    color: 'oklch(0.6 0.15 145)',
+    colorClassName: 'bg-comparison-oklch-green',
     lightness: '0.6',
     perceivedNote: 'Uniform brightness',
   },
   {
     label: 'Red',
-    color: 'oklch(0.6 0.15 25)',
+    colorClassName: 'bg-comparison-oklch-red',
     lightness: '0.6',
     perceivedNote: 'Uniform brightness',
   },
   {
     label: 'Cyan',
-    color: 'oklch(0.6 0.15 195)',
+    colorClassName: 'bg-comparison-oklch-cyan',
     lightness: '0.6',
     perceivedNote: 'Uniform brightness',
   },
   {
     label: 'Blue',
-    color: 'oklch(0.6 0.15 265)',
+    colorClassName: 'bg-comparison-oklch-blue',
     lightness: '0.6',
     perceivedNote: 'Uniform brightness',
   },
@@ -119,7 +119,10 @@ const SwatchCard = ({
     transition={{ duration: 0.4, delay: index * swatchStaggerSeconds }}
     className="group flex flex-col items-center gap-2"
   >
-    <div className="relative h-16 w-full overflow-hidden rounded-lg border border-border shadow-sm transition-all duration-300 sm:h-20">
+    <div
+      className={`relative h-16 w-full overflow-hidden rounded-lg border border-border shadow-sm transition-all duration-300 sm:h-20 ${swatch.colorClassName}`}
+      data-slot="color-swatch"
+    >
       {/* Shimmer effect on hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
     </div>

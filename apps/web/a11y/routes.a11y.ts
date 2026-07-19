@@ -34,6 +34,28 @@ const waitForFiniteAnimations = async (
   );
 };
 
+test('color comparison renders distinct, non-transparent swatches', async ({
+  page,
+}) => {
+  await page.goto('/posts/mastering-oklch-tailwind-v4');
+
+  const swatches = page.locator('[data-slot="color-swatch"]');
+  await expect(swatches).toHaveCount(10);
+
+  const backgroundColors = await swatches.evaluateAll((nodes) =>
+    nodes.map((node) => getComputedStyle(node).backgroundColor),
+  );
+
+  expect(
+    backgroundColors.every(
+      (backgroundColor) =>
+        backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+        backgroundColor !== 'transparent',
+    ),
+  ).toBe(true);
+  expect(backgroundColors[0]).not.toBe(backgroundColors[5]);
+});
+
 for (const route of routes) {
   test(`${route.name} has no automated WCAG 2.2 AA violations`, async ({
     page,

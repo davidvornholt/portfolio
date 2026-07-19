@@ -9,7 +9,9 @@
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "check-types": "tsc --noEmit",
+    "prelint": "bun run prebuild",
     "lint": "biome check --error-on-warnings .",
+    "prelint:fix": "bun run prebuild",
     "lint:fix": "biome check --write --error-on-warnings .",
     "test": "bun test",
     "test:a11y": "playwright test --config playwright.config.ts"

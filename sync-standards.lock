@@ -1,6 +1,6 @@
 {
   "upstream": "github:davidvornholt/standards",
-  "sha": "016616e67d4e6108623075e73ad0cb376d0c8ec5",
+  "sha": "c523ada8d9ff4c6bc52566528eaf39d6fb8b075a",
   "files": {
     ".agents/skills/database/agents/openai.yaml": "4c9f47df24219d5b195c88eef374431f64b453ed1ba057f50d4c11e4549343c1",
     ".agents/skills/database/SKILL.md": "8649a1001f18bb5d15087516f1970113193d628560dc4c882c1c7361920a0740",
@@ -21,11 +21,11 @@
     ".codex/agents/reviewer.toml": "c94be1adbdc0efc56e9471b793e0629e92baa4b095ede66d08fbb40cc05a80b9",
     ".github/actions/sops-secret/action.yml": "1912ed09ac41519c5a265126d6029ccce54e8a14fb15bdee23f863c9df2c2aef",
     ".github/dependabot.base.yml": "3e83c8d41ded54d59ba930684882d0a3e4ad7d4b25f9685fb9987febb8f5f3cd",
-    ".github/settings.json": "151207cddd615c3002432e1e6b30a23355d5c2a4646cd6c72c85b6249e019a68",
-    ".github/workflows/notify-pause.yml": "266d5e6a03542b63418608f65e76882be114c3cb87469dde64d8dbda2aae60fd",
+    ".github/settings.json": "d7ee43807ce1dca0b41c6acddaf56e615cc768b993b946ab8430d5760d5c532b",
+    ".github/workflows/notify-pause.yml": "5d466b23fc810c9b24aa4864dfb358328c3b69a7e8b5e8514e61cfe0916e9be8",
     ".github/workflows/pr-title.yml": "3656c5bd6d638cb27112bcff992c5180ed42a4b49e4bd098a4b34e72cf3643bf",
-    ".github/workflows/standards-sync.yml": "0cd4fc337012605c38c49ed359439a08ed8418df052ae219fd2a3296d0964896",
-    ".github/workflows/standards.yml": "4fd8d796f2558dc080a720ca4c7e0f7742c41cd29e23aa0426d97d12c720782d",
+    ".github/workflows/standards-sync.yml": "68b041210ee6aad9debb0cd2ad9de59eb2faebc01e9c9016ace7905d765e5034",
+    ".github/workflows/standards.yml": "232ddfccdeb044d6e1c8defb8fba65e62deb4ef8773c2c823770198b54128145",
     "AGENTS.md": "8dd83b6969ae79e1cbe9ac5d1c984b21a3aa69dee7ea93398b3086c025eaebe8",
     "biome.base.jsonc": "c9a2e0c42bac8de3c5e215a97bfb1845d2f40512d2d1e0d66a710f6f6df4f3d1",
     "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",

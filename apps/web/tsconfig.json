@@ -1,0 +1,22 @@
+{
+  "extends": "@davidvornholt/typescript-config/next",
+  "compilerOptions": {
+    "incremental": true,
+    "paths": {
+      "@/public/*": ["./public/*"],
+      "@/*": ["./src/*"],
+      "@velite": ["./.velite/index"],
+      "@velite/*": ["./.velite/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts",
+    ".velite/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

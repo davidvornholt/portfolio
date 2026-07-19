@@ -1,0 +1,38 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["biome.jsonc", "biome.base.jsonc"],
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "check-types": {
+      "dependsOn": ["build", "^build"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "lint:fix": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": []
+    },
+    "test": {
+      "outputs": []
+    },
+    "test:a11y": {
+      "dependsOn": ["build"],
+      "cache": false
+    }
+  }
+}

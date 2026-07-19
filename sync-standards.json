@@ -1,0 +1,30 @@
+{
+  "upstream": "github:davidvornholt/standards",
+  "seedDir": "template",
+  "paths": [
+    "sync-standards.json",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".agents/skills/database",
+    ".agents/skills/declarative-infra",
+    ".agents/skills/frontend-design",
+    ".agents/skills/nextjs",
+    ".agents/skills/review",
+    ".agents/skills/review-fix",
+    ".agents/skills/standards-sync",
+    ".agents/skills/ux-ui",
+    ".claude/agents/reviewer.md",
+    ".claude/workflows/review-pass.js",
+    ".codex/agents/reviewer.toml",
+    "biome.base.jsonc",
+    ".github/settings.json",
+    ".github/dependabot.base.yml",
+    ".github/actions/sops-secret",
+    "packages/typescript-config",
+    "packages/a11y-testing",
+    ".github/workflows/standards.yml",
+    ".github/workflows/standards-sync.yml",
+    ".github/workflows/pr-title.yml",
+    ".github/workflows/notify-pause.yml"
+  ]
+}

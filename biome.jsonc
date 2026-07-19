@@ -1,0 +1,170 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
+  // Repo-owned wrapper. Extends the canonical strict base synced from
+  // davidvornholt/standards. Add project-specific overrides here; never edit
+  // biome.base.jsonc locally.
+  "extends": ["./biome.base.jsonc"],
+  "files": {
+    // Claude workflow scripts are a sandboxed DSL dialect (ambient
+    // orchestration globals, top-level return) that Biome's ES module
+    // parser rejects; the Workflow harness validates them at run time.
+    // Claude agent worktrees are full checkouts with their own root
+    // biome.jsonc; nested biome.json(c) files are scanner-priority special
+    // files, so only force-ignore (`!!`) guarantees they are never discovered
+    // as nested roots.
+    "includes": ["**", "!.claude/workflows", "!!.claude/worktrees"]
+  },
+  "overrides": [
+    {
+      // Biome's experimental class-resolution rule does not yet understand
+      // Tailwind v4 utilities generated through `@theme`; it reports standard
+      // utilities such as `shrink-0` and semantic theme utilities as missing.
+      "includes": ["apps/web/src/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noUndeclaredClasses": "off"
+          }
+        }
+      }
+    },
+    {
+      // These framework boundaries require default exports as part of their
+      // file-based configuration and routing contracts.
+      "includes": [
+        "apps/web/next.config.ts",
+        "apps/web/playwright.config.ts",
+        "apps/web/postcss.config.mjs",
+        "apps/web/velite.config.ts",
+        "apps/web/src/app/**/layout.tsx",
+        "apps/web/src/app/**/page.tsx",
+        "apps/web/src/app/robots.ts",
+        "apps/web/src/app/sitemap.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      // App-owned build scripts are operational Bun boundaries just like the
+      // canonical root scripts covered by biome.base.jsonc.
+      "includes": ["apps/*/scripts/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off"
+          }
+        }
+      }
+    },
+    {
+      // shadcn component modules intentionally co-export component variants
+      // and contain long Tailwind variant strings that the entropy heuristic
+      // misclassifies as credentials.
+      "includes": [
+        "apps/web/src/shared/ui/presentation/components/alert-dialog.tsx",
+        "apps/web/src/shared/ui/presentation/components/badge.tsx",
+        "apps/web/src/shared/ui/presentation/components/button.tsx",
+        "apps/web/src/shared/ui/presentation/components/combobox.tsx",
+        "apps/web/src/shared/ui/presentation/components/dropdown-menu.tsx",
+        "apps/web/src/shared/ui/presentation/components/field.tsx",
+        "apps/web/src/shared/ui/presentation/components/input-group.tsx",
+        "apps/web/src/shared/ui/presentation/components/select.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "security": {
+            "noSecrets": "off"
+          },
+          "style": {
+            "useComponentExportOnlyModules": "off"
+          }
+        }
+      }
+    },
+    {
+      // This is a static public media catalog: its documentary title and
+      // YouTube IDs are public content, not credentials.
+      "includes": [
+        "apps/web/src/features/lab/presentation/data/video-projects.ts"
+      ],
+      "linter": {
+        "rules": {
+          "security": {
+            "noSecrets": "off"
+          }
+        }
+      }
+    },
+    {
+      // These stable IDs are deliberate public fragment targets referenced by
+      // the site navigation; generated IDs would break incoming hash links.
+      "includes": [
+        "apps/web/src/features/portfolio/presentation/components/blog-teaser.tsx",
+        "apps/web/src/features/portfolio/presentation/components/cta.tsx",
+        "apps/web/src/features/portfolio/presentation/components/expertise.tsx",
+        "apps/web/src/features/portfolio/presentation/components/selected-works.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useUniqueElementIds": "off"
+          }
+        }
+      }
+    },
+    {
+      // The keys in these maps are external MDX component names and
+      // reader-facing swatch labels, so their casing is part of the data
+      // contract rather than an identifier naming choice.
+      "includes": [
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
+        "apps/web/src/shared/content/presentation/components/mdx-components.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      // Biome's import resolver does not follow the generated next/font
+      // declarations or React's conditional export map. TypeScript and the
+      // production build remain the authoritative module-resolution gates.
+      "includes": [
+        "apps/web/src/app/layout.tsx",
+        "apps/web/src/shared/content/presentation/components/mdx-markdown-elements.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnresolvedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      // Cohesive framework/generated-style component boundaries that are
+      // clearer as single files. Each exception is documented under docs/.
+      "includes": [
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
+        "apps/web/src/shared/ui/presentation/components/combobox.tsx",
+        "apps/web/src/shared/ui/presentation/components/dropdown-menu.tsx",
+        "apps/web/src/shared/ui/presentation/components/field.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    }
+  ]
+}

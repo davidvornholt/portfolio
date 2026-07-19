@@ -1,0 +1,209 @@
+import { ArrowUpRight, Calendar, Code2 } from 'lucide-react';
+import {
+  article as MotionArticle,
+  div as MotionDiv,
+  header as MotionHeader,
+  span as MotionSpan,
+} from 'motion/react-client';
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+import { Badge } from '@/shared/ui/presentation/components/badge';
+
+type Project = {
+  readonly id: string;
+  readonly number: string;
+  readonly title: string;
+  readonly role: string;
+  readonly timeline: string;
+  readonly stack: ReadonlyArray<string>;
+  readonly description: string;
+  readonly outcome: string;
+  readonly href?: string;
+};
+
+const projects: ReadonlyArray<Project> = [
+  {
+    id: 'fes-kirchheim',
+    number: '01',
+    title: 'Freie Evangelische Schule Kirchheim',
+    role: 'Lead Full Stack Developer & Digital Experience Architect',
+    timeline: 'August 2024 – Present',
+    stack: ['Next.js 16', 'Tailwind CSS v4', 'TypeScript'],
+    description:
+      'Leading the digital transformation of an educational institution. Designing platforms to streamline communication between students, teachers, and parents.',
+    outcome:
+      'Improved workflow efficiency and enhanced accessibility for the entire school community.',
+    href: '/works/fes-kirchheim',
+  },
+  {
+    id: 'ccbb',
+    number: '02',
+    title: 'Christian Congregation Bietigheim-Bissingen',
+    role: 'Full Stack Developer & UI/UX Designer',
+    timeline: 'September 2025 – Present',
+    stack: ['Next.js 16', 'Framer Motion', 'Bun'],
+    description:
+      'Redesigning the digital presence of a local church community. Focus on community engagement, event management, and modern user experience.',
+    outcome:
+      'A clean, welcoming digital home reflecting community values through modern UI/UX and functional reliability.',
+  },
+] as const;
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-100px' },
+};
+
+const cardHover = {
+  initial: { x: 0 },
+  hover: { x: 4 },
+};
+
+const arrowHover = {
+  initial: { x: 0, y: 0 },
+  hover: { x: 3, y: -3 },
+};
+
+const numberHover = {
+  initial: { opacity: 0.2, scale: 1 },
+  hover: { opacity: 0.35, scale: 1.05 },
+};
+
+const ProjectCardContent = ({
+  project,
+}: {
+  readonly project: Project;
+}): ReactNode => (
+  <div className="grid gap-8 md:grid-cols-12 md:gap-12">
+    <div className="md:col-span-2">
+      <MotionSpan
+        variants={numberHover}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="block font-bold font-mono text-6xl text-muted-foreground/60"
+      >
+        {project.number}
+      </MotionSpan>
+    </div>
+
+    <MotionDiv
+      variants={cardHover}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="md:col-span-10"
+    >
+      <header className="mb-6">
+        <h3 className="mb-2 font-semibold font-serif text-2xl text-foreground transition-colors duration-300 group-hover:text-primary md:text-3xl">
+          {project.title}
+        </h3>
+        <p className="font-medium text-primary text-sm">{project.role}</p>
+      </header>
+
+      <div className="mb-6 flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
+        <span className="inline-flex items-center gap-1.5">
+          <Calendar className="h-4 w-4" />
+          {project.timeline}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Code2 className="h-4 w-4" />
+          <span className="flex flex-wrap gap-2">
+            {project.stack.map((tech) => (
+              <Badge
+                key={tech}
+                variant="secondary"
+                className="font-mono text-xs transition-colors duration-300 group-hover:bg-primary/10"
+              >
+                {tech}
+              </Badge>
+            ))}
+          </span>
+        </span>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+            The Challenge
+          </h4>
+          <p className="text-foreground/80 leading-relaxed">
+            {project.description}
+          </p>
+        </div>
+
+        <div>
+          <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+            The Outcome
+          </h4>
+          <p className="text-foreground/80 leading-relaxed">
+            {project.outcome}
+          </p>
+        </div>
+      </div>
+
+      {project.href === undefined ? null : (
+        <span className="mt-6 inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
+          View Case Study
+          <MotionSpan
+            variants={arrowHover}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          >
+            <ArrowUpRight className="h-4 w-4" />
+          </MotionSpan>
+        </span>
+      )}
+    </MotionDiv>
+  </div>
+);
+
+const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => {
+  const isExternal = project.href?.startsWith('http') ?? false;
+
+  return (
+    <MotionArticle
+      {...fadeInUp}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      whileHover="hover"
+      initial="initial"
+      className="group relative border-border border-t py-16 first:border-t-0"
+    >
+      {project.href ? (
+        <Link
+          href={project.href}
+          {...(isExternal && {
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          })}
+          className="block"
+        >
+          <ProjectCardContent project={project} />
+        </Link>
+      ) : (
+        <ProjectCardContent project={project} />
+      )}
+    </MotionArticle>
+  );
+};
+
+export const SelectedWorks = (): ReactNode => (
+  <section id="works" className="px-6 py-24 md:py-32">
+    <div className="mx-auto max-w-6xl">
+      <MotionHeader
+        {...fadeInUp}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="mb-16"
+      >
+        <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
+          Portfolio
+        </p>
+        <h2 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
+          Selected Works
+        </h2>
+      </MotionHeader>
+
+      <div>
+        {projects.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
+      </div>
+    </div>
+  </section>
+);

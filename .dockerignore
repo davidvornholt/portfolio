@@ -1,0 +1,12 @@
+.git
+.github
+.next
+.turbo
+**/.next
+**/.turbo
+**/node_modules
+**/playwright-report
+**/test-results
+node_modules
+secrets
+

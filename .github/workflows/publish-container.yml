@@ -1,0 +1,70 @@
+name: Publish container
+
+on:
+  workflow_run:
+    workflows: ["Standards"]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: publish-container-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.event == 'push'
+      && github.event.workflow_run.head_branch == github.event.repository.default_branch
+      && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout the validated commit
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Log in to the GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" |
+            docker login ghcr.io --username "$GHCR_USER" --password-stdin
+
+      - name: Build and publish the immutable image
+        id: image
+        env:
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          repository="${GITHUB_REPOSITORY,,}"
+          image="ghcr.io/${repository}:sha-${SOURCE_SHA}"
+          docker build \
+            --label "org.opencontainers.image.revision=${SOURCE_SHA}" \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --pull \
+            --tag "$image" \
+            .
+          docker push "$image"
+          digest_ref=$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')
+          if [ -z "$digest_ref" ]; then
+            echo "::error::The registry did not return an image digest"
+            exit 1
+          fi
+          echo "digest-ref=$digest_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Record the deployable image
+        env:
+          DIGEST_REF: ${{ steps.image.outputs.digest-ref }}
+        run: |
+          {
+            echo "## Published portfolio image"
+            echo
+            echo "\`$DIGEST_REF\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+

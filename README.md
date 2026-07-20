@@ -39,6 +39,13 @@ This repo uses Bun.
 - Auto-fixing quality gate: `bun run check:fix`
 - Accessibility suite: `bun run test:a11y`
 
+## Deployment
+
+The `Publish container` workflow builds the exact `main` commit that passed the
+canonical `Standards` workflow and publishes it to GHCR under an immutable
+`sha-<commit>` tag. The production server does not deploy from this repository:
+`personal-infra` owns the digest-pinned NixOS runtime and activation policy.
+
 ## Standards and secrets
 
 - Pull canonical repository policy: `bun standards sync`

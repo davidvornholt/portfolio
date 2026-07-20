@@ -23,6 +23,8 @@ infra/
 .sops.yaml
 ```
 
+Host directories are named `<env>-<index>` (`prod-1`), even when the repo has a single server — never after the repo or product, which distinguishes nothing inside its own repo and is ambiguous in a dedicated infra repo. The index makes host replacement routine: build `prod-2` alongside, migrate, retire `prod-1`, with no mid-migration rename. The name is a repo-internal identifier that must line up across `nixosConfigurations.<name>`, `deploy.nodes.<name>`, and `hosts/<name>/`, and it doubles as the `just secrets` target for the host's `secrets.yaml`, so it must be a safe path segment (an ASCII letter or digit first; only letters, digits, dots, underscores, hyphens). The machine's real hostname and domain are set separately in `configuration.nix`.
+
 ## Flake skeleton
 
 ```nix
@@ -199,6 +201,8 @@ In `hosts/<name>/configuration.nix`: `networking.hostName`, `networking.domain`,
 ## App modules
 
 Host-specific services (containers, jobs) live under the repo's own option namespace (`<repo>.apps.*`) in `modules/apps/`, gated behind `enable` options. They consume the profile: publish through Caddy virtual hosts, run on Podman with digest-pinned images, peer-auth to their database as their own system user, read secrets from SOPS paths.
+
+A host serving a web app also carries PR preview environments as a default part of adoption — wire them alongside the app module per `pr-previews.md`.
 
 ## Secrets (SOPS + age)
 

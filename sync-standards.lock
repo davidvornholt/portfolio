@@ -1,13 +1,13 @@
 {
   "upstream": "github:davidvornholt/standards",
-  "sha": "136ed7c07779b67fa3a73eedf9b375580ef3e031",
+  "sha": "4da5240d8bb5cb569347c2a8c07a0ecdd26081c1",
   "files": {
     ".agents/skills/database/agents/openai.yaml": "4c9f47df24219d5b195c88eef374431f64b453ed1ba057f50d4c11e4549343c1",
     ".agents/skills/database/SKILL.md": "8649a1001f18bb5d15087516f1970113193d628560dc4c882c1c7361920a0740",
     ".agents/skills/declarative-infra/agents/openai.yaml": "d8631747495397fa341d956c20d7b3155b68f8f5a86b9d8015e654cb61e3d649",
-    ".agents/skills/declarative-infra/references/bootstrap.md": "1ebfad165e5bdd1e4dd03707b9ef01bb7ae03e3bce4e5bd0a82fb02491e84674",
+    ".agents/skills/declarative-infra/references/bootstrap.md": "c1cae44891514dbc1b40bf87bb84f3c19ed59f0622fbd30782ddbb70721a7e51",
     ".agents/skills/declarative-infra/references/pr-previews.md": "e302f3a09151af979556579774a06d464102e56805d51432623f09c465dda6c4",
-    ".agents/skills/declarative-infra/references/secrets.md": "fac3be27a4b321a62a9163cef1bc0ce7e37dfae47f41af302d30a7760f966190",
+    ".agents/skills/declarative-infra/references/secrets.md": "b250c766b46037d5332cf3e696b2012711b6662b1ecd271f031502bfb92e7e67",
     ".agents/skills/declarative-infra/SKILL.md": "a7ef4a42f2fac292c09c7e196b73b8d7fd716a82ea673cd941a674f2aa1d50c0",
     ".agents/skills/frontend-design/LICENSE.txt": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
     ".agents/skills/frontend-design/SKILL.md": "c507b9ff9878959ab16d47465f2896be50f3b909e464c987c6b070a960116261",

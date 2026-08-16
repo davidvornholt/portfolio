@@ -25,7 +25,9 @@ infra/
 .sops.yaml
 ```
 
-Host directories are named `<env>-<index>` (`prod-1`), even when the repo has a single server — never after the repo or product, which distinguishes nothing inside its own repo and is ambiguous in a dedicated infra repo. The index makes host replacement routine: build `prod-2` alongside, migrate, retire `prod-1`, with no mid-migration rename. The name is a repo-internal identifier that must line up across `nixosConfigurations.<name>`, `deploy.nodes.<name>`, and `hosts/<name>/`, and it doubles as the `just secrets` target for the host's `secrets.yaml`, so it must be a safe path segment (an ASCII letter or digit first; only letters, digits, dots, underscores, hyphens). The machine's real hostname and domain are set separately in `configuration.nix`.
+Host directories are named `<env>-<index>` (`prod-1`), even when the repo has a single server — never after the repo or product, which distinguishes nothing inside its own repo and is ambiguous in a dedicated infra repo. The index makes host replacement routine: build `prod-2` alongside, migrate, retire `prod-1`, with no mid-migration rename. The name is an identifier that must line up across `nixosConfigurations.<name>`, `deploy.nodes.<name>`, and `hosts/<name>/`, and it doubles as the `just secrets` target for the host's `secrets.yaml`, so it must be a safe path segment (an ASCII letter or digit first; only letters, digits, dots, underscores, hyphens).
+
+The machine carries the same identifier: `networking.hostName = "prod-1"`, with `networking.domain` set to the primary domain the host serves, a DNS record `prod-1.<domain>` pointing at the machine (managed in the tofu stack like any other record), and `deploy.nodes.<name>.hostname` set to that same `prod-1.<domain>`. Do not introduce a stable machine alias such as `server.<domain>`: the durable names are the product domains themselves, which repoint at cutover, while every per-machine name is created and retired with the machine — so during a migration the two live hosts stay unambiguous in shell prompts, logs, and SSH targets.
 
 ## Flake skeleton
 
@@ -51,9 +53,11 @@ Host directories are named `<env>-<index>` (`prod-1`), even when the repo has a 
       inherit (nixpkgs) lib;
       pkgs = nixpkgs.legacyPackages.${system};
       treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+      webImage = builtins.getEnv "WEB_IMAGE"; # empty only for non-deploy evaluation
     in {
       nixosConfigurations.prod-1 = lib.nixosSystem {
         inherit system;
+        specialArgs = { inherit webImage; };
         modules = [
           disko.nixosModules.disko
           sops-nix.nixosModules.sops
@@ -64,7 +68,7 @@ Host directories are named `<env>-<index>` (`prod-1`), even when the repo has a 
       };
 
       deploy.nodes.prod-1 = {
-        hostname = "server.example.com";
+        hostname = "prod-1.example.com";
         profiles.system = {
           user = "root";
           path = deploy-rs.lib.${system}.activate.nixos
@@ -82,7 +86,7 @@ Host directories are named `<env>-<index>` (`prod-1`), even when the repo has a 
 }
 ```
 
-Build-time parameters (image digests, preview lists) enter via `specialArgs` from environment variables in the deploy workflow, with safe fallbacks so plain `nix flake check` evaluates without them.
+Build-time parameters (image digests, preview lists) enter via `specialArgs` from environment variables in the deploy workflow. Name the full-reference variable once per app (`WEB_IMAGE` above), let non-deploy evaluation use an empty fallback, and make the exact-main-SHA deploy gate reject an empty or non-`^ghcr\.io/...@sha256:[0-9a-f]{64}$` value before mutation. The workflow derives `WEB_IMAGE` only as `imageRepository@digest` from its gated checkout's enriched `images.json`; app modules consume the `webImage` argument and do not parse another manifest or define a fallback production digest. Cross-repo bumps and readback follow `image-promotion.md`.
 
 ## Server profile
 
@@ -198,7 +202,7 @@ in {
 
 ## Host essentials
 
-In `hosts/<name>/configuration.nix`: `networking.hostName`, `networking.domain`, `time.timeZone`, profile parameters (SSH keys, ACME email, databases), app options, SOPS wiring — and `system.stateVersion`, set once at install and never changed afterward.
+In `hosts/<name>/configuration.nix`: `networking.hostName` (the host identifier, per the naming rule above) and `networking.domain` (the primary domain the host serves), `time.timeZone`, profile parameters (SSH keys, ACME email, databases), app options, SOPS wiring — and `system.stateVersion`, set once at install and never changed afterward.
 
 ## App modules
 
@@ -247,6 +251,27 @@ terraform {
 
 provider "cloudflare" {}
 ```
+
+## Nix binary cache
+
+A repo whose trusted CI builds and deploys NixOS system closures uses a private, signed binary cache. Cloudflare R2 is the default when the repo already has a Cloudflare stack; another backend works if it holds the same trust and access boundaries.
+
+- The bucket is declared in the host's infrastructure home like any other data-bearing resource, and exists before any workflow references it.
+- Validation holds a bucket-scoped read/write credential and the signing key; deployment holds a read-only credential and neither. Only the signing key's public half appears in workflow configuration.
+- Validation substitutes from the cache, runs the full Nix gate, then signs and copies the closure of every check output. A failed or partial copy fails the validation job, which blocks deployment.
+- Deployment waits for validation of the exact main-branch commit and substitutes that closure instead of rebuilding.
+- The bucket must never be publicly readable — for R2, no `r2.dev` hostname and no custom domain. Verify through the provider API in PR validation and again before deployment.
+- Document the credentials, signing-key rotation, and retention policy with the repo's other infrastructure configuration.
+
+## Deploy downtime
+
+A deploy that changes an app's image restarts `podman-<app>.service` in place: the old container stops before the new one starts, and Caddy has no upstream for that app until the new container is up. That brief interruption is the accepted default for this profile. The health readback in `image-promotion.md` verifies that the deploy completed; it does not keep the old container serving through the switch.
+
+Keep the window to container startup, not registry pull: after the deploy job's identity and registry-access checks and immediately before `nix run .#deploy-rs`, the workflow pre-pulls every gated image reference on the target over the deploy SSH connection. Set `REGISTRY_AUTH_FILE` and pass `--authfile` on every Podman registry command. Public entries use the root-owned empty `/run/containers/auth/anonymous.json`; private entries use only `/run/containers/auth/ghcr-private.json`, atomically created by the host's SOPS-backed `podman-ghcr-login` unit. Give every container unit the matching `REGISTRY_AUTH_FILE` too, so implicit pulls cannot fall back to ambient Podman or Docker auth. A private pre-pull always contacts the registry even when the digest is cached, so missing or expired credentials fail before activation; a public cached digest may skip its network pull after the drift detector has independently proved anonymous access. Pulling by digest is idempotent and additive, and any failed pre-pull fails the deploy before activation touches the running system.
+
+Private-image migration and container units require and order after `podman-ghcr-login.service`. Public-image units must not depend on that service. The SOPS secret restarts the oneshot when its decrypted value changes. The unit reads `registry.github_token` through stdin, writes a same-directory `0600` temporary auth file, and atomically renames it to the private path only after `podman login` succeeds. The complete credential, two-stage adoption, auth-file, and rotation contract is in `image-promotion.md#private-ghcr-host-access`.
+
+Zero-downtime switchover — a second container instance behind a Caddy upstream flip, with draining — is not part of the profile. A host whose availability requirement justifies that complexity documents the decision and its wiring in the host repo, and that requirement is often the signal the app has outgrown the single-host profile.
 
 ## Install and convergence
 

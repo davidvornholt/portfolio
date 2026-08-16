@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowRight, Clock, PenLine } from 'lucide-react';
 import {
   article as MotionArticle,
@@ -52,7 +53,7 @@ const BlogPostCardContent = ({
       </p>
       {post.href ? (
         <span className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
-          Read Article
+          Read article
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </span>
       ) : null}
@@ -71,7 +72,7 @@ const BlogPostCard = ({
     {...fadeInUp}
     transition={{
       duration: 0.6,
-      ease: 'easeOut',
+      ease: easing,
       delay: index * blogPostStaggerSeconds,
     }}
     className="group border-border border-b pb-8 last:border-b-0"
@@ -79,6 +80,8 @@ const BlogPostCard = ({
     {post.href ? (
       <Link
         href={post.href}
+        data-umami-event="post-open"
+        data-umami-event-post={post.title}
         className="flex cursor-pointer flex-col md:flex-row md:items-start md:gap-8"
       >
         <BlogPostCardContent post={post} />
@@ -92,11 +95,11 @@ const BlogPostCard = ({
 );
 
 export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
-  <section id="blog" className="px-6 py-24 md:py-32">
+  <section id="blog" className="border-border border-t px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
       <MotionHeader
         {...fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mb-16 flex flex-col justify-between gap-4 md:flex-row md:items-end"
       >
         <div>
@@ -105,7 +108,7 @@ export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
             Insights
           </p>
           <h2 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
-            Programming Blog
+            Programming blog
           </h2>
         </div>
         <p className="max-w-md text-muted-foreground text-sm">

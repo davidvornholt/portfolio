@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { footer as MotionFooter } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -19,7 +20,7 @@ export const Footer = (): ReactNode => {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, ease: easing }}
       className="border-border border-t bg-background"
     >
       <div className="mx-auto max-w-5xl px-6 py-12 md:px-8 md:py-16">
@@ -32,7 +33,7 @@ export const Footer = (): ReactNode => {
               David Vornholt
             </Link>
             <p className="mt-2 max-w-xs text-muted-foreground text-sm">
-              Full Stack Developer & Digital Experience Architect
+              Full stack developer & digital experience architect
             </p>
           </div>
 

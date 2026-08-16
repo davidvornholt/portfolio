@@ -1,5 +1,3 @@
-'use client';
-
 import type { ReactNode } from 'react';
 // biome-ignore lint/performance/noNamespaceImport: Velite's generated function expects the complete JSX runtime object.
 import * as runtime from 'react/jsx-runtime';

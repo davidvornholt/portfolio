@@ -1,5 +1,6 @@
 'use client';
 
+import { easing } from '@portfolio/ui/easing';
 import { div as MotionDiv } from 'motion/react-client';
 import { type ReactNode, useState } from 'react';
 
@@ -116,16 +117,17 @@ const SwatchCard = ({
     initial={{ opacity: 0, scale: 0.9 }}
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.4, delay: index * swatchStaggerSeconds }}
-    className="group flex flex-col items-center gap-2"
+    transition={{
+      duration: 0.4,
+      delay: index * swatchStaggerSeconds,
+      ease: easing,
+    }}
+    className="flex flex-col items-center gap-2"
   >
     <div
-      className={`relative h-16 w-full overflow-hidden rounded-lg border border-border shadow-sm transition-all duration-300 sm:h-20 ${swatch.colorClassName}`}
+      className={`relative h-16 w-full border border-border sm:h-20 ${swatch.colorClassName}`}
       data-slot="color-swatch"
-    >
-      {/* Shimmer effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-    </div>
+    />
     <div className="flex flex-col items-center gap-0.5 text-center">
       <span className="font-medium text-foreground text-xs">
         {swatch.label}
@@ -138,7 +140,8 @@ const SwatchCard = ({
       <MotionDiv
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: 'auto' }}
-        className="rounded bg-card px-2 py-1 text-center"
+        transition={{ ease: easing }}
+        className="px-2 py-1 text-center"
       >
         <span className="text-[10px] text-muted-foreground leading-tight">
           {swatch.perceivedNote}
@@ -170,7 +173,7 @@ const SwatchRow = ({
       <div className="flex items-center gap-3">
         <h4 className="font-semibold text-foreground text-sm">{title}</h4>
         <span
-          className={`rounded-full px-2.5 py-0.5 font-medium text-[10px] uppercase tracking-wider ${
+          className={`px-2.5 py-0.5 font-medium text-[10px] uppercase tracking-wider ${
             tagVariant === 'broken'
               ? 'bg-destructive/10 text-destructive'
               : 'bg-primary/10 text-primary'
@@ -230,7 +233,7 @@ const BrightnessBar = ({ swatches, label }: BrightnessBarProps): ReactNode => {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
-          {label} — Perceived Brightness
+          {label} — perceived brightness
         </span>
       </div>
       <div className="grid grid-cols-5 gap-3">
@@ -239,13 +242,13 @@ const BrightnessBar = ({ swatches, label }: BrightnessBarProps): ReactNode => {
             brightnessMap[swatch.label] ?? fallbackBrightnessPercent;
           return (
             <div key={swatch.label} className="space-y-1">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-1.5 w-full overflow-hidden bg-muted">
                 <MotionDiv
                   initial={{ width: 0 }}
                   whileInView={{ width: `${brightness}%` }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className={`h-full rounded-full ${
+                  transition={{ duration: 0.8, delay: 0.3, ease: easing }}
+                  className={`h-full ${
                     label === 'HSL' ? 'bg-destructive/60' : 'bg-primary'
                   }`}
                 />
@@ -271,23 +274,23 @@ export const ColorSwatchComparison = (): ReactNode => {
   return (
     <MotionDiv
       {...fadeInUp}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="my-10 overflow-hidden rounded-xl border border-border bg-card"
+      transition={{ duration: 0.6, ease: easing }}
+      className="my-10 border border-border"
     >
       {/* Header */}
       <div className="flex items-center justify-between border-border border-b px-5 py-3">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-primary" />
           <span className="font-medium text-muted-foreground text-xs">
-            Interactive Comparison
+            Interactive comparison
           </span>
         </div>
         <button
           type="button"
           onClick={() => setShowDetails((prev) => !prev)}
-          className="rounded-md px-2.5 py-1 font-medium text-[11px] text-primary transition-colors hover:bg-primary/5"
+          className="px-2.5 py-1 font-medium text-[11px] text-primary transition-colors hover:bg-primary/5"
         >
-          {showDetails ? 'Hide Notes' : 'Show Notes'}
+          {showDetails ? 'Hide notes' : 'Show notes'}
         </button>
       </div>
 
@@ -295,7 +298,7 @@ export const ColorSwatchComparison = (): ReactNode => {
       <div className="space-y-8 p-5 sm:p-6">
         {/* HSL Row */}
         <SwatchRow
-          title="HSL — 50% Lightness"
+          title="HSL — 50% lightness"
           tag="Non-uniform"
           tagVariant="broken"
           swatches={hslSwatches}
@@ -312,7 +315,7 @@ export const ColorSwatchComparison = (): ReactNode => {
             <div className="w-full border-border border-t border-dashed" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-card px-3 font-medium text-[10px] text-muted-foreground uppercase tracking-widest">
+            <span className="bg-background px-3 font-medium text-[10px] text-muted-foreground uppercase tracking-widest">
               vs
             </span>
           </div>
@@ -320,7 +323,7 @@ export const ColorSwatchComparison = (): ReactNode => {
 
         {/* OKLCH Row */}
         <SwatchRow
-          title="OKLCH — 0.6 Lightness"
+          title="OKLCH — 0.6 lightness"
           tag="Perceptually uniform"
           tagVariant="correct"
           swatches={oklchSwatches}
@@ -333,7 +336,7 @@ export const ColorSwatchComparison = (): ReactNode => {
       </div>
 
       {/* Footer insight */}
-      <div className="border-border border-t bg-muted/30 px-5 py-3">
+      <div className="border-border border-t px-5 py-3">
         <p className="text-center text-[11px] text-muted-foreground">
           HSL blue at 50% lightness appears{' '}
           <strong className="text-foreground">3.4×</strong> darker than HSL

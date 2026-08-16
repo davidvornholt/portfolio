@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowLeft } from 'lucide-react';
 import { div as MotionDiv } from 'motion/react-client';
 import Link from 'next/link';
@@ -15,7 +16,7 @@ export const BackNavigation = ({
   <MotionDiv
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5, ease: 'easeOut' }}
+    transition={{ duration: 0.5, ease: easing }}
     className="mx-auto max-w-4xl px-6 pt-32"
   >
     <Link

@@ -4,23 +4,24 @@ Personal portfolio site built as a Bun/Turbo monorepo with Next.js and a content
 
 > Built on [davidvornholt/standards](https://github.com/davidvornholt/standards).
 
-## Editorial tech design system
+## Design system
 
-The visual language is “Editorial Tech”: modern product UI discipline with editorial typography.
+The visual language is warm editorial print: warm paper surfaces, hairline rules instead of boxes, square corners everywhere, and a deep forest-green voice. The full design contract lives in [`DESIGN.md`](DESIGN.md); all design values (colors, radii, shadows, easing) live in `packages/ui/src/theme.css`.
 
-- Typography: IBM Plex Sans (UI/body), Source Serif 4 (headings), IBM Plex Mono (code)
-- Color + theming: light mode, OKLCH-based palette (deep-forest primary + stone neutrals)
-- Theme plumbing: CSS variables in `apps/web/src/app/globals.css`, mapped to Tailwind via `@theme inline`
-- UI primitives: shadcn/ui (`base-vega`, baseColor `stone`, CSS variables), radius `0.375rem`
-- Texture: subtle “film grain” overlay via a fixed SVG noise layer
+- Typography: IBM Plex Sans (UI/body), Source Serif 4 (display), IBM Plex Mono (figures/code)
+- Color + theming: light only, OKLCH-based warm-paper palette with a deep inverse register
+- Theme plumbing: semantic tokens in `packages/ui/src/theme.css`, mapped to Tailwind via `@theme inline`
+- Shape: 0px radius everywhere; circles are the only exception
+- Texture: subtle film grain overlay via fixed SVG noise layers
 
 ## Tech stack
 
 - Next.js 16 (App Router) + React 19
 - TypeScript
-- Tailwind CSS v4 + tw-animate-css
+- Tailwind CSS v4
 - Biome (lint + format)
 - Velite (MDX content pipeline)
+- Umami (cookie-less analytics, optional via `UMAMI_WEBSITE_ID`)
 
 ## Content pipeline (MDX)
 
@@ -62,5 +63,6 @@ repository-scoped `SOPS_AGE_KEY` GitHub Actions secret.
 - `apps/web/src/app/` — Next.js routes and layout.
 - `apps/web/src/features/` — feature-level UI.
 - `apps/web/src/shared/` — app-local shared UI and content rendering.
+- `packages/ui/` — design tokens (`theme.css`) and shared motion easing.
 - `packages/typescript-config/` — canonical shared TypeScript configuration.
 - `packages/a11y-testing/` — canonical Playwright + Axe harness.

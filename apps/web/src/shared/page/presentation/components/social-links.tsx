@@ -35,6 +35,8 @@ const SocialIcon = ({ link }: { readonly link: SocialLink }): ReactNode => (
     target="_blank"
     rel="noopener noreferrer"
     aria-label={link.label}
+    data-umami-event="social-link"
+    data-umami-event-network={link.label}
     className="text-muted-foreground transition-colors hover:text-foreground"
   >
     {link.icon}

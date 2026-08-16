@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { Code2 } from 'lucide-react';
 import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
@@ -46,8 +47,8 @@ export const MDXCodeSnippet = ({
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="my-8 overflow-hidden rounded-lg border border-border"
+      transition={{ duration: 0.6, ease: easing }}
+      className="my-8 border border-border"
     >
       {title === undefined ? null : (
         <div className="flex items-center gap-2 border-border border-b bg-muted/50 px-4 py-3">
@@ -60,9 +61,7 @@ export const MDXCodeSnippet = ({
           </Badge>
         </div>
       )}
-      <div className="bg-card">
-        <SyntaxHighlighter code={code} language={language} />
-      </div>
+      <SyntaxHighlighter code={code} language={language} />
     </MotionDiv>
   );
 };

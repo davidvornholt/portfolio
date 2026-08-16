@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { Calendar, ExternalLink, Film, Globe } from 'lucide-react';
 import {
   article as MotionArticle,
@@ -36,24 +37,26 @@ const VideoCard = ({
 }): ReactNode => (
   <MotionArticle
     variants={fadeInUp}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
+    transition={{ duration: 0.6, ease: easing }}
     initial="initial"
     whileInView="whileInView"
     whileHover="hover"
     viewport={{ once: true, margin: '-100px' }}
-    className="group relative"
+    className="group relative border-border border-t first:border-t-0"
   >
     <a
       href={project.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="block rounded-lg border border-border/50 bg-card/50 p-6 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-card/80 hover:shadow-lg md:p-8"
+      data-umami-event="lab-video-open"
+      data-umami-event-video={project.title}
+      className="block py-8 md:py-10"
     >
       <div className="grid gap-6 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-2">
           <MotionSpan
             variants={numberHover}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.3, ease: easing }}
             className="block font-bold font-mono text-5xl text-muted-foreground/60 md:text-6xl"
           >
             {project.number}
@@ -62,7 +65,7 @@ const VideoCard = ({
 
         <MotionDiv
           variants={cardHover}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.3, ease: easing }}
           className="md:col-span-10"
         >
           <header className="mb-4">
@@ -72,7 +75,7 @@ const VideoCard = ({
               </h3>
               <MotionSpan
                 variants={arrowHover}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                transition={{ duration: 0.2, ease: easing }}
                 className="shrink-0 text-muted-foreground transition-colors duration-300 group-hover:text-primary"
               >
                 <ExternalLink className="size-5" />
@@ -121,7 +124,7 @@ export const VideoArchive = (): ReactNode => (
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mb-12 text-center"
       >
         <p className="font-medium text-muted-foreground text-sm uppercase tracking-widest">
@@ -130,7 +133,7 @@ export const VideoArchive = (): ReactNode => (
         </p>
       </MotionDiv>
 
-      <div className="space-y-6">
+      <div>
         {videoProjects.map((project) => (
           <VideoCard key={project.id} project={project} />
         ))}

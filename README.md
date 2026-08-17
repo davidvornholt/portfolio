@@ -42,10 +42,7 @@ This repo uses Bun.
 
 ## Deployment
 
-The `Publish container` workflow builds the exact `main` commit that passed the
-canonical `Standards` workflow and publishes it to GHCR under an immutable
-`sha-<commit>` tag. The production server does not deploy from this repository:
-`personal-infra` owns the digest-pinned NixOS runtime and activation policy.
+The `Publish container` workflow waits for the canonical `Standards` workflow to pass for the exact `main` commit, publishes the image to GHCR under the tracked `main` tag, and announces the resulting digest to `personal-infra` via a broker-minted `image-bump` repository dispatch. The production server does not deploy from this repository: `personal-infra` proves the announcement against this workflow's own run log, opens a digest-pin promotion PR, and owns the digest-pinned NixOS runtime and activation policy.
 
 ## Standards and secrets
 

@@ -1,70 +1,195 @@
 name: Publish container
 
+# The image promotion proof in personal-infra binds this workflow by path and
+# id and requires a push-event run, so the trigger must stay `push`. That means
+# the quality gate cannot be inherited from the event: branch protection proves
+# the required checks passed on a pull request's head, and a squash merge
+# produces a commit on main that no check has ever run against. `Standards`
+# runs on push to main as well, so the gate below waits for that run at exactly
+# this commit instead of duplicating the canonical gate here.
 on:
-  workflow_run:
-    workflows: ["Standards"]
-    types: [completed]
+  push:
+    branches:
+      - main
 
 permissions: {}
 
+# Grouping per branch rather than per commit: the tracked tag is a promotion
+# source, so two pushes must not race to move it. Queued rather than cancelled,
+# because a cancelled run can already have pushed the image without announcing
+# it. GitHub keeps only the newest pending run, so a burst still settles on the
+# newest commit.
 concurrency:
-  group: publish-container-${{ github.event.workflow_run.head_sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  publish:
-    if: >-
-      github.event.workflow_run.event == 'push'
-      && github.event.workflow_run.head_branch == github.event.repository.default_branch
-      && github.event.workflow_run.conclusion == 'success'
+  # Fail-closed by construction: every path that is not an observed successful
+  # `check` job for this exact commit — no run, an unfinished run, a run that
+  # ended any other way, a missing job, an expired deadline — exits non-zero.
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      gated-sha: ${{ steps.gate.outputs.sha }}
+    steps:
+      - name: Require the standards gate for this exact commit
+        id: gate
+        env:
+          GATE_JOB: check
+          GATE_WORKFLOW: standards.yml
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          deadline=$(($(date -u +%s) + 2400))
+          while :; do
+            # Newest first, so a re-run decides. A green run that was later
+            # re-run into a failure must not keep publishing.
+            run=$(gh api \
+              "repos/$REPOSITORY/actions/workflows/$GATE_WORKFLOW/runs?head_sha=$SHA&event=push&per_page=1" \
+              --jq '.workflow_runs[0] // empty')
+            if [ -n "$run" ] && [ "$(jq -er .status <<<"$run")" = completed ]; then
+              break
+            fi
+            if [ "$(date -u +%s)" -ge "$deadline" ]; then
+              echo "::error::The $GATE_WORKFLOW gate did not complete for $SHA within the deadline"
+              exit 1
+            fi
+            sleep 20
+          done
+
+          test "$(jq -er .head_sha <<<"$run")" = "$SHA"
+          conclusion=$(jq -er .conclusion <<<"$run")
+          if [ "$conclusion" != success ]; then
+            echo "::error::The $GATE_WORKFLOW gate concluded $conclusion for $SHA"
+            exit 1
+          fi
+
+          # The run conclusion alone would also be satisfied by a `check` job
+          # that never ran, so the required job is asserted by name.
+          run_id=$(jq -er .id <<<"$run")
+          job=$(gh api --paginate "repos/$REPOSITORY/actions/runs/$run_id/jobs" \
+            --jq ".jobs[] | select(.name == \"$GATE_JOB\") | .conclusion")
+          if [ "$job" != success ]; then
+            echo "::error::The $GATE_JOB job of run $run_id concluded ${job:-nothing} for $SHA"
+            exit 1
+          fi
+
+          echo "::notice::$GATE_WORKFLOW run $run_id gated $SHA"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: gate
+    # The gate proves a commit passed; this proves it was this one.
+    if: needs.gate.outputs.gated-sha == github.sha
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
     steps:
-      - name: Checkout the validated commit
+      - name: Checkout the commit being published
         uses: actions/checkout@v7
         with:
           persist-credentials: false
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Log in to the GitHub Container Registry
-        env:
-          GHCR_TOKEN: ${{ github.token }}
-          GHCR_USER: ${{ github.actor }}
-        run: |
-          printf '%s' "$GHCR_TOKEN" |
-            docker login ghcr.io --username "$GHCR_USER" --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
-      - name: Build and publish the immutable image
-        id: image
+      - name: Build and publish the tracked tag
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          # Plain manifest, not an attestation index: prod-1 pins and pulls the
+          # digest this step reports, and podman resolves it directly.
+          provenance: false
+          tags: ghcr.io/davidvornholt/portfolio:main
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+      - name: Emit immutable promotion record
         env:
-          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE: ghcr.io/davidvornholt/portfolio
+          REF: ${{ github.ref }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          repository="${GITHUB_REPOSITORY,,}"
-          image="ghcr.io/${repository}:sha-${SOURCE_SHA}"
-          docker build \
-            --label "org.opencontainers.image.revision=${SOURCE_SHA}" \
-            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
-            --pull \
-            --tag "$image" \
-            .
-          docker push "$image"
-          digest_ref=$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')
-          if [ -z "$digest_ref" ]; then
-            echo "::error::The registry did not return an image digest"
-            exit 1
-          fi
-          echo "digest-ref=$digest_ref" >> "$GITHUB_OUTPUT"
+          record=$(jq -cn --arg repository "$REPOSITORY" --arg ref "$REF" --arg sha "$SHA" --arg runId "$RUN_ID" --arg image "$IMAGE" --arg digest "$DIGEST" '{repository:$repository,ref:$ref,sha:$sha,runId:$runId,image:$image,digest:$digest}')
+          marker_left=IMAGE_PROMOTION
+          marker_right=_RECORD
+          printf '%s %s\n' "${marker_left}${marker_right}" "$record"
 
-      - name: Record the deployable image
+  announce:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the canonical SOPS action
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve the broker app id
+        uses: ./.github/actions/sops-secret
+        with:
+          age-key: ${{ secrets.SOPS_AGE_KEY }}
+          secret-file: secrets/ci.yaml
+          secret-key: broker_app.app_id
+          env-name: BROKER_APP_ID
+
+      - name: Resolve the broker private key
+        uses: ./.github/actions/sops-secret
+        with:
+          age-key: ${{ secrets.SOPS_AGE_KEY }}
+          secret-file: secrets/ci.yaml
+          secret-key: broker_app.private_key
+          env-name: BROKER_APP_PRIVATE_KEY
+
+      - name: Mint an infrastructure announcement token
+        id: broker
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ env.BROKER_APP_ID }}
+          private-key: ${{ env.BROKER_APP_PRIVATE_KEY }}
+          owner: davidvornholt
+          repositories: personal-infra
+          permission-contents: write
+
+      - name: Announce image digest
         env:
-          DIGEST_REF: ${{ steps.image.outputs.digest-ref }}
+          BUILD_DIGEST: ${{ needs.build.outputs.digest }}
+          GH_TOKEN: ${{ steps.broker.outputs.token }}
+          IMAGE_REPOSITORY: ghcr.io/davidvornholt/portfolio
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
-          {
-            echo "## Published portfolio image"
-            echo
-            echo "\`$DIGEST_REF\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
+          set -euo pipefail
+          [[ "$BUILD_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ && "$SOURCE_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          test "$SOURCE_REPOSITORY" = davidvornholt/portfolio
+          test "$SOURCE_REF" = refs/heads/main
+          test "$IMAGE_REPOSITORY" = ghcr.io/davidvornholt/portfolio
+          gh api repos/davidvornholt/personal-infra/dispatches \
+            -f event_type=image-bump \
+            -f "client_payload[app]=portfolio" \
+            -f "client_payload[source_repository]=$SOURCE_REPOSITORY" \
+            -f "client_payload[source_ref]=$SOURCE_REF" \
+            -f "client_payload[source_sha]=$SOURCE_SHA" \
+            -f "client_payload[source_run_id]=$SOURCE_RUN_ID" \
+            -f "client_payload[image_repository]=$IMAGE_REPOSITORY" \
+            -f "client_payload[digest]=$BUILD_DIGEST"

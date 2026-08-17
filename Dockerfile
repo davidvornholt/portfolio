@@ -53,7 +53,6 @@ COPY --chown=app:app --from=prod-deps /app/node_modules /app/node_modules
 COPY --chown=app:app --from=prod-deps /app/apps/web/node_modules ./node_modules
 COPY --chown=app:app --from=builder /app/apps/web/public ./public
 COPY --chown=app:app --from=builder /app/apps/web/.next ./.next
-COPY --chown=app:app --from=builder /app/apps/web/.velite ./.velite
 COPY --chown=app:app --from=builder /app/apps/web/next.config.ts ./next.config.ts
 COPY --chown=app:app --from=builder /app/apps/web/package.json ./package.json
 

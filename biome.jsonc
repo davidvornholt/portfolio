@@ -35,7 +35,6 @@
         "apps/web/next.config.ts",
         "apps/web/playwright.config.ts",
         "apps/web/postcss.config.mjs",
-        "apps/web/velite.config.ts",
         "apps/web/src/app/**/layout.tsx",
         "apps/web/src/app/**/page.tsx",
         "apps/web/src/app/**/opengraph-image.tsx",
@@ -136,6 +135,8 @@
         "apps/web/src/features/portfolio/presentation/components/blog-teaser.tsx",
         "apps/web/src/features/portfolio/presentation/components/cta.tsx",
         "apps/web/src/features/portfolio/presentation/components/expertise.tsx",
+        "apps/web/src/features/portfolio/presentation/components/how-i-work.tsx",
+        "apps/web/src/features/portfolio/presentation/components/open-source.tsx",
         "apps/web/src/features/portfolio/presentation/components/selected-works.tsx"
       ],
       "linter": {
@@ -147,12 +148,10 @@
       }
     },
     {
-      // The keys in these maps are external MDX component names and
-      // reader-facing swatch labels, so their casing is part of the data
-      // contract rather than an identifier naming choice.
+      // The keys in this map are reader-facing swatch labels, so their casing
+      // is part of the data contract rather than an identifier naming choice.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
-        "apps/web/src/shared/content/presentation/components/mdx-components.ts"
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
       ],
       "linter": {
         "rules": {
@@ -182,12 +181,29 @@
       // Cohesive framework/generated-style component boundaries that are
       // clearer as single files. Each exception is documented under docs/.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
+        "apps/web/src/features/works/content/*.tsx",
+        "apps/web/src/features/posts/content/*.tsx"
       ],
       "linter": {
         "rules": {
           "style": {
             "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      // Content entries pair one document component with its typed metadata
+      // export, mirroring the Next.js page/opengraph-image convention.
+      "includes": [
+        "apps/web/src/features/works/content/*.tsx",
+        "apps/web/src/features/posts/content/*.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "useComponentExportOnlyModules": "off"
           }
         }
       }

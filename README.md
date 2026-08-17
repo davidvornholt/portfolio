@@ -1,6 +1,6 @@
 # Portfolio — David Vornholt
 
-Personal portfolio site built as a Bun/Turbo monorepo with Next.js and a content-first architecture (case studies + blog posts in MDX).
+Personal portfolio site built as a Bun/Turbo monorepo with Next.js and a content-first architecture (case studies + blog posts as typed TSX modules).
 
 > Built on [davidvornholt/standards](https://github.com/davidvornholt/standards).
 
@@ -20,13 +20,12 @@ The visual language is warm editorial print: warm paper surfaces, hairline rules
 - TypeScript
 - Tailwind CSS v4
 - Biome (lint + format)
-- Velite (MDX content pipeline)
 - Umami (cookie-less analytics, optional via `UMAMI_WEBSITE_ID`)
 
-## Content pipeline (MDX)
+## Content
 
-- Source content lives in `apps/web/content/` (`works/` for case studies, `posts/` for blog).
-- Velite compiles content into typed data in `apps/web/.velite/` (configured in `apps/web/velite.config.ts`).
+- Case studies live in `apps/web/src/features/works/content/`, blog posts in `apps/web/src/features/posts/content/`.
+- Each entry is a plain TSX module: a typed metadata object plus a React body component, collected in a registry the routes read. The type checker validates metadata; there is no separate content build step.
 
 ## Development
 

@@ -1,37 +1,30 @@
-import { posts } from '@velite';
 import type { ReactNode } from 'react';
+import type { BlogPostSummary } from '../components/blog-teaser';
 import { BlogTeaser } from '../components/blog-teaser';
 import { CTA } from '../components/cta';
 import { Expertise } from '../components/expertise';
 import { Hero } from '../components/hero';
+import { HowIWork } from '../components/how-i-work';
+import { OpenSource } from '../components/open-source';
+import type { WorkSummary } from '../components/selected-works';
 import { SelectedWorks } from '../components/selected-works';
 
-const visibleBlogPostCount = 3;
+type PortfolioScreenProps = Readonly<{
+  works: ReadonlyArray<WorkSummary>;
+  posts: ReadonlyArray<BlogPostSummary>;
+}>;
 
-const getBlogPosts = (): ReadonlyArray<{
-  readonly title: string;
-  readonly excerpt: string;
-  readonly category: string;
-  readonly readTime: string;
-  readonly href: string;
-}> =>
-  [...posts]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, visibleBlogPostCount)
-    .map((post) => ({
-      title: post.title,
-      excerpt: post.excerpt ?? '',
-      category: post.category,
-      readTime: post.readTime,
-      href: `/posts/${post.slug}`,
-    }));
-
-export const PortfolioScreen = (): ReactNode => (
+export const PortfolioScreen = ({
+  works,
+  posts,
+}: PortfolioScreenProps): ReactNode => (
   <>
     <Hero />
-    <SelectedWorks />
+    <SelectedWorks works={works} />
+    <HowIWork />
     <Expertise />
-    <BlogTeaser posts={getBlogPosts()} />
+    <OpenSource />
+    <BlogTeaser posts={posts} />
     <CTA />
   </>
 );

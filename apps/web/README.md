@@ -1,11 +1,11 @@
 # Web
 
-The public portfolio site, built with Next.js and Velite.
+The public portfolio site, built with Next.js. Case studies and blog posts are plain TSX modules under `src/features/works/content/` and `src/features/posts/content/`, each pairing a typed metadata object with a React body component and collected in a registry that the routes read.
 
 ## Commands
 
 - `bun run dev` starts the development server.
-- `bun run build` compiles Velite content and creates the production build.
+- `bun run build` creates the production build.
 - `bun run test:a11y` scans every reachable route in desktop and mobile Chromium with Axe.
 
 ## Configuration and secrets

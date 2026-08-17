@@ -29,21 +29,22 @@ const sourceSerif4 = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'David Vornholt | Full Stack Developer',
+    default: 'David Vornholt | Founder & CTO',
     template: '%s | David Vornholt',
   },
   description:
-    'Fluent in four languages and the strict logic of functional programming, I bridge the divide between complex technical systems and the people they serve.',
+    'Founder of Atrium and co-founder & CTO of ProsaBridge. Agents write most of my code, and strict quality gates decide what ships.',
   keywords: [
-    'Digital Experience Architect',
-    'Software Engineering',
-    'Full Stack Developer',
+    'Founder',
+    'CTO',
+    'Atrium',
+    'ProsaBridge',
     'TypeScript',
+    'Effect',
     'Next.js',
-    'Clean Code',
-    'Functional Programming',
-    'React',
-    'Web Development',
+    'AI engineering',
+    'Functional programming',
+    'Web development',
   ],
   authors: [{ name: 'David Vornholt', url: siteUrl }],
   creator: 'David Vornholt',
@@ -66,13 +67,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName: 'David Vornholt',
-    title: 'David Vornholt | Full Stack Developer',
+    title: 'David Vornholt | Founder & CTO',
     description:
       'Speaking the languages of humans and machines with equal precision.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'David Vornholt | Full Stack Developer',
+    title: 'David Vornholt | Founder & CTO',
     description:
       'Speaking the languages of humans and machines with equal precision.',
     creator: '@davidvornholt',
@@ -87,7 +88,7 @@ const personJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'David Vornholt',
-  jobTitle: 'Digital Experience Architect',
+  jobTitle: 'Founder & CTO',
   url: siteUrl,
   image: `${siteUrl}/portrait.png`,
   sameAs: [
@@ -96,13 +97,13 @@ const personJsonLd = {
     'https://x.com/davidvornholt',
   ],
   knowsAbout: [
-    'Next.js',
     'TypeScript',
-    'Clean Code',
-    'Functional Programming',
-    'React',
-    'Software Architecture',
-    'Web Development',
+    'Effect',
+    'Next.js',
+    'AI engineering',
+    'Software architecture',
+    'Functional programming',
+    'Web development',
   ],
 } as const;
 

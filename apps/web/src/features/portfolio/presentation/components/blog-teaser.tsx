@@ -8,7 +8,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
 
-type BlogPost = {
+export type BlogPostSummary = {
   readonly title: string;
   readonly excerpt: string;
   readonly category: string;
@@ -17,7 +17,7 @@ type BlogPost = {
 };
 
 type BlogTeaserProps = {
-  readonly posts: ReadonlyArray<BlogPost>;
+  readonly posts: ReadonlyArray<BlogPostSummary>;
 };
 
 const fadeInUp = {
@@ -31,7 +31,7 @@ const blogPostStaggerSeconds = 0.1;
 const BlogPostCardContent = ({
   post,
 }: {
-  readonly post: BlogPost;
+  readonly post: BlogPostSummary;
 }): ReactNode => (
   <>
     <div className="mb-4 flex shrink-0 items-center gap-4 md:mb-0 md:w-48">
@@ -65,7 +65,7 @@ const BlogPostCard = ({
   post,
   index,
 }: {
-  readonly post: BlogPost;
+  readonly post: BlogPostSummary;
   readonly index: number;
 }): ReactNode => (
   <MotionArticle
@@ -112,8 +112,8 @@ export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
           </h2>
         </div>
         <p className="max-w-md text-muted-foreground text-sm">
-          Thoughts on software engineering, functional programming, and building
-          meaningful digital experiences.
+          Notes from building Atrium, ProsaBridge, and this site: engineering
+          decisions, measured results, and the occasional failed experiment.
         </p>
       </MotionHeader>
 

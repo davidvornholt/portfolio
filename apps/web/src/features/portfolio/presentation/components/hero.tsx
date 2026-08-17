@@ -39,7 +39,7 @@ export const Hero = (): ReactNode => (
           transition={{ duration: 0.6, ease: easing }}
           className="mb-3 font-medium text-primary text-sm uppercase tracking-widest sm:mb-4"
         >
-          Full stack developer & digital experience architect
+          Founder & CTO
         </MotionP>
 
         <MotionH1
@@ -64,10 +64,10 @@ export const Hero = (): ReactNode => (
           transition={{ duration: 0.6, ease: easing }}
           className="mx-auto mb-8 max-w-xl text-base text-foreground/80 leading-relaxed sm:mb-10 md:mb-12 md:text-lg lg:mx-0 lg:max-w-2xl"
         >
-          Fluent in four languages and the strict logic of functional
-          programming, I bridge the divide between complex technical systems and
-          the people they serve. I build software with the soul of a social
-          architect and the mind of a functional engineer.
+          I build two companies. Atrium runs the operative day of a school and
+          is in pilot at its first one. ProsaBridge translates whole books for
+          publishers, with layout and terminology intact. Agents write most of
+          my code, and strict quality gates decide what ships.
         </MotionP>
 
         <MotionDiv

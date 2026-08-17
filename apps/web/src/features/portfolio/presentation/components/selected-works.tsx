@@ -10,45 +10,19 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Badge } from '@/shared/ui/presentation/components/badge';
 
-type Project = {
-  readonly id: string;
-  readonly number: string;
+export type WorkSummary = {
+  readonly slug: string;
   readonly title: string;
   readonly role: string;
   readonly timeline: string;
   readonly stack: ReadonlyArray<string>;
-  readonly description: string;
+  readonly summary: string;
   readonly outcome: string;
-  readonly href?: string;
 };
 
-const projects: ReadonlyArray<Project> = [
-  {
-    id: 'fes-kirchheim',
-    number: '01',
-    title: 'Freie Evangelische Schule Kirchheim',
-    role: 'Lead Full Stack Developer & Digital Experience Architect',
-    timeline: 'August 2024 – Present',
-    stack: ['Next.js 16', 'Tailwind CSS v4', 'TypeScript'],
-    description:
-      'Leading the digital transformation of an educational institution. Designing platforms to streamline communication between students, teachers, and parents.',
-    outcome:
-      'Improved workflow efficiency and enhanced accessibility for the entire school community.',
-    href: '/works/fes-kirchheim',
-  },
-  {
-    id: 'ccbb',
-    number: '02',
-    title: 'Christian Congregation Bietigheim-Bissingen',
-    role: 'Full Stack Developer & UI/UX Designer',
-    timeline: 'September 2025 – Present',
-    stack: ['Next.js 16', 'Framer Motion', 'Bun'],
-    description:
-      'Redesigning the digital presence of a local church community. Focus on community engagement, event management, and modern user experience.',
-    outcome:
-      'A clean, welcoming digital home reflecting community values through modern UI/UX and functional reliability.',
-  },
-] as const;
+type SelectedWorksProps = {
+  readonly works: ReadonlyArray<WorkSummary>;
+};
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -71,10 +45,12 @@ const numberHover = {
   hover: { opacity: 0.35, scale: 1.05 },
 };
 
-const ProjectCardContent = ({
-  project,
+const WorkCardContent = ({
+  work,
+  index,
 }: {
-  readonly project: Project;
+  readonly work: WorkSummary;
+  readonly index: number;
 }): ReactNode => (
   <div className="grid gap-8 md:grid-cols-12 md:gap-12">
     <div className="md:col-span-2">
@@ -83,7 +59,7 @@ const ProjectCardContent = ({
         transition={{ duration: 0.3, ease: easing }}
         className="block font-bold font-mono text-6xl text-muted-foreground/60"
       >
-        {project.number}
+        {String(index + 1).padStart(2, '0')}
       </MotionSpan>
     </div>
 
@@ -94,20 +70,20 @@ const ProjectCardContent = ({
     >
       <header className="mb-6">
         <h3 className="mb-2 font-semibold font-serif text-2xl text-foreground transition-colors duration-300 group-hover:text-primary md:text-3xl">
-          {project.title}
+          {work.title}
         </h3>
-        <p className="font-medium text-primary text-sm">{project.role}</p>
+        <p className="font-medium text-primary text-sm">{work.role}</p>
       </header>
 
       <div className="mb-6 flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
         <span className="inline-flex items-center gap-1.5">
           <Calendar className="h-4 w-4" />
-          {project.timeline}
+          {work.timeline}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Code2 className="h-4 w-4" />
           <span className="flex flex-wrap gap-2">
-            {project.stack.map((tech) => (
+            {work.stack.map((tech) => (
               <Badge
                 key={tech}
                 variant="secondary"
@@ -123,70 +99,58 @@ const ProjectCardContent = ({
       <div className="space-y-4">
         <div>
           <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-            The challenge
+            The work
           </h4>
-          <p className="text-foreground/80 leading-relaxed">
-            {project.description}
-          </p>
+          <p className="text-foreground/80 leading-relaxed">{work.summary}</p>
         </div>
 
         <div>
           <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-            The outcome
+            Where it stands
           </h4>
-          <p className="text-foreground/80 leading-relaxed">
-            {project.outcome}
-          </p>
+          <p className="text-foreground/80 leading-relaxed">{work.outcome}</p>
         </div>
       </div>
 
-      {project.href === undefined ? null : (
-        <span className="mt-6 inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
-          View case study
-          <MotionSpan
-            variants={arrowHover}
-            transition={{ duration: 0.3, ease: easing }}
-          >
-            <ArrowUpRight className="h-4 w-4" />
-          </MotionSpan>
-        </span>
-      )}
+      <span className="mt-6 inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
+        View case study
+        <MotionSpan
+          variants={arrowHover}
+          transition={{ duration: 0.3, ease: easing }}
+        >
+          <ArrowUpRight className="h-4 w-4" />
+        </MotionSpan>
+      </span>
     </MotionDiv>
   </div>
 );
 
-const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => {
-  const isExternal = project.href?.startsWith('http') ?? false;
-
-  return (
-    <MotionArticle
-      {...fadeInUp}
-      transition={{ duration: 0.6, ease: easing }}
-      whileHover="hover"
-      initial="initial"
-      className="group relative border-border border-t py-16 first:border-t-0"
+const WorkCard = ({
+  work,
+  index,
+}: {
+  readonly work: WorkSummary;
+  readonly index: number;
+}): ReactNode => (
+  <MotionArticle
+    {...fadeInUp}
+    transition={{ duration: 0.6, ease: easing }}
+    whileHover="hover"
+    initial="initial"
+    className="group relative border-border border-t py-16 first:border-t-0"
+  >
+    <Link
+      href={`/works/${work.slug}`}
+      data-umami-event="case-study-open"
+      data-umami-event-project={work.slug}
+      className="block"
     >
-      {project.href ? (
-        <Link
-          href={project.href}
-          {...(isExternal && {
-            target: '_blank',
-            rel: 'noopener noreferrer',
-          })}
-          data-umami-event="case-study-open"
-          data-umami-event-project={project.id}
-          className="block"
-        >
-          <ProjectCardContent project={project} />
-        </Link>
-      ) : (
-        <ProjectCardContent project={project} />
-      )}
-    </MotionArticle>
-  );
-};
+      <WorkCardContent work={work} index={index} />
+    </Link>
+  </MotionArticle>
+);
 
-export const SelectedWorks = (): ReactNode => (
+export const SelectedWorks = ({ works }: SelectedWorksProps): ReactNode => (
   <section id="works" className="px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
       <MotionHeader
@@ -203,8 +167,8 @@ export const SelectedWorks = (): ReactNode => (
       </MotionHeader>
 
       <div>
-        {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+        {works.map((work, index) => (
+          <WorkCard key={work.slug} work={work} index={index} />
         ))}
       </div>
     </div>

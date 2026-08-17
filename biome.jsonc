@@ -35,7 +35,6 @@
         "apps/web/next.config.ts",
         "apps/web/playwright.config.ts",
         "apps/web/postcss.config.mjs",
-        "apps/web/velite.config.ts",
         "apps/web/src/app/**/layout.tsx",
         "apps/web/src/app/**/page.tsx",
         "apps/web/src/app/**/opengraph-image.tsx",
@@ -149,12 +148,10 @@
       }
     },
     {
-      // The keys in these maps are external MDX component names and
-      // reader-facing swatch labels, so their casing is part of the data
-      // contract rather than an identifier naming choice.
+      // The keys in this map are reader-facing swatch labels, so their casing
+      // is part of the data contract rather than an identifier naming choice.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
-        "apps/web/src/shared/content/presentation/components/mdx-components.ts"
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
       ],
       "linter": {
         "rules": {

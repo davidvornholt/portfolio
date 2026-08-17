@@ -1,8 +1,8 @@
-import { works } from '@velite';
 import { Effect } from 'effect';
 import { notFound } from 'next/navigation';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
+import { getWorkBySlug } from '@/features/works/content/works-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
@@ -16,7 +16,7 @@ const OpengraphImage = async ({
   params: Promise<{ slug: string }>;
 }>): Promise<ImageResponse> => {
   const { slug } = await params;
-  const work = works.find((entry) => entry.slug === slug);
+  const work = getWorkBySlug(slug);
 
   if (!work) {
     notFound();
@@ -25,7 +25,7 @@ const OpengraphImage = async ({
   return Effect.runPromise(
     createOgImageResponse({
       eyebrow: 'Case study',
-      title: work.title,
+      title: work.meta.title,
       footerLeft: 'David Vornholt',
       footerRight: new URL(siteUrl).host,
     }),

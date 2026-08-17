@@ -33,7 +33,7 @@ export const Footer = (): ReactNode => {
               David Vornholt
             </Link>
             <p className="mt-2 max-w-xs text-muted-foreground text-sm">
-              Full stack developer & digital experience architect
+              Founder of Atrium. Co-founder & CTO of ProsaBridge.
             </p>
           </div>
 

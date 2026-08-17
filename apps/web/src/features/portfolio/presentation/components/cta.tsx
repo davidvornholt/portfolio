@@ -45,13 +45,13 @@ export const CTA = (): ReactNode => (
       </p>
 
       <h2 className="mb-6 font-semibold font-serif text-4xl text-deep-foreground md:text-5xl">
-        Ready to build something meaningful?
+        Talk to me about schools, books, or code.
       </h2>
 
       <p className="mb-10 text-deep-muted-foreground text-lg leading-relaxed">
-        Great systems start with a conversation. Whether you have a specific
-        project in mind or want to discuss the intersection of code and
-        community, let&apos;s architect something that lasts.
+        If you run a school that Atrium could serve, a publishing house with
+        manuscripts to translate, or you want to compare notes on quality gates
+        and agent workflows, write me.
       </p>
 
       <EmailLink />

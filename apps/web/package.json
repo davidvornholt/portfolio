@@ -5,13 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "bun --bun next dev",
-    "prebuild": "bun --bun scripts/velite-build.mjs",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "check-types": "tsc --noEmit",
-    "prelint": "bun run prebuild",
     "lint": "biome check --error-on-warnings .",
-    "prelint:fix": "bun run prebuild",
     "lint:fix": "biome check --write --error-on-warnings .",
     "test": "bun test",
     "test:a11y": "playwright test --config playwright.config.ts"
@@ -25,8 +22,7 @@
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "shiki": "^3.22.0",
-    "velite": "^0.3.1"
+    "shiki": "^3.22.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

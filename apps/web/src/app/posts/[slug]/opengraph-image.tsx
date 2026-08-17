@@ -1,8 +1,8 @@
-import { posts } from '@velite';
 import { Effect } from 'effect';
 import { notFound } from 'next/navigation';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
+import { getPostBySlug } from '@/features/posts/content/posts-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
@@ -16,7 +16,7 @@ const OpengraphImage = async ({
   params: Promise<{ slug: string }>;
 }>): Promise<ImageResponse> => {
   const { slug } = await params;
-  const post = posts.find((entry) => entry.slug === slug);
+  const post = getPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -24,8 +24,8 @@ const OpengraphImage = async ({
 
   return Effect.runPromise(
     createOgImageResponse({
-      eyebrow: post.category,
-      title: post.title,
+      eyebrow: post.meta.category,
+      title: post.meta.title,
       footerLeft: 'David Vornholt',
       footerRight: new URL(siteUrl).host,
     }),

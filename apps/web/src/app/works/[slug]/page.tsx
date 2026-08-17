@@ -1,24 +1,19 @@
-import { works } from '@velite';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 
 import { siteUrl } from '@/config/site';
+import type { WorkMeta } from '@/features/works/content/work-meta';
+import { getWorkBySlug, works } from '@/features/works/content/works-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { CaseStudyLayout } from '@/shared/content/presentation/components/case-study-layout';
-import { MDXContent } from '@/shared/content/presentation/components/mdx-content';
 
 type WorkPageProps = Readonly<{
   params: Promise<{ slug: string }>;
 }>;
 
-type Work = (typeof works)[number];
-
-const getWorkBySlug = (slug: string): Work | undefined =>
-  works.find((work) => work.slug === slug);
-
 export const generateStaticParams = (): Array<{ slug: string }> =>
-  works.map((work) => ({ slug: work.slug }));
+  works.map((work) => ({ slug: work.meta.slug }));
 
 export const generateMetadata = async ({
   params,
@@ -30,43 +25,43 @@ export const generateMetadata = async ({
     return;
   }
 
-  const url = `${siteUrl}/works/${work.slug}`;
+  const url = `${siteUrl}/works/${work.meta.slug}`;
 
   return {
-    title: work.title,
-    description: work.subtitle,
+    title: work.meta.title,
+    description: work.meta.subtitle,
     alternates: {
       canonical: url,
     },
     openGraph: {
       type: 'article',
       url,
-      title: work.title,
-      description: work.subtitle,
-      publishedTime: work.date,
+      title: work.meta.title,
+      description: work.meta.subtitle,
+      publishedTime: work.meta.date,
       authors: ['David Vornholt'],
     },
     twitter: {
       card: 'summary_large_image',
-      title: work.title,
-      description: work.subtitle,
+      title: work.meta.title,
+      description: work.meta.subtitle,
     },
   };
 };
 
-const createCreativeWorkJsonLd = (work: Work): Record<string, unknown> => ({
+const createCreativeWorkJsonLd = (meta: WorkMeta): Record<string, unknown> => ({
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
-  name: work.title,
-  description: work.subtitle,
-  url: `${siteUrl}/works/${work.slug}`,
-  dateCreated: work.date,
+  name: meta.title,
+  description: meta.subtitle,
+  url: `${siteUrl}/works/${meta.slug}`,
+  dateCreated: meta.date,
   author: {
     '@type': 'Person',
     name: 'David Vornholt',
     url: siteUrl,
   },
-  keywords: work.techStack.join(', '),
+  keywords: meta.techStack.join(', '),
 });
 
 const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
@@ -77,7 +72,8 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
     notFound();
   }
 
-  const jsonLd = createCreativeWorkJsonLd(work);
+  const jsonLd = createCreativeWorkJsonLd(work.meta);
+  const Body = work.body;
 
   return (
     <>
@@ -88,14 +84,14 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
       />
       <BackNavigation href="/#works" label="Back to works" />
       <CaseStudyLayout
-        title={work.title}
-        subtitle={work.subtitle}
-        timeline={work.timeline}
-        role={work.role}
-        techStack={work.techStack}
-        liveUrl={work.liveUrl}
+        title={work.meta.title}
+        subtitle={work.meta.subtitle}
+        timeline={work.meta.timeline}
+        role={work.meta.role}
+        techStack={work.meta.techStack}
+        liveUrl={work.meta.liveUrl}
       >
-        <MDXContent code={work.content} />
+        <Body />
       </CaseStudyLayout>
     </>
   );

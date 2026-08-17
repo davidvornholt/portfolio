@@ -17,6 +17,8 @@ const routes = [
     path: '/posts/mastering-oklch-tailwind-v4',
   },
   { name: 'FES Kirchheim case study', path: '/works/fes-kirchheim' },
+  { name: 'Atrium case study', path: '/works/atrium' },
+  { name: 'ProsaBridge case study', path: '/works/prosabridge' },
 ] as const;
 
 const waitForFiniteAnimations = async (

@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowDown } from 'lucide-react';
 import {
   div as MotionDiv,
@@ -7,20 +8,13 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import profileImage from '@/public/profile-without-bg.png';
+import portraitImage from '@/public/portrait.png';
 
 const scrollAnimationDelaySeconds = 1.2;
-const scrollBounceDurationSeconds = 1.5;
-const scrollBounceDistancePixels = 8;
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-};
-
-const fadeInScale = {
-  initial: { opacity: 0, scale: 0.95 },
-  animate: { opacity: 1, scale: 1 },
 };
 
 const staggerContainer = {
@@ -42,15 +36,15 @@ export const Hero = (): ReactNode => (
       <div className="flex-1 text-center lg:text-left">
         <MotionP
           variants={fadeInUp}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: easing }}
           className="mb-3 font-medium text-primary text-sm uppercase tracking-widest sm:mb-4"
         >
-          Full Stack Developer & Digital Experience Architect
+          Full stack developer & digital experience architect
         </MotionP>
 
         <MotionH1
           variants={fadeInUp}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: easing }}
           className="mb-4 font-semibold font-serif text-5xl text-foreground leading-tight tracking-tight sm:mb-5 md:mb-6 md:text-6xl lg:text-7xl"
         >
           David Vornholt
@@ -58,8 +52,8 @@ export const Hero = (): ReactNode => (
 
         <MotionP
           variants={fadeInUp}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="mx-auto mb-6 max-w-xl font-serif text-muted-foreground text-xl italic sm:mb-7 md:mb-8 md:text-2xl lg:mx-0 lg:max-w-2xl"
+          transition={{ duration: 0.6, ease: easing }}
+          className="mx-auto mb-6 max-w-xl font-serif text-welcome text-xl italic sm:mb-7 md:mb-8 md:text-2xl lg:mx-0 lg:max-w-2xl"
         >
           &ldquo;Speaking the languages of humans and machines with equal
           precision.&rdquo;
@@ -67,7 +61,7 @@ export const Hero = (): ReactNode => (
 
         <MotionP
           variants={fadeInUp}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: easing }}
           className="mx-auto mb-8 max-w-xl text-base text-foreground/80 leading-relaxed sm:mb-10 md:mb-12 md:text-lg lg:mx-0 lg:max-w-2xl"
         >
           Fluent in four languages and the strict logic of functional
@@ -78,63 +72,61 @@ export const Hero = (): ReactNode => (
 
         <MotionDiv
           variants={fadeInUp}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: easing }}
           className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 lg:justify-start"
         >
           <Link
             href="#works"
-            className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-6 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90 sm:h-12 sm:px-8"
+            className="inline-flex h-11 items-center justify-center bg-primary px-6 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary-strong sm:h-12 sm:px-8"
           >
-            View Selected Works
+            View selected works
           </Link>
           <Link
             href="#contact"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-background px-6 font-medium text-foreground text-sm transition-colors hover:bg-secondary sm:h-12 sm:px-8"
+            className="inline-flex h-11 items-center justify-center border border-border bg-background px-6 font-medium text-foreground text-sm transition-colors hover:bg-secondary sm:h-12 sm:px-8"
           >
-            Get in Touch
+            Get in touch
           </Link>
         </MotionDiv>
       </div>
 
       <MotionDiv
-        variants={fadeInScale}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
+        variants={fadeInUp}
+        transition={{ duration: 0.7, ease: easing }}
         className="relative shrink-0"
       >
-        <div className="relative h-64 w-52 overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 to-primary/5 ring-1 ring-border sm:h-72 sm:w-56 md:h-80 md:w-64 lg:h-96 lg:w-72">
+        <div className="relative h-64 w-52 overflow-hidden border border-border sm:h-72 sm:w-56 md:h-80 md:w-64 lg:h-96 lg:w-72">
           <Image
-            src={profileImage}
+            src={portraitImage}
             alt="David Vornholt"
             className="h-full w-full object-cover"
             priority={true}
             placeholder="blur"
           />
         </div>
-        <div className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl border border-primary/20 sm:-bottom-4 sm:-left-4" />
+        <div
+          aria-hidden={true}
+          className="absolute -bottom-3 -left-3 h-full w-full border border-primary/20 sm:-bottom-4 sm:-left-4"
+        />
       </MotionDiv>
     </MotionDiv>
 
     <MotionDiv
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: scrollAnimationDelaySeconds, duration: 0.8 }}
+      transition={{
+        delay: scrollAnimationDelaySeconds,
+        duration: 0.8,
+        ease: easing,
+      }}
       className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 md:block lg:bottom-12"
     >
       <Link
         href="#works"
         aria-label="Scroll to works"
-        className="text-muted-foreground transition-colors hover:text-foreground"
+        className="group text-muted-foreground transition-colors hover:text-foreground"
       >
-        <MotionDiv
-          animate={{ y: [0, scrollBounceDistancePixels, 0] }}
-          transition={{
-            duration: scrollBounceDurationSeconds,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: 'easeInOut',
-          }}
-        >
-          <ArrowDown className="h-5 w-5" />
-        </MotionDiv>
+        <ArrowDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
       </Link>
     </MotionDiv>
   </section>

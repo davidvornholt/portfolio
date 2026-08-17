@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowUpRight, Calendar, Code2 } from 'lucide-react';
 import {
   article as MotionArticle,
@@ -79,7 +80,7 @@ const ProjectCardContent = ({
     <div className="md:col-span-2">
       <MotionSpan
         variants={numberHover}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        transition={{ duration: 0.3, ease: easing }}
         className="block font-bold font-mono text-6xl text-muted-foreground/60"
       >
         {project.number}
@@ -88,7 +89,7 @@ const ProjectCardContent = ({
 
     <MotionDiv
       variants={cardHover}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+      transition={{ duration: 0.3, ease: easing }}
       className="md:col-span-10"
     >
       <header className="mb-6">
@@ -122,7 +123,7 @@ const ProjectCardContent = ({
       <div className="space-y-4">
         <div>
           <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-            The Challenge
+            The challenge
           </h4>
           <p className="text-foreground/80 leading-relaxed">
             {project.description}
@@ -131,7 +132,7 @@ const ProjectCardContent = ({
 
         <div>
           <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-            The Outcome
+            The outcome
           </h4>
           <p className="text-foreground/80 leading-relaxed">
             {project.outcome}
@@ -141,10 +142,10 @@ const ProjectCardContent = ({
 
       {project.href === undefined ? null : (
         <span className="mt-6 inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
-          View Case Study
+          View case study
           <MotionSpan
             variants={arrowHover}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.3, ease: easing }}
           >
             <ArrowUpRight className="h-4 w-4" />
           </MotionSpan>
@@ -160,7 +161,7 @@ const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => {
   return (
     <MotionArticle
       {...fadeInUp}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.6, ease: easing }}
       whileHover="hover"
       initial="initial"
       className="group relative border-border border-t py-16 first:border-t-0"
@@ -172,6 +173,8 @@ const ProjectCard = ({ project }: { readonly project: Project }): ReactNode => {
             target: '_blank',
             rel: 'noopener noreferrer',
           })}
+          data-umami-event="case-study-open"
+          data-umami-event-project={project.id}
           className="block"
         >
           <ProjectCardContent project={project} />
@@ -188,14 +191,14 @@ export const SelectedWorks = (): ReactNode => (
     <div className="mx-auto max-w-6xl">
       <MotionHeader
         {...fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mb-16"
       >
         <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
           Portfolio
         </p>
         <h2 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
-          Selected Works
+          Selected works
         </h2>
       </MotionHeader>
 

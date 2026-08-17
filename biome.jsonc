@@ -38,6 +38,7 @@
         "apps/web/velite.config.ts",
         "apps/web/src/app/**/layout.tsx",
         "apps/web/src/app/**/page.tsx",
+        "apps/web/src/app/**/opengraph-image.tsx",
         "apps/web/src/app/robots.ts",
         "apps/web/src/app/sitemap.ts"
       ],
@@ -62,26 +63,54 @@
       }
     },
     {
-      // shadcn component modules intentionally co-export component variants
-      // and contain long Tailwind variant strings that the entropy heuristic
-      // misclassifies as credentials.
+      // The Next.js opengraph-image file convention requires alt, size, and
+      // contentType config exports alongside the image component.
+      "includes": ["apps/web/src/app/**/opengraph-image.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useComponentExportOnlyModules": "off"
+          }
+        }
+      }
+    },
+    {
+      // Satori renders Open Graph images without stylesheets; inline styles
+      // are its only styling mechanism.
+      "includes": ["apps/web/src/shared/og/presentation/components/og-card.tsx"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noInlineStyles": "off"
+          }
+        }
+      }
+    },
+    {
+      // Next.js inlines literal process.env reads at build time; this file is
+      // the app's single environment-configuration boundary.
+      "includes": ["apps/web/src/config/analytics.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off"
+          },
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      // Long Tailwind utility strings in this presentational component trip
+      // the entropy heuristic, which misclassifies them as credentials.
       "includes": [
-        "apps/web/src/shared/ui/presentation/components/alert-dialog.tsx",
-        "apps/web/src/shared/ui/presentation/components/badge.tsx",
-        "apps/web/src/shared/ui/presentation/components/button.tsx",
-        "apps/web/src/shared/ui/presentation/components/combobox.tsx",
-        "apps/web/src/shared/ui/presentation/components/dropdown-menu.tsx",
-        "apps/web/src/shared/ui/presentation/components/field.tsx",
-        "apps/web/src/shared/ui/presentation/components/input-group.tsx",
-        "apps/web/src/shared/ui/presentation/components/select.tsx"
+        "apps/web/src/shared/ui/presentation/components/badge.tsx"
       ],
       "linter": {
         "rules": {
           "security": {
             "noSecrets": "off"
-          },
-          "style": {
-            "useComponentExportOnlyModules": "off"
           }
         }
       }
@@ -153,10 +182,7 @@
       // Cohesive framework/generated-style component boundaries that are
       // clearer as single files. Each exception is documented under docs/.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
-        "apps/web/src/shared/ui/presentation/components/combobox.tsx",
-        "apps/web/src/shared/ui/presentation/components/dropdown-menu.tsx",
-        "apps/web/src/shared/ui/presentation/components/field.tsx"
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
       ],
       "linter": {
         "rules": {

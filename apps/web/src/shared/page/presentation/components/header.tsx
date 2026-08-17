@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { header as MotionHeader } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -28,8 +29,8 @@ export const Header = (): ReactNode => (
   <MotionHeader
     initial={{ opacity: 0, y: -20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
-    className="fixed top-0 right-0 left-0 z-50 border-border/40 border-b bg-background/80 backdrop-blur-lg backdrop-saturate-150"
+    transition={{ duration: 0.6, ease: easing }}
+    className="fixed top-0 right-0 left-0 z-50 border-border border-b bg-background"
   >
     <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
       <Link

@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { Mail } from 'lucide-react';
 import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
@@ -23,7 +24,8 @@ const EmailLink = (): ReactNode => {
   return (
     <a
       href={`mailto:${emailAddress}`}
-      className="group inline-flex items-center gap-3 rounded-md bg-primary-foreground px-8 py-4 font-medium text-base text-primary transition-all hover:bg-primary-foreground/90"
+      data-umami-event="contact-email"
+      className="group inline-flex items-center gap-3 bg-deep-foreground px-8 py-4 font-medium text-base text-deep transition-colors hover:bg-deep-foreground/90"
     >
       <Mail className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
       {emailAddress}
@@ -32,21 +34,21 @@ const EmailLink = (): ReactNode => {
 };
 
 export const CTA = (): ReactNode => (
-  <section id="contact" className="bg-primary px-6 py-24 md:py-32">
+  <section id="contact" className="bg-deep px-6 py-24 md:py-32">
     <MotionDiv
       {...fadeInUp}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.6, ease: easing }}
       className="mx-auto max-w-3xl text-center"
     >
-      <p className="mb-4 font-medium text-primary-foreground/70 text-sm uppercase tracking-widest">
-        Let&apos;s Connect
+      <p className="mb-4 font-medium text-deep-primary text-sm uppercase tracking-widest">
+        Let&apos;s connect
       </p>
 
-      <h2 className="mb-6 font-semibold font-serif text-4xl text-primary-foreground md:text-5xl">
-        Ready to Build Something Meaningful?
+      <h2 className="mb-6 font-semibold font-serif text-4xl text-deep-foreground md:text-5xl">
+        Ready to build something meaningful?
       </h2>
 
-      <p className="mb-10 text-lg text-primary-foreground/80 leading-relaxed">
+      <p className="mb-10 text-deep-muted-foreground text-lg leading-relaxed">
         Great systems start with a conversation. Whether you have a specific
         project in mind or want to discuss the intersection of code and
         community, let&apos;s architect something that lasts.

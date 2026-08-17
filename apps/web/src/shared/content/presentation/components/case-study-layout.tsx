@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { Clock, ExternalLink, Users } from 'lucide-react';
 import { header as MotionHeader } from 'motion/react-client';
 import type { ReactNode } from 'react';
@@ -33,11 +34,11 @@ export const CaseStudyLayout = ({
   <article className="pb-24">
     <MotionHeader
       {...fadeInUp}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.6, ease: easing }}
       className="mx-auto mt-12 mb-16 max-w-4xl px-6"
     >
       <p className="mb-4 font-medium text-primary text-sm uppercase tracking-widest">
-        Case Study
+        Case study
       </p>
       <h1 className="mb-6 font-semibold font-serif text-4xl text-foreground leading-tight md:text-5xl lg:text-6xl">
         {title}
@@ -70,9 +71,11 @@ export const CaseStudyLayout = ({
           href={liveUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/80"
+          data-umami-event="live-platform-visit"
+          data-umami-event-title={title}
+          className="mt-8 inline-flex h-9 items-center justify-center gap-2 bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary-strong"
         >
-          Visit Live Platform
+          Visit live platform
           <ExternalLink className="h-4 w-4" />
         </a>
       )}

@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowLeft } from 'lucide-react';
 import {
   div as MotionDiv,
@@ -30,7 +31,7 @@ export const LabHero = (): ReactNode => (
     >
       <MotionDiv
         variants={fadeInUp}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: easing }}
         className="mb-12"
       >
         <Link
@@ -38,29 +39,29 @@ export const LabHero = (): ReactNode => (
           className="inline-flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Studio
+          Back to studio
         </Link>
       </MotionDiv>
 
       <MotionP
         variants={fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mb-3 font-medium text-primary text-sm uppercase tracking-widest sm:mb-4"
       >
-        Private Archive
+        Private archive
       </MotionP>
 
       <MotionH1
         variants={fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mb-4 font-semibold font-serif text-5xl text-foreground leading-tight tracking-tight sm:mb-5 md:mb-6 md:text-6xl lg:text-7xl"
       >
-        The Creative Lab
+        The creative lab
       </MotionH1>
 
       <MotionP
         variants={fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mx-auto mb-8 max-w-2xl font-serif text-muted-foreground text-xl italic md:text-2xl"
       >
         A private archive of early experiments in visual storytelling and media.
@@ -68,7 +69,7 @@ export const LabHero = (): ReactNode => (
 
       <MotionP
         variants={fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mx-auto max-w-2xl text-base text-foreground/80 leading-relaxed md:text-lg"
       >
         Before focusing on digital architecture, I explored the world through a

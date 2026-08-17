@@ -35,6 +35,9 @@ export const generateMetadata = async ({
   return {
     title: work.title,
     description: work.subtitle,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       type: 'article',
       url,
@@ -42,20 +45,11 @@ export const generateMetadata = async ({
       description: work.subtitle,
       publishedTime: work.date,
       authors: ['David Vornholt'],
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 1200,
-          alt: work.title,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: work.title,
       description: work.subtitle,
-      images: ['/og-image.png'],
     },
   };
 };
@@ -92,7 +86,7 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/#works" label="Back to Works" />
+      <BackNavigation href="/#works" label="Back to works" />
       <CaseStudyLayout
         title={work.title}
         subtitle={work.subtitle}

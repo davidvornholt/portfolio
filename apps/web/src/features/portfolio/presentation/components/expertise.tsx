@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { Award, Globe } from 'lucide-react';
 import { div as MotionDiv, header as MotionHeader } from 'motion/react-client';
 import type { ReactNode } from 'react';
@@ -35,15 +36,13 @@ const ExpertiseCard = ({
       {...fadeInUp}
       transition={{
         duration: 0.6,
-        ease: 'easeOut',
+        ease: easing,
         delay: index * expertiseCardStaggerSeconds,
       }}
-      className="group rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary/20"
+      className="border border-border p-6 transition-colors hover:border-primary/40"
     >
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
-        </div>
+        <Icon className="h-5 w-5 text-primary" />
         <h3 className="font-semibold font-serif text-foreground text-lg">
           {category.title}
         </h3>
@@ -75,7 +74,7 @@ const LanguageItem = ({
     {...fadeInUp}
     transition={{
       duration: 0.6,
-      ease: 'easeOut',
+      ease: easing,
       delay: languageInitialDelaySeconds + index * languageStaggerSeconds,
     }}
     className="flex items-center justify-between border-border border-b py-4 last:border-b-0"
@@ -94,22 +93,25 @@ const LanguageItem = ({
 );
 
 export const Expertise = (): ReactNode => (
-  <section id="expertise" className="bg-muted/30 px-6 py-24 md:py-32">
+  <section
+    id="expertise"
+    className="border-border border-t px-6 py-24 md:py-32"
+  >
     <div className="mx-auto max-w-6xl">
       <MotionHeader
         {...fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, ease: easing }}
         className="mb-16"
       >
         <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
           Capabilities
         </p>
         <h2 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
-          Expertise & Competencies
+          Expertise & competencies
         </h2>
       </MotionHeader>
 
-      <div className="mb-8 grid gap-6 md:grid-cols-2">
+      <div className="mb-16 grid gap-6 md:grid-cols-2">
         {expertiseCategories.map((category, index) => (
           <ExpertiseCard key={category.id} category={category} index={index} />
         ))}
@@ -117,16 +119,14 @@ export const Expertise = (): ReactNode => (
 
       <MotionDiv
         {...fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
-        className="rounded-lg border border-border bg-card p-6"
+        transition={{ duration: 0.6, ease: easing, delay: 0.3 }}
+        className="mb-16"
       >
         <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-            <Globe className="h-5 w-5 text-primary" />
-          </div>
+          <Globe className="h-5 w-5 text-primary" />
           <div>
             <h3 className="font-semibold font-serif text-foreground text-lg">
-              The Polyglot Advantage
+              The polyglot advantage
             </h3>
             <p className="text-muted-foreground text-sm">
               Languages bridge cultures and enable global collaboration
@@ -134,7 +134,7 @@ export const Expertise = (): ReactNode => (
           </div>
         </div>
 
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border border-border border-t">
           {languages.map((language, index) => (
             <LanguageItem
               key={language.name}
@@ -145,19 +145,15 @@ export const Expertise = (): ReactNode => (
         </div>
       </MotionDiv>
 
-      {/* Verified Expertise */}
       <MotionDiv
         {...fadeInUp}
-        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
-        className="mt-8"
+        transition={{ duration: 0.6, ease: easing, delay: 0.4 }}
       >
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-            <Award className="h-5 w-5 text-primary" />
-          </div>
+          <Award className="h-5 w-5 text-primary" />
           <div>
             <h3 className="font-semibold font-serif text-foreground text-lg">
-              Verified Expertise
+              Verified expertise
             </h3>
             <p className="text-muted-foreground text-sm">
               Professional certifications as proof of competence

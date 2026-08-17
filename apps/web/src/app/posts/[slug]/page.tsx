@@ -34,6 +34,9 @@ export const generateMetadata = async ({
   return {
     title: post.title,
     description: post.excerpt,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       type: 'article',
       url,
@@ -42,20 +45,11 @@ export const generateMetadata = async ({
       publishedTime: post.date,
       authors: ['David Vornholt'],
       section: post.category,
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 1200,
-          alt: post.title,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.excerpt,
-      images: ['/og-image.png'],
     },
   };
 };
@@ -92,7 +86,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/#blog" label="Back to Blog" />
+      <BackNavigation href="/#blog" label="Back to blog" />
       <article className="mx-auto max-w-4xl px-6 pt-32 pb-24">
         <header className="mt-12 mb-12 border-border border-b pb-8">
           <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">

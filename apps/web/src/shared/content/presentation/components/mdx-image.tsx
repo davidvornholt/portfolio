@@ -13,7 +13,7 @@ export const MDXImage = ({
   priority?: boolean;
 }>): ReactNode => (
   <figure className="my-8">
-    <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+    <div className="relative aspect-video w-full overflow-hidden border border-border">
       <Image
         src={src}
         alt={alt}

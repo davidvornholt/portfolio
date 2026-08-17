@@ -1,0 +1,105 @@
+/*
+ * Warm-print theme — the single source of design values.
+ * Semantic meaning and usage rules live in the root DESIGN.md.
+ */
+
+:root {
+  /* Primitive ramps */
+  --paper-100: oklch(0.965 0.013 84);
+  --paper-200: oklch(0.938 0.016 84);
+  --paper-300: oklch(0.905 0.02 84);
+  --line-300: oklch(0.85 0.02 80);
+  --ink-900: oklch(0.245 0.02 60);
+  --ink-600: oklch(0.46 0.018 62);
+  --green-700: oklch(0.4 0.075 152);
+  --green-800: oklch(0.34 0.07 152);
+  --clay-600: oklch(0.55 0.11 45);
+  --red-600: oklch(0.52 0.15 30);
+  --deep-ground-900: oklch(0.235 0.018 58);
+  --deep-ink-100: oklch(0.94 0.014 84);
+  --deep-ink-400: oklch(0.74 0.016 80);
+  --deep-line-700: oklch(0.36 0.02 62);
+  --deep-green-300: oklch(0.73 0.09 152);
+
+  /* Semantic aliases */
+  --background: var(--paper-100);
+  --foreground: var(--ink-900);
+  --card: var(--paper-100);
+  --card-foreground: var(--ink-900);
+  --primary: var(--green-700);
+  --primary-strong: var(--green-800);
+  --primary-foreground: var(--paper-100);
+  --secondary: var(--paper-200);
+  --secondary-foreground: var(--ink-900);
+  --muted: var(--paper-200);
+  --muted-foreground: var(--ink-600);
+  --welcome: var(--clay-600);
+  --welcome-foreground: var(--paper-100);
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--paper-100);
+  --border: var(--line-300);
+  --input: var(--line-300);
+  --ring: var(--green-700);
+
+  /* Deep register: the one inverse surface, part of light mode */
+  --deep: var(--deep-ground-900);
+  --deep-foreground: var(--deep-ink-100);
+  --deep-muted-foreground: var(--deep-ink-400);
+  --deep-border: var(--deep-line-700);
+  --deep-primary: var(--deep-green-300);
+}
+
+@theme {
+  /* Only semantic colors exist; the default Tailwind palette is disabled. */
+  --color-*: initial;
+
+  /* Corners are square. Circles use rounded-full, which stays intact. */
+  --radius-*: initial;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  /* Shadows only under elements that genuinely float. */
+  --shadow-*: initial;
+  --shadow-float: 0 8px 24px oklch(0.245 0.02 60 / 0.16);
+
+  /* One easing curve everywhere. */
+  --ease-*: initial;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-timing-function: var(--ease-out);
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-welcome: var(--welcome);
+  --color-welcome-foreground: var(--welcome-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-deep: var(--deep);
+  --color-deep-foreground: var(--deep-foreground);
+  --color-deep-muted-foreground: var(--deep-muted-foreground);
+  --color-deep-border: var(--deep-border);
+  --color-deep-primary: var(--deep-primary);
+}

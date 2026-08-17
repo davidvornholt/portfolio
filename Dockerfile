@@ -8,6 +8,7 @@ COPY package.json bun.lock ./
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages/a11y-testing/package.json ./packages/a11y-testing/package.json
 COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
 RUN bun install --frozen-lockfile
 
 # ---- build ----
@@ -30,6 +31,7 @@ COPY package.json bun.lock ./
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages/a11y-testing/package.json ./packages/a11y-testing/package.json
 COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
 RUN bun install --frozen-lockfile --production
 
 # ---- runtime ----

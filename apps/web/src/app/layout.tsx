@@ -1,18 +1,14 @@
-import type { Metadata } from 'next';
-import {
-  IBM_Plex_Mono,
-  IBM_Plex_Sans,
-  Inter,
-  Source_Serif_4,
-} from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
+import Script from 'next/script';
 import type { ReactNode } from 'react';
+import { umamiScriptUrl, umamiWebsiteId } from '@/config/analytics';
 import { siteUrl } from '@/config/site';
 import { Footer } from '@/shared/page/presentation/components/footer';
-import { cn } from '@/shared/ui/services/utils';
+import { MotionProvider } from '@/shared/ui/presentation/components/motion-provider';
+import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
 import { Header } from '../shared/page/presentation/components/header';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: '--font-sans',
@@ -51,6 +47,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'David Vornholt', url: siteUrl }],
   creator: 'David Vornholt',
+  alternates: {
+    canonical: '/',
+  },
   robots: {
     index: true,
     follow: true,
@@ -70,14 +69,6 @@ export const metadata: Metadata = {
     title: 'David Vornholt | Full Stack Developer',
     description:
       'Speaking the languages of humans and machines with equal precision.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 1200,
-        alt: 'David Vornholt - Full Stack Developer',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -85,8 +76,11 @@ export const metadata: Metadata = {
     description:
       'Speaking the languages of humans and machines with equal precision.',
     creator: '@davidvornholt',
-    images: ['/og-image.png'],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: themeAnchorColors.paper100,
 };
 
 const personJsonLd = {
@@ -95,7 +89,7 @@ const personJsonLd = {
   name: 'David Vornholt',
   jobTitle: 'Digital Experience Architect',
   url: siteUrl,
-  image: `${siteUrl}/og-image.png`,
+  image: `${siteUrl}/portrait.png`,
   sameAs: [
     'https://www.linkedin.com/in/david-vornholt-055239366',
     'https://github.com/davidvornholt',
@@ -112,25 +106,51 @@ const personJsonLd = {
   ],
 } as const;
 
+const webSiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'David Vornholt',
+  url: siteUrl,
+  author: {
+    '@type': 'Person',
+    name: 'David Vornholt',
+    url: siteUrl,
+  },
+} as const;
+
 const RootLayout = ({
   children,
 }: Readonly<{
   children: ReactNode;
 }>): ReactNode => (
-  <html lang="en" className={cn('scroll-smooth', inter.variable)}>
+  <html lang="en" className="motion-safe:scroll-smooth">
     <head>
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Next.js JSON-LD requires a serialized script payload from this static object.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Next.js JSON-LD requires a serialized script payload from this static object.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
     </head>
     <body
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
     >
-      <Header />
-      <main>{children}</main>
-      <Footer />
+      <MotionProvider>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </MotionProvider>
+      {umamiWebsiteId === undefined ? null : (
+        <Script
+          src={umamiScriptUrl}
+          data-website-id={umamiWebsiteId}
+          strategy="afterInteractive"
+        />
+      )}
     </body>
   </html>
 );

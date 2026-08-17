@@ -103,11 +103,14 @@ export const MDXBlockquote = ({
       : nodes.filter((node) => !(isValidElement(node) && node.type === 'cite'));
 
   return (
-    <blockquote className="relative mt-8 rounded-lg border border-border bg-card p-8">
-      <div className="absolute -top-3 left-6 bg-background px-2">
-        <span className="font-serif text-4xl text-primary">&ldquo;</span>
-      </div>
-      <div className="font-serif text-foreground text-lg italic">
+    <blockquote className="mt-8 border-border border-l pl-8">
+      <span
+        aria-hidden="true"
+        className="block font-serif text-4xl text-primary leading-none"
+      >
+        &ldquo;
+      </span>
+      <div className="mt-2 font-serif text-foreground text-lg italic">
         {quoteNodes}
       </div>
       {author === undefined ? null : (

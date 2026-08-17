@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { section as MotionSection } from 'motion/react-client';
 import type { ReactNode } from 'react';
@@ -15,7 +16,7 @@ export const MDXSection = ({
 }>): ReactNode => (
   <MotionSection
     {...fadeInUp}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
+    transition={{ duration: 0.6, ease: easing }}
     className={`mx-auto mb-20 max-w-4xl px-6 ${className}`}
     aria-label={ariaLabel}
   >
@@ -30,7 +31,7 @@ export const MDXCallout = ({
   title?: string;
   children: ReactNode;
 }>): ReactNode => (
-  <div className="my-8 rounded-lg border-primary border-l-4 bg-primary/5 p-6">
+  <div className="my-8 border-primary border-l-2 py-1 pl-6">
     {title === undefined ? null : (
       <p className="font-medium text-foreground">{title}</p>
     )}
@@ -45,11 +46,16 @@ export const MDXAttributedBlockquote = ({
   children: ReactNode;
   author?: string;
 }>): ReactNode => (
-  <blockquote className="relative mt-8 rounded-lg border border-border bg-card p-8">
-    <div className="absolute -top-3 left-6 bg-background px-2">
-      <span className="font-serif text-4xl text-primary">&ldquo;</span>
+  <blockquote className="mt-8 border-border border-l pl-8">
+    <span
+      aria-hidden="true"
+      className="block font-serif text-4xl text-primary leading-none"
+    >
+      &ldquo;
+    </span>
+    <div className="mt-2 font-serif text-foreground text-lg italic">
+      {children}
     </div>
-    <div className="font-serif text-foreground text-lg italic">{children}</div>
     {author === undefined ? null : (
       <footer className="mt-4 text-muted-foreground text-sm">— {author}</footer>
     )}
@@ -93,7 +99,7 @@ export const MDXCallToAction = ({
 }>): ReactNode => (
   <MotionSection
     {...fadeInUp}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
+    transition={{ duration: 0.6, ease: easing }}
     className="mx-auto max-w-4xl px-6"
   >
     <Separator className="mb-16" />
@@ -108,7 +114,9 @@ export const MDXCallToAction = ({
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-6 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/80"
+        data-umami-event="content-cta"
+        data-umami-event-title={title}
+        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap bg-primary px-6 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary-strong"
       >
         {linkText}
         <ArrowUpRight className="h-4 w-4" />

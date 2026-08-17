@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import { ArrowUpRight } from 'lucide-react';
 import { a as MotionA } from 'motion/react-client';
 import type { ReactNode } from 'react';
@@ -25,14 +26,14 @@ export const CertificationItem = ({
     {...fadeInUp}
     transition={{
       duration: 0.6,
-      ease: 'easeOut',
+      ease: easing,
       delay:
         certificationInitialDelaySeconds + index * certificationStaggerSeconds,
     }}
     href={certification.href}
     target="_blank"
     rel="noopener noreferrer"
-    className="group flex flex-col gap-2 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/20 hover:bg-secondary"
+    className="group flex flex-col gap-2 border border-border p-5 transition-colors hover:border-primary/40"
   >
     <div className="flex items-start justify-between gap-4">
       <div className="flex flex-col gap-1">
@@ -43,7 +44,7 @@ export const CertificationItem = ({
           {certification.title}
         </h4>
       </div>
-      <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+      <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
     </div>
     <p className="text-muted-foreground text-sm leading-relaxed">
       {certification.description}

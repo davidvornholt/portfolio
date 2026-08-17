@@ -1,3 +1,4 @@
+import { easing } from '@portfolio/ui/easing';
 import {
   CheckCircle2,
   Code2,
@@ -48,15 +49,15 @@ export const MDXStatCard = ({
       initial: { opacity: 0, y: 20 },
       whileInView: { opacity: 1, y: 0 },
     }}
-    transition={{ duration: 0.5, ease: 'easeOut' }}
-    className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30 hover:shadow-sm"
+    transition={{ duration: 0.5, ease: easing }}
+    className="border border-border p-6 transition-colors hover:border-primary/40"
   >
     <div className="mb-4 flex items-center justify-between">
       <span className="text-primary">{iconMap[icon]}</span>
       {trend === 'up' ? (
-        <TrendingUp className="h-4 w-4 text-green-600" />
+        <TrendingUp className="h-4 w-4 text-primary" />
       ) : (
-        <TrendingDown className="h-4 w-4 text-green-600" />
+        <TrendingDown className="h-4 w-4 text-primary" />
       )}
     </div>
     <p className="font-bold font-mono text-3xl text-foreground">{value}</p>
@@ -97,8 +98,8 @@ export const MDXFeatureCard = ({
       initial: { opacity: 0, y: 20 },
       whileInView: { opacity: 1, y: 0 },
     }}
-    transition={{ duration: 0.5, delay }}
-    className="rounded-lg border border-border bg-card p-6"
+    transition={{ duration: 0.5, delay, ease: easing }}
+    className="border border-border p-6"
   >
     <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
       <span className="text-primary">{iconMap[icon]}</span>
@@ -136,8 +137,8 @@ export const MDXChart = ({
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="my-8 rounded-lg border border-border bg-card p-6"
+      transition={{ duration: 0.6, ease: easing }}
+      className="my-8 border border-border p-6"
     >
       <h4 className="mb-6 font-medium text-foreground text-sm">{title}</h4>
       <div className="space-y-4">
@@ -153,7 +154,7 @@ export const MDXChart = ({
                   {unit}
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-2 w-full overflow-hidden bg-muted">
                 <MotionDiv
                   initial={{ width: 0 }}
                   whileInView={{ width: `${percentage}%` }}
@@ -161,8 +162,9 @@ export const MDXChart = ({
                   transition={{
                     duration: 0.8,
                     delay: index * chartItemDelaySeconds,
+                    ease: easing,
                   }}
-                  className="h-full rounded-full bg-primary"
+                  className="h-full bg-primary"
                 />
               </div>
             </div>

@@ -123,7 +123,7 @@ const RootLayout = ({
 }: Readonly<{
   children: ReactNode;
 }>): ReactNode => (
-  <html lang="en" className="scroll-smooth">
+  <html lang="en" className="motion-safe:scroll-smooth">
     <head>
       <script
         type="application/ld+json"

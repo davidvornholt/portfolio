@@ -1,4 +1,5 @@
 import { works } from '@velite';
+import { Effect } from 'effect';
 import { notFound } from 'next/navigation';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
@@ -21,12 +22,14 @@ const OpengraphImage = async ({
     notFound();
   }
 
-  return createOgImageResponse({
-    eyebrow: 'Case study',
-    title: work.title,
-    footerLeft: 'David Vornholt',
-    footerRight: new URL(siteUrl).host,
-  });
+  return Effect.runPromise(
+    createOgImageResponse({
+      eyebrow: 'Case study',
+      title: work.title,
+      footerLeft: 'David Vornholt',
+      footerRight: new URL(siteUrl).host,
+    }),
+  );
 };
 
 export default OpengraphImage;

@@ -1,3 +1,4 @@
+import { Effect } from 'effect';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
@@ -9,12 +10,14 @@ export const size = ogImageSize;
 export const contentType = 'image/png';
 
 const OpengraphImage = (): Promise<ImageResponse> =>
-  createOgImageResponse({
-    eyebrow: 'Full stack developer & digital experience architect',
-    title: 'David Vornholt',
-    italicPhrase: 'Speaking the languages of humans and machines.',
-    footerLeft: new URL(siteUrl).host,
-    footerRight: 'Portfolio',
-  });
+  Effect.runPromise(
+    createOgImageResponse({
+      eyebrow: 'Full stack developer & digital experience architect',
+      title: 'David Vornholt',
+      italicPhrase: 'Speaking the languages of humans and machines.',
+      footerLeft: new URL(siteUrl).host,
+      footerRight: 'Portfolio',
+    }),
+  );
 
 export default OpengraphImage;

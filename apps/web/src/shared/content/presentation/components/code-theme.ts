@@ -40,7 +40,7 @@ export const warmPrintCodeTheme: ThemeRegistrationAny = {
         'variable.other.constant',
         'support.constant',
       ],
-      settings: { foreground: themeAnchorColors.clay700 },
+      settings: { foreground: themeAnchorColors.clay600 },
     },
     {
       scope: ['entity.name.function', 'support.function', 'meta.function-call'],
@@ -70,7 +70,7 @@ export const warmPrintCodeTheme: ThemeRegistrationAny = {
     },
     {
       scope: ['entity.other.attribute-name'],
-      settings: { foreground: themeAnchorColors.clay700 },
+      settings: { foreground: themeAnchorColors.clay600 },
     },
     {
       scope: ['markup.italic'],

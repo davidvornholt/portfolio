@@ -14,7 +14,6 @@ export const themeAnchorColors = {
   green700: '#245333',
   green800: '#164225',
   clay600: '#a55a37',
-  clay700: '#824121',
   deepGround900: '#251c16',
   deepInk100: '#f0ebe1',
   deepGreen300: '#7cb88c',

@@ -22,7 +22,6 @@ const routes = [
 const waitForFiniteAnimations = async (
   page: Parameters<typeof scanWcag22AaViolations>[0],
 ): Promise<void> => {
-  await page.waitForFunction(() => document.getAnimations().length > 0);
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => {
       const iterations = animation.effect?.getTiming().iterations;
@@ -33,6 +32,29 @@ const waitForFiniteAnimations = async (
     }),
   );
 };
+
+test('reduced motion disables scripted animations and smooth scrolling', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await waitForFiniteAnimations(page);
+
+  expect(
+    await page.evaluate(
+      () => getComputedStyle(document.documentElement).scrollBehavior,
+    ),
+  ).toBe('auto');
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        document
+          .getAnimations()
+          .some((animation) => animation.playState === 'running'),
+      ),
+    )
+    .toBe(false);
+});
 
 test('color comparison renders distinct, non-transparent swatches', async ({
   page,

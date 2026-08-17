@@ -1,4 +1,10 @@
-import { Braces, Cloud, Code2, type LucideIcon, Sparkles } from 'lucide-react';
+import {
+  Cloud,
+  Code2,
+  type LucideIcon,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 import type { Certification } from './certification';
 
 export type ExpertiseCategory = {
@@ -17,63 +23,55 @@ export type Language = {
 
 export const expertiseCategories: ReadonlyArray<ExpertiseCategory> = [
   {
-    id: 'principles',
-    icon: Sparkles,
-    title: 'Engineering Principles',
+    id: 'product',
+    icon: Code2,
+    title: 'Product engineering',
     description:
-      'Deeply committed to the standards set by Robert C. Martin ("Uncle Bob"). I write code that is maintainable, testable, and self-documenting.',
+      'Typed end to end. Untrusted input is validated at the boundary, expected failures are typed errors, and the compiler enforces the contract between server and screen.',
     items: [
-      'Clean Code',
-      'SOLID Principles',
-      'Functional Paradigm',
-      'Test-Driven Development',
-      'Domain-Driven Design',
+      'TypeScript',
+      'Effect',
+      'Bun',
+      'Next.js',
+      'TanStack Start',
+      'PostgreSQL',
+      'Tailwind CSS v4',
     ],
   },
   {
-    id: 'stack',
-    icon: Code2,
-    title: 'Technical Stack',
+    id: 'ai',
+    icon: Sparkles,
+    title: 'AI engineering',
     description:
-      'Proficient in modern web technologies with a focus on type safety and developer experience.',
+      'Agents write most of my code under strict quality gates, and LLM pipelines run in my products. Nothing ships on a model’s word.',
     items: [
-      'TypeScript',
-      'Next.js 16',
-      'TanStack Start',
-      'Node.js',
-      'Bun',
-      'Tailwind CSS v4',
-      'shadcn/ui',
+      'LLM pipelines',
+      'MCP servers',
+      'Agent skills',
+      'Review loops',
+      'Structured outputs',
     ],
   },
   {
     id: 'infrastructure',
     icon: Cloud,
-    title: 'Infrastructure & DevOps',
+    title: 'Declarative infrastructure',
     description:
-      'IBM Certified CI/CD specialist with expertise in container orchestration and cloud deployment.',
-    items: [
-      'Docker',
-      'Kubernetes',
-      'OpenShift',
-      'GitHub Actions',
-      'Linux',
-      'Performance Optimization',
-    ],
+      'Servers are described in code, changed through reviewed pull requests, and converged to match the repository. Secrets stay encrypted at rest.',
+    items: ['NixOS', 'OpenTofu', 'Podman', 'SOPS', 'GitHub Actions', 'Caddy'],
   },
   {
-    id: 'backend',
-    icon: Braces,
-    title: 'Systems Programming',
+    id: 'quality',
+    icon: ShieldCheck,
+    title: 'Quality gates',
     description:
-      'Specialized in Go programming with certifications from UC Irvine covering concurrency and interfaces.',
+      'Lint, types, tests, and accessibility run as one command that must pass before anything merges. The gates strengthen over time and never weaken.',
     items: [
-      'Go',
-      'Concurrency Patterns',
-      'REST APIs',
-      'GraphQL',
-      'Database Design',
-      'Scalable Architecture',
+      'Strict TypeScript',
+      'Biome',
+      'Playwright + Axe',
+      'WCAG 2.2 AA',
+      'Fail-closed CI',
     ],
   },
 ];
@@ -90,21 +88,20 @@ export const certifications: ReadonlyArray<Certification> = [
     issuer: 'Meta',
     title: 'Front-End Professional Certificate',
     description:
-      'Specialization in building scalable, accessible web applications and complex UI architectures.',
+      'Building scalable, accessible web applications and complex UI architectures.',
     href: 'https://www.coursera.org/account/accomplishments/professional-cert/CLARJJOBU3KW',
   },
   {
     issuer: 'IBM',
     title: 'DevOps and Software Engineering Professional',
     description:
-      'Certified in CI/CD pipelines, Docker, Kubernetes, and Cloud-native development.',
+      'CI/CD pipelines, Docker, Kubernetes, and cloud-native development.',
     href: 'https://www.coursera.org/account/accomplishments/verify/ZUBODAYX2VM5',
   },
   {
     issuer: 'UC Irvine',
     title: 'Specialized Go Programming',
-    description:
-      'Expertise in concurrent systems programming and scalable back-end architecture.',
+    description: 'Concurrent programming and back-end architecture in Go.',
     href: 'https://www.coursera.org/account/accomplishments/verify/M0MK09J5OSBX',
   },
 ];

@@ -3,7 +3,11 @@ import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
-import { umamiScriptUrl, umamiWebsiteId } from '@/config/analytics';
+import {
+  umamiScriptUrl,
+  umamiTrackedDomain,
+  umamiWebsiteId,
+} from '@/config/analytics';
 import { siteUrl } from '@/config/site';
 import { Footer } from '@/shared/page/presentation/components/footer';
 import { MotionProvider } from '@/shared/ui/presentation/components/motion-provider';
@@ -145,13 +149,12 @@ const RootLayout = ({
         <main>{children}</main>
         <Footer />
       </MotionProvider>
-      {umamiWebsiteId === undefined ? null : (
-        <Script
-          src={umamiScriptUrl}
-          data-website-id={umamiWebsiteId}
-          strategy="afterInteractive"
-        />
-      )}
+      <Script
+        src={umamiScriptUrl}
+        data-website-id={umamiWebsiteId}
+        data-domains={umamiTrackedDomain}
+        strategy="afterInteractive"
+      />
     </body>
   </html>
 );

@@ -1,47 +1,27 @@
 import { describe, expect, it } from 'bun:test';
-import { Cause, Effect, Option } from 'effect';
 import {
-  AnalyticsConfigurationError,
-  decodeAnalyticsConfig,
+  umamiScriptUrl,
+  umamiTrackedDomain,
+  umamiWebsiteId,
 } from './analytics';
+import { siteUrl } from './site';
+
+const lowercaseUuid =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u;
 
 describe('analytics configuration', () => {
-  it('keeps analytics opt-out and supplies the default script URL', () => {
-    expect(Effect.runSync(decodeAnalyticsConfig({}))).toEqual({
-      websiteId: undefined,
-      scriptUrl: 'https://cloud.umami.is/script.js',
-    });
+  it('scopes the tracker to the deployed site so other hosts report nothing', () => {
+    expect(umamiTrackedDomain).toBe(new URL(siteUrl).hostname);
   });
 
-  it('rejects an empty website ID with a typed actionable error', () => {
-    const exit = Effect.runSyncExit(
-      decodeAnalyticsConfig(Object.fromEntries([['UMAMI_WEBSITE_ID', '   ']])),
-    );
-    if (exit._tag === 'Success') {
-      throw new Error('Expected the analytics configuration to fail.');
-    }
-    const error = Option.getOrThrow(Cause.failureOption(exit.cause));
+  it('loads the tracker from the self-hosted installation over HTTPS', () => {
+    const url = new URL(umamiScriptUrl);
 
-    expect(error).toBeInstanceOf(AnalyticsConfigurationError);
-    expect(error.message).toContain(
-      'UMAMI_WEBSITE_ID must not be empty when it is set.',
-    );
+    expect(url.protocol).toBe('https:');
+    expect(url.hostname).toBe('umami.vornholt.online');
   });
 
-  it('rejects non-HTTP(S) script URLs with a typed configuration error', () => {
-    const exit = Effect.runSyncExit(
-      decodeAnalyticsConfig(
-        Object.fromEntries([['UMAMI_SCRIPT_URL', 'javascript:alert(1)']]),
-      ),
-    );
-    if (exit._tag === 'Success') {
-      throw new Error('Expected the analytics configuration to fail.');
-    }
-    const error = Option.getOrThrow(Cause.failureOption(exit.cause));
-
-    expect(error).toBeInstanceOf(AnalyticsConfigurationError);
-    expect(error.message).toContain(
-      'UMAMI_SCRIPT_URL must be an absolute HTTP(S) URL.',
-    );
+  it('identifies the site with the website ID provisioned on the host', () => {
+    expect(umamiWebsiteId).toMatch(lowercaseUuid);
   });
 });

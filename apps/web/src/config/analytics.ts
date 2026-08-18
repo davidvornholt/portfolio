@@ -1,78 +1,18 @@
 /**
- * Umami analytics configuration. Values are read at build time while the
- * layout is prerendered, so they must be present in the environment of the
- * `next build` that produces the deployed artifact. When the website ID is
- * unset, no tracker is rendered and analytics is fully disabled.
+ * Umami analytics identity. These values are public — they are served in every
+ * page's HTML and grant no access to the dashboard — so they are tracked
+ * configuration alongside the site URL rather than build-time environment.
+ *
+ * The website ID must match the row the `personal-infra` repository provisions
+ * in the self-hosted Umami installation. Changing it here orphans every event
+ * already recorded under the old one.
  */
-import process from 'node:process';
-import { Data, Effect, Schema } from 'effect';
+import { siteUrl } from './site';
 
-export class AnalyticsConfigurationError extends Data.TaggedError(
-  'AnalyticsConfigurationError',
-)<{
-  readonly message: string;
-  readonly cause: unknown;
-}> {}
+export const umamiWebsiteId = '81f10165-1458-492d-9893-9e04b4e37a17';
 
-const nonEmptyWebsiteId = Schema.String.pipe(
-  Schema.filter(
-    (value) =>
-      value.trim().length > 0 ||
-      'UMAMI_WEBSITE_ID must not be empty when it is set.',
-  ),
-);
+export const umamiScriptUrl = 'https://umami.vornholt.online/script.js';
 
-const absoluteHttpScriptUrl = Schema.String.pipe(
-  Schema.filter((value) => {
-    try {
-      const url = new URL(value);
-      return (
-        ((url.protocol === 'http:' || url.protocol === 'https:') &&
-          url.hostname.length > 0) ||
-        'UMAMI_SCRIPT_URL must be an absolute HTTP(S) URL.'
-      );
-    } catch {
-      return 'UMAMI_SCRIPT_URL must be an absolute HTTP(S) URL.';
-    }
-  }),
-);
-
-const umamiWebsiteIdEnvironmentKey = 'UMAMI_WEBSITE_ID' as const;
-const umamiScriptUrlEnvironmentKey = 'UMAMI_SCRIPT_URL' as const;
-
-const analyticsEnvironmentSchema = Schema.Struct({
-  [umamiWebsiteIdEnvironmentKey]: Schema.optional(nonEmptyWebsiteId),
-  [umamiScriptUrlEnvironmentKey]: Schema.optional(absoluteHttpScriptUrl),
-});
-
-const defaultUmamiScriptUrl = 'https://cloud.umami.is/script.js';
-
-export const decodeAnalyticsConfig = (input: unknown) =>
-  Effect.try({
-    try: () => {
-      const environment = Schema.decodeUnknownSync(analyticsEnvironmentSchema)(
-        input,
-      );
-
-      return {
-        websiteId: environment[umamiWebsiteIdEnvironmentKey],
-        scriptUrl:
-          environment[umamiScriptUrlEnvironmentKey] ?? defaultUmamiScriptUrl,
-      } as const;
-    },
-    catch: (cause) =>
-      new AnalyticsConfigurationError({
-        cause,
-        message: `Invalid Umami analytics configuration: ${String(cause)}`,
-      }),
-  });
-
-const analyticsConfig = Effect.runSync(
-  decodeAnalyticsConfig({
-    [umamiScriptUrlEnvironmentKey]: process.env.UMAMI_SCRIPT_URL,
-    [umamiWebsiteIdEnvironmentKey]: process.env.UMAMI_WEBSITE_ID,
-  }),
-);
-
-export const umamiWebsiteId = analyticsConfig.websiteId;
-export const umamiScriptUrl = analyticsConfig.scriptUrl;
+// The tracker reports nothing when it is loaded from any other host, so
+// development servers and preview builds cannot pollute production's numbers.
+export const umamiTrackedDomain = new URL(siteUrl).hostname;

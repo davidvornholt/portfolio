@@ -1,47 +1,29 @@
 import { describe, expect, it } from 'bun:test';
-import { Cause, Effect, Option } from 'effect';
 import {
-  AnalyticsConfigurationError,
-  decodeAnalyticsConfig,
+  umamiScriptUrl,
+  umamiTrackedDomain,
+  umamiWebsiteId,
 } from './analytics';
 
+// These assertions pin literals on purpose. The website ID and the tracked
+// domain are one contract with the `personal-infra` repository, which provisions
+// the matching Umami website row from `infra/modules/apps/umami.nix` (`websiteId`
+// and `websiteDomain`). Drift between the two repositories fails silently: Umami
+// answers every request normally and discards the events. Requiring a deliberate
+// second edit here is the only signal this repository can give.
 describe('analytics configuration', () => {
-  it('keeps analytics opt-out and supplies the default script URL', () => {
-    expect(Effect.runSync(decodeAnalyticsConfig({}))).toEqual({
-      websiteId: undefined,
-      scriptUrl: 'https://cloud.umami.is/script.js',
-    });
+  it('identifies the site with the website ID provisioned in personal-infra', () => {
+    expect(umamiWebsiteId).toBe('81f10165-1458-492d-9893-9e04b4e37a17');
   });
 
-  it('rejects an empty website ID with a typed actionable error', () => {
-    const exit = Effect.runSyncExit(
-      decodeAnalyticsConfig(Object.fromEntries([['UMAMI_WEBSITE_ID', '   ']])),
-    );
-    if (exit._tag === 'Success') {
-      throw new Error('Expected the analytics configuration to fail.');
-    }
-    const error = Option.getOrThrow(Cause.failureOption(exit.cause));
-
-    expect(error).toBeInstanceOf(AnalyticsConfigurationError);
-    expect(error.message).toContain(
-      'UMAMI_WEBSITE_ID must not be empty when it is set.',
-    );
+  it('scopes the tracker to the provisioned domain so other hosts report nothing', () => {
+    expect(umamiTrackedDomain).toBe('david.vornholt.online');
   });
 
-  it('rejects non-HTTP(S) script URLs with a typed configuration error', () => {
-    const exit = Effect.runSyncExit(
-      decodeAnalyticsConfig(
-        Object.fromEntries([['UMAMI_SCRIPT_URL', 'javascript:alert(1)']]),
-      ),
-    );
-    if (exit._tag === 'Success') {
-      throw new Error('Expected the analytics configuration to fail.');
-    }
-    const error = Option.getOrThrow(Cause.failureOption(exit.cause));
+  it('loads the tracker from the self-hosted installation over HTTPS', () => {
+    const url = new URL(umamiScriptUrl);
 
-    expect(error).toBeInstanceOf(AnalyticsConfigurationError);
-    expect(error.message).toContain(
-      'UMAMI_SCRIPT_URL must be an absolute HTTP(S) URL.',
-    );
+    expect(url.protocol).toBe('https:');
+    expect(url.hostname).toBe('umami.vornholt.online');
   });
 });

@@ -86,21 +86,6 @@
       }
     },
     {
-      // Next.js inlines literal process.env reads at build time; this file is
-      // the app's single environment-configuration boundary.
-      "includes": ["apps/web/src/config/analytics.ts"],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noNodejsModules": "off"
-          },
-          "style": {
-            "noProcessEnv": "off"
-          }
-        }
-      }
-    },
-    {
       // Long Tailwind utility strings in this presentational component trip
       // the entropy heuristic, which misclassifies them as credentials.
       "includes": [

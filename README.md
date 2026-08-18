@@ -20,7 +20,7 @@ The visual language is warm editorial print: warm paper surfaces, hairline rules
 - TypeScript
 - Tailwind CSS v4
 - Biome (lint + format)
-- Umami (cookie-less analytics, optional via `UMAMI_WEBSITE_ID`)
+- Umami (cookie-less analytics, self-hosted at `umami.vornholt.online`)
 
 ## Content
 

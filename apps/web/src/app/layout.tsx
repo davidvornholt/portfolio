@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
-import Script from 'next/script';
 import type { ReactNode } from 'react';
-import { umamiScriptUrl, umamiWebsiteId } from '@/config/analytics';
 import { siteUrl } from '@/config/site';
+import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
 import { Footer } from '@/shared/page/presentation/components/footer';
 import { MotionProvider } from '@/shared/ui/presentation/components/motion-provider';
 import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
@@ -145,13 +144,7 @@ const RootLayout = ({
         <main>{children}</main>
         <Footer />
       </MotionProvider>
-      {umamiWebsiteId === undefined ? null : (
-        <Script
-          src={umamiScriptUrl}
-          data-website-id={umamiWebsiteId}
-          strategy="afterInteractive"
-        />
-      )}
+      <AnalyticsScript />
     </body>
   </html>
 );

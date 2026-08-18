@@ -1,7 +1,8 @@
 /**
- * Umami analytics identity. These values are public — they are served in every
- * page's HTML and grant no access to the dashboard — so they are tracked
- * configuration alongside the site URL rather than build-time environment.
+ * Umami analytics identity. These values are public — they are served in the
+ * HTML of every page that renders the root layout, and grant no access to the
+ * dashboard — so they are tracked configuration alongside the site URL rather
+ * than build-time environment.
  *
  * The website ID must match the row the `personal-infra` repository provisions
  * in the self-hosted Umami installation. Changing it here orphans every event

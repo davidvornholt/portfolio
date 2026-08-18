@@ -1,5 +1,6 @@
 import { scanWcag22AaViolations } from '@davidvornholt/a11y-testing/axe';
 import { expect, test } from '@playwright/test';
+import { umamiScriptUrl } from '@/config/analytics';
 
 const routes = [
   { name: 'home', path: '/' },
@@ -20,6 +21,18 @@ const routes = [
   { name: 'Atrium case study', path: '/works/atrium' },
   { name: 'ProsaBridge case study', path: '/works/prosabridge' },
 ] as const;
+
+// The tracker loads in every environment, so this suite now reaches the
+// analytics host on every navigation. That host is outside the test's control:
+// if it stops answering rather than refusing, each `page.goto` blocks until the
+// navigation timeout and the accessibility gate fails for a reason that has
+// nothing to do with accessibility. No assertion here depends on the tracker, so
+// the request is refused outright and the suite stays hermetic.
+test.beforeEach(async ({ page }) => {
+  await page.route(`${new URL(umamiScriptUrl).origin}/**`, (route) =>
+    route.abort(),
+  );
+});
 
 const waitForFiniteAnimations = async (
   page: Parameters<typeof scanWcag22AaViolations>[0],

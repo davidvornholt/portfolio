@@ -106,7 +106,7 @@ jobs:
 
       - name: Build and publish the tracked tag
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           # Plain manifest, not an attestation index: prod-1 pins and pulls the

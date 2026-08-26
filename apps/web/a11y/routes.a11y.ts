@@ -17,6 +17,14 @@ const routes = [
     name: 'OKLCH post',
     path: '/posts/mastering-oklch-tailwind-v4',
   },
+  {
+    name: 'review-fix comparison post',
+    path: '/posts/review-fix-versus-coderabbit',
+  },
+  {
+    name: 'review-loop failure post',
+    path: '/posts/review-loop-ran-for-46-hours',
+  },
   { name: 'FES Kirchheim case study', path: '/works/fes-kirchheim' },
   { name: 'Atrium case study', path: '/works/atrium' },
   { name: 'ProsaBridge case study', path: '/works/prosabridge' },

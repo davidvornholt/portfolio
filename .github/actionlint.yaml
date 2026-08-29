@@ -1,0 +1,11 @@
+# actionlint v1.7.12 predates GitHub's documented `concurrency.queue` setting
+# and rejects the key as a syntax error. Keep this exception scoped to the two
+# workflows that use FIFO queues, and remove it when the pinned parser supports
+# the key.
+paths:
+  .github/workflows/publish-container.yml:
+    ignore:
+      - '^unexpected key "queue" for "concurrency" section\. expected one of "cancel-in-progress", "group"$'
+  .github/workflows/pr-preview-deploy.yml:
+    ignore:
+      - '^unexpected key "queue" for "concurrency" section\. expected one of "cancel-in-progress", "group"$'

@@ -18,7 +18,6 @@ permissions: {}
 concurrency:
   group: portfolio-preview-control-prod-1
   cancel-in-progress: false
-  queue: max
 
 jobs:
   select:

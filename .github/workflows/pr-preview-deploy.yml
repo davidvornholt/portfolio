@@ -110,12 +110,6 @@ jobs:
               echo "::notice::Pull request $HANDOFF_PR_NUMBER became eligible again before teardown"
               exit 0
             fi
-            current_base=$(jq -er .base.ref <<<"$pr")
-            if [ "$HANDOFF_PREVIOUS_BASE_REF" = main ]; then
-              [ "$current_base" != main ] || exit 0
-            else
-              [ "$current_base" = main ] || exit 0
-            fi
             {
               echo 'mode=destroy-ineligible'
               echo "pull-request-number=$HANDOFF_PR_NUMBER"

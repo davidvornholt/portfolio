@@ -55,6 +55,19 @@ describe('trusted preview lifecycle selection', () => {
     expect(result.outputs['previous-base-ref']).toBe('main');
   });
 
+  it('tears down an ineligible preview that returned to main before the handoff', () => {
+    const result = runSelection({
+      previousBaseRef: 'main',
+      pullRequest: eligiblePullRequest({ labels: [] }),
+      trigger: 'workflow_dispatch',
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('destroy-ineligible');
+    expect(result.outputs['pull-request-number']).toBe('35');
+    expect(result.outputs['previous-base-ref']).toBe('main');
+  });
+
   it('leaves a pull request entering main for the producer to rebuild', () => {
     const result = runSelection({
       action: 'edited',

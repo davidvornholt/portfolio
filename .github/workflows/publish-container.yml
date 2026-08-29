@@ -1,13 +1,19 @@
 name: Publish container
 
-# The image promotion proof in personal-infra binds this workflow by path and
-# id and requires a push-event run, so the trigger must stay `push`. That means
-# the quality gate cannot be inherited from the event: branch protection proves
-# the required checks passed on a pull request's head, and a squash merge
-# produces a commit on main that no check has ever run against. `Standards`
-# runs on push to main as well, so the gate below waits for that run at exactly
-# this commit instead of duplicating the canonical gate here.
+# The infrastructure promotion proof binds push runs by workflow path and id.
+# A squash commit on main is new, so wait for Standards to pass on that exact
+# commit before building instead of relying on the pull request's checks.
+# Labeled pull requests use the same workflow id, but produce only a bounded
+# credential-free artifact for the trusted preview follow-up.
 on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+      - edited
   push:
     branches:
       - main
@@ -20,14 +26,194 @@ permissions: {}
 # it. GitHub keeps only the newest pending run, so a burst still settles on the
 # newest commit.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
+  container-smoke:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.state == 'open' &&
+      !github.event.pull_request.draft &&
+      github.event.pull_request.base.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'pr-preview') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'pr-preview')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the pull request head
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Require the exact pull request head before build
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+
+      - name: Set up Bun for the exact-head gate
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install just for the exact-head gate
+        uses: extractions/setup-just@v4
+        with:
+          just-version: "1.57.0"
+
+      - name: Install exact-head dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install exact-head Playwright Chromium
+        run: |
+          set -euo pipefail
+          playwright=$(find . -path '*/node_modules/.bin/playwright' -print -quit)
+          test -n "$playwright"
+          "$playwright" install --with-deps chromium
+
+      - name: Run the full exact-head repository gate
+        id: exact_head_gate
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          STANDARDS_SKIP_GITHUB_CHECK: "true"
+        run: |
+          set -euo pipefail
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          bun run check
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build the runtime image without credentials
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: portfolio:pull-request
+          labels: |
+            org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            io.personal-infra.portfolio-preview=true
+
+      - name: Verify the container health without app credentials
+        run: |
+          set -euo pipefail
+          container=portfolio-pull-request-smoke
+          trap 'docker rm --force "$container" >/dev/null 2>&1 || true' EXIT
+          docker run --detach --rm --name "$container" --network host \
+            --read-only --tmpfs /tmp:rw,nosuid,nodev,noexec,size=64m \
+            --cap-drop ALL --security-opt no-new-privileges \
+            portfolio:pull-request
+
+          response="$RUNNER_TEMP/portfolio-preview-response"
+          for _ in $(seq 1 40); do
+            if curl --fail --silent --show-error \
+              --output "$response" http://127.0.0.1:3000/; then
+              break
+            fi
+            sleep 0.25
+          done
+          test -s "$response"
+          test "$(docker inspect "$container" --format '{{.Config.User}}')" = app
+
+      - name: Package the eligible exact-head preview artifact
+        id: preview
+        env:
+          EXACT_HEAD_GATE_OUTCOME: ${{ steps.exact_head_gate.outcome }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ && "$PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+          [[ "$RUN_ID" =~ ^[1-9][0-9]*$ && "$RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
+          test "$REPOSITORY" = davidvornholt/portfolio
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          test "$EXACT_HEAD_GATE_OUTCOME" = success
+
+          revision=$(docker image inspect portfolio:pull-request \
+            --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')
+          source=$(docker image inspect portfolio:pull-request \
+            --format '{{ index .Config.Labels "org.opencontainers.image.source" }}')
+          preview_owner=$(docker image inspect portfolio:pull-request \
+            --format '{{ index .Config.Labels "io.personal-infra.portfolio-preview" }}')
+          test "$revision" = "$HEAD_SHA"
+          test "$source" = "https://github.com/$REPOSITORY"
+          test "$preview_owner" = true
+          image_size=$(docker image inspect portfolio:pull-request --format '{{.Size}}')
+          [[ "$image_size" =~ ^[1-9][0-9]*$ ]]
+          test "$image_size" -le 2147483648
+
+          artifact_root="$RUNNER_TEMP/portfolio-pr-preview"
+          mkdir -p "$artifact_root"
+          docker image save portfolio:pull-request | gzip -6 >"$artifact_root/portfolio-image.tar.gz"
+          archive_size=$(stat --format '%s' "$artifact_root/portfolio-image.tar.gz")
+          test "$archive_size" -gt 0
+          test "$archive_size" -le 1610612736
+          gzip --test "$artifact_root/portfolio-image.tar.gz"
+          jq -nS \
+            --arg archive portfolio-image.tar.gz \
+            --arg headSha "$HEAD_SHA" \
+            --arg imageRepository ghcr.io/davidvornholt/portfolio \
+            --arg imageTag portfolio:pull-request \
+            --arg job container-smoke \
+            --arg path .github/workflows/publish-container.yml \
+            --arg repository "$REPOSITORY" \
+            --argjson pullRequest "$PR_NUMBER" \
+            --argjson runAttempt "$RUN_ATTEMPT" \
+            --argjson runId "$RUN_ID" \
+            --argjson version 1 \
+            --argjson workflowId 316903523 \
+            '{
+              version: $version,
+              repository: $repository,
+              pullRequest: $pullRequest,
+              headSha: $headSha,
+              workflow: {
+                id: $workflowId,
+                path: $path,
+                runId: $runId,
+                runAttempt: $runAttempt,
+                job: $job
+              },
+              image: {
+                repository: $imageRepository,
+                archive: $archive,
+                tag: $imageTag
+              }
+            }' >"$artifact_root/metadata.json"
+
+      - name: Upload the immutable preview artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: portfolio-pr-preview-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/portfolio-pr-preview/metadata.json
+            ${{ runner.temp }}/portfolio-pr-preview/portfolio-image.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+          overwrite: false
+
+
   # Fail-closed by construction: every path that is not an observed successful
   # `check` job for this exact commit — no run, an unfinished run, a run that
   # ended any other way, a missing job, an expired deadline — exits non-zero.
   gate:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       actions: read

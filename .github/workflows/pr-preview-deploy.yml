@@ -1,0 +1,702 @@
+name: Deploy Portfolio pull request preview
+
+on:
+  workflow_run:
+    workflows:
+      - Publish container
+    types:
+      - completed
+  pull_request_target:
+    types:
+      - closed
+      - converted_to_draft
+      - unlabeled
+      - edited
+  repository_dispatch:
+    types:
+      - portfolio-preview-teardown
+
+permissions: {}
+
+concurrency:
+  group: portfolio-preview-control-prod-1
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    outputs:
+      head-sha: ${{ steps.select.outputs.head-sha }}
+      mode: ${{ steps.select.outputs.mode }}
+      pull-request-number: ${{ steps.select.outputs.pull-request-number }}
+      previous-base-ref: ${{ steps.select.outputs.previous-base-ref }}
+      run-attempt: ${{ steps.select.outputs.run-attempt }}
+      run-id: ${{ steps.select.outputs.run-id }}
+    steps:
+      - name: Select an exact current preview operation
+        id: select
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_BASE_FROM: ${{ github.event.changes.base.ref.from }}
+          EVENT_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVENT_LABEL: ${{ github.event.label.name }}
+          EVENT_NAME: ${{ github.event.workflow_run.name }}
+          EVENT_PATH: ${{ github.event.workflow_run.path }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT_TYPE: ${{ github.event.workflow_run.event }}
+          EVENT_WORKFLOW_ID: ${{ github.event.workflow_run.workflow_id }}
+          EVENT_DISPATCH_PR_NUMBER: ${{ github.event.client_payload.pr_number }}
+          EVENT_DISPATCH_PREVIOUS_BASE_REF: ${{ github.event.client_payload.previous_base_ref }}
+          EVENT_DISPATCH_TYPE: ${{ github.event.action }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          echo 'mode=none' >>"$GITHUB_OUTPUT"
+          test "$REPOSITORY" = davidvornholt/portfolio
+
+          preview_is_eligible() {
+            test "$(jq -er .state <<<"$pr")" = open \
+              && test "$(jq -er .draft <<<"$pr")" = false \
+              && test "$(jq -er .base.repo.full_name <<<"$pr")" = "$REPOSITORY" \
+              && test "$(jq -er .base.ref <<<"$pr")" = main \
+              && test "$(jq -er .head.repo.full_name <<<"$pr")" = "$REPOSITORY" \
+              && test "$(jq -er 'any(.labels[]; .name == "pr-preview")' <<<"$pr")" = true
+          }
+
+          trusted_workflows_match_main() {
+            main_ref=$(gh api "repos/$REPOSITORY/git/ref/heads/main")
+            main_sha=$(jq -er '.object.sha | select(test("^[0-9a-f]{40}$"))' <<<"$main_ref")
+            for path in \
+              .github/workflows/publish-container.yml \
+              .github/workflows/pr-preview-deploy.yml \
+              .github/workflows/pr-preview-host-command.yml \
+              .github/workflows/standards.yml; do
+              head_file=$(gh api "repos/$REPOSITORY/contents/$path?ref=$EVENT_HEAD_SHA")
+              main_file=$(gh api "repos/$REPOSITORY/contents/$path?ref=$main_sha")
+              test "$(jq -er .type <<<"$head_file")" = file
+              test "$(jq -er .path <<<"$head_file")" = "$path"
+              test "$(jq -er .type <<<"$main_file")" = file
+              test "$(jq -er .path <<<"$main_file")" = "$path"
+              test "$(jq -er .sha <<<"$head_file")" = "$(jq -er .sha <<<"$main_file")"
+            done
+            current_main_ref=$(gh api "repos/$REPOSITORY/git/ref/heads/main")
+            test "$(jq -er .object.sha <<<"$current_main_ref")" = "$main_sha"
+          }
+
+          if [ "$TRIGGER" = repository_dispatch ]; then
+            test "$EVENT_DISPATCH_TYPE" = portfolio-preview-teardown
+            test "$GITHUB_REF" = refs/heads/main
+            [[ "$EVENT_DISPATCH_PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+            [[ "$EVENT_DISPATCH_PREVIOUS_BASE_REF" =~ ^(main)?$ ]]
+            pr=$(gh api "repos/$REPOSITORY/pulls/$EVENT_DISPATCH_PR_NUMBER")
+            test "$(jq -er .number <<<"$pr")" = "$EVENT_DISPATCH_PR_NUMBER"
+            test "$(jq -er .base.repo.full_name <<<"$pr")" = "$REPOSITORY"
+            test "$(jq -er .head.repo.full_name <<<"$pr")" = "$REPOSITORY"
+            if preview_is_eligible; then
+              echo "::notice::Pull request $EVENT_DISPATCH_PR_NUMBER became eligible again before teardown"
+              exit 0
+            fi
+            {
+              echo 'mode=destroy-ineligible'
+              echo "pull-request-number=$EVENT_DISPATCH_PR_NUMBER"
+              echo "previous-base-ref=$EVENT_DISPATCH_PREVIOUS_BASE_REF"
+            } >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$TRIGGER" = pull_request_target ]; then
+            [[ "$EVENT_PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+            case "$EVENT_ACTION" in
+              closed|converted_to_draft) ;;
+              unlabeled)
+                if [ "$EVENT_LABEL" != pr-preview ]; then
+                  echo "::notice::Ignoring unrelated label removal from pull request $EVENT_PR_NUMBER"
+                  exit 0
+                fi
+                ;;
+              edited)
+                if [ -z "$EVENT_BASE_FROM" ]; then
+                  echo "::notice::Ignoring an edit that did not change the base branch"
+                  exit 0
+                fi
+                if [ "$EVENT_BASE_FROM" != main ]; then
+                  echo "::notice::The previous base was not in the main preview lane"
+                  exit 0
+                fi
+                ;;
+              *)
+                echo "::error::Unexpected pull_request_target action $EVENT_ACTION"
+                exit 1
+                ;;
+            esac
+
+            pr=$(gh api "repos/$REPOSITORY/pulls/$EVENT_PR_NUMBER")
+            test "$(jq -er .number <<<"$pr")" = "$EVENT_PR_NUMBER"
+            if [ "$(jq -er .base.repo.full_name <<<"$pr")" != "$REPOSITORY" ] \
+              || [ "$(jq -er .head.repo.full_name <<<"$pr")" != "$REPOSITORY" ]; then
+              echo "::notice::Pull request $EVENT_PR_NUMBER is outside the same-repository preview boundary"
+              exit 0
+            fi
+            if [ "$EVENT_ACTION" = edited ]; then
+              if [ "$(jq -er .base.ref <<<"$pr")" = main ]; then
+                echo "::notice::Pull request $EVENT_PR_NUMBER returned to the main preview lane before teardown"
+                exit 0
+              fi
+              {
+                echo 'mode=dispatch-ineligible'
+                echo "pull-request-number=$EVENT_PR_NUMBER"
+                echo 'previous-base-ref=main'
+              } >>"$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ "$(jq -er .base.ref <<<"$pr")" != main ]; then
+              echo "::notice::Pull request $EVENT_PR_NUMBER is outside the main preview lane"
+              exit 0
+            fi
+            if preview_is_eligible; then
+              echo "::notice::Pull request $EVENT_PR_NUMBER became eligible again before teardown"
+              exit 0
+            fi
+            {
+              echo 'mode=dispatch-ineligible'
+              echo "pull-request-number=$EVENT_PR_NUMBER"
+            } >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          test "$TRIGGER" = workflow_run
+          if [ "$EVENT_TYPE" != pull_request ]; then
+            echo "::notice::Ignoring non-pull-request Publish container run $EVENT_RUN_ID"
+            exit 0
+          fi
+          test "$EVENT_NAME" = 'Publish container'
+          test "$EVENT_PATH" = .github/workflows/publish-container.yml
+          test "$EVENT_WORKFLOW_ID" = 316903523
+          [[ "$EVENT_RUN_ID" =~ ^[1-9][0-9]*$ && "$EVENT_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+
+          run=$(gh api "repos/$REPOSITORY/actions/runs/$EVENT_RUN_ID")
+          test "$(jq -er .id <<<"$run")" = "$EVENT_RUN_ID"
+          test "$(jq -er .workflow_id <<<"$run")" = 316903523
+          test "$(jq -er .name <<<"$run")" = 'Publish container'
+          test "$(jq -er .path <<<"$run")" = .github/workflows/publish-container.yml
+          test "$(jq -er .event <<<"$run")" = pull_request
+          test "$(jq -er .status <<<"$run")" = completed
+          test "$(jq -er .head_sha <<<"$run")" = "$EVENT_HEAD_SHA"
+          test "$(jq -er .head_repository.full_name <<<"$run")" = "$REPOSITORY"
+          test "$(jq -er .conclusion <<<"$run")" = "$EVENT_CONCLUSION"
+          run_attempt=$(jq -er '.run_attempt | select(. >= 1 and floor == .)' <<<"$run")
+
+          pull_requests=$(jq -c '.pull_requests' <<<"$run")
+          association_count=$(jq -er length <<<"$pull_requests")
+          if [ "$association_count" -eq 1 ]; then
+            pr_number=$(jq -er '.[0].number | select(. >= 1 and . <= 999999 and floor == .)' <<<"$pull_requests")
+          else
+            echo "::notice::Run $EVENT_RUN_ID has $association_count direct pull request associations; checking the exact commit"
+            associated=$(gh api "repos/$REPOSITORY/commits/$EVENT_HEAD_SHA/pulls?per_page=100")
+            associated_count=$(jq -er length <<<"$associated")
+            if [ "$associated_count" -ge 100 ]; then
+              echo "::notice::Commit $EVENT_HEAD_SHA reached the bounded association page; refusing to infer a target"
+              exit 0
+            fi
+            matches=$(jq -c \
+              --arg repository "$REPOSITORY" \
+              --arg sha "$EVENT_HEAD_SHA" \
+              '[.[] | select(
+                .base.repo.full_name == $repository
+                and .base.ref == "main"
+                and .head.repo.full_name == $repository
+                and .head.sha == $sha
+              )]' <<<"$associated")
+            match_count=$(jq -er length <<<"$matches")
+            if [ "$match_count" -ne 1 ]; then
+              echo "::notice::Commit $EVENT_HEAD_SHA has $match_count exact same-repository pull requests; refusing an ambiguous target"
+              exit 0
+            fi
+            pr_number=$(jq -er '.[0].number | select(. >= 1 and . <= 999999 and floor == .)' <<<"$matches")
+          fi
+
+          candidates=$(gh api "repos/$REPOSITORY/actions/workflows/316903523/runs?head_sha=$EVENT_HEAD_SHA&event=pull_request&per_page=100")
+          test "$(jq -er .total_count <<<"$candidates")" -le 100
+          latest=$(jq -cr \
+            '[.workflow_runs[] | select(
+              .path == ".github/workflows/publish-container.yml"
+              and .event == "pull_request"
+              and .head_repository.full_name == "davidvornholt/portfolio"
+            )] | sort_by(.run_number, .run_attempt, .id) | last // empty' <<<"$candidates")
+          test -n "$latest"
+          if [ "$(jq -er .id <<<"$latest")" != "$EVENT_RUN_ID" ] \
+            || [ "$(jq -er .run_attempt <<<"$latest")" != "$run_attempt" ]; then
+            echo "::notice::Run $EVENT_RUN_ID attempt $run_attempt is stale"
+            exit 0
+          fi
+
+          pr=$(gh api "repos/$REPOSITORY/pulls/$pr_number")
+          test "$(jq -er .number <<<"$pr")" = "$pr_number"
+          current_head=$(jq -er '.head.sha | select(test("^[0-9a-f]{40}$"))' <<<"$pr")
+          if [ "$current_head" != "$EVENT_HEAD_SHA" ]; then
+            echo "::notice::Run $EVENT_RUN_ID is stale behind pull request head $current_head"
+            exit 0
+          fi
+
+          if ! preview_is_eligible; then
+            echo "::notice::Ordinary workflow run $EVENT_RUN_ID no longer targets an eligible preview"
+            exit 0
+          fi
+
+          case "$EVENT_CONCLUSION" in
+            success)
+              mode=deploy
+              ;;
+            failure|cancelled|timed_out)
+              mode=destroy-failed-build
+              ;;
+            skipped)
+              echo "::notice::Skipped run $EVENT_RUN_ID does not change preview state"
+              exit 0
+              ;;
+            *)
+              echo "::error::Run $EVENT_RUN_ID has unsupported conclusion $EVENT_CONCLUSION; refusing to mutate preview state"
+              exit 1
+              ;;
+          esac
+          if [ "$mode" = deploy ]; then
+            if ! trusted_workflows_match_main; then
+              echo "::error::The producer or Standards workflow at $EVENT_HEAD_SHA differs from current main"
+              exit 1
+            fi
+            producer_jobs=$(gh api "repos/$REPOSITORY/actions/runs/$EVENT_RUN_ID/attempts/$run_attempt/jobs?per_page=100")
+            test "$(jq -er .total_count <<<"$producer_jobs")" -le 100
+            smoke_jobs=$(jq -c '[.jobs[] | select(.name == "container-smoke")]' <<<"$producer_jobs")
+            test "$(jq -er length <<<"$smoke_jobs")" = 1
+            test "$(jq -er '.[0].status' <<<"$smoke_jobs")" = completed
+            if [ "$(jq -er '.[0].conclusion' <<<"$smoke_jobs")" = skipped ]; then
+              echo "::notice::The producer job was skipped and does not change preview state"
+              exit 0
+            fi
+            test "$(jq -er '.[0].conclusion' <<<"$smoke_jobs")" = success
+            test "$(jq -er '.[0].run_id' <<<"$smoke_jobs")" = "$EVENT_RUN_ID"
+            test "$(jq -er '.[0].run_attempt' <<<"$smoke_jobs")" = "$run_attempt"
+            test "$(jq -er '.[0].head_sha' <<<"$smoke_jobs")" = "$EVENT_HEAD_SHA"
+            exact_head_gates=$(jq -c \
+              '[.[0].steps[] | select(.name == "Run the full exact-head repository gate")]' \
+              <<<"$smoke_jobs")
+            test "$(jq -er length <<<"$exact_head_gates")" = 1
+            test "$(jq -er '.[0].status' <<<"$exact_head_gates")" = completed
+            test "$(jq -er '.[0].conclusion' <<<"$exact_head_gates")" = success
+          fi
+          pr=$(gh api "repos/$REPOSITORY/pulls/$pr_number")
+          test "$(jq -er .head.sha <<<"$pr")" = "$EVENT_HEAD_SHA"
+          preview_is_eligible
+
+          {
+            echo "head-sha=$EVENT_HEAD_SHA"
+            echo "mode=$mode"
+            echo "pull-request-number=$pr_number"
+            echo "run-attempt=$run_attempt"
+            echo "run-id=$EVENT_RUN_ID"
+          } >>"$GITHUB_OUTPUT"
+
+  publish:
+    needs: select
+    if: needs.select.outputs.mode == 'deploy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+      pull-requests: read
+    outputs:
+      image: ${{ steps.publish.outputs.image }}
+    steps:
+      - name: Fetch and validate the exact gated artifact
+        id: validate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ needs.select.outputs.head-sha }}
+          PR_NUMBER: ${{ needs.select.outputs.pull-request-number }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ATTEMPT: ${{ needs.select.outputs.run-attempt }}
+          RUN_ID: ${{ needs.select.outputs.run-id }}
+        run: |
+          set -euo pipefail
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ && "$PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+          [[ "$RUN_ID" =~ ^[1-9][0-9]*$ && "$RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
+          test "$REPOSITORY" = davidvornholt/portfolio
+
+          jobs=$(gh api "repos/$REPOSITORY/actions/runs/$RUN_ID/attempts/$RUN_ATTEMPT/jobs?per_page=100")
+          test "$(jq -er .total_count <<<"$jobs")" -le 100
+          smoke_jobs=$(jq -c '[.jobs[] | select(.name == "container-smoke")]' <<<"$jobs")
+          test "$(jq -er length <<<"$smoke_jobs")" = 1
+          test "$(jq -er '.[0].status' <<<"$smoke_jobs")" = completed
+          test "$(jq -er '.[0].conclusion' <<<"$smoke_jobs")" = success
+          test "$(jq -er '.[0].run_id' <<<"$smoke_jobs")" = "$RUN_ID"
+          test "$(jq -er '.[0].run_attempt' <<<"$smoke_jobs")" = "$RUN_ATTEMPT"
+          test "$(jq -er '.[0].head_sha' <<<"$smoke_jobs")" = "$HEAD_SHA"
+          exact_head_gates=$(jq -c \
+            '[.[0].steps[] | select(.name == "Run the full exact-head repository gate")]' \
+            <<<"$smoke_jobs")
+          test "$(jq -er length <<<"$exact_head_gates")" = 1
+          test "$(jq -er '.[0].status' <<<"$exact_head_gates")" = completed
+          test "$(jq -er '.[0].conclusion' <<<"$exact_head_gates")" = success
+
+          standards_workflow=$(gh api "repos/$REPOSITORY/actions/workflows/standards.yml")
+          test "$(jq -er .path <<<"$standards_workflow")" = .github/workflows/standards.yml
+          test "$(jq -er .state <<<"$standards_workflow")" = active
+          standards_workflow_id=$(jq -er '.id | select(. >= 1 and floor == .)' <<<"$standards_workflow")
+          standards_runs=$(gh api "repos/$REPOSITORY/actions/workflows/$standards_workflow_id/runs?head_sha=$HEAD_SHA&event=pull_request&per_page=100")
+          test "$(jq -er .total_count <<<"$standards_runs")" -le 100
+          standards_run=$(jq -cr \
+            '[.workflow_runs[] | select(
+              .path == ".github/workflows/standards.yml"
+              and .event == "pull_request"
+              and .head_repository.full_name == "davidvornholt/portfolio"
+            )] | sort_by(.run_number, .run_attempt, .id) | last // empty' \
+            <<<"$standards_runs")
+          test -n "$standards_run"
+          test "$(jq -er .head_sha <<<"$standards_run")" = "$HEAD_SHA"
+          test "$(jq -er .status <<<"$standards_run")" = completed
+          test "$(jq -er .conclusion <<<"$standards_run")" = success
+          standards_run_id=$(jq -er '.id | select(. >= 1 and floor == .)' <<<"$standards_run")
+          standards_jobs=$(gh api "repos/$REPOSITORY/actions/runs/$standards_run_id/jobs?per_page=100")
+          test "$(jq -er .total_count <<<"$standards_jobs")" -le 100
+          standards_checks=$(jq -c '[.jobs[] | select(.name == "check")]' <<<"$standards_jobs")
+          test "$(jq -er length <<<"$standards_checks")" = 1
+          test "$(jq -er '.[0].status' <<<"$standards_checks")" = completed
+          test "$(jq -er '.[0].conclusion' <<<"$standards_checks")" = success
+          test "$(jq -er '.[0].head_sha' <<<"$standards_checks")" = "$HEAD_SHA"
+
+          artifact_name="portfolio-pr-preview-$PR_NUMBER-$HEAD_SHA-$RUN_ATTEMPT"
+          artifacts=$(gh api "repos/$REPOSITORY/actions/runs/$RUN_ID/artifacts?per_page=100")
+          test "$(jq -er .total_count <<<"$artifacts")" -le 100
+          matches=$(jq -c --arg name "$artifact_name" '[.artifacts[] | select(.name == $name)]' <<<"$artifacts")
+          test "$(jq -er length <<<"$matches")" = 1
+          test "$(jq -er '.[0].expired' <<<"$matches")" = false
+          artifact_size=$(jq -er '.[0].size_in_bytes | select(. > 0 and . <= 1610612736)' <<<"$matches")
+          test "$artifact_size" -gt 0
+          test "$(jq -er '.[0].workflow_run.id' <<<"$matches")" = "$RUN_ID"
+          test "$(jq -er '.[0].workflow_run.head_sha' <<<"$matches")" = "$HEAD_SHA"
+          artifact_id=$(jq -er '.[0].id' <<<"$matches")
+
+          artifact_root="$RUNNER_TEMP/portfolio-preview-artifact"
+          mkdir -p "$artifact_root"
+          gh api "repos/$REPOSITORY/actions/artifacts/$artifact_id/zip" >"$RUNNER_TEMP/portfolio-preview.zip"
+          downloaded_size=$(stat --format '%s' "$RUNNER_TEMP/portfolio-preview.zip")
+          test "$downloaded_size" -gt 0
+          test "$downloaded_size" -le 1610612736
+          entries=$(unzip -Z1 "$RUNNER_TEMP/portfolio-preview.zip" | LC_ALL=C sort)
+          test "$entries" = $'metadata.json\nportfolio-image.tar.gz'
+          unzip -q "$RUNNER_TEMP/portfolio-preview.zip" -d "$artifact_root"
+          test -f "$artifact_root/metadata.json"
+          test -f "$artifact_root/portfolio-image.tar.gz"
+          test ! -L "$artifact_root/metadata.json"
+          test ! -L "$artifact_root/portfolio-image.tar.gz"
+          metadata_size=$(stat --format '%s' "$artifact_root/metadata.json")
+          test "$metadata_size" -gt 0
+          test "$metadata_size" -le 65536
+          archive_size=$(stat --format '%s' "$artifact_root/portfolio-image.tar.gz")
+          test "$archive_size" -gt 0
+          test "$archive_size" -le 1610612736
+          if ! timeout 5m gzip --test "$artifact_root/portfolio-image.tar.gz"; then
+            echo "::error::The preview archive is invalid or has trailing data"
+            exit 1
+          fi
+
+          image_tar="$artifact_root/portfolio-image.tar"
+          if ! (
+            ulimit -f 2097152
+            timeout 5m gzip --decompress --stdout \
+              "$artifact_root/portfolio-image.tar.gz" >"$image_tar"
+          ); then
+            echo "::error::The preview archive is invalid or expands beyond 2 GiB"
+            exit 1
+          fi
+          image_tar_size=$(stat --format '%s' "$image_tar")
+          test "$image_tar_size" -gt 0
+          test "$image_tar_size" -le 2147483648
+
+          metadata="$artifact_root/metadata.json"
+          jq -nS \
+            --arg archive portfolio-image.tar.gz \
+            --arg headSha "$HEAD_SHA" \
+            --arg imageRepository ghcr.io/davidvornholt/portfolio \
+            --arg imageTag portfolio:pull-request \
+            --arg job container-smoke \
+            --arg path .github/workflows/publish-container.yml \
+            --arg repository "$REPOSITORY" \
+            --argjson pullRequest "$PR_NUMBER" \
+            --argjson runAttempt "$RUN_ATTEMPT" \
+            --argjson runId "$RUN_ID" \
+            --argjson version 1 \
+            --argjson workflowId 316903523 \
+            '{
+              version: $version,
+              repository: $repository,
+              pullRequest: $pullRequest,
+              headSha: $headSha,
+              workflow: {
+                id: $workflowId,
+                path: $path,
+                runId: $runId,
+                runAttempt: $runAttempt,
+                job: $job
+              },
+              image: {
+                repository: $imageRepository,
+                archive: $archive,
+                tag: $imageTag
+              }
+            }' >"$RUNNER_TEMP/expected-metadata.json"
+          cmp "$RUNNER_TEMP/expected-metadata.json" "$metadata"
+
+      - name: Load and validate the untrusted image without running it
+        env:
+          HEAD_SHA: ${{ needs.select.outputs.head-sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          artifact_root="$RUNNER_TEMP/portfolio-preview-artifact"
+          docker image load --input "$artifact_root/portfolio-image.tar" >/dev/null
+          tags=$(docker image inspect portfolio:pull-request --format '{{ json .RepoTags }}')
+          test "$tags" = '["portfolio:pull-request"]'
+          test "$(docker image inspect portfolio:pull-request --format '{{.Os}}')" = linux
+          test "$(docker image inspect portfolio:pull-request --format '{{.Architecture}}')" = amd64
+          test "$(docker image inspect portfolio:pull-request --format '{{.Config.User}}')" = app
+          image_size=$(docker image inspect portfolio:pull-request --format '{{.Size}}')
+          [[ "$image_size" =~ ^[1-9][0-9]*$ ]]
+          test "$image_size" -le 2147483648
+          revision=$(docker image inspect portfolio:pull-request \
+            --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')
+          source=$(docker image inspect portfolio:pull-request \
+            --format '{{ index .Config.Labels "org.opencontainers.image.source" }}')
+          preview_owner=$(docker image inspect portfolio:pull-request \
+            --format '{{ index .Config.Labels "io.personal-infra.portfolio-preview" }}')
+          test "$revision" = "$HEAD_SHA"
+          test "$source" = "https://github.com/$REPOSITORY"
+          test "$preview_owner" = true
+
+      - name: Publish and prove the exact public digest
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ needs.select.outputs.head-sha }}
+          IMAGE: ghcr.io/davidvornholt/portfolio
+          PR_NUMBER: ${{ needs.select.outputs.pull-request-number }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ATTEMPT: ${{ needs.select.outputs.run-attempt }}
+          RUN_ID: ${{ needs.select.outputs.run-id }}
+        run: |
+          set -euo pipefail
+          pr=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
+          test "$(jq -er .number <<<"$pr")" = "$PR_NUMBER"
+          test "$(jq -er .state <<<"$pr")" = open
+          test "$(jq -er .draft <<<"$pr")" = false
+          test "$(jq -er .base.repo.full_name <<<"$pr")" = "$REPOSITORY"
+          test "$(jq -er .base.ref <<<"$pr")" = main
+          test "$(jq -er .head.repo.full_name <<<"$pr")" = "$REPOSITORY"
+          test "$(jq -er .head.sha <<<"$pr")" = "$HEAD_SHA"
+          test "$(jq -er 'any(.labels[]; .name == "pr-preview")' <<<"$pr")" = true
+
+          main_ref=$(gh api "repos/$REPOSITORY/git/ref/heads/main")
+          main_sha=$(jq -er '.object.sha | select(test("^[0-9a-f]{40}$"))' <<<"$main_ref")
+          for path in \
+            .github/workflows/publish-container.yml \
+            .github/workflows/pr-preview-deploy.yml \
+            .github/workflows/pr-preview-host-command.yml \
+            .github/workflows/standards.yml; do
+            head_file=$(gh api "repos/$REPOSITORY/contents/$path?ref=$HEAD_SHA")
+            main_file=$(gh api "repos/$REPOSITORY/contents/$path?ref=$main_sha")
+            test "$(jq -er .type <<<"$head_file")" = file
+            test "$(jq -er .path <<<"$head_file")" = "$path"
+            test "$(jq -er .type <<<"$main_file")" = file
+            test "$(jq -er .path <<<"$main_file")" = "$path"
+            test "$(jq -er .sha <<<"$head_file")" = "$(jq -er .sha <<<"$main_file")"
+          done
+          current_main_ref=$(gh api "repos/$REPOSITORY/git/ref/heads/main")
+          test "$(jq -er .object.sha <<<"$current_main_ref")" = "$main_sha"
+
+          standards_workflow=$(gh api "repos/$REPOSITORY/actions/workflows/standards.yml")
+          test "$(jq -er .path <<<"$standards_workflow")" = .github/workflows/standards.yml
+          test "$(jq -er .state <<<"$standards_workflow")" = active
+          standards_workflow_id=$(jq -er '.id | select(. >= 1 and floor == .)' <<<"$standards_workflow")
+          standards_runs=$(gh api "repos/$REPOSITORY/actions/workflows/$standards_workflow_id/runs?head_sha=$HEAD_SHA&event=pull_request&per_page=100")
+          test "$(jq -er .total_count <<<"$standards_runs")" -le 100
+          standards_run=$(jq -cr \
+            '[.workflow_runs[] | select(
+              .path == ".github/workflows/standards.yml"
+              and .event == "pull_request"
+              and .head_repository.full_name == "davidvornholt/portfolio"
+            )] | sort_by(.run_number, .run_attempt, .id) | last // empty' \
+            <<<"$standards_runs")
+          test -n "$standards_run"
+          test "$(jq -er .head_sha <<<"$standards_run")" = "$HEAD_SHA"
+          test "$(jq -er .status <<<"$standards_run")" = completed
+          test "$(jq -er .conclusion <<<"$standards_run")" = success
+          standards_run_id=$(jq -er '.id | select(. >= 1 and floor == .)' <<<"$standards_run")
+          standards_jobs=$(gh api "repos/$REPOSITORY/actions/runs/$standards_run_id/jobs?per_page=100")
+          test "$(jq -er .total_count <<<"$standards_jobs")" -le 100
+          checks=$(jq -c '[.jobs[] | select(.name == "check")]' <<<"$standards_jobs")
+          test "$(jq -er length <<<"$checks")" = 1
+          test "$(jq -er '.[0].status' <<<"$checks")" = completed
+          test "$(jq -er '.[0].conclusion' <<<"$checks")" = success
+          test "$(jq -er '.[0].head_sha' <<<"$checks")" = "$HEAD_SHA"
+
+          pr=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
+          test "$(jq -er .state <<<"$pr")" = open
+          test "$(jq -er .draft <<<"$pr")" = false
+          test "$(jq -er .base.repo.full_name <<<"$pr")" = "$REPOSITORY"
+          test "$(jq -er .base.ref <<<"$pr")" = main
+          test "$(jq -er .head.repo.full_name <<<"$pr")" = "$REPOSITORY"
+          test "$(jq -er .head.sha <<<"$pr")" = "$HEAD_SHA"
+          test "$(jq -er 'any(.labels[]; .name == "pr-preview")' <<<"$pr")" = true
+          current_main_ref=$(gh api "repos/$REPOSITORY/git/ref/heads/main")
+          test "$(jq -er .object.sha <<<"$current_main_ref")" = "$main_sha"
+
+          echo "$GH_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          tag="pr-$PR_NUMBER-$HEAD_SHA-run-$RUN_ID-attempt-$RUN_ATTEMPT"
+          docker image tag portfolio:pull-request "$IMAGE:$tag"
+          docker image push "$IMAGE:$tag"
+          digest=$(docker buildx imagetools inspect "$IMAGE:$tag" \
+            --format '{{json .Manifest}}' | jq -er .digest)
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+
+          docker logout ghcr.io
+          anonymous_config="$RUNNER_TEMP/anonymous-docker"
+          mkdir -p "$anonymous_config"
+          printf '{"auths":{}}\n' >"$anonymous_config/config.json"
+          DOCKER_CONFIG="$anonymous_config" docker pull "$IMAGE@$digest" >/dev/null
+          remote_revision=$(docker image inspect "$IMAGE@$digest" \
+            --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')
+          remote_source=$(docker image inspect "$IMAGE@$digest" \
+            --format '{{ index .Config.Labels "org.opencontainers.image.source" }}')
+          remote_owner=$(docker image inspect "$IMAGE@$digest" \
+            --format '{{ index .Config.Labels "io.personal-infra.portfolio-preview" }}')
+          test "$remote_revision" = "$HEAD_SHA"
+          test "$remote_source" = "https://github.com/$REPOSITORY"
+          test "$remote_owner" = true
+          DOCKER_CONFIG="$anonymous_config" \
+            docker buildx imagetools inspect "$IMAGE@$digest" >/dev/null
+          echo "image=$IMAGE@$digest" >>"$GITHUB_OUTPUT"
+
+  deploy:
+    needs:
+      - select
+      - publish
+    if: needs.select.outputs.mode == 'deploy' && needs.publish.result == 'success'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/pr-preview-host-command.yml
+    with:
+      operation: deploy
+      pull-request-number: ${{ fromJSON(needs.select.outputs.pull-request-number) }}
+      image: ${{ needs.publish.outputs.image }}
+      head-sha: ${{ needs.select.outputs.head-sha }}
+    secrets:
+      sops_age_key: ${{ secrets.SOPS_AGE_KEY }}
+
+  dispatch-ineligible:
+    needs: select
+    if: needs.select.outputs.mode == 'dispatch-ineligible'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Dispatch trusted default-branch preview teardown
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIOUS_BASE_REF: ${{ needs.select.outputs.previous-base-ref }}
+          PR_NUMBER: ${{ needs.select.outputs.pull-request-number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+          [[ "$PREVIOUS_BASE_REF" =~ ^(main)?$ ]]
+          gh api --method POST \
+            "repos/$REPOSITORY/dispatches" \
+            -f event_type=portfolio-preview-teardown \
+            -f "client_payload[pr_number]=$PR_NUMBER" \
+            -f "client_payload[previous_base_ref]=$PREVIOUS_BASE_REF"
+
+  cleanup-ineligible:
+    needs: select
+    if: needs.select.outputs.mode == 'destroy-ineligible'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/pr-preview-host-command.yml
+    with:
+      operation: destroy
+      reason: ineligible
+      pull-request-number: ${{ fromJSON(needs.select.outputs.pull-request-number) }}
+      previous-base-ref: ${{ needs.select.outputs.previous-base-ref }}
+    secrets:
+      sops_age_key: ${{ secrets.SOPS_AGE_KEY }}
+
+  cleanup-failed-build:
+    needs: select
+    if: needs.select.outputs.mode == 'destroy-failed-build'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/pr-preview-host-command.yml
+    with:
+      operation: destroy
+      reason: failed-build
+      pull-request-number: ${{ fromJSON(needs.select.outputs.pull-request-number) }}
+      head-sha: ${{ needs.select.outputs.head-sha }}
+    secrets:
+      sops_age_key: ${{ secrets.SOPS_AGE_KEY }}
+
+  cleanup-failed-publication:
+    needs:
+      - select
+      - publish
+    if: >-
+      always() &&
+      needs.select.outputs.mode == 'deploy' &&
+      contains(fromJSON('["failure","cancelled","timed_out"]'), needs.publish.result)
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/pr-preview-host-command.yml
+    with:
+      operation: destroy
+      reason: failed-publication
+      pull-request-number: ${{ fromJSON(needs.select.outputs.pull-request-number) }}
+      head-sha: ${{ needs.select.outputs.head-sha }}
+    secrets:
+      sops_age_key: ${{ secrets.SOPS_AGE_KEY }}
+
+  cleanup-failed-deploy:
+    needs:
+      - select
+      - publish
+      - deploy
+    if: >-
+      always() &&
+      needs.select.outputs.mode == 'deploy' &&
+      needs.publish.result == 'success' &&
+      contains(fromJSON('["failure","cancelled","timed_out"]'), needs.deploy.result)
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/pr-preview-host-command.yml
+    with:
+      operation: destroy
+      reason: failed-deploy
+      pull-request-number: ${{ fromJSON(needs.select.outputs.pull-request-number) }}
+      head-sha: ${{ needs.select.outputs.head-sha }}
+    secrets:
+      sops_age_key: ${{ secrets.SOPS_AGE_KEY }}

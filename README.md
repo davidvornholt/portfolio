@@ -43,6 +43,14 @@ This repo uses Bun.
 
 The `Publish container` workflow waits for the canonical `Standards` workflow to pass for the exact `main` commit, publishes the image to GHCR under the tracked `main` tag, and announces the resulting digest to `personal-infra` via a broker-minted `image-bump` repository dispatch. The production server does not deploy from this repository: `personal-infra` proves the announcement against this workflow's own run log, opens a digest-pin promotion PR, and owns the digest-pinned NixOS runtime and activation policy.
 
+## Pull request previews
+
+An open, non-draft, same-repository pull request to `main` gets a preview when it carries the `pr-preview` label. The preview becomes available at `https://<pull-request-number>.pr.david.vornholt.online` after the exact head passes the full repository gate and its credential-free container smoke test. Removing the label, converting the pull request to draft, retargeting it, closing it, or failing the current build removes the preview.
+
+The pull request job has `contents: read` only. It uploads a bounded image archive instead of publishing to the registry. A trusted completed-run workflow checks the artifact, current pull request state, trusted workflow files, and an independent Standards run before it publishes the immutable digest and invokes the restricted host command.
+
+Portfolio has no database, migrations, writable application data, or app secrets. Its preview therefore gets an isolated container, system identity, no-egress Podman network, loopback port, and Caddy route without an invented database boundary. `personal-infra` owns those resources and the unproxied wildcard DNS record.
+
 ## Standards and secrets
 
 - Pull canonical repository policy: `bun standards sync`
@@ -53,6 +61,8 @@ The `Publish container` workflow waits for the canonical `Standards` workflow to
 Secret shapes are documented in `secrets/*.example.yaml`; real values belong only
 in the SOPS-encrypted files. CI decrypts `secrets/ci.yaml` with the
 repository-scoped `SOPS_AGE_KEY` GitHub Actions secret.
+
+`secrets/pr-preview.yaml` contains only the forced-command SSH key used by the main-only `pr-preview` GitHub environment. Its separate age identity cannot decrypt development or CI credentials.
 
 ## Project structure
 

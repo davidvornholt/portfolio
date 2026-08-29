@@ -1,0 +1,269 @@
+name: Portfolio preview host command
+
+on:
+  workflow_call:
+    secrets:
+      sops_age_key:
+        description: Repository bootstrap key for the encrypted preview SSH key
+        required: true
+    inputs:
+      operation:
+        description: Exact forced-command operation
+        required: true
+        type: string
+      reason:
+        description: Why a destroy operation is authorized
+        required: false
+        type: string
+        default: ""
+      pull-request-number:
+        description: Pull request whose preview changes
+        required: true
+        type: number
+      image:
+        description: Exact public image digest for deploy
+        required: false
+        type: string
+        default: ""
+      head-sha:
+        description: Exact pull request head for deploy or failed-build cleanup
+        required: false
+        type: string
+        default: ""
+      previous-base-ref:
+        description: Previous base branch for a trusted retarget teardown
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  command:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: pr-preview
+      url: https://${{ inputs.pull-request-number }}.pr.david.vornholt.online
+    steps:
+      - name: Validate the exact host command
+        id: validate
+        env:
+          HEAD_SHA: ${{ inputs.head-sha }}
+          IMAGE: ${{ inputs.image }}
+          OPERATION: ${{ inputs.operation }}
+          PREVIOUS_BASE_REF: ${{ inputs.previous-base-ref }}
+          PR_NUMBER: ${{ inputs.pull-request-number }}
+          REASON: ${{ inputs.reason }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test "$REPOSITORY" = davidvornholt/portfolio
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+          case "$OPERATION" in
+            deploy)
+              test -z "$REASON"
+              test -z "$PREVIOUS_BASE_REF"
+              [[ "$IMAGE" =~ ^ghcr\.io/davidvornholt/portfolio@sha256:[0-9a-f]{64}$ ]]
+              [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+              printf 'command=deploy %s %s %s\n' \
+                "$PR_NUMBER" "$IMAGE" "$HEAD_SHA" >>"$GITHUB_OUTPUT"
+              ;;
+            destroy)
+              test -z "$IMAGE"
+              case "$REASON" in
+                ineligible)
+                  test -z "$HEAD_SHA"
+                  [[ "$PREVIOUS_BASE_REF" =~ ^(main)?$ ]]
+                  ;;
+                failed-build|failed-publication|failed-deploy)
+                  test -z "$PREVIOUS_BASE_REF"
+                  [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+                  ;;
+                *)
+                  echo "::error::Destroy requires an allowed reason"
+                  exit 1
+                  ;;
+              esac
+              printf 'command=destroy %s\n' "$PR_NUMBER" >>"$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::Only deploy and destroy host operations are allowed"
+              exit 1
+              ;;
+          esac
+
+      - name: Fetch the encrypted preview key from exact current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          repository=$(gh api "repos/$REPOSITORY")
+          test "$(jq -er .full_name <<<"$repository")" = davidvornholt/portfolio
+          test "$(jq -er .default_branch <<<"$repository")" = main
+          main_ref=$(gh api "repos/$REPOSITORY/git/ref/heads/main")
+          main_sha=$(jq -er '.object.sha | select(test("^[0-9a-f]{40}$"))' <<<"$main_ref")
+          gh api \
+            -H 'Accept: application/vnd.github.raw+json' \
+            "repos/$REPOSITORY/contents/secrets/pr-preview.yaml?ref=$main_sha" \
+            >"$RUNNER_TEMP/portfolio-pr-preview.yaml"
+          test -s "$RUNNER_TEMP/portfolio-pr-preview.yaml"
+
+      - name: Resolve the dedicated preview SSH key
+        env:
+          SOPS_AGE_KEY: ${{ secrets.sops_age_key }}
+        run: |
+          set -euo pipefail
+          test -n "$SOPS_AGE_KEY"
+          version=v3.13.2
+          case "$(uname -m)" in
+            x86_64)
+              arch=amd64
+              sha=154dfe4cd70554bdd82b98e4cd4acf191d43d01ead6f00a73477aa44c4ac42ef
+              ;;
+            aarch64)
+              arch=arm64
+              sha=78abf2e15c86250a1553ae6f53aba96be6b2a8126f160b1534959add3467ad76
+              ;;
+            *)
+              echo "::error::No pinned SOPS binary for runner architecture $(uname -m)"
+              exit 1
+              ;;
+          esac
+          sops="$RUNNER_TEMP/sops"
+          curl --fail --silent --show-error --location \
+            --output "$sops" \
+            "https://github.com/getsops/sops/releases/download/${version}/sops-${version}.linux.${arch}"
+          echo "$sha  $sops" | sha256sum --check --quiet
+          chmod +x "$sops"
+
+          key="$RUNNER_TEMP/portfolio-preview-ssh-key"
+          "$sops" decrypt \
+            --extract '["ci"]["ssh_private_key"]' \
+            --output-type binary \
+            "$RUNNER_TEMP/portfolio-pr-preview.yaml" >"$key"
+          printf '\n' >>"$key"
+          chmod 0600 "$key"
+          test -s "$key"
+          ssh-keygen -y -f "$key" >/dev/null
+          fingerprint=$(ssh-keygen -lf "$key" -E sha256 | awk '{print $2}')
+          test "$fingerprint" = 'SHA256:14x1KJyuNbEPVn+abundMp3vd9/tzG6JMx6zCJkGggM'
+
+      - name: Revalidate eligibility and run the restricted host command
+        id: host
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ inputs.head-sha }}
+          HOST_COMMAND: ${{ steps.validate.outputs.command }}
+          OPERATION: ${{ inputs.operation }}
+          PREVIOUS_BASE_REF: ${{ inputs.previous-base-ref }}
+          PR_NUMBER: ${{ inputs.pull-request-number }}
+          REASON: ${{ inputs.reason }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          echo 'in_scope=false' >>"$GITHUB_OUTPUT"
+          pr=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
+          test "$(jq -er .number <<<"$pr")" = "$PR_NUMBER"
+          base_ref=$(jq -er .base.ref <<<"$pr")
+          if [ "$(jq -er .base.repo.full_name <<<"$pr")" != "$REPOSITORY" ] \
+            || [ "$(jq -er .head.repo.full_name <<<"$pr")" != "$REPOSITORY" ]; then
+            echo "::notice::Pull request $PR_NUMBER is outside the same-repository preview boundary"
+            exit 0
+          fi
+          if [ "$base_ref" != main ] \
+            && { [ "$OPERATION" != destroy ] \
+              || [ "$REASON" != ineligible ] \
+              || [ "$PREVIOUS_BASE_REF" != main ]; }; then
+            echo "::notice::Pull request $PR_NUMBER is outside the main preview lane"
+            exit 0
+          fi
+          echo 'in_scope=true' >>"$GITHUB_OUTPUT"
+          current_head=$(jq -er '.head.sha | select(test("^[0-9a-f]{40}$"))' <<<"$pr")
+          eligible=false
+          if [ "$base_ref" = main ] \
+            && [ "$(jq -er .state <<<"$pr")" = open ] \
+            && [ "$(jq -er .draft <<<"$pr")" = false ] \
+            && [ "$(jq -er 'any(.labels[]; .name == "pr-preview")' <<<"$pr")" = true ]; then
+            eligible=true
+          fi
+
+          if [ "$OPERATION" = deploy ]; then
+            test "$eligible" = true
+            test "$current_head" = "$HEAD_SHA"
+          elif [ "$eligible" = true ]; then
+            test "$REASON" != ineligible
+            test "$current_head" = "$HEAD_SHA"
+          fi
+
+          known_hosts="$RUNNER_TEMP/portfolio-preview-known-hosts"
+          printf '%s\n' \
+            'prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5' \
+            >"$known_hosts"
+          chmod 0600 "$known_hosts"
+          timeout 20m ssh \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            -o IdentitiesOnly=yes \
+            -o ServerAliveCountMax=8 \
+            -o ServerAliveInterval=15 \
+            -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$known_hosts" \
+            -i "$RUNNER_TEMP/portfolio-preview-ssh-key" \
+            root@prod-1.vornholt.online \
+            "$HOST_COMMAND"
+
+      - name: Remove temporary key material
+        if: always()
+        run: |
+          rm -f \
+            "$RUNNER_TEMP/sops" \
+            "$RUNNER_TEMP/portfolio-pr-preview.yaml" \
+            "$RUNNER_TEMP/portfolio-preview-known-hosts" \
+            "$RUNNER_TEMP/portfolio-preview-ssh-key"
+
+      - name: Reconcile the pull request preview comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ inputs.head-sha }}
+          HOST_IN_SCOPE: ${{ steps.host.outputs.in_scope }}
+          HOST_OUTCOME: ${{ steps.host.outcome }}
+          OPERATION: ${{ inputs.operation }}
+          PR_NUMBER: ${{ inputs.pull-request-number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "$HOST_IN_SCOPE" = false ]; then
+            echo "::notice::No preview comment is needed outside the same-repository main preview lane"
+            exit 0
+          fi
+          marker='<!-- portfolio-pr-preview -->'
+          if [ "$HOST_OUTCOME" = success ] && [ "$OPERATION" = deploy ]; then
+            body=$(printf '%s\n\nPreview: https://%s.pr.david.vornholt.online\n\nSource: %s\n\nState: deployed and healthy' \
+              "$marker" "$PR_NUMBER" "$HEAD_SHA")
+          elif [ "$HOST_OUTCOME" = success ]; then
+            body=$(printf '%s\n\nState: removed' "$marker")
+          elif [ "$OPERATION" = deploy ]; then
+            body=$(printf '%s\n\nSource: %s\n\nState: deployment failed' "$marker" "$HEAD_SHA")
+          else
+            body=$(printf '%s\n\nState: removal failed' "$marker")
+          fi
+
+          comments=$(gh api --paginate "repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" | jq -sc 'add')
+          matches=$(jq -c --arg marker "$marker" \
+            '[.[] | select(.user.login == "github-actions[bot]" and (.body | contains($marker)))]' \
+            <<<"$comments")
+          count=$(jq -er length <<<"$matches")
+          if [ "$count" -gt 1 ]; then
+            echo "::error::More than one Portfolio preview status comment exists"
+            exit 1
+          elif [ "$count" -eq 1 ]; then
+            comment_id=$(jq -er '.[0].id' <<<"$matches")
+            gh api --method PATCH "repos/$REPOSITORY/issues/comments/$comment_id" -f body="$body" >/dev/null
+          else
+            gh api --method POST "repos/$REPOSITORY/issues/$PR_NUMBER/comments" -f body="$body" >/dev/null
+          fi

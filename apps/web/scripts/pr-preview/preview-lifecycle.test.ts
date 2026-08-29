@@ -15,7 +15,7 @@ describe('trusted preview lifecycle selection', () => {
     });
 
     expect(result.exitCode).toBe(0);
-    expect(result.outputs.mode).toBe('destroy-ineligible');
+    expect(result.outputs.mode).toBe('dispatch-ineligible');
     expect(result.outputs['pull-request-number']).toBe('35');
   });
 
@@ -33,7 +33,25 @@ describe('trusted preview lifecycle selection', () => {
     });
 
     expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('dispatch-ineligible');
+    expect(result.outputs['previous-base-ref']).toBe('main');
+  });
+
+  it('revalidates a retargeted pull request from a main-ref handoff', () => {
+    const result = runSelection({
+      previousBaseRef: 'main',
+      pullRequest: eligiblePullRequest({
+        base: apiRecord([
+          ['repo', apiRecord([['full_name', 'davidvornholt/portfolio']])],
+          ['ref', 'stacked'],
+        ]),
+      }),
+      trigger: 'workflow_dispatch',
+    });
+
+    expect(result.exitCode).toBe(0);
     expect(result.outputs.mode).toBe('destroy-ineligible');
+    expect(result.outputs['pull-request-number']).toBe('35');
     expect(result.outputs['previous-base-ref']).toBe('main');
   });
 

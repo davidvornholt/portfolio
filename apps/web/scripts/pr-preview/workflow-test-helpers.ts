@@ -47,7 +47,11 @@ type SelectionScenario = {
   readonly directAssociations?: ReadonlyArray<{ readonly number: number }>;
   readonly pullRequest?: Record<string, unknown>;
   readonly producerJobConclusion?: string;
-  readonly trigger?: 'pull_request_target' | 'workflow_run';
+  readonly previousBaseRef?: string;
+  readonly trigger?:
+    | 'pull_request_target'
+    | 'workflow_dispatch'
+    | 'workflow_run';
 };
 
 type SelectionResult = {
@@ -129,6 +133,8 @@ exit "$status"
       ['EVENT_TYPE', 'pull_request'],
       ['EVENT_WORKFLOW_ID', '316903523'],
       ['GH_TOKEN', 'test-token'],
+      ['HANDOFF_PR_NUMBER', '35'],
+      ['HANDOFF_PREVIOUS_BASE_REF', scenario.previousBaseRef ?? ''],
       ['REPOSITORY', 'davidvornholt/portfolio'],
       ['SELECT_ASSOCIATED', json(scenario.associated ?? [])],
       [

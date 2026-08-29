@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { readWorkflow } from './workflow-test-helpers';
+import { extractRunScript, readWorkflow } from './workflow-test-helpers';
 
 const consumer = await readWorkflow('pr-preview-deploy.yml');
 const hostCommand = await readWorkflow('pr-preview-host-command.yml');
@@ -42,6 +42,23 @@ describe('preview host authorization and secret boundary', () => {
     expect(hostCommand).toContain(
       'prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5',
     );
+  });
+
+  it('hands lifecycle teardown to an explicitly main-ref workflow run', () => {
+    const dispatch = extractRunScript(
+      consumer,
+      'Dispatch trusted main preview teardown',
+    );
+
+    expect(consumer).toContain('  workflow_dispatch:');
+    expect(consumer).toContain(
+      "needs.select.outputs.mode == 'dispatch-ineligible'",
+    );
+    expect(dispatch).toContain(
+      'actions/workflows/pr-preview-deploy.yml/dispatches',
+    );
+    expect(dispatch).toContain('-f ref=main');
+    expect(dispatch).toContain('inputs[pull-request-number]');
   });
 
   it('retries teardown after publication, deploy, or health failure', () => {

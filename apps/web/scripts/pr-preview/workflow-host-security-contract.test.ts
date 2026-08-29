@@ -54,16 +54,12 @@ describe('preview host authorization and secret boundary', () => {
     expect(consumer).toContain(
       "needs.select.outputs.mode == 'dispatch-ineligible'",
     );
-    expect(dispatch).toContain(
-      'repos/$REPOSITORY/dispatches',
-    );
+    expect(dispatch).toContain('repos/$REPOSITORY/dispatches');
     const selector = extractRunScript(
       consumer,
       'Select an exact current preview operation',
     );
-    expect(selector).toContain(
-      'test "$GITHUB_REF" = refs/heads/main',
-    );
+    expect(selector).toContain('test "$GITHUB_REF" = refs/heads/main');
     expect(dispatch).toContain('event_type=portfolio-preview-teardown');
     expect(dispatch).toContain('client_payload[pr_number]');
   });

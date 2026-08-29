@@ -135,10 +135,7 @@ exit "$status"
       ['EVENT_WORKFLOW_ID', '316903523'],
       ['GH_TOKEN', 'test-token'],
       ['EVENT_DISPATCH_PR_NUMBER', '35'],
-      [
-        'EVENT_DISPATCH_PREVIOUS_BASE_REF',
-        scenario.previousBaseRef ?? '',
-      ],
+      ['EVENT_DISPATCH_PREVIOUS_BASE_REF', scenario.previousBaseRef ?? ''],
       ['EVENT_DISPATCH_TYPE', 'portfolio-preview-teardown'],
       ['GITHUB_REF', scenario.ref ?? 'refs/heads/main'],
       ['REPOSITORY', 'davidvornholt/portfolio'],

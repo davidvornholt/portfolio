@@ -44,21 +44,28 @@ describe('preview host authorization and secret boundary', () => {
     );
   });
 
-  it('hands lifecycle teardown to an explicitly main-ref workflow run', () => {
+  it('hands lifecycle teardown to an immutable default-branch dispatch', () => {
     const dispatch = extractRunScript(
       consumer,
-      'Dispatch trusted main preview teardown',
+      'Dispatch trusted default-branch preview teardown',
     );
 
-    expect(consumer).toContain('  workflow_dispatch:');
+    expect(consumer).toContain('  repository_dispatch:');
     expect(consumer).toContain(
       "needs.select.outputs.mode == 'dispatch-ineligible'",
     );
     expect(dispatch).toContain(
-      'actions/workflows/pr-preview-deploy.yml/dispatches',
+      'repos/$REPOSITORY/dispatches',
     );
-    expect(dispatch).toContain('-f ref=main');
-    expect(dispatch).toContain('inputs[pull-request-number]');
+    const selector = extractRunScript(
+      consumer,
+      'Select an exact current preview operation',
+    );
+    expect(selector).toContain(
+      'test "$GITHUB_REF" = refs/heads/main',
+    );
+    expect(dispatch).toContain('event_type=portfolio-preview-teardown');
+    expect(dispatch).toContain('client_payload[pr_number]');
   });
 
   it('retries teardown after publication, deploy, or health failure', () => {

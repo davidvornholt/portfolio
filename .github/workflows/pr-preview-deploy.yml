@@ -12,23 +12,16 @@ on:
       - converted_to_draft
       - unlabeled
       - edited
-  workflow_dispatch:
-    inputs:
-      pull-request-number:
-        description: Pull request selected by a trusted lifecycle handoff
-        required: true
-        type: string
-      previous-base-ref:
-        description: Previous base branch for retarget teardown
-        required: false
-        default: ""
-        type: string
+  repository_dispatch:
+    types:
+      - portfolio-preview-teardown
 
 permissions: {}
 
 concurrency:
   group: portfolio-preview-control-prod-1
   cancel-in-progress: false
+  queue: max
 
 jobs:
   select:
@@ -60,8 +53,9 @@ jobs:
           EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
           EVENT_TYPE: ${{ github.event.workflow_run.event }}
           EVENT_WORKFLOW_ID: ${{ github.event.workflow_run.workflow_id }}
-          HANDOFF_PR_NUMBER: ${{ inputs.pull-request-number }}
-          HANDOFF_PREVIOUS_BASE_REF: ${{ inputs.previous-base-ref }}
+          EVENT_DISPATCH_PR_NUMBER: ${{ github.event.client_payload.pr_number }}
+          EVENT_DISPATCH_PREVIOUS_BASE_REF: ${{ github.event.client_payload.previous_base_ref }}
+          EVENT_DISPATCH_TYPE: ${{ github.event.action }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
           TRIGGER: ${{ github.event_name }}
@@ -99,21 +93,23 @@ jobs:
             test "$(jq -er .object.sha <<<"$current_main_ref")" = "$main_sha"
           }
 
-          if [ "$TRIGGER" = workflow_dispatch ]; then
-            [[ "$HANDOFF_PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
-            [[ "$HANDOFF_PREVIOUS_BASE_REF" =~ ^(main)?$ ]]
-            pr=$(gh api "repos/$REPOSITORY/pulls/$HANDOFF_PR_NUMBER")
-            test "$(jq -er .number <<<"$pr")" = "$HANDOFF_PR_NUMBER"
+          if [ "$TRIGGER" = repository_dispatch ]; then
+            test "$EVENT_DISPATCH_TYPE" = portfolio-preview-teardown
+            test "$GITHUB_REF" = refs/heads/main
+            [[ "$EVENT_DISPATCH_PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
+            [[ "$EVENT_DISPATCH_PREVIOUS_BASE_REF" =~ ^(main)?$ ]]
+            pr=$(gh api "repos/$REPOSITORY/pulls/$EVENT_DISPATCH_PR_NUMBER")
+            test "$(jq -er .number <<<"$pr")" = "$EVENT_DISPATCH_PR_NUMBER"
             test "$(jq -er .base.repo.full_name <<<"$pr")" = "$REPOSITORY"
             test "$(jq -er .head.repo.full_name <<<"$pr")" = "$REPOSITORY"
             if preview_is_eligible; then
-              echo "::notice::Pull request $HANDOFF_PR_NUMBER became eligible again before teardown"
+              echo "::notice::Pull request $EVENT_DISPATCH_PR_NUMBER became eligible again before teardown"
               exit 0
             fi
             {
               echo 'mode=destroy-ineligible'
-              echo "pull-request-number=$HANDOFF_PR_NUMBER"
-              echo "previous-base-ref=$HANDOFF_PREVIOUS_BASE_REF"
+              echo "pull-request-number=$EVENT_DISPATCH_PR_NUMBER"
+              echo "previous-base-ref=$EVENT_DISPATCH_PREVIOUS_BASE_REF"
             } >>"$GITHUB_OUTPUT"
             exit 0
           fi
@@ -615,9 +611,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      actions: write
+      contents: write
     steps:
-      - name: Dispatch trusted main preview teardown
+      - name: Dispatch trusted default-branch preview teardown
         env:
           GH_TOKEN: ${{ github.token }}
           PREVIOUS_BASE_REF: ${{ needs.select.outputs.previous-base-ref }}
@@ -628,10 +624,10 @@ jobs:
           [[ "$PR_NUMBER" =~ ^[1-9][0-9]{0,5}$ ]]
           [[ "$PREVIOUS_BASE_REF" =~ ^(main)?$ ]]
           gh api --method POST \
-            "repos/$REPOSITORY/actions/workflows/pr-preview-deploy.yml/dispatches" \
-            -f ref=main \
-            -f "inputs[pull-request-number]=$PR_NUMBER" \
-            -f "inputs[previous-base-ref]=$PREVIOUS_BASE_REF"
+            "repos/$REPOSITORY/dispatches" \
+            -f event_type=portfolio-preview-teardown \
+            -f "client_payload[pr_number]=$PR_NUMBER" \
+            -f "client_payload[previous_base_ref]=$PREVIOUS_BASE_REF"
 
   cleanup-ineligible:
     needs: select

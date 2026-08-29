@@ -46,7 +46,7 @@ describe('trusted preview lifecycle selection', () => {
           ['ref', 'stacked'],
         ]),
       }),
-      trigger: 'workflow_dispatch',
+      trigger: 'repository_dispatch',
     });
 
     expect(result.exitCode).toBe(0);
@@ -59,13 +59,25 @@ describe('trusted preview lifecycle selection', () => {
     const result = runSelection({
       previousBaseRef: 'main',
       pullRequest: eligiblePullRequest({ labels: [] }),
-      trigger: 'workflow_dispatch',
+      trigger: 'repository_dispatch',
     });
 
     expect(result.exitCode).toBe(0);
     expect(result.outputs.mode).toBe('destroy-ineligible');
     expect(result.outputs['pull-request-number']).toBe('35');
     expect(result.outputs['previous-base-ref']).toBe('main');
+  });
+
+  it('rejects a repository dispatch that does not run from main', () => {
+    const result = runSelection({
+      previousBaseRef: 'main',
+      pullRequest: eligiblePullRequest({ labels: [] }),
+      ref: 'refs/heads/feature',
+      trigger: 'repository_dispatch',
+    });
+
+    expect(result.exitCode).not.toBe(0);
+    expect(result.outputs.mode).toBe('none');
   });
 
   it('leaves a pull request entering main for the producer to rebuild', () => {

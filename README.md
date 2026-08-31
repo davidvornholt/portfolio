@@ -64,6 +64,12 @@ repository-scoped `SOPS_AGE_KEY` GitHub Actions secret.
 
 `secrets/pr-preview.yaml` contains only the forced-command SSH key used by the main-only `pr-preview` GitHub environment. Its separate age identity cannot decrypt development or CI credentials.
 
+## Pull request screenshots
+
+`config/screenshots.yaml` binds `bun standards screenshots publish` to the shared personal R2 screenshot host. Its credential reference, bucket, upload endpoint, and public base URL are required and have no defaults. The host infrastructure lives in `personal-infra`; this repository owns only its consumer binding.
+
+`secrets/assets.yaml` contains the required brokered `access_key_id` and `secret_access_key` values at `assets.screenshots_rw`. Only the publish command consumes them; builds, tests, and deployments do not.
+
 ## Project structure
 
 - `apps/web/src/app/` — Next.js routes and layout.

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { BlogPostSummary } from '../components/blog-teaser';
+import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
 import { BlogTeaser } from '../components/blog-teaser';
 import { CTA } from '../components/cta';
 import { Expertise } from '../components/expertise';
@@ -11,7 +11,7 @@ import { SelectedWorks } from '../components/selected-works';
 
 type PortfolioScreenProps = Readonly<{
   works: ReadonlyArray<WorkSummary>;
-  posts: ReadonlyArray<BlogPostSummary>;
+  posts: ReadonlyArray<PostListEntry>;
 }>;
 
 export const PortfolioScreen = ({

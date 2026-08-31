@@ -12,6 +12,12 @@ const sitemap = (): MetadataRoute.Sitemap => {
       changeFrequency: 'monthly',
       priority: 1,
     },
+    {
+      url: `${siteUrl}/posts`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
   ];
 
   const workRoutes: MetadataRoute.Sitemap = works.map((work) => ({

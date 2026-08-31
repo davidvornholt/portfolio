@@ -127,18 +127,19 @@ const StandardsFlowFigure = (): ReactNode => (
 const ExecutableEngineeringStandardsBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 A document is not a control</MDXHeadingOne>
+      <MDXHeadingOne>01 Instructions are not enforcement</MDXHeadingOne>
       <MDXHeadingTwo>
-        A rule matters only when a repository can tell whether it follows it.
+        Instructions tell a coding agent what to do. They do not prove what
+        happened.
       </MDXHeadingTwo>
       <MDXParagraph>
-        An ordinary standards document has no way to know whether anyone obeyed
-        it. A copied linter configuration can drift. A test command can exist
-        without CI calling it. A coding agent can report that the checks passed
+        An agent instruction file has no way to know whether a coding agent
+        followed it. A copied linter configuration can drift. A test command can
+        exist without CI calling it. An agent can report that the checks passed
         without proving which checks ran.
       </MDXParagraph>
       <MDXParagraph>
-        More prose does not close those gaps. I built{' '}
+        More instructions do not close those gaps. I built{' '}
         <MDXAnchor href="https://github.com/davidvornholt/standards">
           standards
         </MDXAnchor>{' '}
@@ -147,16 +148,16 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         gate fails.
       </MDXParagraph>
       <MDXCallout title="The test">
-        A standard should answer a concrete question: what command proves that
-        this repository still follows it?
+        Agent instructions should answer a concrete question: what command
+        proves that this repository still follows them?
       </MDXCallout>
     </MDXSection>
 
     <MDXSection>
       <MDXHeadingOne>02 One source of truth</MDXHeadingOne>
       <MDXHeadingTwo>
-        The standards repository contains both policy and the machinery that
-        checks it.
+        The standards repository contains both the instructions and the
+        machinery that checks the result.
       </MDXHeadingTwo>
       <MDXParagraph>
         The shared contract starts in <MDXStrong>AGENTS.md</MDXStrong>. It tells
@@ -342,15 +343,15 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
 
 export const executableEngineeringStandardsPost: Post = {
   meta: {
-    title: 'A standards document can be ignored. Mine can fail CI.',
+    title: 'Coding agents get instructions. Quality gates decide what ships.',
     subtitle:
-      'How one shared engineering contract, three classes of files, and a sync engine keep every repository aligned.',
+      'How a shared contract, explicit file ownership, and fail-closed CI keep every repository aligned.',
     slug: 'executable-engineering-standards',
     date: '2026-08-31',
     category: 'Engineering',
     readTime: '7 min read',
     excerpt:
-      'I turned engineering standards into an executable system: one shared contract, fail-closed gates, declared repository state, and a sync engine that detects drift.',
+      "I built a shared contract, sync engine, and fail-closed CI system so repositories verify agent-written work instead of trusting an agent's report.",
   },
   body: ExecutableEngineeringStandardsBody,
 };

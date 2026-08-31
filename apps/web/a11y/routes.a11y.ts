@@ -5,6 +5,11 @@ import { umamiScriptUrl } from '@/config/analytics';
 const routes = [
   { name: 'home', path: '/' },
   { name: 'lab', path: '/lab' },
+  { name: 'posts archive', path: '/posts' },
+  {
+    name: 'executable engineering standards post',
+    path: '/posts/executable-engineering-standards',
+  },
   {
     name: 'architect portfolio post',
     path: '/posts/building-the-architects-portfolio',

@@ -82,7 +82,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/#blog" label="Back to blog" />
+      <BackNavigation href="/posts" label="All posts" />
       <article className="mx-auto max-w-4xl px-6 pt-32 pb-24">
         <header className="mt-12 mb-12 border-border border-b pb-8">
           <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">

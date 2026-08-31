@@ -1,24 +1,16 @@
 import { easing } from '@portfolio/ui/easing';
-import { ArrowRight, Clock, PenLine } from 'lucide-react';
-import {
-  article as MotionArticle,
-  header as MotionHeader,
-} from 'motion/react-client';
+import { ArrowRight, PenLine } from 'lucide-react';
+import { header as MotionHeader } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { Badge } from '@/shared/ui/presentation/components/badge';
+import {
+  PostList,
+  type PostListEntry,
+} from '@/shared/content/presentation/components/post-list';
 
-export type BlogPostSummary = {
-  readonly title: string;
-  readonly excerpt: string;
-  readonly category: string;
-  readonly readTime: string;
-  readonly href?: string;
-};
-
-type BlogTeaserProps = {
-  readonly posts: ReadonlyArray<BlogPostSummary>;
-};
+type BlogTeaserProps = Readonly<{
+  posts: ReadonlyArray<PostListEntry>;
+}>;
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -26,81 +18,13 @@ const fadeInUp = {
   viewport: { once: true, margin: '-100px' },
 };
 
-const blogPostStaggerSeconds = 0.1;
-
-const BlogPostCardContent = ({
-  post,
-}: {
-  readonly post: BlogPostSummary;
-}): ReactNode => (
-  <>
-    <div className="mb-4 flex shrink-0 items-center gap-4 md:mb-0 md:w-48">
-      <Badge variant="outline" className="text-xs">
-        {post.category}
-      </Badge>
-      <span className="inline-flex items-center gap-1 text-muted-foreground text-xs">
-        <Clock className="h-3 w-3" />
-        {post.readTime}
-      </span>
-    </div>
-
-    <div className="flex-1">
-      <h3 className="mb-2 font-semibold font-serif text-foreground text-xl transition-colors group-hover:text-primary">
-        {post.title}
-      </h3>
-      <p className="mb-4 text-muted-foreground text-sm leading-relaxed">
-        {post.excerpt}
-      </p>
-      {post.href ? (
-        <span className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
-          Read article
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </span>
-      ) : null}
-    </div>
-  </>
-);
-
-const BlogPostCard = ({
-  post,
-  index,
-}: {
-  readonly post: BlogPostSummary;
-  readonly index: number;
-}): ReactNode => (
-  <MotionArticle
-    {...fadeInUp}
-    transition={{
-      duration: 0.6,
-      ease: easing,
-      delay: index * blogPostStaggerSeconds,
-    }}
-    className="group border-border border-b pb-8 last:border-b-0"
-  >
-    {post.href ? (
-      <Link
-        href={post.href}
-        data-umami-event="post-open"
-        data-umami-event-post={post.title}
-        className="flex cursor-pointer flex-col md:flex-row md:items-start md:gap-8"
-      >
-        <BlogPostCardContent post={post} />
-      </Link>
-    ) : (
-      <div className="flex flex-col md:flex-row md:items-start md:gap-8">
-        <BlogPostCardContent post={post} />
-      </div>
-    )}
-  </MotionArticle>
-);
-
 export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
   <section id="blog" className="border-border border-t px-6 py-24 md:py-32">
     <div className="mx-auto max-w-6xl">
       <MotionHeader
         {...fadeInUp}
         transition={{ duration: 0.6, ease: easing }}
-        className="mb-16 flex flex-col justify-between gap-4 md:flex-row md:items-end"
+        className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end"
       >
         <div>
           <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
@@ -111,17 +35,24 @@ export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
             Programming blog
           </h2>
         </div>
-        <p className="max-w-md text-muted-foreground text-sm">
-          Notes from building Atrium, ProsaBridge, and this site: engineering
-          decisions, measured results, and the occasional failed experiment.
-        </p>
+        <div className="max-w-md">
+          <p className="text-muted-foreground text-sm">
+            Notes from building products and the systems behind them:
+            architecture, measured results, and the occasional failed
+            experiment.
+          </p>
+          <Link
+            href="/posts"
+            data-umami-event="posts-archive-open"
+            className="group mt-4 inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors hover:text-primary/80"
+          >
+            View all posts
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </MotionHeader>
 
-      <div className="space-y-8">
-        {posts.map((post, index) => (
-          <BlogPostCard key={post.title} post={post} index={index} />
-        ))}
-      </div>
+      <PostList posts={posts} />
     </div>
   </section>
 );

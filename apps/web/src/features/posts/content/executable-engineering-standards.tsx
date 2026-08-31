@@ -53,12 +53,14 @@ const flowStages = [
   {
     number: '03',
     title: 'Run the gate',
-    detail: 'The consumer checks sync state before its own lint, types, and tests.',
+    detail:
+      'The consumer checks sync state before its own lint, types, and tests.',
   },
   {
     number: '04',
     title: 'Block drift',
-    detail: 'A required CI verdict stops the merge when the contract no longer holds.',
+    detail:
+      'A required CI verdict stops the merge when the contract no longer holds.',
   },
 ] as const;
 
@@ -67,7 +69,7 @@ const FileOwnershipFigure = (): ReactNode => (
     <div className="grid md:grid-cols-3">
       {ownershipClasses.map((fileClass) => (
         <div
-          className="border-border border-t py-6 first:border-t-0 md:border-t-0 md:border-l md:px-6 md:first:border-l-0 md:first:pl-0 md:last:pr-0"
+          className="border-border border-t py-6 first:border-t-0 md:border-t-0 md:border-l md:px-6 md:last:pr-0 md:first:border-l-0 md:first:pl-0"
           key={fileClass.name}
         >
           <p className="font-mono text-primary text-xs">{fileClass.number}</p>
@@ -140,9 +142,9 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         <MDXAnchor href="https://github.com/davidvornholt/standards">
           standards
         </MDXAnchor>{' '}
-        so the important rules arrive as versioned files, executable checks,
-        and declared repository state. A consumer either matches the contract
-        or its gate fails.
+        so the important rules arrive as versioned files, executable checks, and
+        declared repository state. A consumer either matches the contract or its
+        gate fails.
       </MDXParagraph>
       <MDXCallout title="The test">
         A standard should answer a concrete question: what command proves that
@@ -200,15 +202,15 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         the standard.
       </MDXParagraph>
       <MDXParagraph>
-        The sync system resolves that tension by assigning every managed file
-        to one of three classes.
+        The sync system resolves that tension by assigning every managed file to
+        one of three classes.
       </MDXParagraph>
       <FileOwnershipFigure />
       <MDXParagraph>
         Local variation goes through named extension points. A repository adds
-        its own instructions in <MDXStrong>AGENTS.local.md</MDXStrong>, extends
-        the shared linter from its repo-owned <MDXStrong>biome.jsonc</MDXStrong>,
-        and keeps project-specific operator commands in{' '}
+        its own instructions in <MDXStrong>AGENTS.local.md</MDXStrong>. Its
+        repo-owned <MDXStrong>biome.jsonc</MDXStrong> extends the shared linter.
+        Project-specific operator commands live in{' '}
         <MDXStrong>local.just</MDXStrong>. The shared file stays unchanged.
       </MDXParagraph>
       <MDXParagraph>
@@ -231,11 +233,11 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         housekeeping.
       </MDXParagraph>
       <MDXParagraph>
-        The standards repository declares the expected GitHub state in code.
-        The check compares that declaration with the live repository and fails
-        on drift or on an API error that prevents verification. The apply
-        command brings the live settings back to the declaration with
-        administrator credentials.
+        The standards repository declares the expected GitHub state in code. The
+        check compares that declaration with the live repository and fails on
+        drift or on an API error that prevents verification. The apply command
+        brings the live settings back to the declaration with administrator
+        credentials.
       </MDXParagraph>
       <MDXParagraph>
         This makes the repository itself reviewable. Source files, quality
@@ -256,14 +258,14 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
       </MDXParagraph>
       <MDXParagraph>
         The standards CLI gives those repositories an upgrade path. Init creates
-        the first managed state. A lock records the exact canonical files.
-        Sync applies later changes, and check reports edits, deletions, or
+        the first managed state. A lock records the exact canonical files. Sync
+        applies later changes, and check reports edits, deletions, or
         integration mistakes.
       </MDXParagraph>
       <MDXParagraph>
-        A weekly workflow turns upstream changes into ordinary pull requests.
-        A stricter accessibility rule or a corrected agent instruction arrives
-        as a diff, runs against the consumer's own gate, and waits for the same
+        A weekly workflow turns upstream changes into ordinary pull requests. A
+        stricter accessibility rule or a corrected agent instruction arrives as
+        a diff, runs against the consumer's own gate, and waits for the same
         merge decision as application code.
       </MDXParagraph>
       <MDXCallout title="The difference">
@@ -326,9 +328,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         is smaller. Make the rules that matter executable, give local variation
         an explicit home, and let drift fail where people can see it.
       </MDXParagraph>
-      <MDXCallout>
-        A standard that cannot be checked is advice.
-      </MDXCallout>
+      <MDXCallout>A standard that cannot be checked is advice.</MDXCallout>
     </MDXSection>
 
     <MDXCallToAction

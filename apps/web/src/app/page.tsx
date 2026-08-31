@@ -14,13 +14,15 @@ const workSummaries: ReadonlyArray<WorkSummary> = works.map((work) => ({
   outcome: work.meta.outcome,
 }));
 
-const postSummaries: ReadonlyArray<PostListEntry> = featuredPosts.map((post) => ({
-  title: post.meta.title,
-  excerpt: post.meta.excerpt,
-  category: post.meta.category,
-  readTime: post.meta.readTime,
-  href: `/posts/${post.meta.slug}`,
-}));
+const postSummaries: ReadonlyArray<PostListEntry> = featuredPosts.map(
+  (post) => ({
+    title: post.meta.title,
+    excerpt: post.meta.excerpt,
+    category: post.meta.category,
+    readTime: post.meta.readTime,
+    href: `/posts/${post.meta.slug}`,
+  }),
+);
 
 const HomePage = () => (
   <PortfolioScreen works={workSummaries} posts={postSummaries} />

@@ -35,8 +35,9 @@ export const PostsScreen = ({ posts }: PostsScreenProps): ReactNode => (
           Programming blog
         </h1>
         <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
-          Notes from building products and the systems behind them. Architecture,
-          measured results, and failed experiments all belong here.
+          Notes from building products and the systems behind them.
+          Architecture, measured results, and failed experiments all belong
+          here.
         </p>
       </MotionHeader>
 

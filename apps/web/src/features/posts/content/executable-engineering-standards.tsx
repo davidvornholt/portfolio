@@ -164,7 +164,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     <MDXSection>
       <MDXHeadingOne>02 The repository has to prove the work</MDXHeadingOne>
       <MDXHeadingTwo>
-        A green merge is an evidence trail, not an agent's opinion.
+        A green gate is an evidence trail, not an agent's opinion.
       </MDXHeadingTwo>
       <MDXParagraph>
         Each repository runs one required gate over the exact change it is about
@@ -203,12 +203,11 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         them.
       </MDXHeadingTwo>
       <MDXParagraph>
-        The system begins in{' '}
+        The public source of truth behind the repositories I maintain is the{' '}
         <MDXAnchor href="https://github.com/davidvornholt/standards">
-          standards
+          standards repository
         </MDXAnchor>
-        . It is the public source of truth behind the repositories I maintain.
-        Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture boundaries,
+        . Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture boundaries,
         quality rules, package management, error handling, and the final merge
         process for both people and coding agents.
       </MDXParagraph>

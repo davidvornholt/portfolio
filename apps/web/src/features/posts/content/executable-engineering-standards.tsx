@@ -42,25 +42,25 @@ const ownershipClasses = [
 const flowStages = [
   {
     number: '01',
-    title: 'Publish the contract',
-    detail: 'Rules, skills, gates, and repository settings live upstream.',
+    title: 'Share the contract',
+    detail: 'Synced instructions and repo-local rules define the work.',
   },
   {
     number: '02',
-    title: 'Sync a consumer',
-    detail: 'The CLI mirrors canonical files and records their exact state.',
+    title: 'Agent writes',
+    detail:
+      'A coding agent implements the change and repairs accepted findings.',
   },
   {
     number: '03',
-    title: 'Run the gate',
+    title: 'Gates verify',
     detail:
-      'The consumer checks sync state before its own lint, types, and tests.',
+      'Types, lint, tests, accessibility, and repository state run on the exact commit.',
   },
   {
     number: '04',
-    title: 'Block drift',
-    detail:
-      'A required CI verdict stops the merge when the contract no longer holds.',
+    title: 'Human decides',
+    detail: 'The evidence and remaining risk return to a person for the merge.',
   },
 ] as const;
 
@@ -93,7 +93,7 @@ const FileOwnershipFigure = (): ReactNode => (
   </figure>
 );
 
-const StandardsFlowFigure = (): ReactNode => (
+const VerificationFlowFigure = (): ReactNode => (
   <figure className="my-10 border-border border-y py-8">
     <ol className="grid gap-0 md:grid-cols-4">
       {flowStages.map((stage) => (
@@ -118,8 +118,8 @@ const StandardsFlowFigure = (): ReactNode => (
       ))}
     </ol>
     <figcaption className="mt-8 border-border border-t pt-4 text-muted-foreground text-sm">
-      The standard reaches a repository as code, then the repository has to
-      prove that it still follows it.
+      The agent can propose and repair a change. It cannot give itself the final
+      verdict.
     </figcaption>
   </figure>
 );
@@ -127,74 +127,116 @@ const StandardsFlowFigure = (): ReactNode => (
 const ExecutableEngineeringStandardsBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 Instructions are not enforcement</MDXHeadingOne>
+      <MDXHeadingOne>01 Agent confidence is not evidence</MDXHeadingOne>
       <MDXHeadingTwo>
-        Instructions tell a coding agent what to do. They do not prove what
-        happened.
+        Coding agents write most of my code. They do not decide when it is
+        ready.
       </MDXHeadingTwo>
       <MDXParagraph>
-        An agent instruction file has no way to know whether a coding agent
-        followed it. A copied linter configuration can drift. A test command can
-        exist without CI calling it. An agent can report that the checks passed
-        without proving which checks ran.
+        In my workflow, the hard part is no longer producing code. It is
+        deciding which changes deserve to reach main.
       </MDXParagraph>
       <MDXParagraph>
-        More instructions do not close those gaps. I built{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards">
-          standards
-        </MDXAnchor>{' '}
-        so the important rules arrive as versioned files, executable checks, and
-        declared repository state. A consumer either matches the contract or its
-        gate fails.
+        Agents make code cheap. They also make convincing mistakes cheap. A
+        change can compile and look polished while hiding a broken contract, a
+        stale assumption, or a repair that introduced another defect. A model
+        can say the checks passed without showing which checks ran. A second
+        model can approve the same assumption with equal confidence.
       </MDXParagraph>
-      <MDXCallout title="The test">
-        Agent instructions should answer a concrete question: what command
-        proves that this repository still follows them?
+      <MDXParagraph>
+        So I do not ask the model whether the work is done. I ask the
+        repository.
+      </MDXParagraph>
+      <MDXParagraph>
+        Every change has to meet the same bar: strict types and linting, tests,
+        the production build, WCAG 2.2 AA accessibility checks, repository
+        structure, synchronized instructions, and declared GitHub state. If a
+        required check finds a problem, errors, or cannot prove what it checked,
+        the merge stops.
+      </MDXParagraph>
+      <MDXParagraph>
+        That is how I use coding agents aggressively without making their
+        confidence part of the trust model.
+      </MDXParagraph>
+      <MDXCallout title="The boundary">
+        An agent can propose code, repair findings, and explain its work. It
+        cannot give itself the final verdict.
       </MDXCallout>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 One source of truth</MDXHeadingOne>
+      <MDXHeadingOne>02 The repository has to prove the work</MDXHeadingOne>
       <MDXHeadingTwo>
-        The standards repository contains both the instructions and the
-        machinery that checks the result.
+        A green gate is an evidence trail, not an agent's opinion.
       </MDXHeadingTwo>
       <MDXParagraph>
-        The shared contract starts in <MDXStrong>AGENTS.md</MDXStrong>. It tells
-        humans and coding agents how the repository is structured, which quality
-        rules are non-negotiable, and where local decisions belong. Reusable
-        skills add task-specific instructions for review, CI, databases,
-        infrastructure, and interface work.
+        Each repository runs one required gate over the exact change it is about
+        to merge. The gate starts by checking the shared engineering contract,
+        then runs the repository's own code and behavior checks.
       </MDXParagraph>
       <MDXUnorderedList>
         <MDXListItem>
-          Strict TypeScript and Biome configuration turn warnings and unsafe
-          shortcuts into errors.
+          Strict TypeScript and Biome configuration turn warnings, type
+          mismatches, and unsafe shortcuts into failures.
         </MDXListItem>
         <MDXListItem>
-          Playwright and Axe scan browser routes against WCAG 2.2 AA.
+          Unit tests and the production build check behavior and integration,
+          not just whether the files parse.
         </MDXListItem>
         <MDXListItem>
-          Declared GitHub settings cover merge methods, required checks,
-          rulesets, and labels.
+          Playwright and Axe scan every browser route against WCAG 2.2 AA.
         </MDXListItem>
         <MDXListItem>
-          The <MDXStrong>@davidvornholt/standards</MDXStrong> CLI initializes,
-          syncs, and checks consuming repositories.
+          Structure, synchronized files, generated configuration, and live
+          GitHub settings are checked for drift.
         </MDXListItem>
       </MDXUnorderedList>
       <MDXParagraph>
-        Each consumer runs the standards check before its own lint, types,
-        tests, build, and accessibility suite. A repository cannot call its
-        quality gate green while the shared contract is already out of date.
+        The exact checks vary with the repository. The rule does not. Required
+        evidence must come from the system around the change, not from the final
+        message written by the agent that produced it.
       </MDXParagraph>
-      <StandardsFlowFigure />
+      <VerificationFlowFigure />
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 Three kinds of files</MDXHeadingOne>
+      <MDXHeadingOne>03 One contract for humans and agents</MDXHeadingOne>
       <MDXHeadingTwo>
-        Central control only works when local ownership is explicit.
+        The same non-negotiable rules have to reach every repository that uses
+        them.
+      </MDXHeadingTwo>
+      <MDXParagraph>
+        The public source of truth behind the repositories I maintain is the{' '}
+        <MDXAnchor href="https://github.com/davidvornholt/standards">
+          standards repository
+        </MDXAnchor>
+        . Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture boundaries,
+        quality rules, package management, error handling, and the final merge
+        process for both people and coding agents.
+      </MDXParagraph>
+      <MDXParagraph>
+        Reusable skills add narrower instructions for review, CI, databases,
+        infrastructure, and interface work. The contract says where a decision
+        belongs. The gate checks whether the repository still follows it.
+      </MDXParagraph>
+      <MDXParagraph>
+        The <MDXStrong>@davidvornholt/standards</MDXStrong> CLI mirrors the
+        shared files into each consumer and records their exact state. Every
+        consumer runs <MDXStrong>standards check</MDXStrong> before its own
+        lint, types, tests, build, and accessibility suite. A repository cannot
+        call itself green while the contract it claims to follow is already
+        stale.
+      </MDXParagraph>
+      <MDXCallout title="Why sync instead of copy">
+        A template gives a repository a good first day. Synchronization gives it
+        an upgrade path.
+      </MDXCallout>
+    </MDXSection>
+
+    <MDXSection>
+      <MDXHeadingOne>04 Every file needs one owner</MDXHeadingOne>
+      <MDXHeadingTwo>
+        Central rules and local decisions have to coexist without silent forks.
       </MDXHeadingTwo>
       <MDXParagraph>
         Making every file identical would be simple and useless. Projects need
@@ -215,126 +257,110 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         <MDXStrong>local.just</MDXStrong>. The shared file stays unchanged.
       </MDXParagraph>
       <MDXParagraph>
-        The filenames are not the main idea. The important part is that each
-        decision has one owner. Editing a canonical file is drift. Extending it
-        through an approved local file is part of the design.
+        A weekly workflow turns upstream changes into ordinary pull requests.
+        New rules arrive as a visible diff, run against the consumer's own gate,
+        and wait for the same merge decision as application code. Local edits to
+        canonical files are drift. Local decisions made through the approved
+        seams are part of the design.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 The repository is part of the product</MDXHeadingOne>
+      <MDXHeadingOne>05 The repository itself is checked</MDXHeadingOne>
       <MDXHeadingTwo>
-        Correct application code can still live in a badly configured
-        repository.
+        Correct application code can still be merged through a broken process.
       </MDXHeadingTwo>
       <MDXParagraph>
         Tests do not tell me whether somebody enabled merge commits, removed a
-        required status check, or changed a branch rule. Those settings decide
-        what can ship, so I treat them as product behavior rather than dashboard
-        housekeeping.
+        required status check, changed a branch rule, or let repository
+        configuration drift away from the declared policy. Those settings decide
+        what can ship.
       </MDXParagraph>
       <MDXParagraph>
-        The standards repository declares the expected GitHub state in code. The
-        check compares that declaration with the live repository and fails on
-        drift or on an API error that prevents verification. The apply command
-        brings the live settings back to the declaration with administrator
-        credentials.
+        The standards repository therefore declares the expected GitHub state in
+        code. The gate compares that declaration with the live repository and
+        fails on drift or on an API error that prevents verification. An
+        administrator-only apply command brings the live settings back to the
+        declaration.
       </MDXParagraph>
       <MDXParagraph>
-        This makes the repository itself reviewable. Source files, quality
-        gates, merge policy, and selected labels all have a versioned home.
-        Passing tests is no longer the only evidence required to merge.
+        This makes the delivery process reviewable. Source files, quality gates,
+        merge policy, rulesets, and selected labels all have a versioned home.
+        Passing tests is necessary. It is no longer the only evidence required
+        to merge.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>05 A template stops at day one</MDXHeadingOne>
+      <MDXHeadingOne>06 Strict automation can still fail</MDXHeadingOne>
       <MDXHeadingTwo>
-        Starting aligned is easy. Staying aligned is the actual work.
+        A gate can enforce a bad rule with perfect consistency.
       </MDXHeadingTwo>
       <MDXParagraph>
-        A repository template copies one good starting point. The copy begins
-        aging as soon as the first project changes. Fixing a rule upstream does
-        nothing for repositories that already exist.
+        My most expensive lesson came from an experimental review workflow in
+        the standards repository. It kept reviewing until two consecutive passes
+        found nothing. That sounded safer than stopping after one review.
       </MDXParagraph>
       <MDXParagraph>
-        The standards CLI gives those repositories an upgrade path. Init creates
-        the first managed state. A lock records the exact canonical files. Sync
-        applies later changes, and check reports edits, deletions, or
-        integration mistakes.
-      </MDXParagraph>
-      <MDXParagraph>
-        A weekly workflow turns upstream changes into ordinary pull requests. A
-        stricter accessibility rule or a corrected agent instruction arrives as
-        a diff, runs against the consumer's own gate, and waits for the same
-        merge decision as application code.
-      </MDXParagraph>
-      <MDXCallout title="The difference">
-        A template gives a repository a starting point. A sync system gives it
-        an upgrade path.
-      </MDXCallout>
-    </MDXSection>
-
-    <MDXSection>
-      <MDXHeadingOne>06 Fail closed does not mean infallible</MDXHeadingOne>
-      <MDXHeadingTwo>
-        Automation can enforce a bad rule with perfect consistency.
-      </MDXHeadingTwo>
-      <MDXParagraph>
-        Strict shared standards have a cost. A mistake upstream can affect many
-        repositories. A new gate can expose work that every consumer must fix.
-        The ownership model and sync engine also need maintenance of their own.
-      </MDXParagraph>
-      <MDXParagraph>
-        My sharpest lesson came from an experimental review workflow inside the
-        standards repository. It was supposed to keep reviewing until two
-        consecutive passes found nothing. Instead, it turned a 179-line change
-        into 37,451 added lines and changed live repository settings before I
-        stopped it. The{' '}
+        Instead, each repair gave the next reviewers more code to inspect. A
+        179-line change became 37,451 added lines over 39 passes. The workflow
+        even changed live repository settings before I stopped it after roughly
+        46 hours. The{' '}
         <MDXAnchor href="/posts/review-loop-ran-for-46-hours">
-          full 46-hour failure
+          full failure
         </MDXAnchor>{' '}
-        is public.
+        remains public.
       </MDXParagraph>
       <MDXParagraph>
-        I removed that workflow and replaced it with a bounded review, repair,
-        and verification cycle. In a later public comparison, that workflow
-        found fifteen material issues across two changes while CodeRabbit found
-        no valid issue. The{' '}
+        I removed the open-ended loop and replaced it with one bounded review,
+        repair, and verification cycle. In a later public comparison, that
+        workflow found fifteen material issues across two changes while
+        CodeRabbit found no valid findings. The{' '}
         <MDXAnchor href="/posts/review-fix-versus-coderabbit">
           comparison and every finding
         </MDXAnchor>{' '}
         are available to inspect.
       </MDXParagraph>
       <MDXParagraph>
-        Those experiments changed the contract. Automated work now gets finite
-        stages, explicit ownership, and a human merge decision. Fail closed
-        means that an error stops the process. It does not mean the process is
-        correct.
+        Fail closed is one useful property. It is not proof that the process is
+        correct. Automated work also needs a fixed scope, hard stopping
+        conditions, explicit ownership, and a person who accepts the remaining
+        risk.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>07 Inspect the contract</MDXHeadingOne>
+      <MDXHeadingOne>
+        07 Confidence comes from evidence, not trust
+      </MDXHeadingOne>
       <MDXHeadingTwo>
-        Nobody has to take my claims about engineering quality on trust.
+        I merge agent-written code when the repository can defend the change.
       </MDXHeadingTwo>
       <MDXParagraph>
-        The standards, sync lock, workflows, and pull request history are
-        public. A reader can inspect the rule, see how it reaches a consumer,
-        and check whether the repository's required verdict passed.
+        The gates do not remove responsibility. I still set product intent,
+        choose the architecture, judge tradeoffs, and own what reaches
+        production. The system makes the evidence visible before I make that
+        decision.
+      </MDXParagraph>
+      <MDXParagraph>
+        The shared contract, sync lock, workflows, checks, and pull request
+        history are public. A reader can inspect a rule, see how it reaches a
+        consumer, and verify whether the required gate passed.
       </MDXParagraph>
       <MDXParagraph>
         I do not expect every team to adopt my exact opinions. The useful idea
-        is smaller. Make the rules that matter executable, give local variation
-        an explicit home, and let drift fail where people can see it.
+        is simpler. Separate generation from approval. Give important rules an
+        executable form, check the repository as well as the code, and keep the
+        final merge decision with a person.
       </MDXParagraph>
-      <MDXCallout>A standard that cannot be checked is advice.</MDXCallout>
+      <MDXCallout>
+        Model confidence is cheap. Merge confidence has to be earned.
+      </MDXCallout>
     </MDXSection>
 
     <MDXCallToAction
-      title="Audit the standards"
-      description="Read the contract, CLI, ownership model, and current gates."
+      title="Inspect the system"
+      description="Read the shared contract, sync engine, quality gates, and public failure reports."
       href="https://github.com/davidvornholt/standards"
       linkText="Open the repository"
     />
@@ -343,15 +369,15 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
 
 export const executableEngineeringStandardsPost: Post = {
   meta: {
-    title: 'Coding agents get instructions. Quality gates decide what ships.',
+    title: "Coding agents write most of my code. They don't decide what ships.",
     subtitle:
-      'How a shared contract, explicit file ownership, and fail-closed CI keep every repository aligned.',
+      'How shared instructions, repository-aware review, and fail-closed gates let me merge agent-written changes without lowering the quality bar.',
     slug: 'executable-engineering-standards',
     date: '2026-08-31',
     category: 'Engineering',
     readTime: '7 min read',
     excerpt:
-      "I built a shared contract, sync engine, and fail-closed CI system so repositories verify agent-written work instead of trusting an agent's report.",
+      'Agent-written code can look finished long before it is safe to merge. This is the evidence system every change must pass before it reaches main.',
   },
   body: ExecutableEngineeringStandardsBody,
 };

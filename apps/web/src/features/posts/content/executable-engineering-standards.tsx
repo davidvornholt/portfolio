@@ -209,9 +209,10 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         The public source of truth behind the repositories I maintain is the{' '}
         <MDXAnchor href="https://github.com/davidvornholt/standards">
           standards repository
-        </MDXAnchor>. Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture
-        boundaries, quality rules, package management, error handling, and the
-        final merge process for both people and coding agents.
+        </MDXAnchor>
+        . Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture boundaries,
+        quality rules, package management, error handling, and the final merge
+        process for both people and coding agents.
       </MDXParagraph>
       <MDXParagraph>
         Reusable skills add narrower instructions for review, CI, databases,

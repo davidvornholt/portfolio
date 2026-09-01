@@ -48,7 +48,8 @@ const flowStages = [
   {
     number: '02',
     title: 'Agent writes',
-    detail: 'A coding agent implements the change and repairs accepted findings.',
+    detail:
+      'A coding agent implements the change and repairs accepted findings.',
   },
   {
     number: '03',
@@ -128,7 +129,8 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     <MDXSection>
       <MDXHeadingOne>01 Agent confidence is not evidence</MDXHeadingOne>
       <MDXHeadingTwo>
-        Coding agents write most of my code. They do not decide when it is ready.
+        Coding agents write most of my code. They do not decide when it is
+        ready.
       </MDXHeadingTwo>
       <MDXParagraph>
         In my workflow, the hard part is no longer producing code. It is
@@ -142,7 +144,8 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         model can approve the same assumption with equal confidence.
       </MDXParagraph>
       <MDXParagraph>
-        So I do not ask the model whether the work is done. I ask the repository.
+        So I do not ask the model whether the work is done. I ask the
+        repository.
       </MDXParagraph>
       <MDXParagraph>
         Every change has to meet the same bar: strict types and linting, tests,
@@ -206,10 +209,9 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         The public source of truth behind the repositories I maintain is the{' '}
         <MDXAnchor href="https://github.com/davidvornholt/standards">
           standards repository
-        </MDXAnchor>
-        . Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture boundaries,
-        quality rules, package management, error handling, and the final merge
-        process for both people and coding agents.
+        </MDXAnchor>. Its <MDXStrong>AGENTS.md</MDXStrong> defines architecture
+        boundaries, quality rules, package management, error handling, and the
+        final merge process for both people and coding agents.
       </MDXParagraph>
       <MDXParagraph>
         Reusable skills add narrower instructions for review, CI, databases,
@@ -219,9 +221,10 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
       <MDXParagraph>
         The <MDXStrong>@davidvornholt/standards</MDXStrong> CLI mirrors the
         shared files into each consumer and records their exact state. Every
-        consumer runs <MDXStrong>standards check</MDXStrong> before its own lint,
-        types, tests, build, and accessibility suite. A repository cannot call
-        itself green while the contract it claims to follow is already stale.
+        consumer runs <MDXStrong>standards check</MDXStrong> before its own
+        lint, types, tests, build, and accessibility suite. A repository cannot
+        call itself green while the contract it claims to follow is already
+        stale.
       </MDXParagraph>
       <MDXCallout title="Why sync instead of copy">
         A template gives a repository a good first day. Synchronization gives it
@@ -269,12 +272,12 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
       <MDXParagraph>
         Tests do not tell me whether somebody enabled merge commits, removed a
         required status check, changed a branch rule, or let repository
-        configuration drift away from the declared policy. Those settings
-        decide what can ship.
+        configuration drift away from the declared policy. Those settings decide
+        what can ship.
       </MDXParagraph>
       <MDXParagraph>
-        The standards repository therefore declares the expected GitHub state
-        in code. The gate compares that declaration with the live repository and
+        The standards repository therefore declares the expected GitHub state in
+        code. The gate compares that declaration with the live repository and
         fails on drift or on an API error that prevents verification. An
         administrator-only apply command brings the live settings back to the
         declaration.
@@ -365,8 +368,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
 
 export const executableEngineeringStandardsPost: Post = {
   meta: {
-    title:
-      "Coding agents write most of my code. They don't decide what ships.",
+    title: "Coding agents write most of my code. They don't decide what ships.",
     subtitle:
       'How shared instructions, repository-aware review, and fail-closed gates let me merge agent-written changes without lowering the quality bar.',
     slug: 'executable-engineering-standards',

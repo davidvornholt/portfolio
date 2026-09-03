@@ -42,7 +42,7 @@ const ExpertiseCard = ({
       className="border border-border p-6 transition-colors hover:border-primary/40"
     >
       <div className="mb-4 flex items-center gap-3">
-        <Icon className="h-5 w-5 text-primary" />
+        <Icon className="size-5 text-primary" />
         <h3 className="font-semibold font-serif text-foreground text-lg">
           {category.title}
         </h3>
@@ -80,7 +80,7 @@ const LanguageItem = ({
     className="flex items-center justify-between border-border border-b py-4 last:border-b-0"
   >
     <div className="flex items-center gap-3">
-      <Globe className="h-4 w-4 text-muted-foreground" />
+      <Globe className="size-4 text-muted-foreground" />
       <span className="font-medium text-foreground">{language.name}</span>
     </div>
     <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export const Expertise = (): ReactNode => (
         className="mb-16"
       >
         <div className="mb-4 flex items-center gap-3">
-          <Globe className="h-5 w-5 text-primary" />
+          <Globe className="size-5 text-primary" />
           <div>
             <h3 className="font-semibold font-serif text-foreground text-lg">
               The polyglot advantage
@@ -150,7 +150,7 @@ export const Expertise = (): ReactNode => (
         transition={{ duration: 0.6, ease: easing, delay: 0.4 }}
       >
         <div className="mb-6 flex items-center gap-3">
-          <Award className="h-5 w-5 text-primary" />
+          <Award className="size-5 text-primary" />
           <div>
             <h3 className="font-semibold font-serif text-foreground text-lg">
               Verified expertise

@@ -49,11 +49,11 @@ export const CaseStudyLayout = ({
 
       <div className="flex flex-wrap items-center gap-6 text-sm">
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary" />
+          <Clock className="size-4 text-primary" />
           <span className="text-muted-foreground">{timeline}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-primary" />
+          <Users className="size-4 text-primary" />
           <span className="text-muted-foreground">{role}</span>
         </div>
       </div>
@@ -76,7 +76,7 @@ export const CaseStudyLayout = ({
           className="mt-8 inline-flex h-9 items-center justify-center gap-2 bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary-strong"
         >
           Visit live platform
-          <ExternalLink className="h-4 w-4" />
+          <ExternalLink className="size-4" />
         </a>
       )}
     </MotionHeader>

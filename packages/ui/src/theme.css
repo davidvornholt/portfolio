@@ -14,6 +14,7 @@
   --green-700: oklch(0.4 0.075 152);
   --green-800: oklch(0.34 0.07 152);
   --clay-600: oklch(0.55 0.11 45);
+  --clay-700: oklch(0.47 0.11 45);
   --red-600: oklch(0.52 0.15 30);
   --deep-ground-900: oklch(0.235 0.018 58);
   --deep-ink-100: oklch(0.94 0.014 84);
@@ -33,7 +34,7 @@
   --secondary-foreground: var(--ink-900);
   --muted: var(--paper-200);
   --muted-foreground: var(--ink-600);
-  --welcome: var(--clay-600);
+  --welcome: var(--clay-700);
   --welcome-foreground: var(--paper-100);
   --destructive: var(--red-600);
   --destructive-foreground: var(--paper-100);

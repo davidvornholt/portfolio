@@ -27,7 +27,7 @@ const EmailLink = (): ReactNode => {
       data-umami-event="contact-email"
       className="group inline-flex items-center gap-3 bg-deep-foreground px-8 py-4 font-medium text-base text-deep transition-colors hover:bg-deep-foreground/90"
     >
-      <Mail className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
+      <Mail className="size-5 transition-transform group-hover:-translate-y-0.5" />
       {emailAddress}
     </a>
   );

@@ -38,7 +38,7 @@ export const LabHero = (): ReactNode => (
           href="/"
           className="inline-flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="size-4" />
           Back to studio
         </Link>
       </MotionDiv>

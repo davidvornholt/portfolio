@@ -7,17 +7,20 @@ describe('trusted preview lifecycle selection', () => {
     ['closed', eligiblePullRequest({ state: 'closed' })],
     ['converted_to_draft', eligiblePullRequest({ draft: true })],
     ['unlabeled', eligiblePullRequest({ labels: [] })],
-  ])('tears down a main-lane preview when the pull request is %s', (action, pullRequest) => {
-    const result = runSelection({
-      action,
-      pullRequest,
-      trigger: 'pull_request_target',
-    });
+  ])(
+    'tears down a main-lane preview when the pull request is %s',
+    (action, pullRequest) => {
+      const result = runSelection({
+        action,
+        pullRequest,
+        trigger: 'pull_request_target',
+      });
 
-    expect(result.exitCode).toBe(0);
-    expect(result.outputs.mode).toBe('dispatch-ineligible');
-    expect(result.outputs['pull-request-number']).toBe('35');
-  });
+      expect(result.exitCode).toBe(0);
+      expect(result.outputs.mode).toBe('dispatch-ineligible');
+      expect(result.outputs['pull-request-number']).toBe('35');
+    },
+  );
 
   it('tears down a preview retargeted away from main', () => {
     const result = runSelection({

@@ -41,8 +41,8 @@ const arrowHover = {
 };
 
 const numberHover = {
-  initial: { opacity: 0.2, scale: 1 },
-  hover: { opacity: 0.35, scale: 1.05 },
+  initial: { scale: 1 },
+  hover: { scale: 1.05 },
 };
 
 const WorkCardContent = ({
@@ -57,7 +57,7 @@ const WorkCardContent = ({
       <MotionSpan
         variants={numberHover}
         transition={{ duration: 0.3, ease: easing }}
-        className="block font-bold font-mono text-6xl text-muted-foreground/60"
+        className="block font-bold font-mono text-6xl text-muted-foreground"
       >
         {String(index + 1).padStart(2, '0')}
       </MotionSpan>
@@ -77,11 +77,11 @@ const WorkCardContent = ({
 
       <div className="mb-6 flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
         <span className="inline-flex items-center gap-1.5">
-          <Calendar className="h-4 w-4" />
+          <Calendar className="size-4" />
           {work.timeline}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Code2 className="h-4 w-4" />
+          <Code2 className="size-4" />
           <span className="flex flex-wrap gap-2">
             {work.stack.map((tech) => (
               <Badge
@@ -118,7 +118,7 @@ const WorkCardContent = ({
           variants={arrowHover}
           transition={{ duration: 0.3, ease: easing }}
         >
-          <ArrowUpRight className="h-4 w-4" />
+          <ArrowUpRight className="size-4" />
         </MotionSpan>
       </span>
     </MotionDiv>

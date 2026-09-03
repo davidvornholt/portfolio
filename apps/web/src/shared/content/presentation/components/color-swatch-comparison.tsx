@@ -280,7 +280,7 @@ export const ColorSwatchComparison = (): ReactNode => {
       {/* Header */}
       <div className="flex items-center justify-between border-border border-b px-5 py-3">
         <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+          <div className="size-2.5 rounded-full bg-primary" />
           <span className="font-medium text-muted-foreground text-xs">
             Interactive comparison
           </span>

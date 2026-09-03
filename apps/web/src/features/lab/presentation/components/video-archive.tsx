@@ -26,8 +26,8 @@ const arrowHover = {
 } as const;
 
 const numberHover = {
-  initial: { opacity: 0.2, scale: 1 },
-  hover: { opacity: 0.35, scale: 1.05 },
+  initial: { scale: 1 },
+  hover: { scale: 1.05 },
 } as const;
 
 const VideoCard = ({
@@ -57,7 +57,7 @@ const VideoCard = ({
           <MotionSpan
             variants={numberHover}
             transition={{ duration: 0.3, ease: easing }}
-            className="block font-bold font-mono text-5xl text-muted-foreground/60 md:text-6xl"
+            className="block font-bold font-mono text-5xl text-muted-foreground md:text-6xl"
           >
             {project.number}
           </MotionSpan>

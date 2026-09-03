@@ -99,14 +99,14 @@ export const Hero = (): ReactNode => (
           <Image
             src={portraitImage}
             alt="David Vornholt"
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             priority={true}
             placeholder="blur"
           />
         </div>
         <div
           aria-hidden={true}
-          className="absolute -bottom-3 -left-3 h-full w-full border border-primary/20 sm:-bottom-4 sm:-left-4"
+          className="absolute -bottom-3 -left-3 size-full border border-primary/20 sm:-bottom-4 sm:-left-4"
         />
       </MotionDiv>
     </MotionDiv>
@@ -126,7 +126,7 @@ export const Hero = (): ReactNode => (
         aria-label="Scroll to works"
         className="group text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
+        <ArrowDown className="size-5 transition-transform group-hover:translate-y-1" />
       </Link>
     </MotionDiv>
   </section>

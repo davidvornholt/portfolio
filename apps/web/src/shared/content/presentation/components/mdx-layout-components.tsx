@@ -70,8 +70,8 @@ export const MDXCheckItem = ({
   description: string;
 }>): ReactNode => (
   <div className="flex gap-4">
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-      <CheckCircle2 className="h-4 w-4 text-primary" />
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+      <CheckCircle2 className="size-4 text-primary" />
     </div>
     <div>
       <p className="font-medium text-foreground">{title}</p>
@@ -119,7 +119,7 @@ export const MDXCallToAction = ({
         className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap bg-primary px-6 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary-strong"
       >
         {linkText}
-        <ArrowUpRight className="h-4 w-4" />
+        <ArrowUpRight className="size-4" />
       </a>
     </div>
   </MotionSection>

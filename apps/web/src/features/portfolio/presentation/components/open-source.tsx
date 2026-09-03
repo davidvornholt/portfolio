@@ -59,7 +59,7 @@ export const OpenSource = (): ReactNode => (
                     {tag}
                   </Badge>
                 ))}
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                <ArrowUpRight className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
               </span>
             </a>
           </MotionDiv>

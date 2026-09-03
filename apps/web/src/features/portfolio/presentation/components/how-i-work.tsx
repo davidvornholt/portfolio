@@ -89,7 +89,7 @@ export const HowIWork = (): ReactNode => (
           className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors hover:text-primary/80"
         >
           Read the standards on GitHub
-          <ArrowUpRight className="h-4 w-4" />
+          <ArrowUpRight className="size-4" />
         </a>
       </MotionDiv>
     </div>

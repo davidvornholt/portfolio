@@ -60,7 +60,7 @@ const PostListItem = ({
           {post.category}
         </Badge>
         <span className="inline-flex items-center gap-1 text-muted-foreground text-xs">
-          <Clock className="h-3 w-3" />
+          <Clock className="size-3" />
           {post.readTime}
         </span>
         {post.date === undefined ? null : (
@@ -68,7 +68,7 @@ const PostListItem = ({
             className="inline-flex w-full items-center gap-1 text-muted-foreground text-xs"
             dateTime={post.date}
           >
-            <Calendar className="h-3 w-3" />
+            <Calendar className="size-3" />
             {formatPostDate(post.date)}
           </time>
         )}
@@ -83,7 +83,7 @@ const PostListItem = ({
         </p>
         <span className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
           Read article
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
         </span>
       </div>
     </Link>

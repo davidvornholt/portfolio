@@ -5,7 +5,6 @@ export const getMdxNodeText = (node: ReactNode): string => {
     return node;
   }
   if (typeof node === 'number') {
-    // biome-ignore lint/nursery/noBaseToString: the typeof guard proves this value is a number primitive.
     return String(node);
   }
   if (Array.isArray(node)) {

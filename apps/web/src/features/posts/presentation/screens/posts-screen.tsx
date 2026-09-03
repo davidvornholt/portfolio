@@ -28,7 +28,7 @@ export const PostsScreen = ({ posts }: PostsScreenProps): ReactNode => (
         className="mb-16 border-border border-b pb-8"
       >
         <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-          <PenLine className="mr-1.5 inline-block h-4 w-4" />
+          <PenLine className="mr-1.5 inline-block size-4" />
           Insights
         </p>
         <h1 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">

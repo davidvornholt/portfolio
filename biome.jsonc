@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.11/schema.json",
   // Repo-owned wrapper. Extends the canonical strict base synced from
   // davidvornholt/standards. Add project-specific overrides here; never edit
   // biome.base.jsonc locally.
@@ -15,6 +15,37 @@
     "includes": ["**", "!.claude/workflows", "!!.claude/worktrees"]
   },
   "overrides": [
+    {
+      // Tailwind resolves `@theme` aliases after Biome scans this file, so the
+      // referenced custom properties look undeclared to Biome.
+      "includes": ["packages/ui/src/theme.css"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noUndeclaredCustomProperties": "off"
+          }
+        }
+      }
+    },
+    {
+      // These illustrations and content layouts require exact viewport,
+      // position, grid, transition, and data-display values with no named utility.
+      "includes": [
+        "apps/web/src/features/lab/presentation/components/lab-hero.tsx",
+        "apps/web/src/features/portfolio/presentation/components/certification-item.tsx",
+        "apps/web/src/features/posts/content/executable-engineering-standards.tsx",
+        "apps/web/src/features/posts/content/review-fix-versus-coderabbit.tsx",
+        "apps/web/src/features/posts/content/review-loop-ran-for-46-hours.tsx",
+        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noTailwindArbitraryValue": "off"
+          }
+        }
+      }
+    },
     {
       // Biome's experimental class-resolution rule does not yet understand
       // Tailwind v4 utilities generated through `@theme`; it reports standard

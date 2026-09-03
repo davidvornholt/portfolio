@@ -28,7 +28,7 @@ export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
       >
         <div>
           <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-            <PenLine className="mr-1.5 inline-block h-4 w-4" />
+            <PenLine className="mr-1.5 inline-block size-4" />
             Insights
           </p>
           <h2 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
@@ -47,7 +47,7 @@ export const BlogTeaser = ({ posts }: BlogTeaserProps): ReactNode => (
             className="group mt-4 inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors hover:text-primary/80"
           >
             View all posts
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </MotionHeader>

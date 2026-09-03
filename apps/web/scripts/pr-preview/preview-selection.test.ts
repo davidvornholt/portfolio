@@ -15,17 +15,16 @@ describe('trusted preview workflow-run selection', () => {
     expect(result.log).toContain('/contents/.github/workflows/standards.yml');
   });
 
-  it.each([
-    'failure',
-    'cancelled',
-    'timed_out',
-  ])('destroys the current preview after a %s build without consulting head-owned blobs', (conclusion) => {
-    const result = runSelection({ conclusion });
+  it.each(['failure', 'cancelled', 'timed_out'])(
+    'destroys the current preview after a %s build without consulting head-owned blobs',
+    (conclusion) => {
+      const result = runSelection({ conclusion });
 
-    expect(result.exitCode).toBe(0);
-    expect(result.outputs.mode).toBe('destroy-failed-build');
-    expect(result.log).not.toContain('/contents/');
-  });
+      expect(result.exitCode).toBe(0);
+      expect(result.outputs.mode).toBe('destroy-failed-build');
+      expect(result.log).not.toContain('/contents/');
+    },
+  );
 
   it('does not mutate preview state for a skipped build', () => {
     const result = runSelection({ conclusion: 'skipped' });

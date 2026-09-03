@@ -44,7 +44,7 @@ export const CertificationItem = ({
           {certification.title}
         </h4>
       </div>
-      <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
     </div>
     <p className="text-muted-foreground text-sm leading-relaxed">
       {certification.description}

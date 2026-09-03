@@ -25,13 +25,13 @@
     "shiki": "^3.22.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
+    "@axe-core/playwright": "^4.13.0",
     "@davidvornholt/a11y-testing": "workspace:*",
     "@davidvornholt/typescript-config": "workspace:*",
     "@jridgewell/trace-mapping": "^0.3.31",
     "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4.1.18",
-    "@types/bun": "^1.3.14",
+    "@types/bun": "^1.4.0",
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",

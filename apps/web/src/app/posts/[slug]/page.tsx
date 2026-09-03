@@ -84,7 +84,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
       />
       <BackNavigation href="/posts" label="All posts" />
       <article className="mx-auto max-w-4xl px-6 pt-32 pb-24">
-        <header className="mt-12 mb-12 border-border border-b pb-8">
+        <header className="my-12 border-border border-b pb-8">
           <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
             {post.meta.category}
           </p>

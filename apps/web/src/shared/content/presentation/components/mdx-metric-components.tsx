@@ -19,16 +19,16 @@ const chartPercentageScale = 100;
 const chartItemDelaySeconds = 0.1;
 
 const iconMap: Record<string, ReactNode> = {
-  zap: <Zap className="h-5 w-5" />,
-  gauge: <Gauge className="h-5 w-5" />,
-  lineChart: <LineChart className="h-5 w-5" />,
-  search: <Search className="h-5 w-5" />,
-  trendingUp: <TrendingUp className="h-5 w-5" />,
-  trendingDown: <TrendingDown className="h-5 w-5" />,
-  server: <Server className="h-5 w-5" />,
-  users: <Users className="h-5 w-5" />,
-  checkCircle: <CheckCircle2 className="h-5 w-5" />,
-  code: <Code2 className="h-5 w-5" />,
+  zap: <Zap className="size-5" />,
+  gauge: <Gauge className="size-5" />,
+  lineChart: <LineChart className="size-5" />,
+  search: <Search className="size-5" />,
+  trendingUp: <TrendingUp className="size-5" />,
+  trendingDown: <TrendingDown className="size-5" />,
+  server: <Server className="size-5" />,
+  users: <Users className="size-5" />,
+  checkCircle: <CheckCircle2 className="size-5" />,
+  code: <Code2 className="size-5" />,
 };
 
 export const MDXStatCard = ({
@@ -55,9 +55,9 @@ export const MDXStatCard = ({
     <div className="mb-4 flex items-center justify-between">
       <span className="text-primary">{iconMap[icon]}</span>
       {trend === 'up' ? (
-        <TrendingUp className="h-4 w-4 text-primary" />
+        <TrendingUp className="size-4 text-primary" />
       ) : (
-        <TrendingDown className="h-4 w-4 text-primary" />
+        <TrendingDown className="size-4 text-primary" />
       )}
     </div>
     <p className="font-bold font-mono text-3xl text-foreground">{value}</p>
@@ -101,7 +101,7 @@ export const MDXFeatureCard = ({
     transition={{ duration: 0.5, delay, ease: easing }}
     className="border border-border p-6"
   >
-    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+    <div className="mb-4 flex size-10 items-center justify-center rounded-full bg-primary/10">
       <span className="text-primary">{iconMap[icon]}</span>
     </div>
     <h3 className="mb-2 font-semibold text-foreground">{title}</h3>

@@ -50,6 +50,12 @@ test.beforeEach(async ({ page }) => {
 const waitForFiniteAnimations = async (
   page: Parameters<typeof scanWcag22AaViolations>[0],
 ): Promise<void> => {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => {
       const iterations = animation.effect?.getTiming().iterations;

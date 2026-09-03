@@ -62,7 +62,7 @@ export const LabHero = (): ReactNode => (
       <MotionP
         variants={fadeInUp}
         transition={{ duration: 0.6, ease: easing }}
-        className="mx-auto mb-8 max-w-2xl font-serif text-muted-foreground text-xl italic md:text-2xl"
+        className="mx-auto mb-8 max-w-2xl font-serif text-foreground text-xl italic md:text-2xl"
       >
         A private archive of early experiments in visual storytelling and media.
       </MotionP>
@@ -70,7 +70,7 @@ export const LabHero = (): ReactNode => (
       <MotionP
         variants={fadeInUp}
         transition={{ duration: 0.6, ease: easing }}
-        className="mx-auto max-w-2xl text-base text-foreground/80 leading-relaxed md:text-lg"
+        className="mx-auto max-w-2xl text-base text-foreground leading-relaxed md:text-lg"
       >
         Before focusing on digital architecture, I explored the world through a
         lens. These projects represent my early journey into narrative

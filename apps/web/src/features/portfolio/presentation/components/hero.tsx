@@ -62,7 +62,7 @@ export const Hero = (): ReactNode => (
         <MotionP
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: easing }}
-          className="mx-auto mb-8 max-w-xl text-base text-foreground/80 leading-relaxed sm:mb-10 md:mb-12 md:text-lg lg:mx-0 lg:max-w-2xl"
+          className="mx-auto mb-8 max-w-xl text-base text-foreground leading-relaxed sm:mb-10 md:mb-12 md:text-lg lg:mx-0 lg:max-w-2xl"
         >
           I build two companies. Atrium runs the operative day of a school and
           is in pilot at its first one. ProsaBridge translates whole books for

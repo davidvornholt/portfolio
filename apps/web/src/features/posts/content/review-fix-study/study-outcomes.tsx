@@ -28,7 +28,7 @@ const headlines = [
 export const StudyScorecard = (): ReactNode => (
   <StudyFigure
     title="The latest round, in concrete outcomes"
-    caption="Two source changes, four complete workflow configurations. These observations are not a recall percentage or a universal model score."
+    caption="Two source changes, four workflow configurations. These observations are not a recall percentage or a universal model score."
   >
     <dl className="grid gap-6 sm:grid-cols-3">
       {headlines.map((item) => (

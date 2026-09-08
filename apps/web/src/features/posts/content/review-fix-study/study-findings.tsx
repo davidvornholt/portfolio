@@ -17,8 +17,7 @@ export const StudyFindings = (): ReactNode => (
     </MDXParagraph>
     <StudyScorecard />
     <MDXParagraph>
-      Two bugs affected an unpublished internal tool. I am keeping its name and
-      implementation details private. The third affected Rota, my
+      Two bugs affected an unpublished internal tool. The third affected Rota, my
       clothing-tracking app. After an error, it could get stuck repeatedly
       trying to reload data instead of stopping.
     </MDXParagraph>

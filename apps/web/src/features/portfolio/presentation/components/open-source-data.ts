@@ -14,6 +14,13 @@ export const openSourceProjects: ReadonlyArray<OpenSourceProject> = [
     href: 'https://github.com/davidvornholt/standards',
   },
   {
+    name: 'rota',
+    description:
+      'A photographed wardrobe that applies rotation rules, uses AI only when there is a real choice, and proposes one outfit each morning.',
+    tags: ['TypeScript', 'TanStack Start'],
+    href: 'https://github.com/davidvornholt/rota',
+  },
+  {
     name: 'runlet',
     description:
       'A secure ephemeral GitHub Actions runner orchestrator for NixOS hosts and rootless Podman.',

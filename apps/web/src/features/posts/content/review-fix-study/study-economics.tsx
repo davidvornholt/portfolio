@@ -17,9 +17,9 @@ export const StudyEconomics = (): ReactNode => (
     </MDXParagraph>
     <CostFigure />
     <MDXParagraph>
-      The mixed total is a minimum because some usage could not be counted.
-      Even the recorded portion cost more than using Astra throughout. Mixing
-      models did not deliver the saving I had hoped for in these runs.
+      The mixed total is a minimum because some usage could not be counted. Even
+      the recorded portion cost more than using Astra throughout. Mixing models
+      did not deliver the saving I had hoped for in these runs.
     </MDXParagraph>
     <MDXParagraph>
       Spark and Luna were much cheaper, but their results were not equivalent.
@@ -27,10 +27,12 @@ export const StudyEconomics = (): ReactNode => (
       the reproduced failure. Spark missed the main bugs.
     </MDXParagraph>
     <MDXParagraph>
-      <MDXStrong>The cheapest review was not the cheapest successful result.</MDXStrong>{' '}
+      <MDXStrong>
+        The cheapest review was not the cheapest successful result.
+      </MDXStrong>{' '}
       My supervision time and the cost of missed bugs are not included in these
-      figures. I cannot put an exact dollar value on avoiding them, but they
-      are part of what I am choosing to pay for.
+      figures. I cannot put an exact dollar value on avoiding them, but they are
+      part of what I am choosing to pay for.
     </MDXParagraph>
   </MDXSection>
 );

@@ -2,6 +2,9 @@ import type { ReactNode } from 'react';
 import { studyWorkflows } from './study-data';
 import { StudyFigure } from './study-outcomes';
 
+const chartWidth = 600;
+const maximumCost = 60;
+
 const CostBar = ({
   label,
   value,
@@ -11,13 +14,14 @@ const CostBar = ({
   value: number;
   partial: boolean;
 }>): ReactNode => {
-  const width = (value / 60) * 600;
+  const width = (value / maximumCost) * chartWidth;
+  const formattedCost = `$${value.toFixed(2)}`;
   return (
     <li>
       <div className="mb-2 flex items-baseline justify-between gap-4 text-sm">
         <span className="text-foreground">{label}</span>
         <span className="shrink-0 font-mono text-foreground tabular-nums">
-          {partial ? 'At least ' : ''}${value.toFixed(2)}
+          {partial ? `At least ${formattedCost}` : formattedCost}
         </span>
       </div>
       <svg

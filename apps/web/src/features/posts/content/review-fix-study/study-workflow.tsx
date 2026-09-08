@@ -12,8 +12,8 @@ export const StudyCoordination = (): ReactNode => (
     <MDXParagraph>
       The obvious compromise was to put Astra in charge while cheaper Luna
       agents did the reviewing and fixing. Astra was better at rejecting weak
-      findings and avoiding unnecessary work. But this mixed setup still
-      missed both bugs in the internal tool.
+      findings and avoiding unnecessary work. But this mixed setup still missed
+      both bugs in the internal tool.
     </MDXParagraph>
     <MDXParagraph>
       <MDXStrong>
@@ -22,10 +22,10 @@ export const StudyCoordination = (): ReactNode => (
       </MDXStrong>
     </MDXParagraph>
     <MDXParagraph>
-      The mixed setup did contribute a useful Rota fix that Astra missed.
-      Spark also contributed a worthwhile test improvement. I kept both. The
-      result was not that Astra found everything or the cheaper models did
-      nothing useful.
+      The mixed setup did contribute a useful Rota fix that Astra missed. Spark
+      also contributed a worthwhile test improvement. I kept both. The result
+      was not that Astra found everything or the cheaper models did nothing
+      useful.
     </MDXParagraph>
     <MDXParagraph>
       One apparent mixed-model success could not count as independent evidence.

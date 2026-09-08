@@ -59,7 +59,10 @@ const configurations = [
   { name: 'Spark throughout', detail: 'Muse Spark 1.3 does every job.' },
   { name: 'Luna throughout', detail: 'GPT-5.6 Luna does every job.' },
   { name: 'Astra throughout', detail: 'GPT-6 Astra does every job.' },
-  { name: 'Astra leading Luna', detail: 'Astra leads. Luna reviews and repairs.' },
+  {
+    name: 'Astra leading Luna',
+    detail: 'Astra leads. Luna reviews and repairs.',
+  },
 ] as const;
 
 export const StudyConfigurations = (): ReactNode => (

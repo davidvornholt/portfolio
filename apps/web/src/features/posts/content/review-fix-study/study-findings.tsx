@@ -23,8 +23,8 @@ export const StudyFindings = (): ReactNode => (
     </MDXParagraph>
     <MDXParagraph>
       A browser test recorded 2,494 calls to its data-loading function in five
-      seconds. That demonstrates a runaway loop, not 2,494 paid AI requests or
-      a measured production bill.
+      seconds. That demonstrates a runaway loop, not 2,494 paid AI requests or a
+      measured production bill.
     </MDXParagraph>
     <MDXParagraph>
       Luna introduced a different problem while making a repair. Its change
@@ -35,9 +35,9 @@ export const StudyFindings = (): ReactNode => (
     </MDXParagraph>
     <MDXParagraph>
       Earlier rounds also produced unnecessary code and tests that looked more
-      reassuring than they were. One test still passed after the behavior it
-      was supposed to protect had been deliberately broken. More findings,
-      more code, and more passing tests did not reliably mean a better result.
+      reassuring than they were. One test still passed after the behavior it was
+      supposed to protect had been deliberately broken. More findings, more
+      code, and more passing tests did not reliably mean a better result.
     </MDXParagraph>
   </MDXSection>
 );

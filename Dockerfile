@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- deps (all) ----
-FROM docker.io/oven/bun:1.3.14-alpine AS deps
+FROM docker.io/oven/bun:1.4.2-alpine AS deps
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -12,7 +12,7 @@ COPY packages/ui/package.json ./packages/ui/package.json
 RUN bun install --frozen-lockfile
 
 # ---- build ----
-FROM docker.io/oven/bun:1.3.14-alpine AS builder
+FROM docker.io/oven/bun:1.4.2-alpine AS builder
 WORKDIR /app
 
 # Bun's isolated workspace linker places resolution symlinks beside each
@@ -24,7 +24,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # ---- deps (production only) ----
-FROM docker.io/oven/bun:1.3.14-alpine AS prod-deps
+FROM docker.io/oven/bun:1.4.2-alpine AS prod-deps
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -35,7 +35,7 @@ COPY packages/ui/package.json ./packages/ui/package.json
 RUN bun install --frozen-lockfile --production
 
 # ---- runtime ----
-FROM docker.io/oven/bun:1.3.14-alpine AS runner
+FROM docker.io/oven/bun:1.4.2-alpine AS runner
 WORKDIR /app/apps/web
 
 ENV NODE_ENV=production

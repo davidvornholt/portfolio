@@ -15,13 +15,13 @@ const CostBar = ({
   partial: boolean;
 }>): ReactNode => {
   const width = (value / maximumCost) * chartWidth;
-  const formattedCost = `$${value.toFixed(2)}`;
+  const formattedCost = `${partial ? 'At least ' : ''}$${value.toFixed(2)}`;
   return (
     <li>
       <div className="mb-2 flex items-baseline justify-between gap-4 text-sm">
         <span className="text-foreground">{label}</span>
         <span className="shrink-0 font-mono text-foreground tabular-nums">
-          {partial ? `At least ${formattedCost}` : formattedCost}
+          {formattedCost}
         </span>
       </div>
       <svg

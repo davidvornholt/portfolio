@@ -29,7 +29,7 @@
     "@davidvornholt/a11y-testing": "workspace:*",
     "@davidvornholt/typescript-config": "workspace:*",
     "@jridgewell/trace-mapping": "^0.3.31",
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/bun": "^1.4.2",
     "@types/node": "^26.5.0",

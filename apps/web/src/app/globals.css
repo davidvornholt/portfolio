@@ -1,4 +1,6 @@
+/* biome-ignore lint/nursery/useLayeredStyles: The imported stylesheet declares its own cascade layers. */
 @import "tailwindcss";
+/* biome-ignore lint/nursery/useLayeredStyles: The imported stylesheet declares its own cascade layers. */
 @import "@portfolio/ui/theme.css";
 
 @theme inline {
@@ -15,17 +17,19 @@
   --color-comparison-oklch-blue: var(--comparison-oklch-blue);
 }
 
-:root {
-  --comparison-hsl-yellow: oklch(0.96798272 0.21100591 109.769232);
-  --comparison-hsl-green: oklch(0.86643961 0.29482724 142.495339);
-  --comparison-hsl-red: oklch(0.62795536 0.25768331 29.233885);
-  --comparison-hsl-cyan: oklch(0.90539923 0.15455001 194.768948);
-  --comparison-hsl-blue: oklch(0.45201372 0.31321437 264.052021);
-  --comparison-oklch-yellow: oklch(0.6 0.15 100);
-  --comparison-oklch-green: oklch(0.6 0.15 145);
-  --comparison-oklch-red: oklch(0.6 0.15 25);
-  --comparison-oklch-cyan: oklch(0.6 0.15 195);
-  --comparison-oklch-blue: oklch(0.6 0.15 265);
+@layer overrides {
+  :root {
+    --comparison-hsl-yellow: oklch(0.96798272 0.21100591 109.769232);
+    --comparison-hsl-green: oklch(0.86643961 0.29482724 142.495339);
+    --comparison-hsl-red: oklch(0.62795536 0.25768331 29.233885);
+    --comparison-hsl-cyan: oklch(0.90539923 0.15455001 194.768948);
+    --comparison-hsl-blue: oklch(0.45201372 0.31321437 264.052021);
+    --comparison-oklch-yellow: oklch(0.6 0.15 100);
+    --comparison-oklch-green: oklch(0.6 0.15 145);
+    --comparison-oklch-red: oklch(0.6 0.15 25);
+    --comparison-oklch-cyan: oklch(0.6 0.15 195);
+    --comparison-oklch-blue: oklch(0.6 0.15 265);
+  }
 }
 
 @layer base {
@@ -76,15 +80,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    /* Reduced-motion must override utility declarations and inline styles. */
-    /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
-    animation-duration: 0.01ms !important;
-    /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
-    animation-iteration-count: 1 !important;
-    /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
-    transition-duration: 0.01ms !important;
+  @layer overrides {
+    *,
+    *::before,
+    *::after {
+      /* Reduced-motion must override utility declarations and inline styles. */
+      /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
+      animation-duration: 0.01ms !important;
+      /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
+      animation-iteration-count: 1 !important;
+      /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
+      transition-duration: 0.01ms !important;
+    }
   }
 }

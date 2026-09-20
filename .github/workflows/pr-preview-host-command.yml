@@ -264,6 +264,6 @@ jobs:
           elif [ "$count" -eq 1 ]; then
             comment_id=$(jq -er '.[0].id' <<<"$matches")
             gh api --method PATCH "repos/$REPOSITORY/issues/comments/$comment_id" -f body="$body" >/dev/null
-          else
+          elif [ "$OPERATION" = deploy ]; then
             gh api --method POST "repos/$REPOSITORY/issues/$PR_NUMBER/comments" -f body="$body" >/dev/null
           fi

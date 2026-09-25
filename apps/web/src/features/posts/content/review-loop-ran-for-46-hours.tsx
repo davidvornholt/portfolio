@@ -24,7 +24,7 @@ const ReviewLoopFigure = (): ReactNode => (
       </div>
       <span
         aria-hidden="true"
-        className="self-center justify-self-center text-muted-foreground sm:hidden"
+        className="place-self-center text-muted-foreground sm:hidden"
       >
         ↓
       </span>
@@ -42,7 +42,7 @@ const ReviewLoopFigure = (): ReactNode => (
       </div>
       <span
         aria-hidden="true"
-        className="self-center justify-self-center text-muted-foreground sm:hidden"
+        className="place-self-center text-muted-foreground sm:hidden"
       >
         ↓
       </span>

@@ -28,11 +28,11 @@ export const openSourceProjects: ReadonlyArray<OpenSourceProject> = [
     href: 'https://github.com/davidvornholt/runlet',
   },
   {
-    name: 'mail-mcp',
+    name: 'mailbox',
     description:
-      'A draft-only IMAP helper for Thunderbird, as an MCP server and CLI on one shared Effect core. It reads and drafts; it never sends.',
+      'A command-line tool for AI agents to search, read, and draft email in any IMAP account. It never sends mail.',
     tags: ['TypeScript', 'Effect'],
-    href: 'https://github.com/davidvornholt/mail-mcp',
+    href: 'https://github.com/davidvornholt/mailbox',
   },
   {
     name: 'punktlandung',

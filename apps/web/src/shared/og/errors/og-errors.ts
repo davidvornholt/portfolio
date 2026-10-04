@@ -1,45 +1,52 @@
-import { Data } from 'effect';
+import { Schema } from 'effect';
 
-export class GoogleFontRequestError extends Data.TaggedError(
+const GoogleFontResource = Schema.Literals(['CSS', 'font']);
+
+export class GoogleFontRequestError extends Schema.TaggedError<GoogleFontRequestError>()(
   'GoogleFontRequestError',
-)<{
-  readonly family: string;
-  readonly resource: 'CSS' | 'font';
-  readonly url: string;
-  readonly cause: unknown;
-  readonly message: string;
-}> {}
+  {
+    family: Schema.String,
+    resource: GoogleFontResource,
+    url: Schema.String,
+    cause: Schema.Defect(),
+    message: Schema.String,
+  },
+) {}
 
-export class GoogleFontHttpError extends Data.TaggedError(
+export class GoogleFontHttpError extends Schema.TaggedError<GoogleFontHttpError>()(
   'GoogleFontHttpError',
-)<{
-  readonly family: string;
-  readonly resource: 'CSS' | 'font';
-  readonly url: string;
-  readonly status: number;
-  readonly message: string;
-}> {}
+  {
+    family: Schema.String,
+    resource: GoogleFontResource,
+    url: Schema.String,
+    status: Schema.Number,
+    message: Schema.String,
+  },
+) {}
 
-export class GoogleFontCssResponseError extends Data.TaggedError(
+export class GoogleFontCssResponseError extends Schema.TaggedError<GoogleFontCssResponseError>()(
   'GoogleFontCssResponseError',
-)<{
-  readonly family: string;
-  readonly url: string;
-  readonly message: string;
-}> {}
+  {
+    family: Schema.String,
+    url: Schema.String,
+    message: Schema.String,
+  },
+) {}
 
-export class GoogleFontDownloadError extends Data.TaggedError(
+export class GoogleFontDownloadError extends Schema.TaggedError<GoogleFontDownloadError>()(
   'GoogleFontDownloadError',
-)<{
-  readonly family: string;
-  readonly url: string;
-  readonly cause: unknown;
-  readonly message: string;
-}> {}
+  {
+    family: Schema.String,
+    url: Schema.String,
+    cause: Schema.Defect(),
+    message: Schema.String,
+  },
+) {}
 
-export class OgImageResponseError extends Data.TaggedError(
+export class OgImageResponseError extends Schema.TaggedError<OgImageResponseError>()(
   'OgImageResponseError',
-)<{
-  readonly message: string;
-  readonly cause: unknown;
-}> {}
+  {
+    message: Schema.String,
+    cause: Schema.Defect(),
+  },
+) {}

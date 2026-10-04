@@ -1,9 +1,10 @@
-import { Data } from 'effect';
+import { Schema } from 'effect';
 
-export class ShikiHighlightError extends Data.TaggedError(
+export class ShikiHighlightError extends Schema.TaggedError<ShikiHighlightError>()(
   'ShikiHighlightError',
-)<{
-  readonly language: string;
-  readonly cause: unknown;
-  readonly message: string;
-}> {}
+  {
+    language: Schema.String,
+    cause: Schema.Defect(),
+    message: Schema.String,
+  },
+) {}

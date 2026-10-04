@@ -17,7 +17,7 @@ const runFailure = async <A, E>(
   if (exit._tag === 'Success') {
     throw new Error('Expected the effect to fail.');
   }
-  return Option.getOrThrow(Cause.failureOption(exit.cause));
+  return Option.getOrThrow(Cause.findErrorOption(exit.cause));
 };
 
 afterEach(() => {

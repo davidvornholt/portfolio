@@ -31,7 +31,7 @@ describe('highlightCode', () => {
     if (result._tag !== 'Failure') {
       throw new Error('Expected Shiki highlighting to fail.');
     }
-    const error = Option.getOrThrow(Cause.failureOption(result.cause));
+    const error = Option.getOrThrow(Cause.findErrorOption(result.cause));
     expect(error).toBeInstanceOf(ShikiHighlightError);
     expect(error.message).toContain(
       'Shiki failed to highlight not-a-real-language code',

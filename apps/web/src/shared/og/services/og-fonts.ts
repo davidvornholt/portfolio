@@ -36,7 +36,7 @@ const fetchFontResource = ({
       }),
   });
 
-export const loadGoogleFont = ({
+export const loadGoogleFont = Effect.fn('loadGoogleFont')(function* ({
   family,
   weight,
   text,
@@ -46,91 +46,90 @@ export const loadGoogleFont = ({
   weight: number;
   text: string;
   italic?: boolean;
-}>) =>
-  Effect.gen(function* () {
-    const axes = italic ? `ital,wght@1,${weight}` : `wght@${weight}`;
-    const cssUrl = `https://fonts.googleapis.com/css2?family=${family.replaceAll(' ', '+')}:${axes}&text=${encodeURIComponent(text)}`;
+}>) {
+  const axes = italic ? `ital,wght@1,${weight}` : `wght@${weight}`;
+  const cssUrl = `https://fonts.googleapis.com/css2?family=${family.replaceAll(' ', '+')}:${axes}&text=${encodeURIComponent(text)}`;
 
-    const cssResponse = yield* fetchFontResource({
-      family,
-      resource: 'CSS',
-      url: cssUrl,
-    });
-
-    if (!cssResponse.ok) {
-      return yield* Effect.fail(
-        new GoogleFontHttpError({
-          family,
-          resource: 'CSS',
-          url: cssUrl,
-          status: cssResponse.status,
-          message: `Open Graph CSS request for ${family} returned HTTP ${cssResponse.status} at ${cssUrl}.`,
-        }),
-      );
-    }
-
-    const css = yield* Effect.tryPromise({
-      try: () => cssResponse.text(),
-      catch: (cause) =>
-        new GoogleFontRequestError({
-          family,
-          resource: 'CSS',
-          url: cssUrl,
-          cause,
-          message: `Open Graph CSS response could not be read for ${family} at ${cssUrl}: ${String(cause)}`,
-        }),
-    });
-    const fontUrl = css.match(truetypeSourcePattern)?.groups?.url;
-
-    if (fontUrl === undefined) {
-      return yield* Effect.fail(
-        new GoogleFontCssResponseError({
-          family,
-          url: cssUrl,
-          message: `Open Graph font loading failed: the Google Fonts CSS response for ${family} has no truetype subset source.`,
-        }),
-      );
-    }
-
-    const fontResponse = yield* fetchFontResource({
-      family,
-      resource: 'font',
-      url: fontUrl,
-    });
-
-    if (!fontResponse.ok) {
-      return yield* Effect.fail(
-        new GoogleFontHttpError({
-          family,
-          resource: 'font',
-          url: fontUrl,
-          status: fontResponse.status,
-          message: `Open Graph font subset request for ${family} returned HTTP ${fontResponse.status} at ${fontUrl}.`,
-        }),
-      );
-    }
-
-    const data = yield* Effect.tryPromise({
-      try: () => fontResponse.arrayBuffer(),
-      catch: (cause) =>
-        new GoogleFontDownloadError({
-          family,
-          url: fontUrl,
-          cause,
-          message: `Open Graph font subset download failed for ${family} at ${fontUrl}: ${String(cause)}`,
-        }),
-    });
-
-    if (data.byteLength === 0) {
-      return yield* Effect.fail(
-        new GoogleFontDownloadError({
-          family,
-          url: fontUrl,
-          cause: new Error('The font subset response was empty.'),
-          message: `Open Graph font subset download returned no bytes for ${family} at ${fontUrl}.`,
-        }),
-      );
-    }
-
-    return data;
+  const cssResponse = yield* fetchFontResource({
+    family,
+    resource: 'CSS',
+    url: cssUrl,
   });
+
+  if (!cssResponse.ok) {
+    return yield* Effect.fail(
+      new GoogleFontHttpError({
+        family,
+        resource: 'CSS',
+        url: cssUrl,
+        status: cssResponse.status,
+        message: `Open Graph CSS request for ${family} returned HTTP ${cssResponse.status} at ${cssUrl}.`,
+      }),
+    );
+  }
+
+  const css = yield* Effect.tryPromise({
+    try: () => cssResponse.text(),
+    catch: (cause) =>
+      new GoogleFontRequestError({
+        family,
+        resource: 'CSS',
+        url: cssUrl,
+        cause,
+        message: `Open Graph CSS response could not be read for ${family} at ${cssUrl}: ${String(cause)}`,
+      }),
+  });
+  const fontUrl = css.match(truetypeSourcePattern)?.groups?.url;
+
+  if (fontUrl === undefined) {
+    return yield* Effect.fail(
+      new GoogleFontCssResponseError({
+        family,
+        url: cssUrl,
+        message: `Open Graph font loading failed: the Google Fonts CSS response for ${family} has no truetype subset source.`,
+      }),
+    );
+  }
+
+  const fontResponse = yield* fetchFontResource({
+    family,
+    resource: 'font',
+    url: fontUrl,
+  });
+
+  if (!fontResponse.ok) {
+    return yield* Effect.fail(
+      new GoogleFontHttpError({
+        family,
+        resource: 'font',
+        url: fontUrl,
+        status: fontResponse.status,
+        message: `Open Graph font subset request for ${family} returned HTTP ${fontResponse.status} at ${fontUrl}.`,
+      }),
+    );
+  }
+
+  const data = yield* Effect.tryPromise({
+    try: () => fontResponse.arrayBuffer(),
+    catch: (cause) =>
+      new GoogleFontDownloadError({
+        family,
+        url: fontUrl,
+        cause,
+        message: `Open Graph font subset download failed for ${family} at ${fontUrl}: ${String(cause)}`,
+      }),
+  });
+
+  if (data.byteLength === 0) {
+    return yield* Effect.fail(
+      new GoogleFontDownloadError({
+        family,
+        url: fontUrl,
+        cause: new Error('The font subset response was empty.'),
+        message: `Open Graph font subset download returned no bytes for ${family} at ${fontUrl}.`,
+      }),
+    );
+  }
+
+  return data;
+});

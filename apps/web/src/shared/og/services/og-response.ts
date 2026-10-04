@@ -18,8 +18,8 @@ type OgCardProps = Readonly<{
   footerRight: string;
 }>;
 
-export const createOgImageResponse = (props: OgCardProps) =>
-  Effect.gen(function* () {
+export const createOgImageResponse = Effect.fn('createOgImageResponse')(
+  function* (props: OgCardProps) {
     const { eyebrow, title, italicPhrase, footerLeft, footerRight } = props;
 
     const fonts = yield* Effect.all(
@@ -94,4 +94,5 @@ export const createOgImageResponse = (props: OgCardProps) =>
           message: `Open Graph image response construction failed: ${String(cause)}`,
         }),
     });
-  });
+  },
+);

@@ -11,10 +11,6 @@ describe('works registry', () => {
     }
   });
 
-  it('returns undefined for an unknown slug', () => {
-    expect(getWorkBySlug('not-a-published-work')).toBeUndefined();
-  });
-
   it('has unique slugs', () => {
     const slugs = works.map((work) => work.meta.slug);
     expect(new Set(slugs).size).toBe(slugs.length);

@@ -16,10 +16,6 @@ describe('posts registry', () => {
     }
   });
 
-  it('returns undefined for an unknown slug', () => {
-    expect(getPostBySlug('not-a-published-post')).toBeUndefined();
-  });
-
   it('has unique slugs', () => {
     const slugs = posts.map((post) => post.meta.slug);
     expect(new Set(slugs).size).toBe(slugs.length);

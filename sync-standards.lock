@@ -1,6 +1,6 @@
 {
   "upstream": "github:davidvornholt/standards",
-  "sha": "ba3b8e1f56c37b07813e53c5cda7ba6ea1a533be",
+  "sha": "e9796174bca3b49263e0e43474062d0eb838c00f",
   "files": {
     ".agents/skills/ci-pipelines/SKILL.md": "a8421dcc78f768fdce242063632a03e2d975baed9b20aefa551ff63574fd3906",
     ".agents/skills/database/agents/openai.yaml": "4c9f47df24219d5b195c88eef374431f64b453ed1ba057f50d4c11e4549343c1",

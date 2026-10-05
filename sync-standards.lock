@@ -1,6 +1,6 @@
 {
   "upstream": "github:davidvornholt/standards",
-  "sha": "bfadb39fb93804638e69725d8499cd3d082aa2d2",
+  "sha": "ba3b8e1f56c37b07813e53c5cda7ba6ea1a533be",
   "files": {
     ".agents/skills/ci-pipelines/SKILL.md": "a8421dcc78f768fdce242063632a03e2d975baed9b20aefa551ff63574fd3906",
     ".agents/skills/database/agents/openai.yaml": "4c9f47df24219d5b195c88eef374431f64b453ed1ba057f50d4c11e4549343c1",
@@ -44,10 +44,10 @@
     "justfile": "4c1ed79da29027c477ae0cb6474c6e58cfa5e95ddedeb6b6ced684fec08dfef0",
     "nix/standards-bun.nix": "395e7524721e2dc6b3a558ddadfbeef4e371da900401bf590ba687304eb5160a",
     "packages/a11y-testing/package.json": "db71ece687b913657a27cf621212503c2fe0a3a7236b951ca731f317b389f3a4",
-    "packages/a11y-testing/README.md": "73be1fcbf6e63df2e3e28cb3355fe03ee00452d82fa06497a01fd963dc4488be",
+    "packages/a11y-testing/README.md": "e2a3f73b4b8012edf8c97174c7b497a4106f5d1c417601b63ce552820cd7ad59",
     "packages/a11y-testing/src/axe.ts": "419c0069889ba42bb56784c63bd859bf73141a0bf4052c00a925f6ccf98276b9",
-    "packages/a11y-testing/src/playwright-config.test.ts": "62f67cce7871f5be5f084e11b2b6a9733cfce064a3d2f82495c6c9653e4436c0",
-    "packages/a11y-testing/src/playwright-config.ts": "bd406143242a5b4a8cdbda692b1d2a32c29dc515f167f4fe40755be6dc7f0f24",
+    "packages/a11y-testing/src/playwright-config.test.ts": "9d75dcfd6bd15271da7fff6211352284e1a5f74293b7e9d078c7179fd1e17a00",
+    "packages/a11y-testing/src/playwright-config.ts": "633847e0323fdc107b55dc575931411956a912f4a9391df946a5768e0b126491",
     "packages/a11y-testing/tsconfig.json": "78e96c84b88e74d1831fef46c6a33f5d0de72035c6d82f7ea160cbe73718cf29",
     "packages/typescript-config/base.json": "f1b0c9514018f127d44a0704c95a09432b98b40bb870216a9139fa9a0783f36e",
     "packages/typescript-config/base.test.ts": "51c619e48bc470f0923ca3d39ccb03d8940ef36f22d5fbe56b403aeee26e3728",

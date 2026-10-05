@@ -4,7 +4,7 @@ Use a release group when images from one source repository share a release bound
 
 ## Declaration and proof
 
-Keep group membership in a reviewed infrastructure-owned manifest alongside `images.json`. A group has one primary app and a nonempty set of unique members that includes that primary. Every member exists in `images.json`, belongs to at most one group, and has a distinct image repository. All members share the source repository, ref, authorized workflow, enablement state, and promoted source SHA. Validate the whole document before using any member. Membership and source metadata changes use the disabled metadata transition for the whole group.
+Keep group membership in a reviewed infrastructure-owned manifest alongside `images.json`. A group has one primary app and a nonempty set of unique members that includes that primary. Every member exists in `images.json`, belongs to at most one group, and has a distinct image repository. All members share the source repository, ref, authorized workflow, enablement state, pause state, and promoted source SHA. Validate the whole document before using any member. Membership and source metadata changes use the disabled metadata transition for the whole group.
 
 For example, `{"mail-ui":["mail-ui","mail-worker"]}` declares `mail-ui` as the announcement entrypoint. A companion cannot independently request promotion. The trusted writer reads membership from its trusted base, never from an announcement or candidate branch.
 
@@ -16,7 +16,7 @@ The primary announcement supplies the existing scalar payload. Companion digests
 
 The trusted writer updates every member's digest and source SHA in one infrastructure PR. An unchanged member digest is allowed, but its source SHA must still record the new coordinated release. The provenance gate compares the whole group against the exact proof and rejects partial transitions, unrelated app changes, or metadata edits. The PR changes only `images.json`.
 
-Apply duplicate detection, branch reuse, terminal supersession, current-main ancestry, and rollback to the whole group. Comparing only the primary pin cannot prove a duplicate. Reusing an existing branch requires its complete group map to match. A superseded group operation cannot be reopened through a companion announcement. A rollback selects and verifies the whole previous release as a new approved operation.
+Apply duplicate detection, branch reuse, terminal supersession, and current-main ancestry to the whole group. Comparing only the primary pin cannot prove a duplicate. Reusing an existing branch requires its complete group map to match. A superseded group operation cannot be reopened through a companion announcement. A bad group release rolls forward like a single app: revert in the source repository and promote the new group build.
 
 ## Deployment boundary
 

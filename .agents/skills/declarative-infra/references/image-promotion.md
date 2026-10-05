@@ -29,7 +29,7 @@ The home repo owns one `images.json` (`infra/images.json`, or root `images.json`
 }
 ```
 
-`sourceWorkflow.path` and `sourceWorkflow.id` bind the immutable authorized Actions workflow; a different successful workflow with a job named `build` is not evidence. `registryAccess` is required metadata with exactly two values: `public` requires anonymous manifest access, while `private` requires exact provider visibility `private`, anonymous denial, and authenticated workflow and host access. Every reader first requires a plain object document root, then validates each complete object at runtime: the exact metadata and pin key sets, a GHCR repository, the access enum, and valid paired pins. Arrays, primitives, prototype-bearing objects, unknown fields, and authentication material fail closed. Derive production references only as `imageRepository@digest`. `images.json` is the single declarative state owner being converged, not a third credential ledger of the kind rejected by `CREDS-CLOUDFLARE-001`; it never contains a credential, secret path, username, or authentication-file path.
+`sourceWorkflow.path` and `sourceWorkflow.id` bind the immutable authorized Actions workflow; a different successful workflow with a job named `build` is not evidence. `registryAccess` is required metadata with exactly two values: `public` requires anonymous manifest access, while `private` requires exact provider visibility `private`, anonymous denial, and authenticated workflow and host access. Every reader first requires a plain object document root, then validates each complete object at runtime: the exact metadata and pin key sets plus the optional pause key, a GHCR repository, the access enum, and valid paired pins. Arrays, primitives, prototype-bearing objects, unknown fields, and authentication material fail closed. Derive production references only as `imageRepository@digest`. `images.json` is the single declarative state owner being converged, not a third credential ledger of the kind rejected by `CREDS-CLOUDFLARE-001`; it never contains a credential, secret path, username, or authentication-file path.
 
 ## Coordinated releases
 
@@ -39,7 +39,7 @@ When multiple images must be released together, use the [coordinated release ext
 
 The trusted build job publishes an image under its source-owned tag, obtains the registry digest, and emits exactly one single-line JSON record to its immutable job log. The marker is assembled from fragments so the full marker cannot appear in the runner's echoed shell source. A separate announcement job runs only after build success. Its fallback token is read-only; its one-infra-repository App token has only Contents write.
 
-The App credentials live at `ci.broker_app.app_id` and `ci.broker_app.private_key` in `secrets/ci.yaml`. Resolve both with the canonical action, which transports nested multiline values through `GITHUB_ENV`, never outputs.
+The App credentials live at `ci.broker_app.app_id` and `ci.broker_app.private_key` in `secrets/ci.yaml`. Resolve both with the canonical action and pass its `value` step outputs only to the token-minting step, so no other step in the job can read them.
 
 <!-- contract:source-workflow -->
 ```yaml
@@ -71,13 +71,15 @@ jobs:
     permissions: { contents: read }
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/sops-secret
-        with: { age-key: "${{ secrets.SOPS_AGE_KEY }}", secret-file: secrets/ci.yaml, secret-key: broker_app.app_id, env-name: BROKER_APP_ID }
-      - uses: ./.github/actions/sops-secret
-        with: { age-key: "${{ secrets.SOPS_AGE_KEY }}", secret-file: secrets/ci.yaml, secret-key: broker_app.private_key, env-name: BROKER_APP_PRIVATE_KEY }
+      - id: broker-app-id
+        uses: ./.github/actions/sops-secret
+        with: { age-key: "${{ secrets.SOPS_AGE_KEY }}", secret-file: secrets/ci.yaml, secret-key: broker_app.app_id }
+      - id: broker-app-private-key
+        uses: ./.github/actions/sops-secret
+        with: { age-key: "${{ secrets.SOPS_AGE_KEY }}", secret-file: secrets/ci.yaml, secret-key: broker_app.private_key }
       - id: broker
         uses: actions/create-github-app-token@v3
-        with: { app-id: "${{ env.BROKER_APP_ID }}", private-key: "${{ env.BROKER_APP_PRIVATE_KEY }}", owner: example, repositories: infra, permission-contents: write }
+        with: { app-id: "${{ steps.broker-app-id.outputs.value }}", private-key: "${{ steps.broker-app-private-key.outputs.value }}", owner: example, repositories: infra, permission-contents: write }
       - name: Announce image digest
         env:
           BUILD_DIGEST: "${{ needs.build.outputs.digest }}"
@@ -106,13 +108,13 @@ Canonical promotion identity is source repository + source SHA + digest. Valid r
 
 Opening or reusing a promotion PR retires every other trusted open promotion for the same app when the new candidate is provably a descendant of the other candidate. The writer uses the same source-repository compare proof as the provenance gate and fails closed: an ancestor, equal, diverged, or unprovable candidate closes nothing. Create the successor as a draft and keep it unready until every same-app open candidate has a conclusive comparison and every required predecessor closure succeeds. A comparison or close failure fails the writer and leaves the successor draft; it must never be continue-on-error housekeeping. Retrying the announcement reuses that branch and PR, reconciles only remaining open predecessors, and marks it ready only after convergence. Provenance and merge validation reject a successor whose retirement reconciliation is incomplete, even if someone manually marks the PR ready. A retired operation enters the terminal `superseded` phase and cannot merge or deploy; later announcements of its canonical identity attach as evidence instead of opening another PR or advancing the operation.
 
-Supersession deliberately gives up the older candidate as an immediate availability fallback. If B supersedes A and then fails to merge or deploy, operators repair or retry B or announce a newer source build; they never reopen A or move A out of `superseded`, even if A's branch and PR still exist. Restoring a previously deployed A digest requires the distinct approved rollback operation below, so it does not reactivate A's promotion identity.
+Supersession deliberately gives up the older candidate as an immediate availability fallback. If B supersedes A and then fails to merge or deploy, operators repair or retry B or announce a newer source build; they never reopen A or move A out of `superseded`, even if A's branch and PR still exist.
 
-An approved rollback has a distinct operation identity, protected-environment approval, non-empty reason, operator, and exact ancestor/digest proof. Its first attempt opens a distinct audited PR and deploys again, including when its target was promoted previously. Retrying the identical approved request reuses that operation at announced, branch, or open, preserves its original approval, reason, operator, PR number, and run evidence, and adds only new run evidence. A changed audit request or a terminal rollback identity is rejected; a retry never opens a duplicate PR.
+There is no rollback operation, because the trusted writer only moves a pin forward and nothing else may write one. To recover from a bad release, roll forward: revert the bad change in the source repository, let it build, and promote the new image like any other promotion.
 
 Before branch creation, the writer runs the shared registry-access proof against the exact `imageRepository@digest`. Public proof resolves that digest anonymously. Private proof queries the exact GHCR package path and requires provider visibility `private`, denies anonymous resolution, and resolves the same digest with the job token. Missing package grants, inaccessible provider visibility, `internal` visibility, and any path or digest mismatch fail before a branch exists.
 
-The trusted provenance check revalidates App-bot author, canonical same-repository branch, marker and payload, exact run proof, exact registry-access proof, exact resulting object, current-main ancestry, merge-group execution, and an `images.json`-only diff. It runs on the merge candidate and every condition fails closed.
+The trusted provenance check revalidates App-bot author, canonical same-repository branch, marker and payload, exact run proof, exact registry-access proof, exact resulting object, an unpaused app, current-main ancestry, merge-group execution, and an `images.json`-only diff. It runs on the merge candidate and every condition fails closed.
 
 ## Bootstrap and metadata transitions
 
@@ -121,6 +123,10 @@ Reviewed metadata changes operate on full `images.json` state. Adoption adds onl
 The `registryAccess` hard cutover has one document-wide migration operation for an existing legacy `images.json`. Its before-state decoder accepts exact legacy entries only for this operation. In one atomic change, every legacy entry gains `registryAccess: public|private`, already-final entries remain semantically unchanged, and no pin, existing metadata value, app membership, or other file may change; object-key order is irrelevant. The complete after document must pass the strict final decoder, and every other operation rejects the legacy shape. This is a one-time durable-config migration, not an optional field or compatibility alias.
 
 Private host adoption has a separate two-stage boundary that runs before private metadata or promotion can require a pull. First deploy the SOPS secret, login unit, explicit auth files, and container-unit environment while a new app remains disabled or the existing app remains public. Read back the decrypted secret presence, successful login unit, and root-only private auth file. Only a later reviewed metadata change and trusted promotion may select `private` and require private pre-pull. The same sequence applies to a new private app and a public-to-private migration; an old host never has to pull a private image to install the credential plumbing needed for that pull.
+
+## Pause promotion
+
+To keep a live app on its current image while new builds keep arriving, a reviewed change adds `"promotionPaused": true` to its entry and changes nothing else. The pins stay deployed. The trusted writer ignores announcements for a paused app, and the provenance check refuses any promotion of it, so an open or auto-merging promotion cannot land either. `true` is the only value, and only a live app can be paused. To unpause, remove the key in another reviewed change; the next successful source build then promotes as usual. Disabling a paused app drops the key with its pins.
 
 ## Deploy and completion
 

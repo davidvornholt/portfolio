@@ -191,6 +191,8 @@ describe('production release boundary', () => {
   ].join('\n');
   const knownHost =
     'known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5';
+  const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
+  const mainRef = "github.ref == 'refs/heads/main'";
 
   it('builds the pushed commit beside the gate with its revision bound', () => {
     expect(buildJob).toContain("    if: github.event_name == 'push'");
@@ -208,7 +210,12 @@ describe('production release boundary', () => {
   it('releases only the gated exact commit digest through the queued host action', () => {
     expect(releaseJob).toContain('    needs:\n      - gate\n      - build');
     expect(releaseJob).toContain(
-      '    if: needs.gate.outputs.gated-sha == github.sha',
+      [
+        '    if: >-',
+        `      ${canonicalRepository} &&`,
+        `      ${mainRef} &&`,
+        '      needs.gate.outputs.gated-sha == github.sha\n',
+      ].join('\n'),
     );
     expect(releaseJob).toContain(releasePermissions);
     expect(releaseJob).toContain(releaseQueue);
@@ -244,9 +251,12 @@ describe('production release boundary', () => {
     expect(producer).not.toContain('create-github-app-token');
   });
 
-  it('rolls back from main in the same queue as releases', () => {
+  it('rolls back from main of this repository in the same queue as releases', () => {
     expect(rollBack).toContain('name: Roll back');
     expect(rollBack).toContain('on:\n  workflow_dispatch:\n\npermissions: {}');
+    expect(rollBack).toContain(
+      `\njobs:\n  roll-back:\n    if: ${canonicalRepository} && ${mainRef}\n`,
+    );
     expect(rollBack).toContain(releasePermissions);
     expect(rollBack).toContain(releaseQueue);
     expect(rollBack).toContain('          ref: main');

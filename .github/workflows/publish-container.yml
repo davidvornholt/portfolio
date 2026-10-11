@@ -314,7 +314,10 @@ jobs:
       - gate
       - build
     # The gate proves a commit passed; this proves it was this one.
-    if: needs.gate.outputs.gated-sha == github.sha
+    if: >-
+      github.repository == 'davidvornholt/portfolio' &&
+      github.ref == 'refs/heads/main' &&
+      needs.gate.outputs.gated-sha == github.sha
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

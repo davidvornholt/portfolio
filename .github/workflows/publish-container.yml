@@ -99,7 +99,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             io.personal-infra.portfolio-preview=true
-          cache-from: type=gha,scope=portfolio
+          cache-from: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache
 
       - name: Verify the container health without app credentials
         run: |
@@ -285,8 +285,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      # Only this push build writes the layer cache. The pull request build
-      # reads it but never writes it.
+      # Only this push build writes the layer cache, to a GHCR tag rather than
+      # the shared Actions cache quota. The pull request build reads it
+      # anonymously but never writes it. Nothing deploys the cache tag; the
+      # host pulls the released digest.
       - name: Build and publish the commit image
         id: build
         uses: docker/build-push-action@v7
@@ -301,8 +303,8 @@ jobs:
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          cache-from: type=gha,scope=portfolio
-          cache-to: type=gha,scope=portfolio,mode=max
+          cache-from: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache
+          cache-to: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true
 
   # The host releases only an image whose revision label is the commit in the
   # job's OIDC token, and it ignores a release from an older run than the one

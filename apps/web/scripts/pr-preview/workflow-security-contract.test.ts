@@ -76,7 +76,9 @@ describe('preview producer trust boundary', () => {
   });
 
   it('reads the main layer cache without writing it', () => {
-    expect(pullRequestJob).toContain('cache-from: type=gha,scope=portfolio');
+    expect(pullRequestJob).toContain(
+      'cache-from: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache',
+    );
     expect(pullRequestJob).not.toContain('cache-to:');
   });
 
@@ -197,7 +199,9 @@ describe('production release boundary', () => {
       `org.opencontainers.image.revision=${githubExpression('github.sha')}`,
     );
     expect(buildJob).toContain('provenance: false');
-    expect(buildJob).toContain('cache-to: type=gha,scope=portfolio,mode=max');
+    expect(buildJob).toContain(
+      'cache-to: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true',
+    );
     expect(buildJob).not.toContain('id-token');
   });
 
@@ -216,6 +220,7 @@ describe('production release boundary', () => {
     expect(releaseJob).toContain(
       `images: portfolio@${githubExpression('needs.build.outputs.digest')}`,
     );
+    expect(releaseJob).not.toContain('buildcache');
   });
 
   it('moves main only to a digest the host reports as live', () => {

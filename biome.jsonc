@@ -16,6 +16,19 @@
   },
   "overrides": [
     {
+      // skills-lock.json vendors this third-party skill verbatim and
+      // overwrites local edits on update, so its decorative icon cannot carry
+      // a title element.
+      "includes": [".agents/skills/audit-website/assets/*.svg"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
+    },
+    {
       // Tailwind resolves `@theme` aliases after Biome scans this file, so the
       // referenced custom properties look undeclared to Biome.
       "includes": ["packages/ui/src/theme.css"],

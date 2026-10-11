@@ -8,8 +8,6 @@
     "./easing": "./src/easing.ts"
   },
   "scripts": {
-    "lint": "biome check --error-on-warnings .",
-    "lint:fix": "biome check --write --error-on-warnings .",
     "check-types": "tsc --noEmit",
     "test": "bun test"
   },

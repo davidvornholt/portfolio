@@ -1,0 +1,36 @@
+name: Roll back
+
+# Swap production back to the release before the current one. A second run
+# returns to the newer release. Shares the release queue of Publish container.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  roll-back:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    concurrency:
+      group: app-release-portfolio
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: main
+
+      - name: Roll production back to the previous release
+        uses: ./.github/actions/app-release
+        with:
+          command: rollback
+          unit: portfolio
+          host: prod-1.vornholt.online
+          known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5
+          age-key: ${{ secrets.SOPS_AGE_KEY }}

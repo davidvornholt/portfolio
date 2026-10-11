@@ -1,10 +1,10 @@
 name: Publish container
 
-# The infrastructure promotion proof binds push runs by workflow path and id.
-# A squash commit on main is new, so wait for Standards to pass on that exact
-# commit before building instead of relying on the pull request's checks.
-# Labeled pull requests use the same workflow id, but produce only a bounded
-# credential-free artifact for the trusted preview follow-up.
+# Labeled pull requests produce only a bounded credential-free artifact for the
+# trusted preview follow-up, which binds runs by workflow path and id. A push
+# to main builds the commit image while Standards runs, then releases that
+# exact digest once Standards has passed on the exact squash commit, instead
+# of relying on the pull request's checks.
 on:
   pull_request:
     types:
@@ -20,16 +20,6 @@ on:
 
 permissions: {}
 
-# Grouping per branch rather than per commit: the tracked tag is a promotion
-# source, so two pushes must not race to move it. Queued rather than cancelled,
-# because a cancelled run can already have pushed the image without announcing
-# it. GitHub keeps only the newest pending run, so a burst still settles on the
-# newest commit.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
-  cancel-in-progress: false
-  queue: max
-
 jobs:
   container-smoke:
     if: >-
@@ -41,6 +31,10 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'pr-preview') &&
       (github.event.action != 'labeled' || github.event.label.name == 'pr-preview')
+    concurrency:
+      group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -105,6 +99,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             io.personal-infra.portfolio-preview=true
+          cache-from: type=gha,scope=portfolio
 
       - name: Verify the container health without app credentials
         run: |
@@ -208,7 +203,6 @@ jobs:
           compression-level: 0
           overwrite: false
 
-
   # Fail-closed by construction: every path that is not an observed successful
   # `check` job for this exact commit — no run, an unfinished run, a run that
   # ended any other way, a missing job, an expired deadline — exits non-zero.
@@ -268,9 +262,7 @@ jobs:
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
   build:
-    needs: gate
-    # The gate proves a commit passed; this proves it was this one.
-    if: needs.gate.outputs.gated-sha == github.sha
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -283,6 +275,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v4
         with:
@@ -290,92 +285,80 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Build and publish the tracked tag
+      # Only this push build writes the layer cache. The pull request build
+      # reads it but never writes it.
+      - name: Build and publish the commit image
         id: build
         uses: docker/build-push-action@v7
         with:
+          context: .
+          file: ./Dockerfile
           push: true
-          # Plain manifest, not an attestation index: prod-1 pins and pulls the
-          # digest this step reports, and podman resolves it directly.
+          # Plain manifest, not an attestation index: prod-1 pulls the digest
+          # this step reports, and podman resolves it directly.
           provenance: false
-          tags: ghcr.io/davidvornholt/portfolio:main
+          tags: ghcr.io/davidvornholt/portfolio:${{ github.sha }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha,scope=portfolio
+          cache-to: type=gha,scope=portfolio,mode=max
 
-      - name: Emit immutable promotion record
-        env:
-          DIGEST: ${{ steps.build.outputs.digest }}
-          IMAGE: ghcr.io/davidvornholt/portfolio
-          REF: ${{ github.ref }}
-          REPOSITORY: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
-          SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          record=$(jq -cn --arg repository "$REPOSITORY" --arg ref "$REF" --arg sha "$SHA" --arg runId "$RUN_ID" --arg image "$IMAGE" --arg digest "$DIGEST" '{repository:$repository,ref:$ref,sha:$sha,runId:$runId,image:$image,digest:$digest}')
-          marker_left=IMAGE_PROMOTION
-          marker_right=_RECORD
-          printf '%s %s\n' "${marker_left}${marker_right}" "$record"
-
-  announce:
-    needs: build
+  # The host releases only an image whose revision label is the commit in the
+  # job's OIDC token, and it ignores a release from an older run than the one
+  # it serves. Releases and Roll back share one FIFO queue per unit.
+  release:
+    needs:
+      - gate
+      - build
+    # The gate proves a commit passed; this proves it was this one.
+    if: needs.gate.outputs.gated-sha == github.sha
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
+      id-token: write
+      packages: write
+    concurrency:
+      group: app-release-portfolio
+      cancel-in-progress: false
+      queue: max
     steps:
-      - name: Checkout the canonical SOPS action
+      - name: Checkout the commit being released
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          ref: ${{ github.sha }}
 
-      - name: Resolve the broker app id
-        id: broker-app-id
-        uses: ./.github/actions/sops-secret
+      - name: Release the gated image to production
+        id: release
+        uses: ./.github/actions/app-release
         with:
+          unit: portfolio
+          host: prod-1.vornholt.online
+          known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5
+          images: portfolio@${{ needs.build.outputs.digest }}
           age-key: ${{ secrets.SOPS_AGE_KEY }}
-          secret-file: secrets/ci.yaml
-          secret-key: broker_app.app_id
 
-      - name: Resolve the broker private key
-        id: broker-app-private-key
-        uses: ./.github/actions/sops-secret
+      - name: Log in to the GitHub Container Registry
+        if: steps.release.outputs.result == 'released' || steps.release.outputs.result == 'unchanged'
+        uses: docker/login-action@v4
         with:
-          age-key: ${{ secrets.SOPS_AGE_KEY }}
-          secret-file: secrets/ci.yaml
-          secret-key: broker_app.private_key
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
-      - name: Mint an infrastructure announcement token
-        id: broker
-        uses: actions/create-github-app-token@v3
-        with:
-          app-id: ${{ steps.broker-app-id.outputs.value }}
-          private-key: ${{ steps.broker-app-private-key.outputs.value }}
-          owner: davidvornholt
-          repositories: personal-infra
-          permission-contents: write
-
-      - name: Announce image digest
+      # A superseded run leaves main on the newer release that superseded it.
+      - name: Point the main tag at the released image
+        if: steps.release.outputs.result == 'released' || steps.release.outputs.result == 'unchanged'
         env:
+          APPS_JSON: ${{ steps.release.outputs.apps-json }}
           BUILD_DIGEST: ${{ needs.build.outputs.digest }}
-          GH_TOKEN: ${{ steps.broker.outputs.token }}
-          IMAGE_REPOSITORY: ghcr.io/davidvornholt/portfolio
-          SOURCE_REF: ${{ github.ref }}
-          SOURCE_REPOSITORY: ${{ github.repository }}
-          SOURCE_RUN_ID: ${{ github.run_id }}
-          SOURCE_SHA: ${{ github.sha }}
+          IMAGE: ghcr.io/davidvornholt/portfolio
         run: |
           set -euo pipefail
-          [[ "$BUILD_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ && "$SOURCE_RUN_ID" =~ ^[1-9][0-9]*$ ]]
-          test "$SOURCE_REPOSITORY" = davidvornholt/portfolio
-          test "$SOURCE_REF" = refs/heads/main
-          test "$IMAGE_REPOSITORY" = ghcr.io/davidvornholt/portfolio
-          gh api repos/davidvornholt/personal-infra/dispatches \
-            -f event_type=image-bump \
-            -f "client_payload[app]=portfolio" \
-            -f "client_payload[source_repository]=$SOURCE_REPOSITORY" \
-            -f "client_payload[source_ref]=$SOURCE_REF" \
-            -f "client_payload[source_sha]=$SOURCE_SHA" \
-            -f "client_payload[source_run_id]=$SOURCE_RUN_ID" \
-            -f "client_payload[image_repository]=$IMAGE_REPOSITORY" \
-            -f "client_payload[digest]=$BUILD_DIGEST"
+          [[ "$BUILD_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          test "$(jq -er .portfolio.digest <<<"$APPS_JSON")" = "$BUILD_DIGEST"
+          docker buildx imagetools create --prefer-index=false --tag "$IMAGE:main" "$IMAGE@$BUILD_DIGEST"
+          resolved=$(docker buildx imagetools inspect "$IMAGE:main" --format '{{json .Manifest}}' | jq -er .digest)
+          test "$resolved" = "$BUILD_DIGEST"

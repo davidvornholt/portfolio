@@ -239,11 +239,20 @@ jobs:
           POSTGRES_DB: ${{ vars.CI_POSTGRES_DB || 'app' }}
         ports:
           - 5432:5432
+        # The runner holds every step until the service reports healthy, and
+        # Docker runs the first probe only after one interval. Postgres is
+        # ready a few seconds after start, so probe every second during the
+        # start period instead of waiting the full 10s interval. The probe uses
+        # TCP because the image's init server accepts socket connections only
+        # and restarts before the real server listens, so a fast socket probe
+        # could pass before any step can connect.
         options: >-
-          --health-cmd "pg_isready -U ${{ vars.CI_POSTGRES_USER || 'app' }} -d ${{ vars.CI_POSTGRES_DB || 'app' }}"
+          --health-cmd "pg_isready -h 127.0.0.1 -U ${{ vars.CI_POSTGRES_USER || 'app' }} -d ${{ vars.CI_POSTGRES_DB || 'app' }}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+          --health-start-period 30s
+          --health-start-interval 1s
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -351,6 +360,36 @@ jobs:
             echo "present=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # actions/cache compresses with zstd only when a zstd binary is on PATH
+      # and otherwise falls back to gzip, which costs CodeBuild quality runs
+      # tens of seconds per cache save and several per restore. The CodeBuild
+      # image has no zstd; GitHub-hosted runners do, so this step runs only on
+      # CodeBuild and must precede Setup Bun, the first Actions cache user.
+      # Ubuntu's zstd package links libzstd statically and needs only base
+      # system libraries, so extracting the pinned release-pocket build skips
+      # apt. The compression method is part of the cache version, so a failed
+      # install fails the job instead of publishing gzip snapshots that zstd
+      # runs cannot restore.
+      - name: Install zstd for the Actions cache
+        if: vars.CI_CODEBUILD_PROJECT != ''
+        run: |
+          set -euo pipefail
+          version=1.5.5+dfsg2-2build1
+          case "$(uname -m)" in
+            x86_64) arch=amd64; archive=https://archive.ubuntu.com/ubuntu; sha=bb14385ff3d6df723a686778dc5f87849f720a0add261b5de9bcd4915a490b2a ;;
+            aarch64) arch=arm64; archive=https://ports.ubuntu.com/ubuntu-ports; sha=e054f8bf2c8b3f1d82a1e87352c1cb6f62887aac22a88b55f7dd715567f74bfd ;;
+            *)
+              echo "::error::No pinned zstd package for runner architecture $(uname -m)"
+              exit 1
+              ;;
+          esac
+          package="$RUNNER_TEMP/zstd.deb"
+          curl -sSfLo "$package" --retry 3 --retry-all-errors --connect-timeout 10 --max-time 60 "$archive/pool/main/libz/libzstd/zstd_${version}_${arch}.deb"
+          echo "$sha  $package" | sha256sum --check --quiet
+          dpkg-deb -x "$package" "$RUNNER_TEMP/zstd"
+          "$RUNNER_TEMP/zstd/usr/bin/zstd" --version
+          echo "$RUNNER_TEMP/zstd/usr/bin" >> "$GITHUB_PATH"
+
       - name: Read Bun version
         id: bun
         run: |
@@ -401,6 +440,22 @@ jobs:
           key: turbo-trusted-v2-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
           restore-keys: |
             turbo-trusted-v2-${{ runner.os }}-${{ runner.arch }}-
+
+      # `next build` keeps Turbopack's incremental compiler cache in each app's
+      # .next/cache/turbopack, which Turbo task outputs exclude. PRs restore the
+      # latest default-branch snapshot, so a build that misses the Turbo cache
+      # recompiles only changed modules. Only the compiler cache is shared:
+      # data caches such as fetch results stay per build. Main never restores
+      # it, so every published snapshot comes from a cold build of its own
+      # commit and cannot accumulate entries or state from earlier builds.
+      - name: Restore the Next.js build cache
+        if: github.ref != 'refs/heads/main'
+        uses: actions/cache/restore@v6
+        with:
+          path: apps/*/.next/cache/turbopack
+          key: next-trusted-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: |
+            next-trusted-v1-${{ runner.os }}-${{ runner.arch }}-
 
       # Bun's package store and Playwright's browser store hold executable
       # content and live at their tool-default paths. The defaults matter
@@ -482,7 +537,38 @@ jobs:
           # in CI. This workflow-only seam keeps local `bun run check`
           # fail-closed.
           STANDARDS_SKIP_GITHUB_CHECK: "true"
+          # Every `turbo run` writes .turbo/runs/<id>.json with each task's
+          # hash, cache status, and duration, also when a task fails. The
+          # task table below and the Turbo prune read these files. Turbo
+          # excludes this variable from task hashes.
+          TURBO_RUN_SUMMARY: "true"
         run: bun run check
+
+      # Consumers run Turbo with --output-logs=errors-only, so this table is
+      # the only per-task record of where the gate spends its time and what
+      # missed the cache. It also goes to the log, where `gh run view --log`
+      # can read it.
+      - name: Summarize Turbo tasks
+        if: "!cancelled()"
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          summaries=(.turbo/runs/*.json)
+          [ "${#summaries[@]}" -gt 0 ] || exit 0
+          jq -rs '
+            [.[].tasks[] | {
+              id: .taskId,
+              cache: .cache.status,
+              seconds: (((.execution.endTime // 0) - (.execution.startTime // 0)) / 1000)
+            }] as $tasks
+            | "### Turbo tasks",
+              "",
+              "\($tasks | map(select(.cache == "HIT")) | length) of \($tasks | length) tasks restored from the Turbo cache.",
+              "",
+              "| Task | Cache | Seconds |",
+              "| --- | --- | ---: |",
+              ($tasks | sort_by(-.seconds)[] | "| `\(.id)` | \(.cache) | \((.seconds * 10 | round) / 10) |")
+          ' "${summaries[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Save the Bun package cache
         if: success() && github.ref == 'refs/heads/main' && steps.bun-cache.outputs.cache-hit != 'true'
@@ -498,15 +584,61 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
 
-      # Keep the newest artifacts within 2 GiB before the successful
-      # default-branch save. Failed, cancelled, PR, and exact-key rerun jobs do
-      # not prune because none of them publishes a snapshot.
+      # A Next.js app writes its compiler cache only when `next build` ran,
+      # not when Turbo restored the build, so main publishes a snapshot only
+      # after it compiled an app. Repositories without one publish nothing.
+      # Bound the combined apparent size to 512 MiB, including sparse files.
+      # Skip oversized snapshots intact; pruning files can corrupt Turbopack.
+      # A nullglob array replaces `compgen`, which non-interactive bash omits.
+      - name: Detect a Next.js build cache
+        id: next-cache
+        if: success() && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          caches=(apps/*/.next/cache/turbopack)
+          present=false
+          if (( ${#caches[@]} > 0 )); then
+            cache_bytes=$(du --apparent-size --block-size=1 --summarize "${caches[@]}" | awk '{ bytes += $1 } END { printf "%.0f", bytes }')
+            if (( cache_bytes <= 512 * 1024 * 1024 )); then
+              present=true
+            else
+              echo "::notice::Skipping Next.js build cache save: ${cache_bytes} bytes exceeds the 512 MiB snapshot budget."
+            fi
+          fi
+          echo "present=$present" >> "$GITHUB_OUTPUT"
+
+      - name: Save the Next.js build cache
+        if: success() && github.ref == 'refs/heads/main' && steps.next-cache.outputs.present == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: apps/*/.next/cache/turbopack
+          key: next-trusted-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
+      # Before the successful default-branch save, keep only the artifacts
+      # whose task hashes this run's Turbo summaries list, then cap what is
+      # left at the newest 2 GiB. Pull requests test their merge with the
+      # latest main, so artifacts of older main trees can never hit. A cache
+      # hit does not touch an artifact's mtime, so an mtime-only cap evicts the
+      # longest-hitting artifacts first. Without run summaries only the cap
+      # applies. Failed, cancelled, PR, and exact-key rerun jobs do not prune
+      # because none of them publishes a snapshot.
       - name: Prune the Turbo cache before save
         if: success() && github.ref == 'refs/heads/main' && steps.turbo-cache.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           cache_dir=.turbo/cache
           [ -d "$cache_dir" ] || exit 0
+          shopt -s nullglob
+          summaries=(.turbo/runs/*.json)
+          if [ "${#summaries[@]}" -gt 0 ]; then
+            used=$(jq -r '.tasks[].hash' "${summaries[@]}")
+            find "$cache_dir" -type f -printf '%f\t%p\n' |
+              awk -F'\t' -v used="$used" '
+                BEGIN { split(used, hashes, "\n"); for (i in hashes) keep[hashes[i]] }
+                { hash = $1; sub(/[.-].*/, "", hash); if (!(hash in keep)) print $2 }' |
+              xargs -r rm -f --
+          fi
           find "$cache_dir" -type f -printf '%T@\t%k\t%p\n' |
             sort -rn |
             awk -F'\t' -v budget=$((2 * 1024 * 1024)) \

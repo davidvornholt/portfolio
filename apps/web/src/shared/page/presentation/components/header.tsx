@@ -2,19 +2,8 @@ import { easing } from '@portfolio/ui/easing';
 import { header as MotionHeader } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { type NavItem, navItems } from './nav-items';
 import { SocialLinks } from './social-links';
-
-type NavItem = {
-  readonly label: string;
-  readonly href: string;
-};
-
-const navItems: ReadonlyArray<NavItem> = [
-  { label: 'Works', href: '/#works' },
-  { label: 'Expertise', href: '/#expertise' },
-  { label: 'Blog', href: '/#blog' },
-  { label: 'Contact', href: '/#contact' },
-] as const;
 
 const NavLink = ({ item }: { readonly item: NavItem }): ReactNode => (
   <Link

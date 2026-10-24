@@ -116,6 +116,21 @@ test('color comparison renders distinct, non-transparent swatches', async ({
   expect(backgroundColors[0]).not.toBe(backgroundColors[5]);
 });
 
+test('footer section links reach the home page sections from other routes', async ({
+  page,
+}) => {
+  await page.goto('/posts');
+  await page
+    .getByRole('contentinfo')
+    .getByRole('link', { name: 'Works' })
+    .click();
+
+  await expect(page).toHaveURL(
+    (url) => url.pathname === '/' && url.hash === '#works',
+  );
+  await expect(page.locator('#works')).toBeInViewport();
+});
+
 for (const route of routes) {
   test(`${route.name} has no automated WCAG 2.2 AA violations`, async ({
     page,

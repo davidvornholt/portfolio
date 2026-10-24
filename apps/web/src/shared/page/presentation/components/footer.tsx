@@ -3,14 +3,8 @@ import { footer as MotionFooter } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Separator } from '@/shared/ui/presentation/components/separator';
+import { navItems } from './nav-items';
 import { SocialLinks } from './social-links';
-
-const navLinks = [
-  { href: '#works', label: 'Works' },
-  { href: '#expertise', label: 'Expertise' },
-  { href: '#blog', label: 'Blog' },
-  { href: '#contact', label: 'Contact' },
-] as const;
 
 export const Footer = (): ReactNode => {
   const currentYear = new Date().getFullYear();
@@ -38,7 +32,7 @@ export const Footer = (): ReactNode => {
           </div>
 
           <nav className="flex flex-wrap justify-center gap-6">
-            {navLinks.map(({ href, label }) => (
+            {navItems.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}

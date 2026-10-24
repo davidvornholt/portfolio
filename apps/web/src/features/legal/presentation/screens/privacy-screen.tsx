@@ -65,9 +65,11 @@ export const PrivacyScreen = (): ReactNode => (
         region, and city) from your IP address in a database stored on the
         server, and derives your browser, operating system, and device type from
         your user agent. It combines your IP address and user agent with a
-        secret key and the current month into a pseudonymous visitor ID, so page
-        views from the same browser within one calendar month count as one
-        visitor. Umami stores neither your IP address nor your full user agent.
+        secret key and the current month into a pseudonymous visitor ID. Page
+        views within one calendar month from the same IP address and browser
+        therefore usually count as one visitor, and a new IP address or browser
+        counts as a new visitor. Umami stores neither your IP address nor your
+        full user agent.
       </MDXParagraph>
       <MDXParagraph>
         Umami sets no cookies and stores nothing on your device. Besides your
@@ -135,8 +137,9 @@ export const PrivacyScreen = (): ReactNode => (
       <MDXParagraph>
         You have the right to access the data I hold about you (Art. 15 GDPR),
         to have it corrected (Art. 16) or erased (Art. 17), to restrict its
-        processing (Art. 18), and to receive it in a portable format (Art. 20).
-        Email me to use these rights.
+        processing (Art. 18). Where I process your data based on your consent or
+        a contract, and by automated means, you can also receive it in a
+        portable format (Art. 20). Email me to use these rights.
       </MDXParagraph>
       <MDXCallout title="Right to object (Art. 21 GDPR)">
         Where I process your data based on legitimate interest, you can object
@@ -147,9 +150,11 @@ export const PrivacyScreen = (): ReactNode => (
       </MDXCallout>
       <MDXParagraph>
         Umami&apos;s records contain no names or IP addresses, so I usually
-        cannot tell which records are yours. In that case I can only act on a
-        request if you give me information that identifies your data (Art. 11
-        GDPR).
+        cannot tell which of them are yours. If you ask to access, correct,
+        erase, restrict, or receive your Umami records (Art. 15 to 20), I can
+        only act on that request if you give me additional information that
+        identifies them (Art. 11(2) GDPR). This does not limit your right to
+        object.
       </MDXParagraph>
       <MDXParagraph>
         You also have the right to lodge a complaint with a data protection

@@ -8,10 +8,7 @@ type LegalDocumentProps = Readonly<{
   children: ReactNode;
 }>;
 
-/**
- * Legal pages stay static and unanimated: the text must be readable at once,
- * and nothing on them should depend on scrolling into view.
- */
+/** Legal text must be readable at once without scrolling into view. */
 export const LegalDocument = ({
   eyebrow,
   title,

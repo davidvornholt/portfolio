@@ -4,7 +4,6 @@ import { MDXAnchor } from '@/shared/content/presentation/components/mdx-markdown
 import { LegalAddress } from './legal-document';
 import { Placeholder } from './placeholder';
 
-/** The site operator's postal and email address, shared by both legal pages. */
 export const OperatorAddress = (): ReactNode => (
   <LegalAddress>
     David Vornholt

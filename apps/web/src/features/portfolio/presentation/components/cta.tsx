@@ -2,6 +2,7 @@ import { easing } from '@portfolio/ui/easing';
 import { Mail } from 'lucide-react';
 import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
+import { contactEmail } from '@/config/site';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -9,29 +10,16 @@ const fadeInUp = {
   viewport: { once: true, margin: '-100px' },
 };
 
-const EMAIL_PARTS = {
-  user: 'david',
-  domain: 'vornholt',
-  tld: 'online',
-} as const;
-
-const getEmailAddress = (): string =>
-  `${EMAIL_PARTS.user}@${EMAIL_PARTS.domain}.${EMAIL_PARTS.tld}`;
-
-const EmailLink = (): ReactNode => {
-  const emailAddress = getEmailAddress();
-
-  return (
-    <a
-      href={`mailto:${emailAddress}`}
-      data-umami-event="contact-email"
-      className="group inline-flex items-center gap-3 bg-deep-foreground px-8 py-4 font-medium text-base text-deep transition-colors hover:bg-deep-foreground/90"
-    >
-      <Mail className="size-5 transition-transform group-hover:-translate-y-0.5" />
-      {emailAddress}
-    </a>
-  );
-};
+const EmailLink = (): ReactNode => (
+  <a
+    href={`mailto:${contactEmail}`}
+    data-umami-event="contact-email"
+    className="group inline-flex items-center gap-3 bg-deep-foreground px-8 py-4 font-medium text-base text-deep transition-colors hover:bg-deep-foreground/90"
+  >
+    <Mail className="size-5 transition-transform group-hover:-translate-y-0.5" />
+    {contactEmail}
+  </a>
+);
 
 export const CTA = (): ReactNode => (
   <section id="contact" className="bg-deep px-6 py-24 md:py-32">

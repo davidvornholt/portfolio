@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     title: 'Privacy notice',
     description: privacyDescription,
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy notice',
+    description: privacyDescription,
+  },
 };
 
 const PrivacyPage = (): ReactNode => <PrivacyScreen />;

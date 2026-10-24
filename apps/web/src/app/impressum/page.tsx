@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     title: 'Legal notice / Impressum',
     description: impressumDescription,
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Legal notice / Impressum',
+    description: impressumDescription,
+  },
 };
 
 const ImpressumPage = (): ReactNode => <ImpressumScreen />;

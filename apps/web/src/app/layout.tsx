@@ -135,6 +135,16 @@ const RootLayout = ({
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Next.js JSON-LD requires a serialized script payload from this static object.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
+      {/* Motion renders each entrance animation's hidden starting frame as an
+      inline style, and only its client script plays the animation. Without
+      JavaScript that frame would stay and hide most of the page. */}
+      <noscript>
+        <style>
+          {
+            '[style*="opacity:0;"],[style$="opacity:0"]{opacity:1!important;transform:none!important}'
+          }
+        </style>
+      </noscript>
     </head>
     <body
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}

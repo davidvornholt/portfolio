@@ -2,13 +2,18 @@ import { Effect } from 'effect';
 import { notFound } from 'next/navigation';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
-import { getPostBySlug } from '@/features/posts/content/posts-registry';
+import { getPostBySlug, posts } from '@/features/posts/content/posts-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
 export const alt = 'Blog post by David Vornholt';
 export const size = ogImageSize;
 export const contentType = 'image/png';
+
+// Without known params this route renders on request and fetches its fonts
+// from Google Fonts at runtime. Prerendering keeps that fetch in the build.
+export const generateStaticParams = (): Array<{ slug: string }> =>
+  posts.map((post) => ({ slug: post.meta.slug }));
 
 const OpengraphImage = async ({
   params,

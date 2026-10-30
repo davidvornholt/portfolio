@@ -137,11 +137,12 @@ const RootLayout = ({
       />
       {/* Motion renders each entrance animation's hidden starting frame as an
       inline style, and only its client script plays the animation. Without
-      JavaScript that frame would stay and hide most of the page. */}
+      JavaScript that frame would stay and hide most of the page. Chart bars
+      start collapsed the same way. */}
       <noscript>
         <style>
           {
-            '[style*="opacity:0;"],[style$="opacity:0"]{opacity:1!important;transform:none!important}'
+            '[style*="opacity:0;"],[style$="opacity:0"]{opacity:1!important;transform:none!important}[style*="transform:scaleX(0)"]{transform:none!important}'
           }
         </style>
       </noscript>

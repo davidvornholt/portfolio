@@ -9,6 +9,8 @@ const publishedSlugs = [
   'mastering-oklch-tailwind-v4',
 ] as const;
 
+const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/u;
+
 describe('posts registry', () => {
   it('keeps every published slug resolvable', () => {
     for (const slug of publishedSlugs) {
@@ -19,6 +21,12 @@ describe('posts registry', () => {
   it('has unique slugs', () => {
     const slugs = posts.map((post) => post.meta.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it('dates are date-only ISO strings', () => {
+    for (const post of posts) {
+      expect(post.meta.date).toMatch(dateOnlyPattern);
+    }
   });
 
   it('dates parse as valid ISO dates', () => {

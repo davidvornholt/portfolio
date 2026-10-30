@@ -37,7 +37,8 @@ for (const path of routes) {
 }
 
 // Chart bars start at zero width and grow once the client script runs. Without
-// JavaScript they must show their final width.
+// JavaScript they must show their final width. The bounding box includes
+// transforms, unlike `clientWidth`.
 const chartPostPaths = [
   '/posts/mastering-oklch-tailwind-v4',
   '/posts/solving-the-cold-boot-problem',
@@ -52,7 +53,7 @@ for (const path of chartPostPaths) {
 
     for (const bar of await bars.all()) {
       expect(
-        await bar.evaluate((element) => element.clientWidth),
+        await bar.evaluate((element) => element.getBoundingClientRect().width),
       ).toBeGreaterThan(0);
     }
   });

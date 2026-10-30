@@ -3,6 +3,7 @@ import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { article as MotionArticle } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { formatPostDate } from '@/shared/content/services/format-post-date';
 import { Badge } from '@/shared/ui/presentation/components/badge';
 
 export type PostListEntry = Readonly<{
@@ -25,13 +26,6 @@ const fadeInUp = {
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: '-100px' },
 };
-
-const formatPostDate = (date: string): string =>
-  new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 
 const PostListItem = ({
   post,

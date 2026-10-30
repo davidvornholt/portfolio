@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
+import { ChartBarFill } from './chart-bar-fill';
 import { staggerContainer } from './mdx-motion';
 
 const chartPercentageScale = 100;
@@ -155,16 +156,10 @@ export const MDXChart = ({
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden bg-muted">
-                <MotionDiv
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${percentage}%` }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 0.8,
-                    delay: index * chartItemDelaySeconds,
-                    ease: easing,
-                  }}
-                  className="h-full bg-primary"
+                <ChartBarFill
+                  percentage={percentage}
+                  delaySeconds={index * chartItemDelaySeconds}
+                  className="bg-primary"
                 />
               </div>
             </div>

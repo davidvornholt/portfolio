@@ -3,6 +3,7 @@
 import { easing } from '@portfolio/ui/easing';
 import { div as MotionDiv } from 'motion/react-client';
 import { type ReactNode, useState } from 'react';
+import { ChartBarFill } from './chart-bar-fill';
 
 // =============================================================================
 // Types
@@ -97,6 +98,7 @@ const fadeInUp = {
 
 const swatchStaggerSeconds = 0.06;
 const fallbackBrightnessPercent = 50;
+const brightnessBarDelaySeconds = 0.3;
 
 // =============================================================================
 // Sub-components
@@ -243,14 +245,12 @@ const BrightnessBar = ({ swatches, label }: BrightnessBarProps): ReactNode => {
           return (
             <div key={swatch.label} className="space-y-1">
               <div className="h-1.5 w-full overflow-hidden bg-muted">
-                <MotionDiv
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${brightness}%` }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3, ease: easing }}
-                  className={`h-full ${
+                <ChartBarFill
+                  percentage={brightness}
+                  delaySeconds={brightnessBarDelaySeconds}
+                  className={
                     label === 'HSL' ? 'bg-destructive/60' : 'bg-primary'
-                  }`}
+                  }
                 />
               </div>
               <span className="block text-center font-mono text-[10px] text-muted-foreground">

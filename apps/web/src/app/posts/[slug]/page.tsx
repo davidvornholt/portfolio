@@ -6,6 +6,7 @@ import { siteUrl } from '@/config/site';
 import type { PostMeta } from '@/features/posts/content/post-meta';
 import { getPostBySlug, posts } from '@/features/posts/content/posts-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
+import { formatPostDate } from '@/shared/content/services/format-post-date';
 
 type PostPageProps = Readonly<{
   params: Promise<{ slug: string }>;
@@ -98,11 +99,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
           )}
           <div className="flex items-center gap-4 text-muted-foreground text-sm">
             <time dateTime={post.meta.date}>
-              {new Date(post.meta.date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              {formatPostDate(post.meta.date)}
             </time>
             <span>·</span>
             <span>{post.meta.readTime}</span>

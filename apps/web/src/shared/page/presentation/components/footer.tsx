@@ -6,6 +6,11 @@ import { Separator } from '@/shared/ui/presentation/components/separator';
 import { navItems } from './nav-items';
 import { SocialLinks } from './social-links';
 
+const legalLinks = [
+  { href: '/impressum', label: 'Impressum' },
+  { href: '/privacy', label: 'Privacy' },
+] as const;
+
 export const Footer = (): ReactNode => {
   const currentYear = new Date().getFullYear();
 
@@ -48,11 +53,24 @@ export const Footer = (): ReactNode => {
 
         <Separator className="my-8" />
 
-        <div className="flex flex-col items-center justify-between gap-4 text-center text-muted-foreground text-sm md:flex-row">
-          <p>
-            &copy; {currentYear} David Vornholt. All rights reserved. Built with
-            intention in Germany.
-          </p>
+        <div className="flex flex-col items-center justify-between gap-4 text-center text-muted-foreground text-sm md:flex-row md:items-end md:text-left">
+          <div className="flex flex-col items-center gap-2 md:items-start">
+            <p>
+              &copy; {currentYear} David Vornholt. All rights reserved. Built
+              with intention in Germany.
+            </p>
+            <nav aria-label="Legal" className="flex gap-6">
+              {legalLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="transition-colors hover:text-foreground"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
           <p className="font-mono text-xs">
             Built with Next.js, Tailwind CSS & TypeScript
           </p>

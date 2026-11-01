@@ -37,6 +37,8 @@ const routes = [
   { name: 'FES Kirchheim case study', path: '/works/fes-kirchheim' },
   { name: 'Atrium case study', path: '/works/atrium' },
   { name: 'ProsaBridge case study', path: '/works/prosabridge' },
+  { name: 'legal notice', path: '/impressum' },
+  { name: 'privacy notice', path: '/privacy' },
 ] as const;
 
 // The tracker loads in every environment, so this suite now reaches the
@@ -129,6 +131,26 @@ test('footer section links reach the home page sections from other routes', asyn
     (url) => url.pathname === '/' && url.hash === '#works',
   );
   await expect(page.locator('#works')).toBeInViewport();
+});
+
+// German law requires the legal notice to be reachable from every page, and
+// the footer is the one element every route renders.
+test('footer links reach the legal notice and privacy notice', async ({
+  page,
+}) => {
+  for (const [label, heading] of [
+    ['Impressum', 'Legal notice'],
+    ['Privacy', 'Privacy notice'],
+  ] as const) {
+    await page.goto('/posts');
+    await page
+      .getByRole('navigation', { name: 'Legal' })
+      .getByRole('link', { name: label })
+      .click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: heading }),
+    ).toBeVisible();
+  }
 });
 
 for (const route of routes) {

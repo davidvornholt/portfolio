@@ -7,7 +7,6 @@ const robots = (): MetadataRoute.Robots => ({
     {
       userAgent: '*',
       allow: '/',
-      disallow: ['/lab', '/lab/'],
     },
   ],
   sitemap: `${siteUrl}/sitemap.xml`,

@@ -10,7 +10,7 @@ export const ImpressumScreen = (): ReactNode => (
   <LegalDocument
     eyebrow="Impressum"
     title="Legal notice"
-    lastUpdated="October 2026"
+    lastUpdated="November 2026"
   >
     <LegalSection title="Information under § 5 DDG">
       <OperatorAddress />

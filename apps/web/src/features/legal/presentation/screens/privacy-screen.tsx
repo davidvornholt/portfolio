@@ -3,13 +3,12 @@ import { MDXCallout } from '@/shared/content/presentation/components/mdx-layout-
 import { MDXParagraph } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { LegalDocument, LegalSection } from '../components/legal-document';
 import { OperatorAddress } from '../components/operator-address';
-import { Placeholder } from '../components/placeholder';
 
 export const PrivacyScreen = (): ReactNode => (
   <LegalDocument
     eyebrow="Privacy"
     title="Privacy notice"
-    lastUpdated="October 2026"
+    lastUpdated="November 2026"
   >
     <MDXParagraph>
       This notice explains which personal data this website processes, why, and
@@ -42,8 +41,7 @@ export const PrivacyScreen = (): ReactNode => (
       <MDXParagraph>
         I use these logs to deliver the site, keep it secure, and find errors.
         The legal basis is Art. 6(1)(f) GDPR; my legitimate interest is running
-        a secure and reliable website. The logs are deleted after{' '}
-        <Placeholder>retention period for server logs</Placeholder>.
+        a secure and reliable website. The logs are deleted after 14 days.
       </MDXParagraph>
     </LegalSection>
 
@@ -82,8 +80,7 @@ export const PrivacyScreen = (): ReactNode => (
         site, and whether it works on their devices. The legal basis is Art.
         6(1)(f) GDPR; my legitimate interest is improving the site with
         pseudonymous statistics that do not follow you to other websites. The
-        analytics records are deleted after{' '}
-        <Placeholder>retention period for analytics records</Placeholder>.
+        analytics records are deleted after two years.
       </MDXParagraph>
       <MDXParagraph>
         You can object at any time, as described below. You can also block
@@ -102,14 +99,14 @@ export const PrivacyScreen = (): ReactNode => (
         keep them.
       </MDXParagraph>
       <MDXParagraph>
-        My mailbox is hosted by the email provider MXroute, whose mail servers
-        are in the United States, so your message is transferred to a country
-        outside the EU.{' '}
-        <Placeholder>
-          legal safeguard for this transfer, for example standard contractual
-          clauses
-        </Placeholder>
-        .
+        My mailbox is hosted by the email provider MXroute LLC, Texas, whose
+        mail servers are in the United States, so your message is transferred
+        to a country outside the EU. MXroute does not take part in the EU-U.S.
+        Data Privacy Framework and does not offer the EU standard contractual
+        clauses, so no adequacy decision or other safeguard under Art. 45 or 46
+        GDPR covers this transfer. Your message therefore has less protection
+        there than in the EU, for example against access by US authorities. If
+        you do not want that, you can write to me by post at the address above.
       </MDXParagraph>
     </LegalSection>
 

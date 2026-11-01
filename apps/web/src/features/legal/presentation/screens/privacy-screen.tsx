@@ -100,9 +100,9 @@ export const PrivacyScreen = (): ReactNode => (
       </MDXParagraph>
       <MDXParagraph>
         My mailbox is hosted by the email provider MXroute LLC, Texas, whose
-        mail servers are in the United States, so your message is transferred
-        to a country outside the EU. MXroute does not take part in the EU-U.S.
-        Data Privacy Framework and does not offer the EU standard contractual
+        mail servers are in the United States, so your message is transferred to
+        a country outside the EU. MXroute does not take part in the EU-U.S. Data
+        Privacy Framework and does not offer the EU standard contractual
         clauses, so no adequacy decision or other safeguard under Art. 45 or 46
         GDPR covers this transfer. Your message therefore has less protection
         there than in the EU, for example against access by US authorities. If

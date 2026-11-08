@@ -52,8 +52,8 @@ export const MDXCodeSnippet = ({
     >
       {title === undefined ? null : (
         <div className="flex items-center gap-2 border-border border-b bg-muted/50 px-4 py-3">
-          <Code2 className="size-4 text-muted-foreground" />
-          <span className="font-mono text-muted-foreground text-xs">
+          <Code2 className="size-4 shrink-0 text-muted-foreground" />
+          <span className="wrap-anywhere min-w-0 font-mono text-muted-foreground text-xs">
             {title}
           </span>
           <Badge variant="outline" className="ml-auto text-xs">

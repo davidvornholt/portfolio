@@ -118,6 +118,25 @@ test('color comparison renders distinct, non-transparent swatches', async ({
   expect(backgroundColors[0]).not.toBe(backgroundColors[5]);
 });
 
+test('code snippet headers fit a 320 CSS pixel viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/posts/building-the-architects-portfolio');
+  await page.evaluate(() => document.fonts.ready);
+
+  const title = page.getByText('features/works/content/work-meta.ts', {
+    exact: true,
+  });
+  await title.scrollIntoViewIfNeeded();
+  await expect(title).toBeVisible();
+  await expect(page.getByText('typescript', { exact: true })).toBeInViewport({
+    ratio: 1,
+  });
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(320);
+});
+
 test('footer section links reach the home page sections from other routes', async ({
   page,
 }) => {

@@ -143,7 +143,7 @@ const SwatchCard = ({
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: 'auto' }}
         transition={{ ease: easing }}
-        className="px-2 py-1 text-center"
+        className="wrap-anywhere max-w-full px-0 py-1 text-center sm:px-2"
       >
         <span className="text-[10px] text-muted-foreground leading-tight">
           {swatch.perceivedNote}

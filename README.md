@@ -20,3 +20,7 @@ Site and analytics configuration lives in `apps/web/src/config/`. The Umami webs
 [personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release.
 
 Label a same-repository, non-draft PR `pr-preview` to request `https://<number>.pr.david.vornholt.online`; removing the label tears it down.
+
+## License
+
+The code is under the [MIT license](LICENSE). The posts, case studies and portrait are © David Vornholt, all rights reserved, and the LinkedIn logos belong to LinkedIn.

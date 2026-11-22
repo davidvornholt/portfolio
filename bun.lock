@@ -6,7 +6,7 @@
       "name": "portfolio",
       "devDependencies": {
         "@biomejs/biome": "2.5.15",
-        "@davidvornholt/standards": "0.38.0",
+        "@davidvornholt/standards": "0.42.0",
         "turbo": "^2.11.11",
         "typescript": "7.0.2",
       },
@@ -107,7 +107,7 @@
 
     "@davidvornholt/a11y-testing": ["@davidvornholt/a11y-testing@workspace:packages/a11y-testing"],
 
-    "@davidvornholt/standards": ["@davidvornholt/standards@0.38.0", "", { "dependencies": { "yaml": "^2.9.1" }, "bin": { "standards": "src/cli.ts" } }, "sha512-PkHibb1yRqDb/yZW81fVsDPPVSvDel/Ae7TNlTP3/qMeQG6NvMmKzSfMVE9K94MRrLlJ9vb6+eXgqBRUm6Sg9Q=="],
+    "@davidvornholt/standards": ["@davidvornholt/standards@0.42.0", "", { "dependencies": { "yaml": "^2.9.1" }, "bin": { "standards": "src/cli.ts" } }, "sha512-BApnCpshDnavYwhzvz7RJZsK71/+0VDtvliVexcszubTfx/jypUbBw+gny7ukPMaH3XfRQNxGL9bUHz6f9yCkw=="],
 
     "@davidvornholt/typescript-config": ["@davidvornholt/typescript-config@workspace:packages/typescript-config"],
 

@@ -4,8 +4,9 @@ on:
   # Every pull request runs the gate regardless of its base branch: stacked
   # pull requests need check runs on each layer's own commits, both as review
   # signal before an atomic stack merge and because required-check rulesets
-  # refuse commits that carry no runs. Draft revisions skip every gate, so
-  # marking a pull request ready for review runs them on its current head.
+  # refuse commits that carry no runs. Draft revisions skip every gate, except
+  # as `draft-state` describes, so marking a pull request ready for review runs
+  # them on its current head.
   pull_request:
     types:
       - opened
@@ -29,12 +30,10 @@ concurrency:
   # Preserve every push SHA needed by publication; only PR runs supersede one
   # another when a newer commit updates the same PR. Dispatched runs share one
   # group, so at most one runs and the newest request waits behind it.
-  # Draft and ready runs of a PR use separate groups. When a push to a draft is
-  # followed at once by ready for review, GitHub can start the push's run
-  # second; in a shared group that draft run, which runs no gate, cancels the
-  # ready run and leaves the head without its required check. With separate
-  # groups, a ready run keeps running after its PR returns to draft, until the
-  # next ready run replaces it.
+  # Draft and ready runs of a PR use separate groups, so a draft run never
+  # cancels a ready run, even one that GitHub started first (see
+  # `draft-state`). A ready run therefore keeps running after its PR returns
+  # to draft, until the next ready run replaces it.
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('{0}-{1}', github.ref, github.event.pull_request.draft && 'draft' || 'ready') || github.event_name == 'workflow_dispatch' && 'dispatch' || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
@@ -50,8 +49,16 @@ jobs:
   # leaves `proven` unset and any error fails only this step, so the full gate
   # runs. Cache freshness never decides reuse; a reused push instead requests
   # a separate cache publication run when the snapshots are missing or stale.
+  #
+  # It waits for `draft-state` so that a draft run skips no job before
+  # `draft-state` has read the pull request. `land` waits for the ready run
+  # to replace any check that a draft skipped before it was marked ready, and a
+  # draft run that gates its head may have no ready run to replace it.
   reuse:
-    if: github.event_name == 'push'
+    needs: draft-state
+    if: >-
+      !cancelled() &&
+      github.event_name == 'push'
     runs-on: ${{ vars.CI_CODEBUILD_PROJECT != '' && format('codebuild-{0}-{1}-{2}-small', vars.CI_CODEBUILD_PROJECT, github.run_id, github.run_attempt) || 'ubuntu-latest' }}
     timeout-minutes: 5
     permissions:
@@ -64,11 +71,13 @@ jobs:
     outputs:
       proven: ${{ steps.proof.outputs.proven }}
     steps:
-      - name: Checkout the lockfile
+      - name: Checkout the lockfile and sync policy
         uses: actions/checkout@v7
         with:
           persist-credentials: false
-          sparse-checkout: bun.lock
+          sparse-checkout: |
+            bun.lock
+            sync-standards.local.json
           sparse-checkout-cone-mode: false
 
       - name: Prove a validated pull request result
@@ -136,7 +145,8 @@ jobs:
       # than a day, dispatch a full gate run on main, which publishes exactly
       # as a full push run does. Repositories with no Playwright snapshot have
       # no browser suite to publish for. A failed request only leaves the
-      # caches stale, so it warns instead of failing the gate.
+      # caches stale, so it warns instead of failing the gate. A repository on
+      # the core payload has no workspace caches, so it requests nothing.
       - name: Request stale cache publication
         if: steps.proof.outputs.proven == 'true'
         continue-on-error: true
@@ -158,6 +168,11 @@ jobs:
             exit 0
           }
 
+          if [ -f sync-standards.local.json ] &&
+            [ "$(jq -r 'if type == "object" then .payload // "" else "" end' sync-standards.local.json)" = core ]; then
+            echo "The core payload publishes no caches"
+            exit 0
+          fi
           if [ -z "$LOCK_HASH" ]; then
             echo "::warning::Cannot check cache freshness: bun.lock is missing"
             exit 1
@@ -183,6 +198,54 @@ jobs:
           [ "$turbo_age" -le "$TURBO_SNAPSHOT_MAX_AGE_SECONDS" ] \
             || publish "the newest main Turbo snapshot is $turbo_age seconds old"
           echo "Trusted cache snapshots are current"
+
+  # GitHub's merge box and required checks look only at the newest
+  # pull-request run of this workflow on a head. When a push to a draft is
+  # followed at once by ready for review, that newest run can be the push's
+  # draft run: GitHub may create it after the ready run, or start the ready
+  # run on the previous head. A draft run that skipped its gates would then
+  # hide or replace the head's `check`, and merge would stay blocked although
+  # the gate passed. So once a draft run starts, this job reads the pull
+  # request as it is now. When it is ready, still at this run's head, and no
+  # newer run of this workflow exists on that head, this run gates the head as
+  # a ready run would and reports `check` itself. In that race the gate can
+  # run twice. If a lookup fails, this job fails and the gates skip, so a
+  # blocked merge shows the failure.
+  draft-state:
+    if: github.event.pull_request.draft
+    runs-on: ${{ vars.CI_CODEBUILD_PROJECT != '' && format('codebuild-{0}-{1}-{2}-small', vars.CI_CODEBUILD_PROJECT, github.run_id, github.run_attempt) || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      pull-requests: read
+    outputs:
+      gate: ${{ steps.state.outputs.gate }}
+    steps:
+      - name: Decide whether this draft run gates its head
+        id: state
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          skip() {
+            echo "::notice::Skipping the gates: $1"
+            echo "gate=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          pull=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
+          [ "$(jq -r .draft <<<"$pull")" = false ] || skip "the pull request is still a draft"
+          [ "$(jq -r .head.sha <<<"$pull")" = "$HEAD_SHA" ] || skip "the pull request has a newer head"
+          newer=$(gh api "repos/$REPOSITORY/actions/workflows/standards.yml/runs?head_sha=$HEAD_SHA&event=pull_request&per_page=100" \
+            | jq --argjson run "$RUN_ID" '[.workflow_runs[] | select(.id > $run)] | length')
+          [ "$newer" = 0 ] || skip "a newer run reports this head's checks"
+
+          echo "::notice::Running the gates: the pull request is ready, and this is the newest run on its head"
+          echo "gate=true" >> "$GITHUB_OUTPUT"
 
   # Canonical quality gate synced from davidvornholt/standards. `bun run check`
   # runs the sync drift-check first, then lint, types, tests, build, and the
@@ -219,18 +282,23 @@ jobs:
   # an `if:` whereas a service cannot. So gating it keeps one uniform file while
   # skipping a pointless download in repos with nothing to render.
   #
-  # Draft revisions skip the gate, and a main push skips it only when the reuse
-  # job proved that a pull-request run already validated the exact tree. A
-  # dispatched run has no reuse job, so it always runs the full gate.
-  # `!cancelled()` keeps the gate running when the reuse job is skipped or fails.
+  # Draft revisions skip the gate unless `draft-state` decided that the run
+  # gates its head, and a main push skips it only when the reuse job proved
+  # that a pull-request run already validated the exact tree. A dispatched run
+  # has no reuse job, so it always runs the full gate. `!cancelled()` keeps the
+  # gate running when `reuse` is skipped or fails, or `draft-state` is skipped.
   quality:
-    needs: reuse
+    needs:
+      - reuse
+      - draft-state
     if: >-
       !cancelled() &&
-      !github.event.pull_request.draft &&
+      (!github.event.pull_request.draft || needs.draft-state.outputs.gate == 'true') &&
       needs.reuse.outputs.proven != 'true'
     runs-on: ${{ vars.CI_CODEBUILD_PROJECT != '' && format('codebuild-{0}-{1}-{2}-{3}', vars.CI_CODEBUILD_PROJECT, github.run_id, github.run_attempt, vars.CI_CODEBUILD_QUALITY_SIZE || 'medium') || 'ubuntu-latest' }}
     timeout-minutes: 30
+    # A job's services can't depend on repository files, so the service also
+    # starts for a repository on the core payload, which doesn't use it.
     services:
       postgres:
         # Both registries serve the same Docker Library image. Docker Hub
@@ -319,6 +387,23 @@ jobs:
             -ignore '^input "client-id" is not defined in action "actions/create-github-app-token@v3"\. ' \
             -ignore '^missing input "app-id" which is required by action "actions/create-github-app-token@v3"\. '
 
+      # A repository on the core payload has no Bun workspace. Its gate is the
+      # standards check, which runs the CLI from the standards commit that its
+      # lock records, so the CLI always matches the content it checks, and
+      # every step that needs the workspace skips. Any other value fails here,
+      # so a payload this workflow doesn't know can't skip every check.
+      - name: Read the standards payload
+        id: payload
+        run: |
+          set -euo pipefail
+          payload=bun
+          if [ -f sync-standards.local.json ] &&
+            ! payload=$(jq -er 'if has("payload") then .payload else "bun" end | select(. == "core" or . == "bun")' sync-standards.local.json); then
+            echo '::error::sync-standards.local.json must be an object whose "payload", if set, is "core" or "bun"'
+            exit 1
+          fi
+          echo "payload=$payload" >> "$GITHUB_OUTPUT"
+
       # A fixed 127.0.0.1 database URL only works where the job shares the
       # service's published loopback — true on GitHub-hosted runners, false on
       # CodeBuild, whose runner is itself an unprivileged container beside the
@@ -329,6 +414,7 @@ jobs:
       # tasks. The URL keeps an address rather than a host name because
       # consumer test guards accept only loopback or a private IPv4 address.
       - name: Resolve the database endpoint
+        if: steps.payload.outputs.payload == 'bun'
         env:
           CI_POSTGRES_USER: ${{ vars.CI_POSTGRES_USER || 'app' }}
           CI_POSTGRES_PASSWORD: ${{ vars.CI_POSTGRES_PASSWORD || 'app' }}
@@ -375,6 +461,7 @@ jobs:
       # repository's CLI suite spawns `just` against them, and one uniform file
       # serves every repo (see the Postgres note above).
       - name: Install just
+        if: steps.payload.outputs.payload == 'bun'
         env:
           RELEASE_API_TOKEN: ${{ github.token }}
         run: |
@@ -402,6 +489,7 @@ jobs:
 
       - name: Detect browser a11y suite
         id: a11y
+        if: steps.payload.outputs.payload == 'bun'
         run: |
           if find . -path ./node_modules -prune -o \
             \( -name 'playwright.config.*' -o -name '*.a11y.ts' \) -print | grep -q .; then
@@ -442,6 +530,7 @@ jobs:
 
       - name: Read Bun version
         id: bun
+        if: steps.payload.outputs.payload == 'bun'
         run: |
           set -euo pipefail
           if ! package_manager="$(jq -er '.packageManager | select(type == "string" and test("^bun@(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"))' package.json)"; then
@@ -450,19 +539,46 @@ jobs:
           fi
           echo "version=${package_manager#bun@}" >> "$GITHUB_OUTPUT"
 
+      - name: Fetch the standards CLI source
+        id: standards-source
+        if: steps.payload.outputs.payload == 'core'
+        run: |
+          set -euo pipefail
+          upstream="$(jq -er '.upstream | strings' sync-standards.lock)" || upstream=
+          repository="${upstream#github:}"
+          if [[ ! "$upstream" =~ ^github:[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$ ]] || [[ "$repository" == */. || "$repository" == */.. ]]; then
+            echo "::error::sync-standards.lock must name a github:owner/repo upstream to fetch the standards CLI from"
+            exit 1
+          fi
+          if ! rev="$(jq -er '.sha | strings | select(test("^[0-9a-f]{40}$"))' sync-standards.lock)"; then
+            echo "::error::sync-standards.lock must record the full commit its files were synced from"
+            exit 1
+          fi
+          git() { command git -c core.hooksPath=/dev/null -c core.fsmonitor=false "$@"; }
+          source=$(mktemp -d "$RUNNER_TEMP/standards-source.XXXXXX")
+          git init --quiet "$source"
+          git -C "$source" fetch --quiet --depth=1 --no-tags -- "https://github.com/$repository.git" "$rev"
+          git -C "$source" checkout --quiet --detach "$rev"
+          if ! package_manager="$(jq -er '.packageManager | select(type == "string" and test("^bun@(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"))' "$source/package.json")"; then
+            echo "::error::The standards package.json at $rev must pin an exact bun@x.y.z packageManager"
+            exit 1
+          fi
+          echo "bun-version=${package_manager#bun@}" >> "$GITHUB_OUTPUT"
+          echo "STANDARDS_SOURCE=$source" >> "$GITHUB_ENV"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: ${{ steps.bun.outputs.version }}
+          bun-version: ${{ steps.bun.outputs.version || steps.standards-source.outputs.bun-version }}
 
       - name: Verify Bun version
         env:
-          EXPECTED_BUN_VERSION: ${{ steps.bun.outputs.version }}
+          EXPECTED_BUN_VERSION: ${{ steps.bun.outputs.version || steps.standards-source.outputs.bun-version }}
         run: |
           set -euo pipefail
           actual="$(bun --version)"
           if [[ "$actual" != "$EXPECTED_BUN_VERSION" ]]; then
-            echo "::error::Expected Bun $EXPECTED_BUN_VERSION from package.json, received $actual"
+            echo "::error::Expected Bun $EXPECTED_BUN_VERSION, received $actual"
             exit 1
           fi
 
@@ -470,6 +586,7 @@ jobs:
       # cross-runtime tests intentionally invoke Node, so honor the version the
       # canonical package manifest declares instead of the runner's ambient one.
       - name: Setup Node
+        if: steps.payload.outputs.payload == 'bun'
         uses: actions/setup-node@v7
         with:
           node-version: "26"
@@ -484,6 +601,7 @@ jobs:
       # quota.
       - name: Restore the Turbo cache
         id: turbo-cache
+        if: steps.payload.outputs.payload == 'bun'
         uses: actions/cache/restore@v6
         with:
           path: .turbo/cache
@@ -499,7 +617,7 @@ jobs:
       # it, so every published snapshot comes from a cold build of its own
       # commit and cannot accumulate entries or state from earlier builds.
       - name: Restore the Next.js build cache
-        if: github.ref != 'refs/heads/main'
+        if: steps.payload.outputs.payload == 'bun' && github.ref != 'refs/heads/main'
         uses: actions/cache/restore@v6
         with:
           path: apps/*/.next/cache/turbopack
@@ -535,6 +653,7 @@ jobs:
       # fallbacks because they consume trusted snapshots but never publish.
       - name: Restore the Bun package cache
         id: bun-cache
+        if: steps.payload.outputs.payload == 'bun'
         uses: actions/cache/restore@v6
         with:
           path: ~/.bun/install/cache
@@ -542,11 +661,18 @@ jobs:
           restore-keys: ${{ github.ref != 'refs/heads/main' && format('bun-packages-v2-{0}-{1}-', runner.os, runner.arch) || '' }}
 
       - name: Discard non-exact main Bun restore
-        if: github.ref == 'refs/heads/main' && steps.bun-cache.outputs.cache-hit != 'true'
+        if: steps.payload.outputs.payload == 'bun' && github.ref == 'refs/heads/main' && steps.bun-cache.outputs.cache-hit != 'true'
         run: rm -rf -- "$HOME/.bun/install/cache"
 
       - name: Install dependencies
+        if: steps.payload.outputs.payload == 'bun'
         run: bun install --frozen-lockfile
+
+      - name: Install the standards CLI dependencies
+        if: steps.payload.outputs.payload == 'core'
+        run: |
+          cd "$STANDARDS_SOURCE"
+          bun install --frozen-lockfile --filter @davidvornholt/standards --production --ignore-scripts
 
       # Run the *installed* binary, never `bunx playwright`: a11y suites live in
       # a workspace, Bun keeps that workspace's binaries under it rather than at
@@ -555,7 +681,7 @@ jobs:
       # itself, not the one the pinned @playwright/test launches, and every spec
       # then fails on a missing executable the moment upstream ships a release.
       - name: Restore the Playwright browser cache
-        if: steps.a11y.outputs.present == 'true'
+        if: steps.payload.outputs.payload == 'bun' && steps.a11y.outputs.present == 'true'
         id: playwright-cache
         uses: actions/cache/restore@v6
         with:
@@ -564,11 +690,11 @@ jobs:
           restore-keys: ${{ github.ref != 'refs/heads/main' && format('playwright-v2-{0}-{1}-', runner.os, runner.arch) || '' }}
 
       - name: Discard non-exact main Playwright restore
-        if: github.ref == 'refs/heads/main' && steps.a11y.outputs.present == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.payload.outputs.payload == 'bun' && github.ref == 'refs/heads/main' && steps.a11y.outputs.present == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: rm -rf -- "$HOME/.cache/ms-playwright"
 
       - name: Install Playwright Chromium
-        if: steps.a11y.outputs.present == 'true'
+        if: steps.payload.outputs.payload == 'bun' && steps.a11y.outputs.present == 'true'
         run: |
           set -euo pipefail
           playwright=$(find . -path '*/node_modules/.bin/playwright' -print -quit)
@@ -596,6 +722,7 @@ jobs:
 
       - name: Check
         env:
+          PAYLOAD: ${{ steps.payload.outputs.payload }}
           # The isolated `check` aggregator job owns this live check
           # in CI. This workflow-only seam keeps local `bun run check`
           # fail-closed.
@@ -605,27 +732,45 @@ jobs:
           # task table below and the Turbo prune read these files. Turbo
           # excludes this variable from task hashes.
           TURBO_RUN_SUMMARY: "true"
-        run: bun run check
+        run: |
+          set -euo pipefail
+          if [ "$PAYLOAD" = core ]; then
+            cd "$STANDARDS_SOURCE"
+            bun --no-env-file packages/standards-cli/src/cli.ts check --dir "$GITHUB_WORKSPACE"
+          else
+            bun run check
+          fi
 
-      # The package source check runs here rather than in a job of its own,
+      # A repository that packages a CLI in nix/package.nix builds every
+      # package its flake exposes, because a dependency update that leaves a
+      # fixed-output hash stale otherwise passes here and fails only where the
+      # package is installed. This runs here rather than in a job of its own,
       # which would bill a runner minute in every repository without a CLI.
-      - name: Install Nix for the package source check
-        if: hashFiles('nix/package.nix') != ''
+      - name: Install Nix for the package checks
+        if: steps.payload.outputs.payload == 'bun' && hashFiles('nix/package.nix') != ''
         uses: cachix/install-nix-action@v31
 
-      - name: Check the Nix package source
-        if: hashFiles('nix/package.nix') != ''
+      - name: Build the Nix packages and their source check
+        if: steps.payload.outputs.payload == 'bun' && hashFiles('nix/package.nix') != ''
         run: |
           set -euo pipefail
           system=$(nix eval --impure --raw --expr builtins.currentSystem)
-          nix build ".#checks.$system.package-source" --no-link -L
+          packages=$(nix eval ".#packages.$system" --apply builtins.attrNames --json | jq -r '.[]')
+          installables=(".#checks.$system.package-source")
+          while IFS= read -r package; do
+            if [ -n "$package" ]; then
+              installables+=(".#packages.$system.$package")
+            fi
+          done <<<"$packages"
+          echo "Building ${installables[*]}"
+          nix build "${installables[@]}" --no-link -L
 
       # Consumers run Turbo with --output-logs=errors-only, so this table is
       # the only per-task record of where the gate spends its time and what
       # missed the cache. It also goes to the log, where `gh run view --log`
       # can read it.
       - name: Summarize Turbo tasks
-        if: "!cancelled()"
+        if: "steps.payload.outputs.payload == 'bun' && !cancelled()"
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -647,14 +792,14 @@ jobs:
           ' "${summaries[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Save the Bun package cache
-        if: success() && github.ref == 'refs/heads/main' && steps.bun-cache.outputs.cache-hit != 'true'
+        if: steps.payload.outputs.payload == 'bun' && success() && github.ref == 'refs/heads/main' && steps.bun-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: ~/.bun/install/cache
           key: bun-packages-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
 
       - name: Save the Playwright browser cache
-        if: success() && github.ref == 'refs/heads/main' && steps.a11y.outputs.present == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.payload.outputs.payload == 'bun' && success() && github.ref == 'refs/heads/main' && steps.a11y.outputs.present == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: ~/.cache/ms-playwright
@@ -668,7 +813,7 @@ jobs:
       # A nullglob array replaces `compgen`, which non-interactive bash omits.
       - name: Detect a Next.js build cache
         id: next-cache
-        if: success() && github.ref == 'refs/heads/main'
+        if: steps.payload.outputs.payload == 'bun' && success() && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -685,7 +830,7 @@ jobs:
           echo "present=$present" >> "$GITHUB_OUTPUT"
 
       - name: Save the Next.js build cache
-        if: success() && github.ref == 'refs/heads/main' && steps.next-cache.outputs.present == 'true'
+        if: steps.payload.outputs.payload == 'bun' && success() && github.ref == 'refs/heads/main' && steps.next-cache.outputs.present == 'true'
         uses: actions/cache/save@v6
         with:
           path: apps/*/.next/cache/turbopack
@@ -700,7 +845,7 @@ jobs:
       # applies. Failed, cancelled, PR, and exact-key rerun jobs do not prune
       # because none of them publishes a snapshot.
       - name: Prune the Turbo cache before save
-        if: success() && github.ref == 'refs/heads/main' && steps.turbo-cache.outputs.cache-hit != 'true'
+        if: steps.payload.outputs.payload == 'bun' && success() && github.ref == 'refs/heads/main' && steps.turbo-cache.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           cache_dir=.turbo/cache
@@ -722,18 +867,20 @@ jobs:
             xargs -r rm -f --
 
       - name: Save the Turbo cache
-        if: success() && github.ref == 'refs/heads/main' && steps.turbo-cache.outputs.cache-hit != 'true'
+        if: steps.payload.outputs.payload == 'bun' && success() && github.ref == 'refs/heads/main' && steps.turbo-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: .turbo/cache
           key: turbo-trusted-v2-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
 
   nix-discovery:
-    needs: reuse
+    needs:
+      - reuse
+      - draft-state
     if: >-
       github.repository == 'davidvornholt/standards' &&
       !cancelled() &&
-      !github.event.pull_request.draft &&
+      (!github.event.pull_request.draft || needs.draft-state.outputs.gate == 'true') &&
       needs.reuse.outputs.proven != 'true'
     runs-on: ${{ vars.CI_CODEBUILD_PROJECT != '' && format('codebuild-{0}-{1}-{2}-small', vars.CI_CODEBUILD_PROJECT, github.run_id, github.run_attempt) || 'ubuntu-latest' }}
     timeout-minutes: 30
@@ -837,18 +984,19 @@ jobs:
   # executable code, and a per-run job below sixty seconds of work still bills
   # a full runner minute in every consumer.
   #
-  # Draft runs skip every gate, and GitHub reports a skipped job as a passing
-  # required check. The draft run therefore reports this job under another
-  # name: the required `check` stays missing, and merge stays blocked, until
-  # the ready-for-review run reports it. GitHub does not evaluate the name of a
-  # skipped job, so drafts show this expression's text. The job id differs
-  # from `check` as well, so no naming of a skipped job can report the
-  # required check.
+  # A draft run skips every gate unless `draft-state` decided that it gates its
+  # head, and GitHub reports a skipped job as a passing required check. A draft
+  # run that skips therefore reports this job under another name: the required
+  # `check` stays missing, and merge stays blocked, until a run that gates
+  # reports it. GitHub does not evaluate the name of a skipped job, so drafts
+  # show this expression's text. The job id differs from `check` as well, so no
+  # naming of a skipped job can report the required check.
   required-check:
-    name: ${{ github.event.pull_request.draft && 'check (runs when ready for review)' || 'check' }}
-    if: always() && !github.event.pull_request.draft
+    name: ${{ github.event.pull_request.draft && needs.draft-state.outputs.gate != 'true' && 'check (runs when ready for review)' || 'check' }}
+    if: always() && (!github.event.pull_request.draft || needs.draft-state.outputs.gate == 'true')
     needs:
       - reuse
+      - draft-state
       - quality
       - nix-discovery
       - nix
@@ -880,10 +1028,10 @@ jobs:
           case "$release_api_token" in
             ''|*$'\r'*|*$'\n'*) echo "::error::A single-line GitHub workflow token is required" >&2; exit 1 ;;
           esac
-          bun_version=1.4.3
+          bun_version=1.4.5
           case "$(uname -m)" in
-            x86_64) bun_platform=x64-baseline; bun_asset=626789490; bun_sha=1fc2edac843102909e3a1be1d8d9802cc6071cf074e67e88231f4ffe0f8b397b ;;
-            aarch64) bun_platform=aarch64; bun_asset=626788529; bun_sha=efa9813da5ed72423bf847f916e8d2c47c0d776add972354026a75e10da9aa21 ;;
+            x86_64) bun_platform=x64-baseline; bun_asset=766783535; bun_sha=dcb23a18a1c2fff12d57bcef696dbbb42eb67fde29f43816ecb595459a24c463 ;;
+            aarch64) bun_platform=aarch64; bun_asset=766782468; bun_sha=18656a3bf0ea5641f5796ae4213b75255579a70a0fded2f337933785568cdf84 ;;
             *)
               echo "::error::No pinned Bun binary for runner architecture $(uname -m)"
               exit 1

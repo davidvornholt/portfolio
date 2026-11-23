@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { buildInfo } from '@/shared/build/services/build-info';
+import { buildInfo } from '@/shared/build-info/services/build-info';
 import { BuildLine } from './build-line';
 import { contactItem, navItems } from './nav-items';
 

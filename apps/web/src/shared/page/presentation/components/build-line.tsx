@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { repositoryUrl } from '@/config/site';
-import type { BuildInfo } from '@/shared/build/services/build-info';
+import type { BuildInfo } from '@/shared/build-info/services/build-info';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
 
 const shortShaLength = 7;

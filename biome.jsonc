@@ -49,25 +49,6 @@
       }
     },
     {
-      // These illustrations and content layouts require exact viewport,
-      // position, grid, transition, and data-display values with no named utility.
-      "includes": [
-        "apps/web/src/features/lab/presentation/components/lab-hero.tsx",
-        "apps/web/src/features/portfolio/presentation/components/certification-item.tsx",
-        "apps/web/src/features/posts/content/executable-engineering-standards.tsx",
-        "apps/web/src/features/posts/content/review-fix-versus-coderabbit.tsx",
-        "apps/web/src/features/posts/content/review-loop-ran-for-46-hours.tsx",
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "nursery": {
-            "noTailwindArbitraryValue": "off"
-          }
-        }
-      }
-    },
-    {
       // Biome's experimental class-resolution rule does not yet understand
       // Tailwind v4 utilities generated through `@theme`; it reports standard
       // utilities such as `shrink-0` and semantic theme utilities as missing.
@@ -143,17 +124,32 @@
       // These stable IDs are deliberate public fragment targets referenced by
       // the site navigation; generated IDs would break incoming hash links.
       "includes": [
-        "apps/web/src/features/portfolio/presentation/components/blog-teaser.tsx",
-        "apps/web/src/features/portfolio/presentation/components/cta.tsx",
-        "apps/web/src/features/portfolio/presentation/components/expertise.tsx",
-        "apps/web/src/features/portfolio/presentation/components/how-i-work.tsx",
-        "apps/web/src/features/portfolio/presentation/components/open-source.tsx",
-        "apps/web/src/features/portfolio/presentation/components/selected-works.tsx"
+        "apps/web/src/features/portfolio/presentation/components/about.tsx",
+        "apps/web/src/features/portfolio/presentation/components/accepted.tsx",
+        "apps/web/src/features/portfolio/presentation/components/contact.tsx",
+        "apps/web/src/features/portfolio/presentation/components/rules.tsx",
+        "apps/web/src/features/portfolio/presentation/components/work.tsx",
+        "apps/web/src/features/portfolio/presentation/components/writing.tsx"
       ],
       "linter": {
         "rules": {
           "correctness": {
             "useUniqueElementIds": "off"
+          }
+        }
+      }
+    },
+    {
+      // The chart gives each day its width, its row count, and its place in
+      // the load sequence as custom properties. They are numbers worked out
+      // from the data, so no class can carry them.
+      "includes": [
+        "apps/web/src/features/changes/presentation/components/change-field.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noInlineStyles": "off"
           }
         }
       }

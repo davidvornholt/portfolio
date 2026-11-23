@@ -9,8 +9,7 @@ export const LabHero = (): ReactNode => (
         The creative lab
       </h1>
       <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
-        A private archive of early experiments in visual storytelling and
-        media.
+        A private archive of early experiments in visual storytelling and media.
       </p>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed">
         Before focusing on digital architecture, I explored the world through a

@@ -4,7 +4,8 @@ import {
   PostList,
   type PostListEntry,
 } from '@/shared/content/presentation/components/post-list';
-import { Section, textLinkClassName } from './section';
+import { Section } from './section';
+import { textLinkClassName } from './text-link';
 
 export const Writing = ({
   posts,

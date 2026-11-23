@@ -20,8 +20,8 @@ export const About = (): ReactNode => (
         <p className="max-w-2xl text-lg md:text-xl md:leading-snug">
           I started programming in 2019 and wrote every line myself for six
           years. In late 2025 the AI models became good enough to write most of
-          the code, and my work moved from typing it to deciding what gets
-          built and what is good enough to go live.
+          the code, and my work moved from typing it to deciding what gets built
+          and what is good enough to go live.
         </p>
         <p className="mt-5 max-w-xl text-lg text-muted-foreground leading-relaxed">
           I speak German and English at native level and get by in French and

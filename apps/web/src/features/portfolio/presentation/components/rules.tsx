@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import { type QuotedRule, quotedRules } from './quoted-rules';
-import { Section, textLinkClassName } from './section';
+import { Section } from './section';
+import { textLinkClassName } from './text-link';
 
 const repositoryPath = (rule: QuotedRule): string =>
   rule.firstLine === rule.lastLine
     ? `${rule.path}, line ${rule.firstLine}`
     : `${rule.path}, lines ${rule.firstLine} to ${rule.lastLine}`;
 
-const whitespacePattern = /(\s+)/u;
+const whitespacePattern = /(?<space>\s+)/u;
 
 // A word of code stays whole when a line wraps. Otherwise the browser breaks
 // after any hyphen, and `--error-on-warnings` ends one line with a dash.
@@ -72,7 +73,7 @@ export const Rules = ({
             <p className="max-w-lg py-6 font-bold text-xl leading-snug tracking-tight md:col-span-6 md:py-8 md:pr-12 md:text-2xl">
               {rule.plain}
             </p>
-            <div className="min-w-0 bg-muted px-5 py-5 md:col-span-7 md:px-8 md:py-7">
+            <div className="min-w-0 bg-muted p-5 md:col-span-7 md:px-8 md:py-7">
               <p className="text-muted-foreground text-sm">
                 {repositoryPath(rule)}
               </p>

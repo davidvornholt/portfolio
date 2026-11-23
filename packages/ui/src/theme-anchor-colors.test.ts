@@ -133,9 +133,7 @@ const toSrgbHex = ({ lightness, chroma, hue }: Oklch): string => {
 
 describe('theme anchor colors', () => {
   it('matches the sRGB mirrors to the canonical OKLCH anchors', async () => {
-    const themeCss = await file(
-      new URL('../../../../../../packages/ui/src/theme.css', import.meta.url),
-    ).text();
+    const themeCss = await file(new URL('theme.css', import.meta.url)).text();
     const anchors = parseOklchAnchors(themeCss);
 
     for (const mirrorName of Object.keys(anchorCssNames) as ReadonlyArray<

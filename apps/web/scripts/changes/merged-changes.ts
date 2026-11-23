@@ -99,7 +99,9 @@ const judged = Effect.fnUntraced(function* (node: PrivatePullRequestNode) {
   };
 });
 
-export const publicChange = Effect.fnUntraced(function* (node: PublicPullRequestNode) {
+export const publicChange = Effect.fnUntraced(function* (
+  node: PublicPullRequestNode,
+) {
   const change: FetchedChange = {
     ...(yield* judged(node)),
     source: {

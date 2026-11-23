@@ -33,9 +33,7 @@ export const MDXParagraph = ({
   children,
 }: {
   readonly children: ReactNode;
-}): ReactNode => (
-  <p className="mt-5 mb-5 text-lg leading-relaxed">{children}</p>
-);
+}): ReactNode => <p className="my-5 text-lg leading-relaxed">{children}</p>;
 
 export const MDXStrong = ({
   children,

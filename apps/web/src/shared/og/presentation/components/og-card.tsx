@@ -1,5 +1,5 @@
+import { themeAnchorColors } from '@portfolio/ui/theme-anchor-colors';
 import type { ReactNode } from 'react';
-import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
 
 /**
  * The card for Open Graph images: the title on paper, standing on the bar,
@@ -13,6 +13,7 @@ const squareSize = 16;
 const squareGap = 4;
 
 // A fixed, decorative skyline: how many squares stand in each column.
+// biome-ignore lint/style/noMagicNumbers: the heights are the drawing itself, and a name for each would say nothing more.
 const skyline = [2, 4, 3, 6, 4, 7, 5, 3, 6, 8, 5, 7] as const;
 
 const Skyline = (): ReactNode => (

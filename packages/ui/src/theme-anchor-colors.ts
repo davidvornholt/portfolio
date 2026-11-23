@@ -1,5 +1,5 @@
 /**
- * Raw hex mirrors of the theme anchors in `packages/ui/src/theme.css`, for
+ * Raw hex mirrors of the theme anchors in `theme.css`, for
  * contexts that cannot resolve CSS variables (Open Graph image generation,
  * the Shiki syntax theme, browser theme-color). Values are the sRGB
  * conversion of the canonical oklch tokens; when a token changes there,

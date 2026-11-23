@@ -16,7 +16,7 @@ import {
 } from '@/features/changes/services/describe-mark';
 import type { Snapshot } from '@/features/changes/services/snapshot';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
-import styles from './change-field.module.css';
+import './change-field.css';
 import {
   collectMarks,
   type FieldMark,
@@ -27,7 +27,7 @@ import { SelectionPanel } from './selection-panel';
 
 /** `pinned` keeps the selection when the pointer moves on. */
 type Selection = Readonly<{ index: number; pinned: boolean }>;
-type SetSelection = Dispatch<SetStateAction<Selection | undefined>>;
+type ElementRef = RefObject<HTMLDivElement | null>;
 
 // How far, in pixels, a pointer or a finger may be from a square to mean it.
 const hoverReach = 12;
@@ -36,23 +36,19 @@ const tapReach = 48;
 // finger doesn't cover it.
 const narrowFrame = 560;
 const panelDistance = 12;
-// The panel may reach this far above the chart before it moves below.
-const roomAbove = 56;
 
 /** Measures the squares, and again whenever the chart changes its width. */
-const useMarks = (
-  frame: RefObject<HTMLDivElement | null>,
-): ReadonlyArray<FieldMark> => {
+const useMarks = (frameRef: ElementRef): ReadonlyArray<FieldMark> => {
   const [marks, setMarks] = useState<ReadonlyArray<FieldMark>>([]);
   useEffect(() => {
-    const element = frame.current;
-    if (element === null) {
+    const frame = frameRef.current;
+    if (frame === null) {
       return;
     }
-    const observer = new ResizeObserver(() => setMarks(collectMarks(element)));
-    observer.observe(element);
+    const observer = new ResizeObserver(() => setMarks(collectMarks(frame)));
+    observer.observe(frame);
     return () => observer.disconnect();
-  }, [frame]);
+  }, [frameRef]);
   return marks;
 };
 
@@ -84,20 +80,26 @@ const useDetails = (wanted: boolean): Snapshot | undefined => {
 };
 
 /** Selects by mouse and touch. The keyboard goes through the range input. */
-const usePointerSelection = (
-  frame: RefObject<HTMLDivElement | null>,
-  panel: RefObject<HTMLDivElement | null>,
-  marks: ReadonlyArray<FieldMark>,
-  pinned: boolean,
-  setSelection: SetSelection,
-): void => {
+const usePointerSelection = ({
+  frameRef,
+  panelRef,
+  marks,
+  pinned,
+  setSelection,
+}: Readonly<{
+  frameRef: ElementRef;
+  panelRef: ElementRef;
+  marks: ReadonlyArray<FieldMark>;
+  pinned: boolean;
+  setSelection: Dispatch<SetStateAction<Selection | undefined>>;
+}>): void => {
   useEffect(() => {
-    const element = frame.current;
-    if (element === null) {
+    const frame = frameRef.current;
+    if (frame === null) {
       return;
     }
-    const markAt = (event: PointerEvent | MouseEvent, reach: number) => {
-      const origin = element.getBoundingClientRect();
+    const markAt = (event: MouseEvent, reach: number): number | undefined => {
+      const origin = frame.getBoundingClientRect();
       return nearestMark(
         marks,
         { x: event.clientX - origin.left, y: event.clientY - origin.top },
@@ -106,7 +108,7 @@ const usePointerSelection = (
     };
     const inPanel = (event: Event): boolean =>
       event.target instanceof Node &&
-      panel.current?.contains(event.target) === true;
+      panelRef.current?.contains(event.target) === true;
     const point = (event: PointerEvent): void => {
       if (pinned || event.pointerType !== 'mouse' || inPanel(event)) {
         return;
@@ -127,54 +129,73 @@ const usePointerSelection = (
       setSelection(index === undefined ? undefined : { index, pinned: true });
     };
     const pickNothing = (event: PointerEvent): void => {
-      if (pinned && event.target instanceof Node && !element.contains(event.target)) {
+      const outside =
+        event.target instanceof Node && !frame.contains(event.target);
+      if (pinned && outside) {
         setSelection(undefined);
       }
     };
-    element.addEventListener('pointermove', point);
-    element.addEventListener('pointerleave', leave);
-    element.addEventListener('click', pick);
+    frame.addEventListener('pointermove', point);
+    frame.addEventListener('pointerleave', leave);
+    frame.addEventListener('click', pick);
     document.addEventListener('pointerdown', pickNothing);
     return () => {
-      element.removeEventListener('pointermove', point);
-      element.removeEventListener('pointerleave', leave);
-      element.removeEventListener('click', pick);
+      frame.removeEventListener('pointermove', point);
+      frame.removeEventListener('pointerleave', leave);
+      frame.removeEventListener('click', pick);
       document.removeEventListener('pointerdown', pickNothing);
     };
-  }, [frame, panel, marks, pinned, setSelection]);
+  }, [frameRef, panelRef, marks, pinned, setSelection]);
+};
+
+const place = (
+  frame: HTMLElement,
+  panel: HTMLElement,
+  mark: FieldMark,
+): void => {
+  // Beside the square, on the side with room, and never outside the chart:
+  // above it lies the page's navigation.
+  const right = mark.x + mark.size / 2 + panelDistance;
+  const beside =
+    right + panel.offsetWidth <= frame.clientWidth
+      ? right
+      : mark.x - mark.size / 2 - panelDistance - panel.offsetWidth;
+  const level = Math.max(
+    0,
+    Math.min(
+      mark.y - panel.offsetHeight / 2,
+      frame.clientHeight - panel.offsetHeight,
+    ),
+  );
+  const narrow = frame.clientWidth < narrowFrame;
+  const set = (name: string, pixels: number): void =>
+    frame.style.setProperty(name, `${Math.round(pixels)}px`);
+  set('--marker-x', mark.x - mark.size / 2);
+  set('--marker-y', mark.y - mark.size / 2);
+  set('--marker-size', mark.size);
+  set('--panel-x', narrow ? 0 : Math.max(0, beside));
+  set('--panel-y', narrow ? frame.clientHeight + panelDistance : level);
 };
 
 /** Puts the marker on the selected square and the panel beside it. */
 const usePlacement = (
-  frame: RefObject<HTMLDivElement | null>,
-  panel: RefObject<HTMLDivElement | null>,
+  frameRef: ElementRef,
+  panelRef: ElementRef,
   mark: FieldMark | undefined,
-  description: MarkDescription | undefined,
 ): void => {
-  // The panel's size depends on what it says, so it is placed again whenever
-  // the description arrives or changes.
   useLayoutEffect(() => {
-    const element = frame.current;
-    const box = panel.current;
-    if (element === null || box === null || mark === undefined) {
+    const frame = frameRef.current;
+    const panel = panelRef.current;
+    if (frame === null || panel === null || mark === undefined) {
       return;
     }
-    const narrow = element.clientWidth < narrowFrame;
-    const above = mark.y - mark.size / 2 - box.offsetHeight - panelDistance;
-    const x = Math.max(
-      0,
-      Math.min(mark.x - box.offsetWidth / 2, element.clientWidth - box.offsetWidth),
-    );
-    const beside =
-      above >= -roomAbove ? above : mark.y + mark.size / 2 + panelDistance;
-    const place = (name: string, pixels: number): void =>
-      element.style.setProperty(name, `${Math.round(pixels)}px`);
-    place('--marker-x', mark.x - mark.size / 2);
-    place('--marker-y', mark.y - mark.size / 2);
-    place('--marker-size', mark.size);
-    place('--panel-x', narrow ? 0 : x);
-    place('--panel-y', narrow ? element.clientHeight + panelDistance : beside);
-  }, [frame, panel, mark, description]);
+    place(frame, panel, mark);
+    // The panel grows when the details arrive, so it is placed again
+    // whenever its size changes.
+    const observer = new ResizeObserver(() => place(frame, panel, mark));
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [frameRef, panelRef, mark]);
 };
 
 const valueText = (
@@ -203,65 +224,65 @@ export const FieldExplorer = ({
   children,
   describedBy,
 }: Readonly<{ children: ReactNode; describedBy: string }>): ReactNode => {
-  const frame = useRef<HTMLDivElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Selection>();
-  const marks = useMarks(frame);
+  const marks = useMarks(frameRef);
   const details = useDetails(selection !== undefined);
   const last = Math.max(marks.length - 1, 0);
+  const index = selection?.index ?? last;
   const mark = selection === undefined ? undefined : marks[selection.index];
   const description =
     mark === undefined || details === undefined
       ? undefined
       : describeMark(details, mark);
   const pinned = selection?.pinned === true;
-  usePointerSelection(frame, panel, marks, pinned, setSelection);
-  usePlacement(frame, panel, mark, description);
-  const stepTo = (index: number): void =>
-    setSelection({ index: Math.max(0, Math.min(index, last)), pinned: true });
+  usePointerSelection({ frameRef, panelRef, marks, pinned, setSelection });
+  usePlacement(frameRef, panelRef, mark);
+  const stepTo = (target: number): void =>
+    setSelection({ index: Math.max(0, Math.min(target, last)), pinned: true });
 
   return (
-    <div ref={frame} className={styles.frame}>
+    <div ref={frameRef} className="field-frame">
       {children}
       <input
         type="range"
-        className={styles.stepper}
+        className="field-stepper"
         min={0}
         max={last}
         step={1}
-        value={selection?.index ?? last}
+        value={index}
         aria-label="Step through the changes one by one"
         aria-describedby={describedBy}
         aria-valuetext={valueText(mark, description)}
         onChange={(event) => stepTo(Number(event.target.value))}
-        onFocus={() => setSelection((current) => current ?? { index: last, pinned: true })}
+        onFocus={() =>
+          setSelection((current) => current ?? { index: last, pinned: true })
+        }
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             setSelection(undefined);
           } else if (event.key === 'PageUp' || event.key === 'PageDown') {
             event.preventDefault();
             stepTo(
-              markOfNextDay(
-                marks,
-                selection?.index ?? last,
-                event.key === 'PageUp' ? 1 : -1,
-              ),
+              markOfNextDay(marks, index, event.key === 'PageUp' ? 1 : -1),
             );
           }
         }}
       />
       {mark === undefined ? null : (
         <>
-          <div aria-hidden="true" className={styles.marker} />
+          <div aria-hidden="true" className="field-marker" />
           <div
-            ref={panel}
-            className={`${styles.panel} ${pinned ? styles.pinned : ''}`}
+            ref={panelRef}
+            className="field-panel"
+            data-pinned={pinned ? '' : undefined}
           >
             <SelectionPanel
               date={mark.date}
               description={description}
               pinned={pinned}
-              onStep={(step) => stepTo((selection?.index ?? last) + step)}
+              onStep={(step) => stepTo(index + step)}
               onClose={() => setSelection(undefined)}
             />
           </div>

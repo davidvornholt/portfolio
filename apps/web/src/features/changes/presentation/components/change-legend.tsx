@@ -5,7 +5,7 @@ import type {
 } from '@/features/changes/services/field-model';
 import type { WeekCounts } from '@/features/changes/services/weekly-table';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
-import styles from './change-field.module.css';
+import './change-field.css';
 
 // The chart shows four, eight or thirteen weeks by the width of the screen,
 // at the same widths as the stylesheet. Each window's numbers are in the
@@ -17,7 +17,11 @@ const windows = [
     weeks: 8,
     className: 'hidden min-[48rem]:inline min-[69rem]:hidden',
   },
-  { window: 'thirteenWeeks', weeks: 13, className: 'hidden min-[69rem]:inline' },
+  {
+    window: 'thirteenWeeks',
+    weeks: 13,
+    className: 'hidden min-[69rem]:inline',
+  },
 ] as const satisfies ReadonlyArray<
   Readonly<{ window: FieldWindow; weeks: number; className: string }>
 >;
@@ -41,7 +45,7 @@ const PerWindow = ({
   ));
 
 const Key = ({ verdict }: { readonly verdict?: 'f' | 'u' }): ReactNode => (
-  <span aria-hidden="true" className={styles.key} data-v={verdict} />
+  <span aria-hidden="true" className="field-key" data-v={verdict} />
 );
 
 /**

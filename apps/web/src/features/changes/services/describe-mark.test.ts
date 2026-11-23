@@ -108,7 +108,11 @@ describe('describeMark', () => {
   it('has nothing to say about a mark the snapshot does not hold', () => {
     expect(at('change', 9)).toBeUndefined();
     expect(
-      describeMark(snapshot, { date: '2026-01-01', kind: 'change', position: 0 }),
+      describeMark(snapshot, {
+        date: '2026-01-01',
+        kind: 'change',
+        position: 0,
+      }),
     ).toBeUndefined();
   });
 });

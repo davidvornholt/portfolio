@@ -204,7 +204,9 @@ const BrightnessBar = ({ swatches, label }: BrightnessBarProps): ReactNode => {
               <div className="h-1.5 w-full overflow-hidden bg-muted">
                 <ChartBarFill
                   percentage={brightness}
-                  className={label === 'HSL' ? 'text-failed' : 'text-foreground'}
+                  className={
+                    label === 'HSL' ? 'text-failed' : 'text-foreground'
+                  }
                 />
               </div>
               <span className="block text-center font-mono text-muted-foreground text-xs">

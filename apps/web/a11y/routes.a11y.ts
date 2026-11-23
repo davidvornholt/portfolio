@@ -143,13 +143,13 @@ test('footer section links reach the home page sections from other routes', asyn
   await page.goto('/posts');
   await page
     .getByRole('contentinfo')
-    .getByRole('link', { name: 'Works' })
+    .getByRole('link', { name: 'Work', exact: true })
     .click();
 
   await expect(page).toHaveURL(
-    (url) => url.pathname === '/' && url.hash === '#works',
+    (url) => url.pathname === '/' && url.hash === '#work',
   );
-  await expect(page.locator('#works')).toBeInViewport();
+  await expect(page.locator('#work')).toBeInViewport();
 });
 
 // German law requires the legal notice to be reachable from every page, and
@@ -184,3 +184,54 @@ for (const route of routes) {
     expect(await scanWcag22AaViolations(page)).toEqual([]);
   });
 }
+
+// What the chart says about a change ends with one of its four verdicts.
+const describedChangePattern =
+  /, (?:Its checks had passed|It went live with a failed check|No check had run|Sent back by the checks)$/u;
+
+// The chart's two further states: its numbers as a table, and one change
+// picked out and described.
+test('the chart opens its numbers as a table without violations', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.getByText('Show the numbers as a table').click();
+
+  await expect(page.getByRole('table')).toBeVisible();
+  await expect(
+    page.getByRole('rowheader', { name: 'All thirteen weeks' }),
+  ).toBeVisible();
+  expect(await scanWcag22AaViolations(page)).toEqual([]);
+});
+
+test('the keyboard steps through the chart and each change is described', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const stepper = page.getByRole('slider', {
+    name: 'Step through the changes one by one',
+  });
+  // The stepper covers the squares once the page has measured them.
+  await expect(stepper).not.toHaveAttribute('max', '0');
+  await stepper.focus();
+  const latest = await stepper.inputValue();
+  await stepper.press('ArrowLeft');
+
+  await expect(stepper).not.toHaveValue(latest);
+  // The description arrives with the details, which load on first use.
+  await expect(stepper).toHaveAttribute(
+    'aria-valuetext',
+    describedChangePattern,
+  );
+  await expect(
+    page.getByRole('button', { name: 'Previous change' }),
+  ).toBeVisible();
+  expect(await scanWcag22AaViolations(page)).toEqual([]);
+
+  await stepper.press('Escape');
+  await expect(
+    page.getByRole('button', { name: 'Previous change' }),
+  ).toBeHidden();
+});

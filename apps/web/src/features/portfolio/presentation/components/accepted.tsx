@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Section, textLinkClassName } from './section';
+import { Section } from './section';
+import { textLinkClassName } from './text-link';
 
 /** How many of David's changes one project he doesn't maintain has merged. */
 export type AcceptedProject = Readonly<{ repository: string; changes: number }>;

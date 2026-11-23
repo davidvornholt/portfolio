@@ -26,7 +26,10 @@ const cellClassName = 'px-3 py-2 text-right tabular-nums';
 export const ChangesTable = ({
   weeks,
   total,
-}: Readonly<{ weeks: ReadonlyArray<WeekCounts>; total: WeekCounts }>): ReactNode => (
+}: Readonly<{
+  weeks: ReadonlyArray<WeekCounts>;
+  total: WeekCounts;
+}>): ReactNode => (
   <details className="mt-3 max-w-2xl text-sm">
     <summary className="w-fit cursor-pointer font-semibold underline decoration-2 underline-offset-4 hover:decoration-4">
       Show the numbers as a table
@@ -55,7 +58,10 @@ export const ChangesTable = ({
         <tbody>
           {weeks.map((week) => (
             <tr key={week.firstDay} className="border-border border-b">
-              <th scope="row" className="whitespace-nowrap py-2 pr-3 font-normal">
+              <th
+                scope="row"
+                className="whitespace-nowrap py-2 pr-3 font-normal"
+              >
                 {day(week.firstDay)} to {day(week.lastDay)}
               </th>
               {columns.map(([label, key]) => (

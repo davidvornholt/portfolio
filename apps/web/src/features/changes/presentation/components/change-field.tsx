@@ -1,9 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { AxisLabel } from '@/features/changes/services/axis-labels';
 import type {
   FieldDay,
   FieldModel,
 } from '@/features/changes/services/field-model';
-import styles from './change-field.module.css';
+import './change-field.css';
 import { FieldExplorer } from './field-explorer';
 
 const squaresPerRow = 2;
@@ -38,30 +39,33 @@ const changeSquares = (day: FieldDay): string =>
 
 const Stack = ({ html }: { readonly html: string }): ReactNode => (
   <div
-    className={styles.stack}
+    className="field-stack"
     // biome-ignore lint/security/noDangerouslySetInnerHtml: the markup is generated from counts and verdict codes, with no text from outside.
     dangerouslySetInnerHTML={{ __html: html }}
   />
 );
 
+// The stylesheet shows a label in the windows named here, and draws a month
+// with a rule before it.
+const Tick = ({ label }: { readonly label: AxisLabel }): ReactNode => (
+  <span
+    className="field-tick"
+    data-kind={label.kind}
+    data-windows={label.windows.join(' ')}
+  >
+    {label.text}
+  </span>
+);
+
 const Axis = ({ days }: { readonly days: FieldModel['days'] }): ReactNode => (
-  <div className={`${styles.days} ${styles.axis}`}>
+  <div className="field-days field-axis">
     {days.map((day, index) => (
-      <div key={day.date} className={styles.day} style={dayStyle(day, index, 0)}>
+      <div key={day.date} className="field-day" style={dayStyle(day, index, 0)}>
         {day.labels.map((label) => (
-          <span
-            key={label.kind}
-            className={[
-              styles.tick,
-              label.kind === 'month' ? styles.month : '',
-              ...label.windows.map((window) => styles[window]),
-            ].join(' ')}
-          >
-            {label.text}
-          </span>
+          <Tick key={label.kind} label={label} />
         ))}
         {index === days.length - 1 ? (
-          <span className={`${styles.tick} ${styles.today}`}>Today</span>
+          <span className="field-tick field-today">Today</span>
         ) : null}
       </div>
     ))}
@@ -81,7 +85,7 @@ export const ChangeField = ({
   <FieldExplorer describedBy={describedBy}>
     <div
       aria-hidden="true"
-      className={styles.field}
+      className="field"
       style={
         {
           '--columns-thirteen-weeks': model.columns.thirteenWeeks,
@@ -91,11 +95,11 @@ export const ChangeField = ({
         } as CSSProperties
       }
     >
-      <div className={`${styles.days} ${styles.above}`} data-row="above">
+      <div className="field-days field-above" data-row="above">
         {model.days.map((day, index) => (
           <div
             key={day.date}
-            className={styles.day}
+            className="field-day"
             data-date={day.date}
             style={dayStyle(day, index, day.verdicts.length)}
           >
@@ -103,12 +107,12 @@ export const ChangeField = ({
           </div>
         ))}
       </div>
-      <div className={styles.slab}>
-        <div className={`${styles.days} ${styles.inside}`} data-row="inside">
+      <div className="field-slab">
+        <div className="field-days field-inside" data-row="inside">
           {model.days.map((day, index) => (
             <div
               key={day.date}
-              className={styles.day}
+              className="field-day"
               data-date={day.date}
               style={dayStyle(day, index, day.sentBack)}
             >

@@ -11,10 +11,7 @@ import { fetchFailedAttempts } from './failed-attempts';
 import { GitHubGraphQL } from './github-graphql';
 import { GitHubRest } from './github-rest';
 import { fetchMergedChanges } from './merged-changes';
-import {
-  fetchAcceptedElsewhere,
-  fetchSiteRecord,
-} from './repository-records';
+import { fetchAcceptedElsewhere, fetchSiteRecord } from './repository-records';
 
 const login = 'davidvornholt';
 const siteRepository = 'davidvornholt/portfolio';
@@ -55,7 +52,7 @@ const fetchChanges = Effect.gen(function* () {
     searchDays[0] ?? berlinDay(fetchedAt),
     changes,
   );
-  const site = yield* fetchSiteRecord(login, siteRepository);
+  const site = yield* fetchSiteRecord(login, siteRepository, fetchedAt);
   const elsewhere = yield* fetchAcceptedElsewhere(login);
   const snapshot = assembleSnapshot({
     fetchedAt,

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SnapshotSiteRecord } from '@/features/changes/services/snapshot';
-import styles from './change-field.module.css';
+import './change-field.css';
 
 const monthAndYear = (day: string): string =>
   new Date(`${day}T00:00:00Z`).toLocaleDateString('en-US', {
@@ -29,7 +29,7 @@ export const SiteRecord = ({
   const since = monthAndYear(record.firstMergedOn);
   return (
     <>
-      <span aria-hidden="true" className={styles.key} />{' '}
+      <span aria-hidden="true" className="field-key" />{' '}
       {record.unchecked === 0
         ? `All ${count(total)} changes merged into this site’s project since ${since} passed their checks.`
         : `None of the ${count(total)} changes merged into this site’s project since ${since} had a failed check. ${count(record.passed)} passed, and ${count(record.unchecked)} merged before a check had finished.`}

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { MarkDescription } from '@/features/changes/services/describe-mark';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
-import styles from './change-field.module.css';
+import './change-field.css';
 
 const keyCodes = {
   passed: undefined,
@@ -42,7 +42,7 @@ export const SelectionPanel = ({
       <p className="mt-1 font-semibold">
         <span
           aria-hidden="true"
-          className={styles.key}
+          className="field-key"
           data-v={keyCodes[description.key]}
         />{' '}
         {description.verdict}

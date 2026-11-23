@@ -2,7 +2,8 @@ import type { StaticImageData } from 'next/image';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { Section, textLinkClassName } from './section';
+import { Section } from './section';
+import { textLinkClassName } from './text-link';
 
 export type WorkSummary = Readonly<{
   slug: string;

@@ -27,7 +27,9 @@ export const BuildLine = ({
 }): ReactNode => {
   if (build === undefined) {
     return (
-      <p>This page was built from a working copy, not from a released change.</p>
+      <p>
+        This page was built from a working copy, not from a released change.
+      </p>
     );
   }
   if (!build.released) {

@@ -39,9 +39,7 @@ export const LegalSection = ({
   children: ReactNode;
 }>): ReactNode => (
   <section className="mb-12">
-    <h2 className="mb-4 font-bold text-2xl tracking-tight">
-      {title}
-    </h2>
+    <h2 className="mb-4 font-bold text-2xl tracking-tight">{title}</h2>
     {children}
   </section>
 );

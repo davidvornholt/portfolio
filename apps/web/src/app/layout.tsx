@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, Sofia_Sans } from 'next/font/google';
 import './globals.css';
+import { themeAnchorColors } from '@portfolio/ui/theme-anchor-colors';
 import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
 import { Footer } from '@/shared/page/presentation/components/footer';
 import { Header } from '@/shared/page/presentation/components/header';
-import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
 
 // Sofia Sans follows the proportions of DIN 1451, the lettering of German
 // standards. It sets everything but code.

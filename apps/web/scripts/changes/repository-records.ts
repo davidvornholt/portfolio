@@ -1,4 +1,4 @@
-import { Effect, Order } from 'effect';
+import { type DateTime, Effect, Order } from 'effect';
 import { SearchWindowTooLargeError } from '@/features/changes/errors/changes-errors';
 import { berlinDay } from '@/features/changes/services/berlin-day';
 import type {
@@ -35,6 +35,7 @@ const withinOneSearch = Effect.fnUntraced(function* (query: string) {
 export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
   login: string,
   repository: string,
+  fetchedAt: DateTime.Utc,
 ) {
   const github = yield* GitHubGraphQL;
   const query = `is:pr is:merged is:public author:${login} repo:${repository}`;
@@ -50,9 +51,10 @@ export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
     changes.filter((change) => change.verdict === verdict).length;
   const record: SnapshotSiteRecord = {
     repository,
-    firstMergedOn: changes
-      .map((change) => berlinDay(change.mergedAt))
-      .reduce((first, day) => (day < first ? day : first), '9999-12-31'),
+    firstMergedOn:
+      changes
+        .map((change) => berlinDay(change.mergedAt))
+        .toSorted((a, b) => a.localeCompare(b))[0] ?? berlinDay(fetchedAt),
     passed: tally('passed'),
     failed: tally('failed'),
     unchecked: tally('unchecked'),
@@ -98,10 +100,12 @@ export const fetchAcceptedElsewhere = Effect.fn('fetchAcceptedElsewhere')(
       }
     }
     return [...merged]
-      .map(([name, changes]): SnapshotAcceptedProject => ({
-        repository: name,
-        changes,
-      }))
+      .map(
+        ([name, changes]): SnapshotAcceptedProject => ({
+          repository: name,
+          changes,
+        }),
+      )
       .sort(byChangesThenName);
   },
 );

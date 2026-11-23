@@ -330,9 +330,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>
-        Confidence comes from evidence, not trust
-      </MDXHeadingOne>
+      <MDXHeadingOne>Confidence comes from evidence, not trust</MDXHeadingOne>
       <MDXHeadingTwo>
         I merge agent-written code when the repository can defend the change.
       </MDXHeadingTwo>

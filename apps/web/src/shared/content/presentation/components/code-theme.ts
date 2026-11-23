@@ -1,5 +1,5 @@
+import { themeAnchorColors } from '@portfolio/ui/theme-anchor-colors';
 import type { ThemeRegistrationAny } from 'shiki';
-import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
 
 /**
  * A syntax theme in ink alone. Weight and slant carry the structure that

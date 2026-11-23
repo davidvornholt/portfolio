@@ -16,18 +16,20 @@ const dayMarks = (
   origin: DOMRect,
 ): ReadonlyArray<FieldMark> => {
   const date = day.getAttribute('data-date') ?? '';
-  return [...day.querySelectorAll<HTMLElement>('i')].map((element, position) => {
-    const box = element.getBoundingClientRect();
-    return {
-      date,
-      kind,
-      position,
-      element,
-      x: box.left - origin.left + box.width / 2,
-      y: box.top - origin.top + box.height / 2,
-      size: box.width,
-    };
-  });
+  return [...day.querySelectorAll<HTMLElement>('i')].map(
+    (element, position) => {
+      const box = element.getBoundingClientRect();
+      return {
+        date,
+        kind,
+        position,
+        element,
+        x: box.left - origin.left + box.width / 2,
+        y: box.top - origin.top + box.height / 2,
+        size: box.width,
+      };
+    },
+  );
 };
 
 /**
@@ -84,11 +86,7 @@ export const markOfNextDay = (
   step: 1 | -1,
 ): number => {
   const date = marks[from]?.date;
-  for (
-    let index = from;
-    index >= 0 && index < marks.length;
-    index += step
-  ) {
+  for (let index = from; index >= 0 && index < marks.length; index += step) {
     if (marks[index]?.date !== date) {
       const target = marks[index]?.date;
       return step === 1

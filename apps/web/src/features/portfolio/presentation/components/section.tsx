@@ -24,6 +24,3 @@ export const Section = ({
     {children}
   </section>
 );
-
-export const textLinkClassName =
-  'font-semibold underline decoration-2 underline-offset-4 hover:decoration-4';

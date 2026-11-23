@@ -3,10 +3,14 @@ import { type QuotedRule, quotedRules } from './quoted-rules';
 import { Section } from './section';
 import { textLinkClassName } from './text-link';
 
-const repositoryPath = (rule: QuotedRule): string =>
-  rule.firstLine === rule.lastLine
-    ? `${rule.path}, line ${rule.firstLine}`
-    : `${rule.path}, lines ${rule.firstLine} to ${rule.lastLine}`;
+const repositoryPath = ({ path, place }: QuotedRule): string => {
+  if ('section' in place) {
+    return `${path}, under “${place.section}”`;
+  }
+  return place.firstLine === place.lastLine
+    ? `${path}, line ${place.firstLine}`
+    : `${path}, lines ${place.firstLine} to ${place.lastLine}`;
+};
 
 const whitespacePattern = /(?<space>\s+)/u;
 

@@ -133,7 +133,8 @@
   }
 
   /* An attempt the checks sent back keeps the slot and loses the alarm. */
-  .field-inside .field-stack i {
+  .field-inside .field-stack i,
+  .field-key[data-v="c"] {
     background: linear-gradient(
       var(--bar-caught) 0 var(--slot-start),
       transparent 0 var(--slot-end),

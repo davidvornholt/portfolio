@@ -7,7 +7,7 @@ const keyCodes = {
   passed: undefined,
   failed: 'f',
   unchecked: 'u',
-  caught: 'f',
+  caught: 'c',
 } as const;
 
 const stepClassName =

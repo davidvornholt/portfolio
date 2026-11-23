@@ -2,8 +2,10 @@
 
 import { type ReactNode, useEffect, useRef } from 'react';
 
-// How much of the element has to be on screen before it plays.
-const inView = 0.5;
+// It plays once its upper edge has come up past the lowest quarter of the
+// screen. A share of the element would never be reached by one that is much
+// taller than the screen.
+const margin = '0px 0px -25% 0px';
 
 /**
  * Lets its content play once when it scrolls into view. It marks itself
@@ -33,7 +35,7 @@ export const PlayOnView = ({
           element.setAttribute('data-run', 'playing');
         }
       },
-      { threshold: inView },
+      { rootMargin: margin },
     );
     observer.observe(element);
     return () => observer.disconnect();

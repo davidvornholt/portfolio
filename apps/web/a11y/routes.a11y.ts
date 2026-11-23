@@ -1,4 +1,5 @@
 import { scanWcag22AaViolations } from '@davidvornholt/a11y-testing/axe';
+import { mobileDeviceTag } from '@davidvornholt/a11y-testing/playwright-config';
 import { expect, test } from '@playwright/test';
 import { umamiScriptUrl } from '@/config/analytics';
 
@@ -205,9 +206,10 @@ test('the chart opens its numbers as a table without violations', async ({
   expect(await scanWcag22AaViolations(page)).toEqual([]);
 });
 
-test('the keyboard steps through the chart and each change is described', async ({
-  page,
-}) => {
+// The chart shows another window on a phone, so this runs there too.
+test('the keyboard steps through the chart and each change is described', {
+  tag: mobileDeviceTag,
+}, async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   const stepper = page.getByRole('slider', {
@@ -241,9 +243,10 @@ const stepCount = 6;
 // The diagram of a change's path plays by itself once it is on screen, and
 // the visitor can end it at any moment. With reduced motion it stands still
 // in its final state and offers nothing to play.
-test('the path of every change plays in view and can be skipped', async ({
-  page,
-}) => {
+// A phone gets another drawing of the diagram, so this runs there too.
+test('the path of every change plays in view and can be skipped', {
+  tag: mobileDeviceTag,
+}, async ({ page }) => {
   await page.goto('/');
   const section = page.locator('#how');
   const figure = section.locator('.journey-figure');
@@ -280,9 +283,10 @@ test('the path of every change stands still with reduced motion', async ({
 
 // The terminal in which an agent loosens a rule types its command and prints
 // the check's output once it is on screen.
-test('the loosened rule plays its check once it is in view', async ({
-  page,
-}) => {
+// On a phone the terminal is taller than the screen, so this runs there too.
+test('the loosened rule plays its check once it is in view', {
+  tag: mobileDeviceTag,
+}, async ({ page }) => {
   await page.goto('/');
   const terminal = page.locator('#rules .terminal');
   const verdict = terminal.getByText(

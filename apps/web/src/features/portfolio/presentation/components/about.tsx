@@ -10,7 +10,7 @@ const timeline = [
   },
   { when: 'Late 2025', what: 'AI starts writing most of my code' },
   { when: 'March 2026', what: 'Co-founded ProsaBridge' },
-  { when: '2026', what: 'Atrium starts its pilot at the first school' },
+  { when: 'August 2026', what: 'Atrium starts its pilot at the first school' },
 ] as const;
 
 export const About = (): ReactNode => (

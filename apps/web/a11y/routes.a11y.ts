@@ -235,3 +235,41 @@ test('the keyboard steps through the chart and each change is described', async 
     page.getByRole('button', { name: 'Previous change' }),
   ).toBeHidden();
 });
+
+// The section that follows one change holds still while the visitor scrolls
+// and shows its six steps one at a time. With reduced motion it is a list.
+test('the path of one change shows one step at a time while scrolling', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const section = page.locator('#how');
+  const steps = section.getByRole('listitem');
+  const fourthStep = steps.filter({ hasText: 'Reviewers try to break it' });
+  const thirdStep = steps.filter({ hasText: 'Every check has to pass' });
+  // The middle of the fourth step's share of the scrolling distance.
+  const fourthStepProgress = 0.58;
+
+  await section.evaluate((element, progress) => {
+    const top = element.getBoundingClientRect().top + window.scrollY;
+    const distance = element.clientHeight - window.innerHeight;
+    window.scrollTo(0, top + distance * progress);
+  }, fourthStepProgress);
+
+  await expect(fourthStep).toHaveCSS('opacity', '1');
+  await expect(thirdStep).toHaveCSS('opacity', '0');
+  expect(await scanWcag22AaViolations(page)).toEqual([]);
+});
+
+test('the path of one change is a list of six steps with reduced motion', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const steps = page.locator('#how').getByRole('listitem');
+  const stepCount = 6;
+
+  await expect(steps).toHaveCount(stepCount);
+  for (const step of await steps.all()) {
+    await expect(step).toHaveCSS('opacity', '1');
+  }
+});

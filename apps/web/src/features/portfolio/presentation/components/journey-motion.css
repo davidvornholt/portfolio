@@ -1,0 +1,339 @@
+/* The motion of the journey section. Everything here applies only where the
+   browser can tie an animation to scrolling, the visitor hasn't asked for
+   reduced motion, and the screen is tall enough for the stage. Otherwise
+   `journey.css` alone shows the six steps as a list and the rail in its
+   final state. */
+@layer components {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) and (min-height: 36rem) {
+      /* Six steps, each a little under half a screen of scrolling. */
+      .journey {
+        block-size: calc(100svh + 6 * 45svh);
+        padding-block-start: 0;
+        view-timeline: --journey block;
+      }
+
+      .journey-stage {
+        position: sticky;
+        inset-block-start: 0;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        block-size: 100svh;
+        padding-block: clamp(1.75rem, 7svh, 5rem) 1.5rem;
+      }
+
+      /* One step at a time, all in the same place. */
+      .journey-steps {
+        position: relative;
+        display: block;
+        margin-block-start: clamp(1.25rem, 4.5svh, 3rem);
+      }
+
+      .journey-step {
+        position: absolute;
+        inset: 0 auto auto 0;
+        max-inline-size: 60rem;
+        animation: journey-caption linear both;
+        animation-timeline: --journey;
+      }
+
+      .journey-step:nth-child(1) {
+        animation-name: journey-caption-first;
+        animation-range: contain 0% contain 16.667%;
+      }
+
+      .journey-step:nth-child(2) {
+        animation-range: contain 16.667% contain 33.333%;
+      }
+
+      .journey-step:nth-child(3) {
+        animation-range: contain 33.333% contain 50%;
+      }
+
+      .journey-step:nth-child(4) {
+        animation-range: contain 50% contain 66.667%;
+      }
+
+      .journey-step:nth-child(5) {
+        animation-range: contain 66.667% contain 83.333%;
+      }
+
+      .journey-step:nth-child(6) {
+        animation-name: journey-caption-last;
+        animation-range: contain 83.333% contain 100%;
+      }
+
+      .journey-rail {
+        margin-block-start: clamp(0.5rem, 3svh, 2.5rem);
+      }
+
+      /* On the stage the type follows the height of the screen, so the
+         longest step still fits on a small laptop. */
+      .journey-title {
+        font-size: clamp(1.5rem, 4.4svh, 1.875rem);
+        line-height: 1.1;
+      }
+
+      .journey-text {
+        font-size: clamp(1rem, 2.6svh, 1.125rem);
+        line-height: 1.375;
+      }
+
+      @media (min-width: 48rem) {
+        .journey-title {
+          font-size: clamp(2.25rem, 7svh, 3.75rem);
+          line-height: 1.05;
+        }
+
+        .journey-text {
+          font-size: clamp(1.125rem, 3svh, 1.5rem);
+        }
+      }
+
+      .journey-square,
+      .journey-mark,
+      .journey-mark::before,
+      .journey-mark::after {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: --journey;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .journey-square {
+        animation-name: journey-along;
+      }
+
+      .journey-mark {
+        animation-name: journey-level;
+      }
+
+      .journey-mark::before {
+        animation-name: journey-fill;
+      }
+
+      .journey-mark::after {
+        animation-name: journey-slot;
+      }
+
+      .journey-checks,
+      .journey-caught,
+      .journey-stations li {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: --journey;
+      }
+
+      .journey-checks {
+        animation-name: journey-count;
+        animation-timing-function: steps(16);
+      }
+
+      .journey-checks[data-run="first"] {
+        animation-range: contain 34.5% contain 43%;
+      }
+
+      .journey-checks[data-run="second"] {
+        animation-range: contain 68% contain 76.5%;
+      }
+
+      .journey-caught {
+        animation-name: journey-count;
+        animation-timing-function: steps(8);
+        animation-range: contain 54.5% contain 60%;
+      }
+
+      .journey-stations li {
+        animation-name: journey-reached;
+      }
+
+      .journey-stations li:nth-child(1) {
+        animation-range: contain 0% contain 0.1%;
+      }
+
+      .journey-stations li:nth-child(2) {
+        animation-range: contain 15% contain 17%;
+      }
+
+      .journey-stations li:nth-child(3) {
+        animation-range: contain 31.5% contain 33.5%;
+      }
+
+      .journey-stations li:nth-child(4) {
+        animation-range: contain 48% contain 50%;
+      }
+
+      .journey-stations li:nth-child(5) {
+        animation-range: contain 65% contain 67%;
+      }
+
+      .journey-stations li:nth-child(6) {
+        animation-range: contain 81.5% contain 83.5%;
+      }
+    }
+  }
+
+  @keyframes journey-caption {
+    0% {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+
+    14%,
+    86% {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    100% {
+      opacity: 0;
+      translate: 0 -1rem;
+    }
+  }
+
+  @keyframes journey-caption-first {
+    0%,
+    86% {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    100% {
+      opacity: 0;
+      translate: 0 -1rem;
+    }
+  }
+
+  @keyframes journey-caption-last {
+    0% {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+
+    14%,
+    100% {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* From station to station: it waits at each and moves on at the end of
+     that station's step. */
+  @keyframes journey-along {
+    0%,
+    11.5% {
+      translate: calc(8.333cqw - var(--sq) / 2) 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    16.6%,
+    28% {
+      translate: calc(25cqw - var(--sq) / 2) 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    33.3%,
+    44.5% {
+      translate: calc(41.667cqw - var(--sq) / 2) 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    50%,
+    62.5% {
+      translate: calc(58.333cqw - var(--sq) / 2) 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    66.6%,
+    78% {
+      translate: calc(75cqw - var(--sq) / 2) 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    83.3%,
+    100% {
+      translate: calc(91.667cqw - var(--sq) / 2) 0;
+    }
+  }
+
+  /* On the bar, into it when the reviewers send the change back, out again
+     once it is fixed, and at the end onto the pile. */
+  @keyframes journey-level {
+    0%,
+    50.5% {
+      color: var(--foreground);
+      translate: 0 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    53.5%,
+    60% {
+      color: var(--bar-caught);
+      translate: 0 var(--sink);
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    62.5%,
+    84.5% {
+      color: var(--foreground);
+      translate: 0 0;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    89%,
+    100% {
+      color: var(--foreground);
+      translate: 0 calc(-2 * (var(--sq) + var(--gap)));
+    }
+  }
+
+  /* Built from the ground up. */
+  @keyframes journey-fill {
+    0%,
+    17.5% {
+      clip-path: inset(100% 0 0 0);
+    }
+
+    22.5%,
+    100% {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes journey-slot {
+    0%,
+    52% {
+      opacity: 0;
+    }
+
+    54%,
+    60% {
+      opacity: 1;
+    }
+
+    62%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes journey-count {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes journey-reached {
+    from {
+      color: var(--bar-muted-foreground);
+    }
+
+    to {
+      color: var(--bar-foreground);
+    }
+  }
+}

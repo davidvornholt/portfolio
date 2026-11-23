@@ -7,7 +7,7 @@ export type NavItem = {
 // from every route that renders the header or footer.
 export const navItems: ReadonlyArray<NavItem> = [
   { label: 'Work', href: '/#work' },
-  { label: 'How I work', href: '/#rules' },
+  { label: 'How I work', href: '/#how' },
   { label: 'Writing', href: '/#writing' },
   { label: 'About', href: '/#about' },
 ] as const;

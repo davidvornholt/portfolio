@@ -127,6 +127,8 @@
         "apps/web/src/features/portfolio/presentation/components/about.tsx",
         "apps/web/src/features/portfolio/presentation/components/accepted.tsx",
         "apps/web/src/features/portfolio/presentation/components/contact.tsx",
+        "apps/web/src/features/portfolio/presentation/components/foundations.tsx",
+        "apps/web/src/features/portfolio/presentation/components/journey.tsx",
         "apps/web/src/features/portfolio/presentation/components/rules.tsx",
         "apps/web/src/features/portfolio/presentation/components/work.tsx",
         "apps/web/src/features/portfolio/presentation/components/writing.tsx"

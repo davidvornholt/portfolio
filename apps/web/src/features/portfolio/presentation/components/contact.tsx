@@ -8,8 +8,12 @@ export const Contact = (): ReactNode => (
     className="page-column scroll-mt-8 pt-32 pb-28 md:pt-44 md:pb-36"
   >
     <h2 className="max-w-4xl font-bold text-[2.5rem] leading-[1.04] tracking-tight md:text-7xl md:leading-[1.02]">
-      Talk to me about schools, books or code.
+      AI writes my code. I answer my email myself.
     </h2>
+    <p className="mt-6 max-w-2xl text-lg md:text-xl md:leading-snug">
+      Write to me about a book to translate, a school to run, or software that
+      has to hold up.
+    </p>
     <p className="mt-8">
       <a
         href={`mailto:${contactEmail}`}

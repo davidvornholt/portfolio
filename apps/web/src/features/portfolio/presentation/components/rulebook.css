@@ -1,0 +1,120 @@
+/* The terminal in which an agent loosens a rule and the check notices. It is
+   drawn finished. Inside a `PlayOnView` that is waiting, the command and the
+   output are hidden, and once it plays, the command is typed and the output
+   arrives line by line. */
+@layer components {
+  .terminal {
+    background-color: var(--bar);
+    color: var(--bar-foreground);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 48rem) {
+    .terminal {
+      font-size: 0.9375rem;
+    }
+  }
+
+  .terminal-title {
+    padding: 0.6rem 1.25rem;
+    border-block-end: 1px solid var(--bar-muted-foreground);
+    color: var(--bar-muted-foreground);
+  }
+
+  .terminal-body {
+    padding: 1rem 1.25rem 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  .terminal-dim {
+    color: var(--bar-muted-foreground);
+  }
+
+  .terminal-line {
+    color: var(--bar-muted-foreground);
+  }
+
+  /* A line of a failed check: the one red on the page, as a mark beside it. */
+  .terminal-line[data-failed] {
+    padding-inline-start: 0.75rem;
+    border-inline-start: 0.25rem solid var(--failed);
+    color: var(--bar-foreground);
+    font-weight: 500;
+  }
+
+  .terminal-typed {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    white-space: nowrap;
+  }
+
+  [data-run="waiting"] .terminal-typed {
+    inline-size: 0;
+  }
+
+  [data-run="waiting"] .terminal-output > * {
+    opacity: 0;
+  }
+
+  [data-run="playing"] .terminal-typed {
+    animation: terminal-type 0.9s steps(19) 0.4s both;
+  }
+
+  [data-run="playing"] .terminal-output > * {
+    animation: terminal-line 0.2s var(--ease-out) both;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(1) {
+    animation-delay: 1.7s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(2) {
+    animation-delay: 1.8s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(3) {
+    animation-delay: 1.9s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(4) {
+    animation-delay: 2.05s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(5) {
+    animation-delay: 2.15s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(6) {
+    animation-delay: 2.25s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(7) {
+    animation-delay: 2.5s;
+  }
+
+  /* The command is 19 characters long. */
+  @keyframes terminal-type {
+    from {
+      inline-size: 0;
+    }
+
+    to {
+      inline-size: 19ch;
+    }
+  }
+
+  @keyframes terminal-line {
+    from {
+      opacity: 0;
+      translate: 0 0.25rem;
+    }
+
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+}

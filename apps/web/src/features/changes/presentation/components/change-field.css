@@ -111,6 +111,20 @@
     margin-inline-end: 0.1em;
   }
 
+  /* A piece of the bar for the legend, to show a caught mark as it looks in
+     the chart. */
+  .field-key-bar {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.05em;
+    block-size: 1.05em;
+    background-color: var(--bar);
+  }
+
+  .field-key-bar .field-key {
+    margin: 0;
+  }
+
   /* A failed check: a square with a slot through it. */
   .field-stack i[data-v="f"],
   .field-key[data-v="f"] {

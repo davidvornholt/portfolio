@@ -5,8 +5,8 @@ import { narrowGeometry, stationNames, wideGeometry } from './journey-geometry';
 import { JourneyPlayer } from './journey-player';
 import { textLinkClassName } from './text-link';
 
-const exampleUrl = 'https://github.com/davidvornholt/wordhold/pull/261';
-const reportUrl = `${exampleUrl}#issuecomment-6745021364`;
+const exampleUrl = 'https://github.com/davidvornholt/standards/pull/566';
+const reportUrl = `${exampleUrl}#issuecomment-6923936877`;
 
 // What happens at each station, in the order of `stationNames`.
 const steps = [
@@ -95,7 +95,7 @@ export const Journey = (): ReactNode => (
 
     <div className="page-column mt-14 border-foreground border-t-2 pt-6 md:mt-16">
       <p className="text-muted-foreground">
-        The picture follows a real change:{' '}
+        The picture follows a real change to my rulebook’s own tool:{' '}
         <a
           href={exampleUrl}
           target="_blank"
@@ -103,7 +103,7 @@ export const Journey = (): ReactNode => (
           data-umami-event="journey-open"
           className={`${textLinkClassName} text-foreground`}
         >
-          Wordhold, my vocabulary trainer, moved to another AI provider
+          access keys had expired without warning and stopped a release
         </a>
       </p>
       <div className="journey-example">
@@ -120,9 +120,9 @@ export const Journey = (): ReactNode => (
             The most important one
           </strong>
           <span className="mt-2 block text-lg leading-snug">
-            Error logs would have held what people typed and what the AI
-            answered. Now they hold only the kind of error, and a test covers
-            seven ways it can fail.{' '}
+            The new warning would have gone quiet just when it mattered: a key
+            about to expire was hidden by a newer one of the same name. Now a
+            key stays reported until it is retired.{' '}
             <a
               href={reportUrl}
               target="_blank"
@@ -136,7 +136,7 @@ export const Journey = (): ReactNode => (
         </p>
         <p>
           <strong className="block font-bold text-5xl tracking-tight md:text-6xl">
-            26 min
+            25 min
           </strong>
           <span className="mt-2 block text-muted-foreground">
             for both reviews and all fixes

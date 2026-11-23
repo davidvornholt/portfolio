@@ -1,0 +1,67 @@
+/* The way of a change to a server: three stations on a line, and where it
+   goes when one of them fails. */
+@layer components {
+  .servers-track {
+    display: grid;
+    gap: 1.75rem;
+    margin-block-start: 2.5rem;
+  }
+
+  .servers-step {
+    position: relative;
+    padding-inline-start: 2.25rem;
+  }
+
+  /* The station's square, and the line that leads on to the next one. */
+  .servers-step::before {
+    content: "";
+    position: absolute;
+    inset: 0.2rem auto auto 0;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    background-color: var(--foreground);
+  }
+
+  .servers-step::after {
+    content: "";
+    position: absolute;
+    inset: 1.3rem auto -1.95rem 0.5rem;
+    inline-size: 2px;
+    background-color: var(--foreground);
+  }
+
+  .servers-step:last-child::after {
+    content: none;
+  }
+
+  /* What happens when a station fails: the mark of a failed check. */
+  .servers-step[data-kind="failed"]::before {
+    background: linear-gradient(
+      var(--failed) 0 36%,
+      transparent 0 64%,
+      var(--failed) 0
+    );
+  }
+
+  @media (min-width: 64rem) {
+    .servers-track {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin-block-start: 3.5rem;
+    }
+
+    .servers-step {
+      padding: 2.5rem 2rem 0 0;
+    }
+
+    .servers-step::before {
+      inset: 0 auto auto 0;
+    }
+
+    .servers-step::after {
+      inset: 0.5rem 0 auto 1.125rem;
+      inline-size: auto;
+      block-size: 2px;
+    }
+  }
+}

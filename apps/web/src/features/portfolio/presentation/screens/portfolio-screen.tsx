@@ -3,10 +3,10 @@ import type { PostListEntry } from '@/shared/content/presentation/components/pos
 import { About } from '../components/about';
 import { Accepted, type AcceptedProject } from '../components/accepted';
 import { Contact } from '../components/contact';
-import { Foundations } from '../components/foundations';
 import { Hero } from '../components/hero';
 import { Journey } from '../components/journey';
-import { Rules } from '../components/rules';
+import { Rulebook } from '../components/rulebook';
+import { Servers } from '../components/servers';
 import { Work, type WorkSummary } from '../components/work';
 import { Writing } from '../components/writing';
 
@@ -33,8 +33,8 @@ export const PortfolioScreen = ({
     <Hero field={field} legend={legend} />
     <Work works={works} />
     <Journey />
-    <Rules record={record} />
-    <Foundations />
+    <Rulebook record={record} />
+    <Servers />
     <Accepted projects={accepted} />
     <Writing posts={posts} />
     <About />

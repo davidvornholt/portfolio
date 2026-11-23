@@ -277,3 +277,21 @@ test('the path of every change stands still with reduced motion', async ({
     'data-run',
   );
 });
+
+// The terminal in which an agent loosens a rule types its command and prints
+// the check's output once it is on screen.
+test('the loosened rule plays its check once it is in view', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const terminal = page.locator('#rules .terminal');
+  const verdict = terminal.getByText(
+    'error: script "standards" exited with code 1',
+  );
+
+  await terminal.scrollIntoViewIfNeeded();
+
+  await expect(terminal).toHaveAttribute('data-run', 'playing');
+  await expect(verdict).toHaveCSS('opacity', '1');
+  expect(await scanWcag22AaViolations(page)).toEqual([]);
+});

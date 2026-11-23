@@ -53,7 +53,7 @@ const CaughtKey = (): ReactNode => (
   </span>
 );
 
-const Row = ({
+const Item = ({
   mark,
   model,
   pick,
@@ -64,58 +64,58 @@ const Row = ({
   pick: (counts: WeekCounts) => number;
   children: ReactNode;
 }>): ReactNode => (
-  <li className="grid grid-cols-[1.25rem_3rem_1fr] items-baseline gap-x-1.5">
-    {mark}
+  <li className="whitespace-nowrap">
+    {mark}{' '}
     <strong className="font-semibold text-foreground tabular-nums">
       <PerWindow model={model} text={(counts) => count(pick(counts))} />
-    </strong>
-    <span>{children}</span>
+    </strong>{' '}
+    {children}
   </li>
 );
 
 /**
- * Says in plain words what each mark of the chart stands for. It is the
- * chart's description for assistive technology too, so it carries the
- * numbers.
+ * Says in plain words what each mark of the chart stands for, in one short
+ * line. It is the chart's description for assistive technology too, so it
+ * carries the numbers.
  */
 export const ChangeLegend = ({
   id,
   model,
 }: Readonly<{ id: string; model: FieldModel }>): ReactNode => (
   <>
-    <div id={id} className="mt-4 max-w-2xl text-muted-foreground">
+    <div id={id} className="mt-4 max-w-3xl text-muted-foreground">
       <p>
         One square is one change to my software, from the last{' '}
         <PerWindow model={model} text={(_, weeks) => String(weeks)} /> weeks.
       </p>
-      <ul className="mt-2 grid gap-x-8 gap-y-1 sm:grid-cols-2">
-        <Row mark={<Key />} model={model} pick={(counts) => counts.passed}>
-          went live after their checks passed
-        </Row>
-        <Row
+      <ul className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+        <Item mark={<Key />} model={model} pick={(counts) => counts.passed}>
+          passed their checks
+        </Item>
+        <Item
           mark={<Key verdict="f" />}
           model={model}
           pick={(counts) => counts.failed}
         >
-          went live although a check had failed
-        </Row>
-        <Row
+          had a failed check
+        </Item>
+        <Item
           mark={<Key verdict="u" />}
           model={model}
           pick={(counts) => counts.unchecked}
         >
-          went live before a check had run
-        </Row>
-        <Row
+          had no check
+        </Item>
+        <Item
           mark={<CaughtKey />}
           model={model}
           pick={(counts) => counts.sentBack}
         >
-          attempts were sent back by the checks. They hang inside the bar.
-        </Row>
+          were sent back
+        </Item>
       </ul>
     </div>
-    <p className="mt-2.5 max-w-2xl text-muted-foreground text-sm">
+    <p className="mt-2 max-w-3xl text-muted-foreground text-sm">
       Updated{' '}
       <time dateTime={model.updatedOn}>{formatPostDate(model.updatedOn)}</time>.
       Private projects show only changes that passed, without their names.

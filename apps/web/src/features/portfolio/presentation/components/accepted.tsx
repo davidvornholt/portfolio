@@ -22,7 +22,46 @@ const otherFixes = [
   },
 ] as const;
 
-const ownProjects = ['standards', 'rota', 'runlet', 'pim', 'wordhold'] as const;
+// A choice of David's public projects, the ones that show the most range.
+const ownProjects = [
+  {
+    name: 'standards',
+    about:
+      'The rulebook behind every project, and the tool that keeps them in step.',
+  },
+  {
+    name: 'wordhold',
+    about: 'Vocabulary practice from photographed textbook pages.',
+  },
+  {
+    name: 'rota',
+    about: 'A photographed wardrobe that proposes one outfit each morning.',
+  },
+  {
+    name: 'postlude',
+    about: 'A calm journal for closing out the day.',
+  },
+  {
+    name: 'glimpse',
+    about: 'A phone app that hands a photo to an AI agent.',
+  },
+  {
+    name: 'keepsake',
+    about: 'Turns a folder of photos into a small album of the best ones.',
+  },
+  {
+    name: 'pim',
+    about: 'Lets AI agents work with mail, calendars and contacts.',
+  },
+  {
+    name: 'runlet',
+    about: 'Runs each automated check in a fresh, locked-down container.',
+  },
+  {
+    name: 'klarfunk-box',
+    about: 'An internet radio for seniors: five buttons on a Raspberry Pi.',
+  },
+] as const;
 
 // One square per merged change, like the squares on the bar.
 const Squares = ({ count }: { readonly count: number }): ReactNode => (
@@ -109,24 +148,31 @@ export const Accepted = ({
         </ul>
       </div>
 
-      <p className="mt-10 max-w-3xl text-lg leading-relaxed md:mt-12">
-        My own projects are open to read too:{' '}
-        {ownProjects.map((project, position) => (
-          <span key={project}>
-            {position === 0 ? null : ', '}
+      <h3 className="mt-14 font-bold text-2xl tracking-tight md:mt-16">
+        My own projects, open to read
+      </h3>
+      <ul className="mt-5 grid gap-x-14 gap-y-5 border-border border-t pt-6 sm:grid-cols-2 lg:grid-cols-3">
+        {ownProjects.map((project) => (
+          <li key={project.name}>
             <a
-              href={`https://github.com/davidvornholt/${project}`}
+              href={`https://github.com/davidvornholt/${project.name}`}
               target="_blank"
               rel="noopener noreferrer"
               data-umami-event="open-source-open"
-              data-umami-event-project={project}
-              className={textLinkClassName}
+              data-umami-event-project={project.name}
+              className="group block"
             >
-              {project}
+              <strong className="font-bold underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current">
+                {project.name}
+              </strong>
+              <span className="mt-0.5 block text-muted-foreground leading-snug">
+                {project.about}
+              </span>
             </a>
-          </span>
+          </li>
         ))}
-        , and{' '}
+      </ul>
+      <p className="mt-7">
         <a
           href="https://github.com/davidvornholt"
           target="_blank"
@@ -135,9 +181,8 @@ export const Accepted = ({
           data-umami-event-network="GitHub"
           className={textLinkClassName}
         >
-          everything else on GitHub
+          Everything on GitHub
         </a>
-        .
       </p>
     </Section>
   );

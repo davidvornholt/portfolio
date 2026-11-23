@@ -237,62 +237,43 @@ test('the keyboard steps through the chart and each change is described', async 
 });
 
 const stepCount = 6;
-const fourthStepIndex = 3;
-// How far down the screen the middle of the step being read is.
-const readingPlace = 0.58;
 
-// The section that follows one change keeps its rail at the top of the screen
-// while the six steps scroll past, and the step being read is in full ink.
-// With reduced motion the rail scrolls with the page like everything else.
-test('the path of one change keeps its rail in view while its steps scroll', async ({
+// The diagram of a change's path plays by itself once it is on screen, and
+// the visitor can end it at any moment. With reduced motion it stands still
+// in its final state and offers nothing to play.
+test('the path of every change plays in view and can be skipped', async ({
   page,
 }) => {
   await page.goto('/');
   const section = page.locator('#how');
-  const rail = section.locator('.journey-band');
-  const steps = section
-    .getByRole('listitem')
-    .filter({ has: page.getByRole('heading') });
-  const fourthStep = steps.nth(fourthStepIndex);
-  const lastStep = steps.last();
-  const colorOf = (step: typeof lastStep): Promise<string> =>
-    step.evaluate((element) => getComputedStyle(element).color);
+  const figure = section.locator('.journey-figure');
 
-  // Bring the middle of the fourth step to where a step is read.
-  await fourthStep.evaluate((element, place) => {
-    const box = element.getBoundingClientRect();
-    window.scrollTo({
-      top:
-        box.top + window.scrollY + box.height / 2 - window.innerHeight * place,
-      behavior: 'instant',
-    });
-  }, readingPlace);
+  await section.scrollIntoViewIfNeeded();
+  await figure.locator('[data-stage]').scrollIntoViewIfNeeded();
+  const skipButton = section.getByRole('button', { name: 'Skip to the end' });
+  await expect(skipButton).toBeVisible();
+  await expect(figure).toHaveAttribute('data-run', 'playing');
+  await skipButton.click();
 
-  await expect
-    .poll(() => rail.evaluate((element) => element.getBoundingClientRect().top))
-    .toBe(0);
-  // The step being read is darker than one that is still to come. The two
-  // colors are compared with each other, because an animated color is written
-  // in another notation than a fixed one.
-  await expect
-    .poll(async () => (await colorOf(fourthStep)) === (await colorOf(lastStep)))
-    .toBe(false);
+  await expect(
+    section.getByRole('button', { name: 'Play it again' }),
+  ).toBeVisible();
+  await expect(figure).not.toHaveAttribute('data-run');
+  await expect(section.getByRole('listitem')).toHaveCount(stepCount);
   expect(await scanWcag22AaViolations(page)).toEqual([]);
 });
 
-test('the path of one change is a plain list of six steps with reduced motion', async ({
+test('the path of every change stands still with reduced motion', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   const section = page.locator('#how');
-  const steps = section
-    .getByRole('listitem')
-    .filter({ has: page.getByRole('heading') });
 
-  await expect(steps).toHaveCount(stepCount);
-  await expect(section.locator('.journey-band')).toHaveCSS(
-    'position',
-    'static',
+  await section.scrollIntoViewIfNeeded();
+  await expect(section.getByRole('listitem')).toHaveCount(stepCount);
+  await expect(section.getByRole('button')).toHaveCount(0);
+  await expect(section.locator('.journey-figure')).not.toHaveAttribute(
+    'data-run',
   );
 });

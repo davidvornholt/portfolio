@@ -1,151 +1,148 @@
 import type { ReactNode } from 'react';
 import './journey.css';
-import './journey-motion.css';
+import { JourneyDiagram } from './journey-diagram';
+import { narrowGeometry, stationNames, wideGeometry } from './journey-geometry';
+import { JourneyPlayer } from './journey-player';
 import { textLinkClassName } from './text-link';
 
-const changeUrl = 'https://github.com/davidvornholt/glimpse/pull/27';
-const reportUrl = `${changeUrl}#issuecomment-7018500648`;
+const exampleUrl = 'https://github.com/davidvornholt/wordhold/pull/261';
+const reportUrl = `${exampleUrl}#issuecomment-6745021364`;
 
-type Step = Readonly<{
-  /** The station's name on the bar, in a word or two. */
-  station: string;
-  title: string;
-  text: string;
-  fact: string;
-  link?: Readonly<{ label: string; href: string }>;
-}>;
-
-// One real change, glimpse#27, with the numbers its pull request and its
-// review report give. The stations and their order are fixed: the animation
-// in `journey-motion.css` is written for exactly these six.
-const steps: ReadonlyArray<Step> = [
+// What happens at each station, in the order of `stationNames`.
+const steps = [
   {
-    station: 'Written down',
-    title: 'The problem is written down',
-    text: 'Before any code exists, a short note says what is wrong and what counts as fixed.',
-    fact: 'Here: a note edited on the phone could be lost.',
-    link: {
-      label: 'Read the note',
-      href: 'https://github.com/davidvornholt/glimpse/issues/10',
-    },
+    title: 'The problem',
+    text: 'What is wrong and what counts as fixed, written down first.',
   },
   {
-    station: 'Built',
-    title: 'An AI agent builds the fix',
-    text: 'It works on its own copy of the project, so nothing that is live can break.',
-    fact: '42 files changed.',
-    link: { label: 'See the change', href: `${changeUrl}/files` },
+    title: 'The agent',
+    text: 'An AI agent builds the fix on its own copy of the project.',
   },
   {
-    station: 'Checked',
-    title: 'Every check has to pass',
-    text: 'Types, tests and the build. Many projects would publish at this point.',
-    fact: 'One failure stops the change here.',
+    title: 'The proposal',
+    text: 'It says what was before, what is now, and how that was verified.',
   },
   {
-    station: 'Reviewed',
-    title: 'Reviewers try to break it',
-    text: 'Three AI reviewers that didn’t write the change each hunt one kind of failure. They found what the checks could not, and the change went back.',
-    fact: '8 serious faults found and fixed.',
-    link: { label: 'Read their report', href: reportUrl },
+    title: 'The checks',
+    text: 'Style, types, tests, build and accessibility. One failure stops it.',
   },
   {
-    station: 'Checked again',
-    title: 'Every check runs again',
-    text: 'On the exact final version, because a fix can break something else.',
-    fact: '16 of 16 tasks and 142 tests passed in 64 seconds.',
+    title: 'The review',
+    text: 'A different AI model looks for what the checks can’t see.',
   },
   {
-    station: 'Live',
-    title: 'It goes live',
-    text: '89 minutes after the fix was proposed. It is one of the squares at the top of this page.',
-    fact: 'Merged on November 19, 2026.',
-    link: { label: 'See it on GitHub', href: changeUrl },
+    title: 'Live',
+    text: 'Merged as one change, released automatically, one step to undo.',
   },
-];
-
-const faults = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
-const earlier = ['a', 'b'] as const;
+] as const;
 
 /**
- * What one change went through before it went live. A square travels along
- * the bar while the visitor reads: an outline while it is an idea, solid once
- * it is built, caught in the bar when the reviewers send it back, and at the
- * end on the pile of changes that went live.
+ * The way every change takes, drawn as a line that leaves the bar and comes
+ * back to it, and under it a real change that took it.
  */
 export const Journey = (): ReactNode => (
   <section id="how" className="journey scroll-mt-8">
     <div className="page-column">
       <h2 className="max-w-4xl font-bold text-3xl tracking-tight md:text-5xl md:leading-[1.05]">
-        What one change goes through
+        The path of every change
       </h2>
       <p className="mt-4 max-w-2xl text-lg md:text-xl md:leading-snug">
-        A real change, written by AI: a fix to Glimpse, my phone app for handing
-        a photo to an AI agent.
+        Whether I write it or an AI agent does. Nothing reaches the bar any
+        other way.
       </p>
     </div>
 
-    <div aria-hidden="true" className="journey-band">
-      <div className="journey-track page-column">
-        <span className="journey-pile">
-          {earlier.map((key) => (
-            <i key={key} />
-          ))}
-        </span>
-        <span className="journey-square">
-          <span className="journey-mark" />
-        </span>
+    <JourneyPlayer>
+      <div className="journey-stage page-column" data-stage="">
+        <JourneyDiagram geometry={wideGeometry} size="wide" />
+        <JourneyDiagram geometry={narrowGeometry} size="narrow" />
+        <p aria-hidden="true" className="journey-flag" data-flag="">
+          <span data-flag-text="bad">3 blockers</span>
+          <span data-flag-text="ok">Round 2: nothing found</span>
+        </p>
       </div>
-      <div className="journey-bar bleed">
-        <div className="journey-inside page-column">
-          <span className="journey-checks" data-run="first" />
-          <span className="journey-checks" data-run="second" />
-          <span className="journey-caught">
-            {faults.map((key) => (
-              <i key={key} />
-            ))}
-          </span>
-        </div>
+      <div aria-hidden="true" className="journey-bar bleed">
         <ol className="journey-stations page-column">
           {steps.map((step, position) => (
-            <li key={step.station}>
+            <li key={step.title}>
               <span className="journey-station-number">{position + 1}</span>
-              <span className="journey-station-name">{step.station}</span>
+              <span className="journey-station-name">{step.title}</span>
             </li>
           ))}
         </ol>
       </div>
-    </div>
-
-    <ol className="journey-steps page-column">
-      {steps.map((step, position) => (
-        <li key={step.station} className="journey-step">
-          <h3 className="journey-title flex gap-4 font-bold tracking-tight md:gap-6">
-            <span aria-hidden="true" className="text-muted-foreground">
+      <ol className="journey-steps page-column">
+        {steps.map((step, position) => (
+          <li
+            key={step.title}
+            className="journey-step"
+            data-step={stationNames[position]}
+          >
+            <span
+              aria-hidden="true"
+              className="journey-step-number font-bold text-muted-foreground"
+            >
               {position + 1}
             </span>
-            {step.title}
-          </h3>
-          <p className="journey-text mt-3 max-w-3xl md:mt-4">{step.text}</p>
-          <p className="mt-3 md:mt-4 md:text-lg">
-            <strong className="font-semibold">{step.fact}</strong>
-            {step.link === undefined ? null : (
-              <>
-                {' '}
-                <a
-                  href={step.link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-umami-event="journey-open"
-                  className={textLinkClassName}
-                >
-                  {step.link.label}
-                </a>
-              </>
-            )}
-          </p>
-        </li>
-      ))}
-    </ol>
+            <span>
+              <strong className="font-bold md:sr-only">{step.title}. </strong>
+              <span className="leading-snug">{step.text}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </JourneyPlayer>
+
+    <div className="page-column mt-14 border-foreground border-t-2 pt-6 md:mt-16">
+      <p className="text-muted-foreground">
+        The picture follows a real change:{' '}
+        <a
+          href={exampleUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-umami-event="journey-open"
+          className={`${textLinkClassName} text-foreground`}
+        >
+          Wordhold, my vocabulary trainer, moved to another AI provider
+        </a>
+      </p>
+      <div className="journey-example">
+        <p>
+          <strong className="block font-bold text-5xl tracking-tight md:text-6xl">
+            3
+          </strong>
+          <span className="mt-2 block text-muted-foreground">
+            blockers in the first review, none in the second
+          </span>
+        </p>
+        <p>
+          <strong className="block font-bold text-xl tracking-tight">
+            The most important one
+          </strong>
+          <span className="mt-2 block text-lg leading-snug">
+            Error logs would have held what people typed and what the AI
+            answered. Now they hold only the kind of error, and a test covers
+            seven ways it can fail.{' '}
+            <a
+              href={reportUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-umami-event="journey-report-open"
+              className={textLinkClassName}
+            >
+              Read the review
+            </a>
+          </span>
+        </p>
+        <p>
+          <strong className="block font-bold text-5xl tracking-tight md:text-6xl">
+            26 min
+          </strong>
+          <span className="mt-2 block text-muted-foreground">
+            for both reviews and all fixes
+          </span>
+        </p>
+      </div>
+    </div>
   </section>
 );

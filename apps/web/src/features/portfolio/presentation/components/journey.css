@@ -1,16 +1,11 @@
-/* The path of one change, as a square that travels along the bar.
+/* The path of every change, drawn the way a branch leaves the main line and
+   comes back to it: the line leaves the bar, runs through four stations and
+   returns, with a loop from the review back to the agent.
 
-   This file is the whole design where the browser can't tie an animation to
-   scrolling, or the visitor prefers reduced motion: the rail in its final
-   state, and under it the six steps as a list. `journey-motion.css` adds the
-   version in which the rail stays at the top of the screen while the steps
-   scroll past and the square moves with them. */
+   What is drawn is the final state. `JourneyPlayer` plays the way through it
+   by setting `data-lit` on the parts, and takes those away again at the end. */
 @layer components {
   .journey {
-    --sq: clamp(1.5rem, min(3.4vw, 5svh), 2.5rem);
-    --gap: calc(var(--sq) * 0.12);
-    --zone: calc(var(--sq) * 1.6);
-    --sink: calc(var(--sq) + (var(--zone) - var(--sq)) / 2);
     padding-block-start: 7rem;
   }
 
@@ -20,37 +15,145 @@
     }
   }
 
-  .journey-band {
-    margin-block-start: 2rem;
-    background-color: var(--background);
-  }
-
-  /* The squares stand in here, on top of the bar. Its width is the unit the
-     stations are placed in. */
-  .journey-track {
+  .journey-stage {
     position: relative;
-    z-index: 1;
-    block-size: calc(3 * (var(--sq) + var(--gap)) + 0.5rem);
-    container-type: inline-size;
+    margin-block-start: 2.5rem;
   }
 
+  .journey-diagram {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    overflow: visible;
+  }
+
+  .journey-diagram[data-diagram="wide"] {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .journey-diagram[data-diagram="wide"] {
+      display: block;
+    }
+
+    .journey-diagram[data-diagram="narrow"] {
+      display: none;
+    }
+  }
+
+  .journey-line {
+    fill: none;
+    stroke: var(--foreground);
+  }
+
+  /* The loop is drawn while the change walks it. */
+  .journey-line[data-path="loop"] {
+    stroke-dasharray: 1;
+  }
+
+  .journey-arrow,
+  .journey-loop-label {
+    fill: var(--foreground);
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  .journey-loop-label {
+    font-weight: 600;
+  }
+
+  /* A station that the change has passed is solid. */
+  .journey-node {
+    fill: var(--foreground);
+    stroke: var(--foreground);
+    transition:
+      fill 0.3s var(--ease-out),
+      stroke 0.3s var(--ease-out);
+  }
+
+  .journey-node[data-lit="off"] {
+    fill: var(--background);
+  }
+
+  /* The review that found something. */
+  .journey-node[data-lit="bad"] {
+    fill: var(--failed);
+    stroke: var(--failed);
+  }
+
+  .journey-tick {
+    fill: none;
+    stroke: var(--background);
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  /* The change itself, on its way. */
+  .journey-token {
+    fill: var(--foreground);
+    stroke: var(--background);
+    opacity: 0;
+  }
+
+  .journey-token[data-lit="on"] {
+    opacity: 1;
+  }
+
+  .journey-tick[data-lit="off"],
+  .journey-arrow[data-lit="off"],
+  .journey-loop-label[data-lit="off"] {
+    opacity: 0;
+  }
+
+  /* What the review said, beside its station. */
+  .journey-flag {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    padding: 0.3rem 0.55rem;
+    border: 2px solid var(--foreground);
+    background-color: var(--background);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  @media (min-width: 48rem) {
+    .journey-flag {
+      inset-block-start: 22%;
+      inset-inline: 77% auto;
+      font-size: 0.9375rem;
+    }
+  }
+
+  .journey-flag [data-flag-text="bad"],
+  .journey-flag[data-lit="bad"] [data-flag-text="ok"] {
+    display: none;
+  }
+
+  .journey-flag[data-lit="bad"] {
+    border-color: var(--failed);
+    color: var(--failed);
+  }
+
+  .journey-flag[data-lit="bad"] [data-flag-text="bad"] {
+    display: inline;
+  }
+
+  .journey-flag[data-lit="off"] {
+    opacity: 0;
+  }
+
+  /* The bar: what is live. The line leaves it and comes back to it. */
   .journey-bar {
     background-color: var(--bar);
     color: var(--bar-foreground);
   }
 
-  /* What happens inside the bar: the checks tick, and what the reviewers
-     catch stays caught. */
-  .journey-inside {
-    position: relative;
-    block-size: var(--zone);
-    container-type: inline-size;
-  }
-
   .journey-stations {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    padding-block: 0.375rem 0.5rem;
+    padding-block: 0.7rem;
     font-size: 0.8125rem;
     font-weight: 600;
     text-align: center;
@@ -60,7 +163,23 @@
     display: none;
   }
 
+  .journey-steps {
+    display: grid;
+    gap: 1rem;
+    margin-block-start: 1.5rem;
+  }
+
+  .journey-step {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    transition: color 0.3s var(--ease-out);
+  }
+
   @media (min-width: 48rem) {
+    .journey-stations {
+      font-size: 0.9375rem;
+    }
+
     .journey-station-number {
       display: none;
     }
@@ -68,131 +187,55 @@
     .journey-station-name {
       display: inline;
     }
+
+    /* Each step stands under its station. */
+    .journey-steps {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0;
+      margin-block-start: 1rem;
+    }
+
+    .journey-step {
+      display: block;
+      padding-inline: 0.75rem;
+      text-align: center;
+    }
+
+    .journey-step-number {
+      display: none;
+    }
   }
 
-  /* The change itself. The outer element moves along the bar, the inner one
-     sinks into it and climbs the pile. */
-  .journey-square {
-    position: absolute;
-    inset-block-end: 0;
-    inset-inline-start: 0;
-    translate: calc(91.667cqw - var(--sq) / 2) 0;
+  /* While it plays, the step the change is at stands out. */
+  .journey-figure[data-run="playing"] .journey-step {
+    color: var(--muted-foreground);
   }
 
-  .journey-mark {
-    position: relative;
-    display: block;
-    inline-size: var(--sq);
-    block-size: var(--sq);
+  .journey-figure[data-run="playing"] .journey-step[data-current="true"] {
     color: var(--foreground);
-    box-shadow: inset 0 0 0 max(2px, calc(var(--sq) * 0.08)) currentcolor;
-    translate: 0 calc(-2 * (var(--sq) + var(--gap)));
   }
 
-  /* Its filling: an idea is an outline, a built change is solid. */
-  .journey-mark::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-color: currentcolor;
-  }
-
-  /* The slot of a change that was sent back. */
-  .journey-mark::after {
-    content: "";
-    position: absolute;
-    inset: 36% 0;
-    background-color: var(--bar);
-    opacity: 0;
-  }
-
-  /* The changes that went live before it. */
-  .journey-pile {
-    position: absolute;
-    inset-block-end: 0;
-    inset-inline-start: calc(91.667cqw - var(--sq) / 2);
+  /* The real change the picture follows. */
+  .journey-example {
     display: grid;
-    gap: var(--gap);
+    gap: 1.5rem;
+    margin-block-start: 1.25rem;
   }
 
-  .journey-pile i {
-    display: block;
-    inline-size: var(--sq);
-    block-size: var(--sq);
-    background-color: var(--foreground);
-  }
-
-  /* Sixteen checks, one tick each, at the foot of the bar under the station
-     where they run. */
-  .journey-checks {
-    --tick: calc(var(--sq) * 0.1);
-    position: absolute;
-    inset-block-end: 0;
-    inline-size: calc(var(--tick) * 31);
-    block-size: calc(var(--zone) * 0.28);
-    background: repeating-linear-gradient(
-      to right,
-      var(--bar-foreground) 0 var(--tick),
-      transparent var(--tick) calc(var(--tick) * 2)
-    );
-  }
-
-  .journey-checks[data-run="first"] {
-    inset-inline-start: calc(41.667cqw - var(--tick) * 15.5);
-  }
-
-  .journey-checks[data-run="second"] {
-    inset-inline-start: calc(75cqw - var(--tick) * 15.5);
-  }
-
-  /* The eight faults the reviewers found hang under the bar's upper edge,
-     like the attempts sent back in the chart at the top of the page. */
-  .journey-caught {
-    --fault: calc(var(--sq) * 0.32);
-    position: absolute;
-    inset-block-start: calc(var(--zone) * 0.14);
-    inset-inline-start: calc(58.333cqw + var(--sq) / 2 + var(--fault) * 0.7);
-    display: grid;
-    grid-auto-flow: column;
-    gap: calc(var(--fault) * 0.3);
-  }
-
-  .journey-caught i {
-    display: block;
-    inline-size: var(--fault);
-    block-size: var(--fault);
-    background: linear-gradient(
-      var(--bar-caught) 0 36%,
-      transparent 0 64%,
-      var(--bar-caught) 0
-    );
-  }
-
-  .journey-steps {
-    display: grid;
-    gap: 2.5rem 3rem;
-    margin-block-start: 3rem;
-  }
-
-  @media (min-width: 48rem) {
-    .journey-steps {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  @media (min-width: 64rem) {
+    .journey-example {
+      grid-template-columns: 1fr 2.1fr 1fr;
+      gap: 0;
     }
-  }
 
-  @media (min-width: 80rem) {
-    .journey-steps {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .journey-example > * {
+      padding-inline: 2.5rem;
+      border-inline-start: 1px solid var(--border);
     }
-  }
 
-  .journey-title {
-    font-size: 1.5rem;
-    line-height: 1.15;
-  }
-
-  .journey-text {
-    font-size: 1.125rem;
-    line-height: 1.5;
+    .journey-example > :first-child {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
   }
 }

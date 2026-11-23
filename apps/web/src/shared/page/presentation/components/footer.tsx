@@ -16,7 +16,7 @@ export const Footer = (): ReactNode => {
     <footer className="page-column pb-10">
       {/* One change standing on the bar. */}
       <div aria-hidden="true">
-        <div className="mb-0.5 size-3 bg-foreground" />
+        <div className="landing-square mb-0.5 size-3 bg-foreground" />
         <div className="bleed h-4 bg-bar" />
       </div>
 

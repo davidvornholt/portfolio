@@ -95,3 +95,30 @@
     }
   }
 }
+
+@layer components {
+  /* The footer's square drops onto its bar over the first stretch of its way
+     into view, short enough that it has landed when the page ends,
+     where the browser can tie an animation to scrolling. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .landing-square {
+        animation-name: landing-square;
+        animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 6rem;
+      }
+    }
+  }
+
+  @keyframes landing-square {
+    from {
+      translate: 0 -5rem;
+    }
+
+    to {
+      translate: 0 0;
+    }
+  }
+}

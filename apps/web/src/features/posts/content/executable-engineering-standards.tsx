@@ -72,14 +72,14 @@ const FileOwnershipFigure = (): ReactNode => (
           className="border-border border-t py-6 first:border-t-0 md:border-t-0 md:border-l md:px-6 md:last:pr-0 md:first:border-l-0 md:first:pl-0"
           key={fileClass.name}
         >
-          <p className="font-mono text-primary text-xs">{fileClass.number}</p>
+          <p className="font-semibold text-muted-foreground text-sm">
+            {fileClass.number}
+          </p>
           <p className="mt-2 font-medium text-foreground">{fileClass.name}</p>
           <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
             {fileClass.owner}
           </p>
-          <p className="mt-5 font-mono text-foreground text-xs">
-            {fileClass.example}
-          </p>
+          <p className="mt-5 font-mono text-sm">{fileClass.example}</p>
           <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
             {fileClass.behavior}
           </p>
@@ -105,7 +105,7 @@ const VerificationFlowFigure = (): ReactNode => (
             aria-hidden={true}
             className="absolute top-0 -left-[5px] size-2 bg-primary md:-top-[5px] md:left-0"
           />
-          <p className="font-medium font-mono text-primary text-xs">
+          <p className="font-semibold text-muted-foreground text-sm">
             {stage.number}
           </p>
           <p className="mt-2 font-medium text-foreground text-sm">

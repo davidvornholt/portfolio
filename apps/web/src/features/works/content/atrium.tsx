@@ -105,8 +105,8 @@ export const atriumWork: Work = {
       'Class register, absences, sick notes, parent letters and the cleaning rota in one system instead of spreadsheets and paper. Grades and certificates stay in the school’s official records.',
     image: {
       src: atriumImage,
-      alt: 'Atrium’s cleaning rota: four families, each with an area of the school building for the week.',
-      caption: 'The design for the coming version, with invented demo data.',
+      alt: 'A teacher’s day in Atrium: six lessons in a row, the register entry for the current lesson with the attendance of six children, and beside it the requests that wait for a decision.',
+      caption: 'A design for the coming version, with invented demo data.',
     },
   },
   body: AtriumBody,

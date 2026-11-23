@@ -17,7 +17,7 @@ import type {
 export type FetchedChange = MergedChange &
   Readonly<{ repositoryId: number; headSha: string }>;
 
-type Visibility = 'public' | 'private';
+export type Visibility = 'public' | 'private';
 type FinalCommit = NonNullable<
   NonNullable<PrivatePullRequestNode['commits']['nodes']>[number]
 >['commit'];
@@ -193,21 +193,18 @@ const changesOfDays = Effect.fnUntraced(function* (
 });
 
 /**
- * Every change `login` authored that merged on one of `days` (UTC calendar
- * days, oldest first), judged by the checks that had finished at the merge.
+ * Every change `login` authored in repositories of one visibility that merged
+ * on one of `days` (UTC calendar days, oldest first), judged by the checks
+ * that had finished at the merge.
  */
 export const fetchMergedChanges = Effect.fn('fetchMergedChanges')(function* (
   login: string,
   days: ReadonlyArray<string>,
+  visibility: Visibility,
 ) {
-  const searches = Arr.chunksOf(days, daysPerSearch).flatMap((chunk) =>
-    (['public', 'private'] as const).map(
-      (visibility) => [visibility, chunk] as const,
-    ),
-  );
   const perSearch = yield* Effect.forEach(
-    searches,
-    ([visibility, chunk]) => changesOfDays(login, visibility, chunk),
+    Arr.chunksOf(days, daysPerSearch),
+    (chunk) => changesOfDays(login, visibility, chunk),
     { concurrency: concurrentSearches },
   );
   return perSearch.flat();

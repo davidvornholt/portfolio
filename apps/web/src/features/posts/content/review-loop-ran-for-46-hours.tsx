@@ -17,7 +17,7 @@ const ReviewLoopFigure = (): ReactNode => (
   <figure className="my-10 border-border border-y py-8">
     <div className="grid items-stretch gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
       <div className="border border-border p-4">
-        <p className="font-mono text-primary text-xs">01</p>
+        <p className="font-semibold text-muted-foreground text-sm">01</p>
         <p className="mt-2 font-medium text-foreground text-sm">
           Review the entire current diff
         </p>
@@ -35,7 +35,7 @@ const ReviewLoopFigure = (): ReactNode => (
         →
       </span>
       <div className="border border-border p-4">
-        <p className="font-mono text-primary text-xs">02</p>
+        <p className="font-semibold text-muted-foreground text-sm">02</p>
         <p className="mt-2 font-medium text-foreground text-sm">
           Repair every accepted finding
         </p>
@@ -53,14 +53,14 @@ const ReviewLoopFigure = (): ReactNode => (
         →
       </span>
       <div className="border border-border p-4">
-        <p className="font-mono text-primary text-xs">03</p>
+        <p className="font-semibold text-muted-foreground text-sm">03</p>
         <p className="mt-2 font-medium text-foreground text-sm">
           Add the repairs to the diff
         </p>
       </div>
     </div>
     <div className="mt-3 border border-primary/40 bg-primary/5 p-4">
-      <p className="font-mono text-primary text-xs">↳ NEXT PASS</p>
+      <p className="font-semibold text-muted-foreground text-sm">Next pass</p>
       <p className="mt-2 text-foreground text-sm">
         Send the enlarged diff back to step 01. A clean pass counted as 1 / 2,
         then the whole diff went around once more.
@@ -79,7 +79,7 @@ const RunawayDiffFigure = (): ReactNode => (
       <div>
         <div className="flex items-baseline justify-between gap-4">
           <p className="font-medium text-foreground text-sm">Original change</p>
-          <p className="text-right font-mono text-muted-foreground text-xs tabular-nums">
+          <p className="text-right text-muted-foreground text-sm tabular-nums">
             179 added lines · 7 files
           </p>
         </div>
@@ -92,24 +92,30 @@ const RunawayDiffFigure = (): ReactNode => (
           <p className="font-medium text-foreground text-sm">
             Force-stopped branch
           </p>
-          <p className="text-right font-mono text-foreground text-xs tabular-nums">
+          <p className="text-right font-semibold text-sm tabular-nums">
             37,451 added lines · 350 files
           </p>
         </div>
         <div aria-hidden="true" className="mt-3 h-1 bg-primary" />
       </div>
     </div>
-    <div className="mt-8 grid gap-4 border-border border-t pt-4 font-mono text-xs sm:grid-cols-3">
+    <div className="mt-8 grid gap-4 border-border border-t pt-4 text-sm sm:grid-cols-3">
       <p>
-        <span className="block text-primary text-xl tabular-nums">39</span>
+        <span className="block font-bold text-2xl tabular-nums tracking-tight">
+          39
+        </span>
         <span className="text-muted-foreground">full review passes</span>
       </p>
       <p>
-        <span className="block text-primary text-xl tabular-nums">~46 h</span>
+        <span className="block font-bold text-2xl tabular-nums tracking-tight">
+          ~46 h
+        </span>
         <span className="text-muted-foreground">before I stopped it</span>
       </p>
       <p>
-        <span className="block text-primary text-xl tabular-nums">0 / 2</span>
+        <span className="block font-bold text-2xl tabular-nums tracking-tight">
+          0 / 2
+        </span>
         <span className="text-muted-foreground">clean-pass counter</span>
       </p>
     </div>

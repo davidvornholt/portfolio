@@ -23,16 +23,16 @@ import type { Post } from './post-meta';
 const themeSnippet = `/* theme.css: the single source of design values */
 :root {
   /* Primitive ramps, all OKLCH */
-  --paper-100: oklch(0.965 0.013 84);
-  --ink-900: oklch(0.245 0.02 60);
-  --green-700: oklch(0.4 0.075 152);
-  --green-800: oklch(0.34 0.07 152);
+  --paper-100: oklch(0.985 0 0);
+  --ink-900: oklch(0.17 0.004 270);
+  --ink-600: oklch(0.43 0.005 270);
+  --red-600: oklch(0.57 0.225 27);
 
   /* Semantic aliases */
   --background: var(--paper-100);
   --foreground: var(--ink-900);
-  --primary: var(--green-700);
-  --primary-strong: var(--green-800);
+  --muted-foreground: var(--ink-600);
+  --failed: var(--red-600);
 }
 
 @theme inline {
@@ -40,7 +40,7 @@ const themeSnippet = `/* theme.css: the single source of design values */
      opacity modifiers included */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
+  --color-failed: var(--failed);
 }`;
 
 const MasteringOklchBody = (): ReactNode => (

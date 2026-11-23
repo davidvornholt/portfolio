@@ -23,9 +23,9 @@ const Commit = ({ build }: { readonly build: BuildInfo }): ReactNode => (
 export const BuildLine = ({
   build,
 }: {
-  readonly build: BuildInfo | undefined;
+  readonly build: BuildInfo | null;
 }): ReactNode => {
-  if (build === undefined) {
+  if (build === null) {
     return (
       <p>
         This page was built from a working copy, not from a released change.

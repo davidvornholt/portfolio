@@ -49,9 +49,14 @@ const publicNode = (number: number): PublicPullRequestNode => ({
   repository: { databaseId: 1, nameWithOwner: 'davidvornholt/standards' },
 });
 
+// Both visibilities, public first, the way the fetch asks for them.
 const run = (handlers: Handlers, days: ReadonlyArray<string>) =>
   Effect.runPromiseExit(
-    fetchMergedChanges('davidvornholt', days).pipe(
+    Effect.all([
+      fetchMergedChanges('davidvornholt', days, 'public'),
+      fetchMergedChanges('davidvornholt', days, 'private'),
+    ]).pipe(
+      Effect.map((changes) => changes.flat()),
       Effect.provide(GitHubGraphQL.layerTest(handlers)),
     ),
   );

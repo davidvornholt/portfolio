@@ -15,6 +15,8 @@ Run `bun run check:fix` for the full quality gate. Add case studies in `apps/web
 
 Site and analytics configuration lives in `apps/web/src/config/`. The Umami website ID and domain must match `infra/modules/apps/umami.nix` in personal-infra; a mismatch silently discards events. These values are compiled into the image, so changes require a rebuild.
 
+The chart on the home page is drawn from `apps/web/src/features/changes/data/changes.json`. The committed copy is what development and PR previews show. Refresh it with `CHANGES_GITHUB_TOKENS="$(gh auth token)" bun run --cwd apps/web changes:fetch`, which takes a few minutes.
+
 ## Deployment
 
 [personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release.
@@ -23,4 +25,4 @@ Label a same-repository, non-draft PR `pr-preview` to request `https://<number>.
 
 ## License
 
-The code is under the [MIT license](LICENSE). The posts, case studies and portrait are © David Vornholt, all rights reserved, and the LinkedIn logos belong to LinkedIn.
+The code is under the [MIT license](LICENSE). The posts, case studies and portrait are © David Vornholt, all rights reserved.

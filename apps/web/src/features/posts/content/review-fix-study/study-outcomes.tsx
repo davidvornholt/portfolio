@@ -45,7 +45,7 @@ export const StudyScorecard = (): ReactNode => (
       {headlines.map((item) => (
         <div className="border-border border-l pl-4" key={item.label}>
           <dt className="text-foreground text-sm">{item.label}</dt>
-          <dd className="mt-3 font-mono text-5xl text-primary tabular-nums">
+          <dd className="mt-3 font-bold text-5xl tabular-nums tracking-tight">
             {item.value}
           </dd>
           <dd className="mt-3 text-muted-foreground text-sm">{item.detail}</dd>

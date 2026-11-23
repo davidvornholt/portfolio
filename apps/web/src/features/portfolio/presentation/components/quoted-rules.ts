@@ -34,8 +34,8 @@ export const quotedRules: ReadonlyArray<QuotedRule> = [
   {
     plain: 'The site is published only from a version that passed every check.',
     path: '.github/workflows/publish-container.yml',
-    firstLine: 246,
-    lastLine: 249,
+    firstLine: 259,
+    lastLine: 262,
     code: [
       'if [ "$conclusion" != success ]; then',
       '  echo "::error::The $GATE_WORKFLOW gate concluded $conclusion for $SHA"',

@@ -1,7 +1,6 @@
-import { Effect } from 'effect';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { readBuildInfo } from '@/shared/build/services/build-info';
+import { buildInfo } from '@/shared/build/services/build-info';
 import { BuildLine } from './build-line';
 import { contactItem, navItems } from './nav-items';
 
@@ -12,8 +11,7 @@ const legalLinks = [
 
 const linkClassName = 'underline-offset-4 hover:underline hover:decoration-2';
 
-export const Footer = async (): Promise<ReactNode> => {
-  const build = await Effect.runPromise(readBuildInfo());
+export const Footer = (): ReactNode => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -25,7 +23,7 @@ export const Footer = async (): Promise<ReactNode> => {
       </div>
 
       <div className="mt-6 max-w-3xl">
-        <BuildLine build={build} />
+        <BuildLine build={buildInfo} />
       </div>
 
       <div className="mt-12 flex flex-col gap-4 text-muted-foreground text-sm md:flex-row md:items-center md:justify-between">

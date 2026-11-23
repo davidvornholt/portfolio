@@ -60,7 +60,7 @@ const BenchmarkScorecard = (): ReactNode => (
   <figure className="my-10 border-border border-y py-8">
     <div className="grid gap-8 sm:grid-cols-2 sm:gap-0">
       <div className="sm:border-border sm:border-r sm:pr-8">
-        <p className="font-mono text-6xl text-primary tabular-nums">15</p>
+        <p className="font-bold text-6xl tabular-nums tracking-tight">15</p>
         <p className="mt-2 font-medium text-foreground">
           material review-fix findings
         </p>
@@ -69,7 +69,7 @@ const BenchmarkScorecard = (): ReactNode => (
         </p>
       </div>
       <div className="border-border border-t pt-8 sm:border-t-0 sm:pt-0 sm:pl-8">
-        <p className="font-mono text-6xl text-foreground tabular-nums">0</p>
+        <p className="font-bold text-6xl tabular-nums tracking-tight">0</p>
         <p className="mt-2 font-medium text-foreground">
           valid CodeRabbit findings
         </p>
@@ -117,10 +117,10 @@ const ExperimentLedger = (): ReactNode => (
             >
               {row.change}
             </th>
-            <td className="px-2 py-4 text-center font-mono text-primary text-xs tabular-nums sm:px-6 sm:text-sm">
+            <td className="px-2 py-4 text-center font-semibold text-sm tabular-nums sm:px-6">
               {row.reviewFix}
             </td>
-            <td className="py-4 pl-2 text-center font-mono text-foreground text-xs tabular-nums sm:pl-6 sm:text-sm">
+            <td className="py-4 pl-2 text-center font-semibold text-sm tabular-nums sm:pl-6">
               {row.codeRabbit}
             </td>
           </tr>
@@ -142,7 +142,7 @@ const ReviewFixWorkflow = (): ReactNode => (
             aria-hidden="true"
             className="absolute top-0 -left-[5px] size-2 bg-primary md:-top-[5px] md:left-0"
           />
-          <p className="font-medium font-mono text-primary text-xs">
+          <p className="font-semibold text-muted-foreground text-sm">
             {stage.number}
           </p>
           <p className="mt-2 font-medium text-foreground text-sm">

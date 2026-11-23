@@ -19,12 +19,13 @@ const workMetaSnippet = `export type WorkMeta = Readonly<{
   subtitle: string;
   slug: string;
   date: string;
-  timeline: string;
+  since: string;
   role: string;
+  stage: string;
   techStack: ReadonlyArray<string>;
   liveUrl?: string;
   summary: string;
-  outcome: string;
+  image: Readonly<{ src: StaticImageData; alt: string; caption?: string }>;
 }>;
 
 export type Work = Readonly<{
@@ -47,25 +48,31 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>The design: warm print</MDXHeadingOne>
-      <MDXHeadingTwo>Paper, ink, and one green voice.</MDXHeadingTwo>
+      <MDXHeadingOne>The design: one bar</MDXHeadingOne>
+      <MDXHeadingTwo>White paper, black ink, and one red.</MDXHeadingTwo>
       <MDXParagraph>
-        The current design borrows its rules from print. The background is a
-        warm paper tone with a faint grain, the text is a near-black ink, and a
-        single forest green carries every accent: links, eyebrows, buttons.
-        Rules are hairlines, corners are square, and there is no dark mode,
-        because a printed page does not have one.
+        The home page opens with a thick black bar. Every change I merged in the
+        last thirteen weeks stands on it as one square, and the attempts that my
+        checks sent back are caught inside it. The rest of the design follows
+        from that picture: white paper, black ink, square corners, and a single
+        red that appears only where a check failed. There is no dark mode, and
+        nothing moves except the chart as it builds once.
       </MDXParagraph>
       <MDXParagraph>
-        Type does most of the work. <MDXStrong>Source Serif 4</MDXStrong> sets
-        the headings, <MDXStrong>IBM Plex Sans</MDXStrong> carries the body, and{' '}
-        <MDXStrong>IBM Plex Mono</MDXStrong> handles the apparatus: labels,
-        tags, file names. Every color on the site is defined in OKLCH, which
-        gets{' '}
+        <MDXStrong>Sofia Sans</MDXStrong> sets everything but code. It follows
+        the proportions of DIN 1451, the lettering of German standards, which
+        suits a site about rules. <MDXStrong>IBM Plex Mono</MDXStrong> is kept
+        for code. Every color on the site is defined in OKLCH, which gets{' '}
         <MDXAnchor href="/posts/mastering-oklch-tailwind-v4">
           its own post
         </MDXAnchor>
         .
+      </MDXParagraph>
+      <MDXParagraph>
+        The first version looked different: warm paper, a serif, and a forest
+        green. It was pleasant, and it was also the look that AI design tools
+        produce by default. A site that claims care should not look like a
+        default.
       </MDXParagraph>
     </MDXSection>
 
@@ -126,7 +133,7 @@ export const buildingTheArchitectsPortfolioPost: Post = {
   meta: {
     title: 'How this portfolio is built',
     subtitle:
-      'Warm print design, OKLCH color, and a content pipeline that is just TypeScript.',
+      'One bar, OKLCH color, and a content pipeline that is just TypeScript.',
     slug: 'building-the-architects-portfolio',
     date: '2026-08-17',
     category: 'Engineering',

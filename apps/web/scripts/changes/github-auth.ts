@@ -1,8 +1,6 @@
-import { Config, Effect, Layer, Redacted } from 'effect';
+import { Effect, Layer, Redacted } from 'effect';
 import { GraphQLMiddleware } from 'effect/graphql';
-
-/** The token that reads the data. It needs no permission to write anything. */
-export const gitHubToken = Config.Redacted('CHANGES_GITHUB_TOKEN');
+import { GitHubToken } from './github-token';
 
 export class GitHubAuth extends GraphQLMiddleware.Service<GitHubAuth>()(
   'portfolio/web/scripts/changes/GitHubAuth',
@@ -10,7 +8,7 @@ export class GitHubAuth extends GraphQLMiddleware.Service<GitHubAuth>()(
   static readonly layer = Layer.effect(
     GitHubAuth,
     Effect.gen(function* () {
-      const token = yield* gitHubToken;
+      const token = yield* GitHubToken;
       return GraphQLMiddleware.mapRequest((request) =>
         Effect.succeed({
           ...request,

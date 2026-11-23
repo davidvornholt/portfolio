@@ -20,7 +20,7 @@ const CostBar = ({
     <li>
       <div className="mb-2 flex items-baseline justify-between gap-4 text-sm">
         <span className="text-foreground">{label}</span>
-        <span className="shrink-0 font-mono text-foreground tabular-nums">
+        <span className="shrink-0 font-semibold tabular-nums">
           {formattedCost}
         </span>
       </div>

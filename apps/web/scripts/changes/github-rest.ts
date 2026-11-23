@@ -1,6 +1,6 @@
 import { Context, Effect, flow, Layer, Schedule } from 'effect';
 import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/http';
-import { gitHubToken } from './github-auth';
+import { GitHubToken } from './github-token';
 
 const transientRetries = 4;
 
@@ -11,7 +11,7 @@ export class GitHubRest extends Context.Service<
   static readonly layer = Layer.effect(
     GitHubRest,
     Effect.gen(function* () {
-      const token = yield* gitHubToken;
+      const token = yield* GitHubToken;
       return (yield* HttpClient.HttpClient).pipe(
         HttpClient.mapRequest(
           flow(

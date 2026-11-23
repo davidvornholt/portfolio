@@ -31,7 +31,7 @@ export const SelectionPanel = ({
   <>
     <p className="text-muted-foreground">
       {formatPostDate(date)}
-      {description === undefined ? null : `, ${description.project}`}
+      {description === undefined ? null : ` · ${description.project}`}
     </p>
     {description?.title === undefined ? null : (
       <p className="mt-0.5 font-bold text-base leading-snug">

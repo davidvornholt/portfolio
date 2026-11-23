@@ -10,9 +10,19 @@ const repositoryPath = (rule: QuotedRule): string =>
 
 const whitespacePattern = /(?<space>\s+)/u;
 
+const underlineClassName = 'underline decoration-2 underline-offset-4';
+
 // A word of code stays whole when a line wraps. Otherwise the browser breaks
 // after any hyphen, and `--error-on-warnings` ends one line with a dash.
-const Words = ({ text }: { readonly text: string }): ReactNode =>
+// An underline doesn't reach into an inline block, so a marked word draws
+// its own. Without it only the spaces are underlined and read as underscores.
+const Words = ({
+  text,
+  marked = false,
+}: {
+  readonly text: string;
+  readonly marked?: boolean;
+}): ReactNode =>
   text.split(whitespacePattern).map((part, position) =>
     part.trim() === '' ? (
       part
@@ -20,7 +30,7 @@ const Words = ({ text }: { readonly text: string }): ReactNode =>
       <span
         // biome-ignore lint/suspicious/noArrayIndexKey: the words of a fixed quote never reorder, and a word can repeat.
         key={position}
-        className="wrap-anywhere inline-block max-w-full"
+        className={`wrap-anywhere inline-block max-w-full ${marked ? underlineClassName : ''}`}
       >
         {part}
       </span>
@@ -33,8 +43,10 @@ const Code = ({ rule }: { readonly rule: QuotedRule }): ReactNode => {
   return (
     <pre className="mt-2 whitespace-pre-wrap font-mono text-muted-foreground text-sm leading-relaxed">
       <Words text={rule.code.slice(0, start)} />
-      <mark className="bg-transparent font-medium text-foreground underline decoration-2 underline-offset-4">
-        <Words text={rule.emphasis} />
+      <mark
+        className={`bg-transparent font-medium text-foreground ${underlineClassName}`}
+      >
+        <Words text={rule.emphasis} marked={true} />
       </mark>
       <Words text={rule.code.slice(start + rule.emphasis.length)} />
     </pre>

@@ -97,40 +97,32 @@ test('reduced motion disables scripted animations and smooth scrolling', async (
     .toBe(false);
 });
 
-test('color comparison renders distinct, non-transparent swatches', async ({
-  page,
-}) => {
+test('the color comparison paints ten different swatches', async ({ page }) => {
   await page.goto('/posts/mastering-oklch-tailwind-v4');
 
   const swatches = page.locator('[data-slot="color-swatch"]');
   await expect(swatches).toHaveCount(10);
 
-  const backgroundColors = await swatches.evaluateAll((nodes) =>
-    nodes.map((node) => getComputedStyle(node).backgroundColor),
+  const fills = await swatches.evaluateAll((nodes) =>
+    nodes.map((node) => getComputedStyle(node).fill),
   );
 
-  expect(
-    backgroundColors.every(
-      (backgroundColor) =>
-        backgroundColor !== 'rgba(0, 0, 0, 0)' &&
-        backgroundColor !== 'transparent',
-    ),
-  ).toBe(true);
-  expect(backgroundColors[0]).not.toBe(backgroundColors[5]);
+  expect(new Set(fills).size).toBe(fills.length);
+  expect(fills).not.toContain('rgb(0, 0, 0)');
 });
 
 test('code snippet headers fit a 320 CSS pixel viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/posts/building-the-architects-portfolio');
+  await page.goto('/posts/mastering-oklch-tailwind-v4');
   await page.evaluate(() => document.fonts.ready);
 
-  const title = page.getByText('features/works/content/work-meta.ts', {
+  const title = page.getByText('packages/ui/src/theme.css, in part', {
     exact: true,
   });
   await title.scrollIntoViewIfNeeded();
   await expect(title).toBeVisible();
-  await expect(page.getByText('typescript', { exact: true })).toBeInViewport({
+  await expect(page.getByText('css', { exact: true })).toBeInViewport({
     ratio: 1,
   });
   expect(

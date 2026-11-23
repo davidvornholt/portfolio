@@ -1,7 +1,4 @@
 import type { ReactNode } from 'react';
-import { ChartBarFill } from './chart-bar-fill';
-
-const chartPercentageScale = 100;
 
 export const MDXStatCard = ({
   label,
@@ -49,48 +46,3 @@ export const MDXFeatureGrid = ({
 }): ReactNode => (
   <div className="my-8 grid gap-x-8 gap-y-6 md:grid-cols-3">{children}</div>
 );
-
-export const MDXChart = ({
-  title,
-  data,
-  unit = '',
-}: Readonly<{
-  type: 'bar';
-  title: string;
-  data: Readonly<{
-    labels: ReadonlyArray<string>;
-    values: ReadonlyArray<number>;
-  }>;
-  unit?: string;
-}>): ReactNode => {
-  const maxValue = Math.max(...data.values);
-
-  return (
-    <div className="my-8 bg-muted p-6">
-      <h4 className="mb-6 font-bold">{title}</h4>
-      <div className="space-y-4">
-        {data.labels.map((label, index) => {
-          const value = data.values[index] ?? 0;
-          const percentage = (value / maxValue) * chartPercentageScale;
-          return (
-            <div key={label} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="font-semibold tabular-nums">
-                  {value}
-                  {unit}
-                </span>
-              </div>
-              <div className="h-2 w-full bg-background">
-                <ChartBarFill
-                  percentage={percentage}
-                  className="text-foreground"
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};

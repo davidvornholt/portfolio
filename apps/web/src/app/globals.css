@@ -3,33 +3,8 @@
 /* biome-ignore lint/nursery/useLayeredStyles: The imported stylesheet declares its own cascade layers. */
 @import "@portfolio/ui/theme.css";
 
-@theme inline {
-  /* Content visualizations (color-space comparison post), app-local by design */
-  --color-comparison-hsl-yellow: var(--comparison-hsl-yellow);
-  --color-comparison-hsl-green: var(--comparison-hsl-green);
-  --color-comparison-hsl-red: var(--comparison-hsl-red);
-  --color-comparison-hsl-cyan: var(--comparison-hsl-cyan);
-  --color-comparison-hsl-blue: var(--comparison-hsl-blue);
-  --color-comparison-oklch-yellow: var(--comparison-oklch-yellow);
-  --color-comparison-oklch-green: var(--comparison-oklch-green);
-  --color-comparison-oklch-red: var(--comparison-oklch-red);
-  --color-comparison-oklch-cyan: var(--comparison-oklch-cyan);
-  --color-comparison-oklch-blue: var(--comparison-oklch-blue);
-}
-
 @layer overrides {
   :root {
-    --comparison-hsl-yellow: oklch(0.96798272 0.21100591 109.769232);
-    --comparison-hsl-green: oklch(0.86643961 0.29482724 142.495339);
-    --comparison-hsl-red: oklch(0.62795536 0.25768331 29.233885);
-    --comparison-hsl-cyan: oklch(0.90539923 0.15455001 194.768948);
-    --comparison-hsl-blue: oklch(0.45201372 0.31321437 264.052021);
-    --comparison-oklch-yellow: oklch(0.6 0.15 100);
-    --comparison-oklch-green: oklch(0.6 0.15 145);
-    --comparison-oklch-red: oklch(0.6 0.15 25);
-    --comparison-oklch-cyan: oklch(0.6 0.15 195);
-    --comparison-oklch-blue: oklch(0.6 0.15 265);
-
     /* The space between the page's content and the edge of the screen. */
     --gutter: 1rem;
   }

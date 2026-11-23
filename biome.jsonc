@@ -157,20 +157,6 @@
       }
     },
     {
-      // The keys in this map are reader-facing swatch labels, so their casing
-      // is part of the data contract rather than an identifier naming choice.
-      "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "style": {
-            "useNamingConvention": "off"
-          }
-        }
-      }
-    },
-    {
       // Biome's import resolver does not follow the generated next/font
       // declarations or React's conditional export map. TypeScript and the
       // production build remain the authoritative module-resolution gates.
@@ -202,7 +188,6 @@
       // Cohesive framework/generated-style component boundaries that are
       // clearer as single files. Each exception is documented under docs/.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
         "apps/web/src/features/works/content/*.tsx",
         "apps/web/src/features/posts/content/*.tsx"
       ],

@@ -1,178 +1,157 @@
 import type { ReactNode } from 'react';
-import { ColorSwatchComparison } from '@/shared/content/presentation/components/color-swatch-comparison';
 import { MDXCodeSnippet } from '@/shared/content/presentation/components/mdx-code-snippet';
 import {
-  MDXCallout,
   MDXCallToAction,
   MDXSection,
 } from '@/shared/content/presentation/components/mdx-layout-components';
 import {
   MDXHeadingOne,
-  MDXHeadingTwo,
+  MDXListItem,
+  MDXOrderedList,
   MDXParagraph,
   MDXStrong,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
-import {
-  MDXFeatureCard,
-  MDXFeatureGrid,
-  MDXStatCard,
-  MDXStatGrid,
-} from '@/shared/content/presentation/components/mdx-metric-components';
+import { LightnessRow, SiteContrasts } from './figures/lightness-comparison';
+import { contrastRange, themeExcerpt } from './figures/lightness-data';
+import { PostFigure } from './figures/post-figure';
 import type { Post } from './post-meta';
 
-const themeSnippet = `/* theme.css: the single source of design values */
-:root {
-  /* Primitive ramps, all OKLCH */
-  --paper-100: oklch(0.985 0 0);
-  --ink-900: oklch(0.17 0.004 270);
-  --ink-600: oklch(0.43 0.005 270);
-  --red-600: oklch(0.57 0.225 27);
-
-  /* Semantic aliases */
-  --background: var(--paper-100);
-  --foreground: var(--ink-900);
-  --muted-foreground: var(--ink-600);
-  --failed: var(--red-600);
-}
-
-@theme inline {
-  /* Tailwind v4 turns these into utilities,
-     opacity modifiers included */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-failed: var(--failed);
-}`;
+const [hslLowest, hslHighest] = contrastRange('hsl');
+const [oklchLowest, oklchHighest] = contrastRange('oklch');
 
 const MasteringOklchBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>The problem with HSL</MDXHeadingOne>
-      <MDXHeadingTwo>
-        Its lightness number does not mean lightness.
-      </MDXHeadingTwo>
       <MDXParagraph>
-        HEX and RGB describe what a monitor should emit, not what a person sees.
-        HSL looks like the fix, because it exposes a lightness value you can
-        reason about. But that value is a lie: HSL lightness is computed from
-        RGB channels, not from human perception.
+        HSL is a way to write colors in CSS, and one of its three numbers is
+        called lightness. Set it to 50% for a yellow and for a blue, and you
+        would expect two colors that look about equally light. Here are five
+        colors at 50%, each with two things I computed for it: how light OKLCH,
+        a newer way to write colors, measures it to be on a scale from 0 to 1,
+        and its contrast against a white background.
       </MDXParagraph>
-      <MDXCallout title="The contrast roulette">
-        In HSL, pure yellow at 50 percent lightness reads as nearly white, while
-        pure blue at the same 50 percent reads as nearly black. Derive contrast
-        from HSL lightness and you are guessing, with accessibility as the
-        stake.
-      </MDXCallout>
+      <PostFigure
+        title="HSL: five hues, all at lightness 50%"
+        caption="L is the lightness that OKLCH assigns to the color that is painted. The ratio is its contrast against white, as the accessibility standard WCAG computes it."
+      >
+        <LightnessRow model="hsl" />
+      </PostFigure>
       <MDXParagraph>
-        This site began as a project for a school, where a parent with low
-        vision is not an edge case. Guessing at contrast was not acceptable, so
-        the design system needed a color model whose numbers tell the truth.
+        The yellow is almost white: {hslLowest} against white. The blue is
+        almost black: {hslHighest}. Text needs at least 4.5:1 to count as
+        readable by that standard. So “lightness 50%” says nothing about whether
+        text in that color can be read.
+      </MDXParagraph>
+      <MDXParagraph>
+        The reason is that HSL’s lightness is arithmetic on the red, green and
+        blue values of a color: the largest plus the smallest, divided by two.
+        It knows nothing about eyes, and eyes see green as far lighter than
+        blue.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>Enter OKLCH</MDXHeadingOne>
-      <MDXHeadingTwo>A color space built on measured perception.</MDXHeadingTwo>
+      <MDXHeadingOne>What OKLCH does differently</MDXHeadingOne>
       <MDXParagraph>
-        OKLCH, from CSS Color Level 4, describes color as lightness, chroma, and
-        hue in the Oklab space, which is fitted to how people actually perceive
-        brightness. Its key property is{' '}
-        <MDXStrong>perceptual uniformity</MDXStrong>: two colors with the same L
-        value look equally bright, whatever their hue.
+        OKLCH also describes a color with three numbers: L for lightness, C for
+        chroma, which is how colorful it is, and H for hue. The difference is
+        that its L was fitted to measurements of how light colors look to
+        people. Here are the same five hues, all at L 0.6.
       </MDXParagraph>
-      <MDXFeatureGrid>
-        <MDXFeatureCard
-          title="L: lightness"
-          description="0 to 1. The same L value is the same perceived brightness for every hue, which makes contrast something you can calculate."
-        />
-        <MDXFeatureCard
-          title="C: chroma"
-          description="Color intensity from gray outward. Lowering it desaturates cleanly instead of drifting toward mud."
-        />
-        <MDXFeatureCard
-          title="H: hue"
-          description="The angle on the color wheel. Rotating it keeps lightness and intensity stable, so hue shifts stay smooth."
-        />
-      </MDXFeatureGrid>
+      <PostFigure
+        title="OKLCH: five hues, all at lightness 0.6"
+        caption="The same two numbers as above. All five colors have a chroma of 0.1."
+      >
+        <LightnessRow model="oklch" />
+      </PostFigure>
       <MDXParagraph>
-        The comparison below shows five hues pinned to the same lightness in
-        each model. The HSL row jumps between bright and dark; the OKLCH row
-        holds steady.
+        Their contrast against white runs from {oklchLowest} to {oklchHighest}.
+        That is not identical, but the five now sit close together, where in HSL
+        they were spread from {hslLowest} to {hslHighest}.
       </MDXParagraph>
-      <ColorSwatchComparison />
+      <MDXParagraph>
+        This is what I use it for. When I need a second grey, I change L and
+        leave the other two numbers alone. When two colors have the same L, I
+        know they will carry about the same weight on the page.
+      </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>Beyond sRGB</MDXHeadingOne>
-      <MDXHeadingTwo>
-        HEX cannot name the colors modern screens show.
-      </MDXHeadingTwo>
-      <MDXParagraph>
-        There is a second argument. HEX and HSL are locked to the sRGB gamut,
-        while most current phones and laptops render the wider Display P3 gamut.
-        OKLCH can address those colors directly, and the browser falls back to
-        sRGB on hardware that cannot show them.
-      </MDXParagraph>
-      <MDXStatGrid>
-        <MDXStatCard
-          label="Legacy sRGB"
-          value="35%"
-          subtext="Of the visible spectrum"
-        />
-        <MDXStatCard
-          label="Display P3"
-          value="+25%"
-          subtext="More colors than sRGB"
-        />
-        <MDXStatCard
-          label="Browser support"
-          value="95%+"
-          subtext="For oklch() in CSS"
-        />
-      </MDXStatGrid>
+      <MDXHeadingOne>What it doesn’t do</MDXHeadingOne>
+      <MDXOrderedList>
+        <MDXListItem>
+          <MDXStrong>The same L is not the same contrast.</MDXStrong> The
+          accessibility standard computes contrast from luminance, which is a
+          different measure, and the row above shows the gap between the two.
+          OKLCH gets me close. A test decides: every page of this site is
+          scanned for contrast on every change.
+        </MDXListItem>
+        <MDXListItem>
+          <MDXStrong>
+            OKLCH lets you write colors that a screen can’t show.
+          </MDXStrong>{' '}
+          An earlier version of the row above used a chroma of 0.15. At that
+          chroma the yellow and the cyan lie outside sRGB, the range of colors
+          an ordinary screen can display. A browser then quietly shows a
+          neighboring color, and the numbers you wrote are no longer the numbers
+          you get.
+        </MDXListItem>
+      </MDXOrderedList>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>Implementation in Tailwind v4</MDXHeadingOne>
-      <MDXHeadingTwo>
-        Primitive ramps, semantic aliases, utilities.
-      </MDXHeadingTwo>
+      <MDXHeadingOne>On this site</MDXHeadingOne>
       <MDXParagraph>
-        Tailwind v4 is CSS-first: tokens are plain custom properties, and the{' '}
-        <MDXStrong>@theme</MDXStrong> block turns them into utility classes with
-        opacity modifiers included. This site defines a small set of OKLCH
-        primitives, aliases them to semantic names, and exposes only the
-        semantic layer to components. This is the actual token source of the
-        page you are reading.
+        This site has eight colors, and seven of them are grey. All of them are
+        written in OKLCH, and the greys differ in little but their L.
       </MDXParagraph>
-      <MDXCodeSnippet language="css" title="theme.css" code={themeSnippet} />
+      <MDXCodeSnippet
+        language="css"
+        title="packages/ui/src/theme.css, in part"
+        code={themeExcerpt}
+      />
       <MDXParagraph>
-        The discipline pays off in maintenance. Deriving a hover state means
-        lowering L a step while keeping C and H, and the result stays on
-        palette. Checking contrast means comparing two L values instead of
-        eyeballing screenshots.
+        These are the pairs that matter most, and what they measure:
+      </MDXParagraph>
+      <PostFigure caption="Contrast of a color against the ground it stands on, computed from the theme above.">
+        <SiteContrasts />
+      </PostFigure>
+      <MDXParagraph>
+        The second block connects these colors to Tailwind v4, which reads its
+        colors from CSS. <MDXStrong>@theme inline</MDXStrong> turns each
+        variable into the usual classes, such as{' '}
+        <MDXStrong>bg-background</MDXStrong> and{' '}
+        <MDXStrong>text-failed</MDXStrong>, without a configuration file in
+        JavaScript.
+      </MDXParagraph>
+      <MDXParagraph>
+        OKLCH can also describe colors beyond sRGB, which newer screens can
+        show. I use none of them. A site in black, white and one red has no need
+        for them.
       </MDXParagraph>
     </MDXSection>
 
     <MDXCallToAction
-      title="See the tokens"
-      description="The complete OKLCH theme and the Tailwind v4 setup are in the public repository."
+      title="See the theme"
+      description="The whole file, and the code that computes the numbers in this article, are in the public repository."
       href="https://github.com/davidvornholt/portfolio"
-      linkText="View repository"
+      linkText="Open the repository"
     />
   </>
 );
 
 export const masteringOklchPost: Post = {
   meta: {
-    title: 'Why I abandoned HEX and HSL for OKLCH in Tailwind v4',
+    title: 'HSL lies about lightness. I measured by how much.',
     subtitle:
-      'Engineering color for perceptual uniformity, accessibility, and the P3 gamut.',
+      'Five colors with the same HSL lightness, and contrast against white from 1.07 to 8.59. Why this site’s colors are written in OKLCH, and what OKLCH doesn’t fix.',
     slug: 'mastering-oklch-tailwind-v4',
     date: '2026-03-01',
+    updated: '2026-11-23',
     category: 'Engineering',
-    readTime: '5 min read',
+    readTime: '3 min read',
     excerpt:
-      'HSL lightness lies about brightness, and HEX cannot name what modern screens can show. How this site moved its whole design system to OKLCH.',
+      'In HSL, a yellow and a blue at 50% lightness differ in their contrast against white by a factor of eight. What OKLCH does better, what it doesn’t do, and how this site uses it with Tailwind v4.',
   },
   body: MasteringOklchBody,
 };

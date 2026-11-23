@@ -7,6 +7,9 @@ const publishedSlugs = [
   'building-the-architects-portfolio',
   'solving-the-cold-boot-problem',
   'mastering-oklch-tailwind-v4',
+  'review-loop-ran-for-46-hours',
+  'review-fix-versus-coderabbit',
+  'cheap-ai-code-reviews',
 ] as const;
 
 const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/u;
@@ -26,6 +29,14 @@ describe('posts registry', () => {
   it('dates are date-only ISO strings', () => {
     for (const post of posts) {
       expect(post.meta.date).toMatch(dateOnlyPattern);
+    }
+  });
+
+  it('a rewrite is dated after the post it rewrites', () => {
+    for (const { meta } of posts) {
+      const updated = meta.updated ?? meta.date;
+      expect(updated).toMatch(dateOnlyPattern);
+      expect(updated >= meta.date).toBe(true);
     }
   });
 

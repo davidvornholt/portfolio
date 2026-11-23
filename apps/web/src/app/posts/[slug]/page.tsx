@@ -39,6 +39,7 @@ export const generateMetadata = async ({
       title: post.meta.title,
       description: post.meta.excerpt,
       publishedTime: post.meta.date,
+      modifiedTime: post.meta.updated,
       authors: ['David Vornholt'],
       section: post.meta.category,
     },
@@ -57,6 +58,7 @@ const createArticleJsonLd = (meta: PostMeta): Record<string, unknown> => ({
   description: meta.excerpt,
   url: `${siteUrl}/posts/${meta.slug}`,
   datePublished: meta.date,
+  dateModified: meta.updated ?? meta.date,
   author: {
     '@type': 'Person',
     name: 'David Vornholt',
@@ -98,6 +100,14 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
             <time dateTime={post.meta.date}>
               {formatPostDate(post.meta.date)}
             </time>
+            {post.meta.updated === undefined ? null : (
+              <>
+                , rewritten{' '}
+                <time dateTime={post.meta.updated}>
+                  {formatPostDate(post.meta.updated)}
+                </time>
+              </>
+            )}
             , {post.meta.readTime}
           </p>
         </header>

@@ -7,19 +7,25 @@ describe('build info', () => {
   });
 
   it('reads the commit the publishing workflow wrote', () => {
-    const written = {
+    const commit = {
       sha: 'd356c99c0ffee',
       title: 'docs: say "checks" in $PLAIN words (#143)',
       committedOn: '2026-11-23',
       released: true,
     };
 
-    expect(decodeBuildInfo(written)).toEqual(written);
+    expect(decodeBuildInfo({ commit })).toEqual(commit);
   });
 
   it('rejects a file that names only part of a commit', () => {
     expect(() =>
-      decodeBuildInfo({ sha: 'd356c99c0ffee', title: '', released: true }),
+      decodeBuildInfo({
+        commit: { sha: 'd356c99c0ffee', title: '', released: true },
+      }),
     ).toThrow();
+  });
+
+  it('rejects a file without the commit field', () => {
+    expect(() => decodeBuildInfo({})).toThrow();
   });
 });

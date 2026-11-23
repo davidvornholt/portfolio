@@ -4,7 +4,7 @@ import buildInfoData from '../data/build-info.json' with { type: 'json' };
 /**
  * The commit a published page was built from. The publishing workflow writes
  * it to `data/build-info.json` before it builds the image. The file that is
- * checked in holds `null`, so a local build makes no claim about its commit.
+ * checked in names no commit, so a local build makes no claim about its own.
  */
 const BuildInfo = Schema.Struct({
   sha: Schema.NonEmptyString,
@@ -17,9 +17,13 @@ const BuildInfo = Schema.Struct({
 
 export type BuildInfo = typeof BuildInfo.Type;
 
-export const decodeBuildInfo = Schema.decodeUnknownSync(
-  Schema.NullOr(BuildInfo),
+const decodeFile = Schema.decodeUnknownSync(
+  Schema.Struct({ commit: Schema.NullOr(BuildInfo) }),
 );
+
+/** The commit a build-info file names, or null when it names none. */
+export const decodeBuildInfo = (file: unknown): BuildInfo | null =>
+  decodeFile(file).commit;
 
 /** Checked when the module loads, so a malformed file fails the build. */
 export const buildInfo: BuildInfo | null = decodeBuildInfo(buildInfoData);

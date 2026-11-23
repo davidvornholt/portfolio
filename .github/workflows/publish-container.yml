@@ -98,7 +98,7 @@ jobs:
             --arg sha "$HEAD_SHA" \
             --arg title "$(git log -1 --format=%s)" \
             --arg committedOn "$(TZ=Europe/Berlin git log -1 --format=%cd --date=format-local:%Y-%m-%d)" \
-            '{sha: $sha, title: $title, committedOn: $committedOn, released: false}' \
+            '{commit: {sha: $sha, title: $title, committedOn: $committedOn, released: false}}' \
             >apps/web/src/shared/build-info/data/build-info.json
 
       - name: Build the runtime image without credentials
@@ -299,7 +299,7 @@ jobs:
             --arg sha "$SHA" \
             --arg title "$(git log -1 --format=%s)" \
             --arg committedOn "$(TZ=Europe/Berlin git log -1 --format=%cd --date=format-local:%Y-%m-%d)" \
-            '{sha: $sha, title: $title, committedOn: $committedOn, released: true}' \
+            '{commit: {sha: $sha, title: $title, committedOn: $committedOn, released: true}}' \
             >apps/web/src/shared/build-info/data/build-info.json
 
       - name: Set up Docker Buildx

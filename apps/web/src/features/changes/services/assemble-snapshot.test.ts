@@ -42,7 +42,21 @@ const fetchedAt = at('2026-11-23T05:00:00Z');
 const assemble = (
   changes: ReadonlyArray<MergedChange>,
   attempts: ReadonlyArray<FailedAttempt> = [],
-) => assembleSnapshot({ fetchedAt, dayCount: 3, changes, attempts });
+) =>
+  assembleSnapshot({
+    fetchedAt,
+    dayCount: 3,
+    changes,
+    attempts,
+    site: {
+      repository: 'davidvornholt/portfolio',
+      firstMergedOn: '2026-07-10',
+      passed: 70,
+      failed: 0,
+      unchecked: 1,
+    },
+    elsewhere: [{ repository: 'serokell/deploy-rs', changes: 1 }],
+  });
 
 describe('assembleSnapshot', () => {
   it('covers the days that end on the German day of the fetch', () => {

@@ -11,8 +11,13 @@ import { fetchFailedAttempts } from './failed-attempts';
 import { GitHubGraphQL } from './github-graphql';
 import { GitHubRest } from './github-rest';
 import { fetchMergedChanges } from './merged-changes';
+import {
+  fetchAcceptedElsewhere,
+  fetchSiteRecord,
+} from './repository-records';
 
 const login = 'davidvornholt';
+const siteRepository = 'davidvornholt/portfolio';
 // Thirteen weeks, the widest window the home page shows.
 const dayCount = 91;
 const snapshotUrl = new URL(
@@ -50,7 +55,16 @@ const fetchChanges = Effect.gen(function* () {
     searchDays[0] ?? berlinDay(fetchedAt),
     changes,
   );
-  const snapshot = assembleSnapshot({ fetchedAt, dayCount, changes, attempts });
+  const site = yield* fetchSiteRecord(login, siteRepository);
+  const elsewhere = yield* fetchAcceptedElsewhere(login);
+  const snapshot = assembleSnapshot({
+    fetchedAt,
+    dayCount,
+    changes,
+    attempts,
+    site,
+    elsewhere,
+  });
   yield* writeSnapshot(snapshot);
   const shown = snapshot.days.flatMap((day) => day.changes);
   yield* Effect.logInfo(

@@ -131,6 +131,22 @@ export const privateMergedChanges = GraphQL.query('privateMergedChanges', {
   result: searchResult(PrivatePullRequest),
 });
 
+// Every repository a change merged into, with what the token's owner may do
+// there: `READ` on a public repository means it belongs to someone else.
+export const mergedRepositories = GraphQL.query('mergedRepositories', {
+  document:
+    'query mergedRepositories($query:String!,$after:String){search(query:$query,type:ISSUE,first:100,after:$after){pageInfo{hasNextPage endCursor}nodes{...on PullRequest{repository{nameWithOwner viewerPermission}}}}}',
+  variables: pagedSearch,
+  result: searchResult(
+    Schema.Struct({
+      repository: Schema.Struct({
+        nameWithOwner: Schema.String,
+        viewerPermission: Schema.NullOr(Schema.String),
+      }),
+    }),
+  ),
+});
+
 /** The rest of a commit's check list when it has more than one page. */
 export const commitChecks = GraphQL.query('commitChecks', {
   document: `query commitChecks($commit:ID!,$after:String){node(id:$commit){...on Commit{statusCheckRollup{contexts(first:100,after:$after){${contextSelection}}}}}}`,
@@ -153,6 +169,7 @@ export const operations = GraphQLGroup.make(
   countMergedChanges,
   publicMergedChanges,
   privateMergedChanges,
+  mergedRepositories,
   commitChecks,
 );
 

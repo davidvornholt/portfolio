@@ -127,7 +127,7 @@ const VerificationFlowFigure = (): ReactNode => (
 const ExecutableEngineeringStandardsBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 Agent confidence is not evidence</MDXHeadingOne>
+      <MDXHeadingOne>Agent confidence is not evidence</MDXHeadingOne>
       <MDXHeadingTwo>
         Coding agents write most of my code. They do not decide when it is
         ready.
@@ -165,7 +165,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The repository has to prove the work</MDXHeadingOne>
+      <MDXHeadingOne>The repository has to prove the work</MDXHeadingOne>
       <MDXHeadingTwo>
         A green gate is an evidence trail, not an agent's opinion.
       </MDXHeadingTwo>
@@ -200,7 +200,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 One contract for humans and agents</MDXHeadingOne>
+      <MDXHeadingOne>One contract for humans and agents</MDXHeadingOne>
       <MDXHeadingTwo>
         The same non-negotiable rules have to reach every repository that uses
         them.
@@ -234,7 +234,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 Every file needs one owner</MDXHeadingOne>
+      <MDXHeadingOne>Every file needs one owner</MDXHeadingOne>
       <MDXHeadingTwo>
         Central rules and local decisions have to coexist without silent forks.
       </MDXHeadingTwo>
@@ -266,7 +266,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>05 The repository itself is checked</MDXHeadingOne>
+      <MDXHeadingOne>The repository itself is checked</MDXHeadingOne>
       <MDXHeadingTwo>
         Correct application code can still be merged through a broken process.
       </MDXHeadingTwo>
@@ -292,7 +292,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>06 Strict automation can still fail</MDXHeadingOne>
+      <MDXHeadingOne>Strict automation can still fail</MDXHeadingOne>
       <MDXHeadingTwo>
         A gate can enforce a bad rule with perfect consistency.
       </MDXHeadingTwo>
@@ -331,7 +331,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
 
     <MDXSection>
       <MDXHeadingOne>
-        07 Confidence comes from evidence, not trust
+        Confidence comes from evidence, not trust
       </MDXHeadingOne>
       <MDXHeadingTwo>
         I merge agent-written code when the repository can defend the change.

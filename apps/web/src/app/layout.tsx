@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
+import { IBM_Plex_Mono, Sofia_Sans } from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
 import { Footer } from '@/shared/page/presentation/components/footer';
-import { MotionProvider } from '@/shared/ui/presentation/components/motion-provider';
+import { Header } from '@/shared/page/presentation/components/header';
 import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
-import { Header } from '../shared/page/presentation/components/header';
 
-const ibmPlexSans = IBM_Plex_Sans({
+// Sofia Sans follows the proportions of DIN 1451, the lettering of German
+// standards. It sets everything but code.
+const sofiaSans = Sofia_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
 });
@@ -17,13 +18,11 @@ const ibmPlexSans = IBM_Plex_Sans({
 const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '500'],
 });
 
-const sourceSerif4 = Source_Serif_4({
-  variable: '--font-serif',
-  subsets: ['latin'],
-});
+const siteDescription =
+  'Co-founder and CTO of ProsaBridge and founder of Atrium. AI writes most of my code, and every change has to pass the same automated checks before it goes live.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -31,8 +30,7 @@ export const metadata: Metadata = {
     default: 'David Vornholt | Founder & CTO',
     template: '%s | David Vornholt',
   },
-  description:
-    'Founder of Atrium and co-founder & CTO of ProsaBridge. Agents write most of my code, and strict quality gates decide what ships.',
+  description: siteDescription,
   keywords: [
     'Founder',
     'CTO',
@@ -67,14 +65,12 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: 'David Vornholt',
     title: 'David Vornholt | Founder & CTO',
-    description:
-      'Speaking the languages of humans and machines with equal precision.',
+    description: siteDescription,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'David Vornholt | Founder & CTO',
-    description:
-      'Speaking the languages of humans and machines with equal precision.',
+    description: siteDescription,
     creator: '@davidvornholt',
   },
 };
@@ -135,26 +131,13 @@ const RootLayout = ({
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Next.js JSON-LD requires a serialized script payload from this static object.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
-      {/* Motion renders each entrance animation's hidden starting frame as an
-      inline style, and only its client script plays the animation. Without
-      JavaScript that frame would stay and hide most of the page. Chart bars
-      start collapsed the same way. */}
-      <noscript>
-        <style>
-          {
-            '[style*="opacity:0;"],[style$="opacity:0"]{opacity:1!important;transform:none!important}[style*="transform:scaleX(0)"]{transform:none!important}'
-          }
-        </style>
-      </noscript>
     </head>
     <body
-      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
+      className={`${sofiaSans.variable} ${ibmPlexMono.variable} antialiased`}
     >
-      <MotionProvider>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-      </MotionProvider>
+      <Header />
+      <main>{children}</main>
+      <Footer />
       <AnalyticsScript />
     </body>
   </html>

@@ -1,0 +1,332 @@
+/*
+ * The chart: one square per change. The changes that went live stand on the
+ * bar, and the attempts that the checks sent back are caught inside it.
+ *
+ * Squares are whole pixels. Their size follows from the room the chart has
+ * and the columns it must fit, and what is left over spreads between the
+ * days. The window narrows with the screen: four weeks, eight, then thirteen.
+ */
+
+.frame {
+  position: relative;
+  container: field / inline-size;
+}
+
+.field {
+  --gap: 1px;
+  --rows-above: 40;
+  --rows-inside: 12;
+  --columns: var(--columns-four-weeks-tall);
+  --days: 28;
+  --square: round(
+    down,
+    calc(
+      (100cqi - var(--columns) * var(--gap) - (var(--days) - 1) * var(--gap)) /
+      (2 * var(--columns))
+    ),
+    1px
+  );
+  --row: calc(var(--square) + var(--gap));
+  --slot-start: round(nearest, calc(var(--square) * 0.4), 1px);
+  --slot-end: calc(
+    var(--slot-start) + max(1px, calc(var(--square) - 2 * var(--slot-start)))
+  );
+}
+
+.days {
+  display: flex;
+  justify-content: space-between;
+}
+
+.day {
+  --day-columns: var(--columns-tall);
+  --day-rows: var(--rows-tall);
+  position: relative;
+  flex: none;
+  inline-size: calc(
+    var(--day-columns) * 2 * var(--square) + (2 * var(--day-columns) - 1) *
+    var(--gap)
+  );
+}
+
+.day:nth-last-child(n + 29) {
+  display: none;
+}
+
+.above {
+  align-items: flex-end;
+  block-size: calc(var(--rows-above) * var(--row));
+  padding-block-end: calc(var(--gap) + 1px);
+}
+
+.slab {
+  margin-inline: calc(50% - 50vw);
+  padding-block-start: 0.375rem;
+  padding-inline: calc(50vw - 50%);
+  background-color: var(--bar);
+  color: var(--bar-foreground);
+}
+
+.inside {
+  align-items: flex-start;
+  block-size: calc(var(--rows-inside) * var(--row));
+}
+
+.stack {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: var(--gap);
+}
+
+.inside .stack {
+  flex-wrap: wrap;
+}
+
+.stack i,
+.key {
+  display: block;
+  flex: none;
+  inline-size: var(--square);
+  block-size: var(--square);
+  background-color: var(--foreground);
+}
+
+/* The same marks inside a sentence, where they explain themselves. */
+.key {
+  --square: 0.62em;
+  --slot-start: 0.24em;
+  --slot-end: 0.38em;
+  display: inline-block;
+  margin-inline-end: 0.1em;
+}
+
+/* A failed check: a square with a slot through it. */
+.stack i[data-v="f"],
+.key[data-v="f"] {
+  background: linear-gradient(
+    var(--failed) 0 var(--slot-start),
+    transparent 0 var(--slot-end),
+    var(--failed) 0
+  );
+}
+
+/* No check had run: an outline. */
+.stack i[data-v="u"],
+.key[data-v="u"] {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--foreground);
+}
+
+.key[data-v="u"] {
+  box-shadow: inset 0 0 0 1.5px var(--foreground);
+}
+
+/* An attempt the checks sent back keeps the slot and loses the alarm. */
+.inside .stack i {
+  background: linear-gradient(
+    var(--bar-caught) 0 var(--slot-start),
+    transparent 0 var(--slot-end),
+    var(--bar-caught) 0
+  );
+}
+
+.axis {
+  block-size: 1.625rem;
+  color: var(--bar-muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+}
+
+.tick {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  display: none;
+  white-space: nowrap;
+}
+
+.month {
+  padding-inline-start: 0.4375rem;
+  border-inline-start: 1.5px solid var(--bar-muted-foreground);
+  line-height: 0.75rem;
+  margin-block-start: 0.375rem;
+}
+
+.today {
+  inset-inline: auto 0;
+  display: block;
+  color: var(--bar-foreground);
+  font-weight: 700;
+}
+
+.fourWeeks {
+  display: block;
+}
+
+@media (min-width: 36rem) {
+  .field {
+    --rows-above: 28;
+    --rows-inside: 10;
+    --columns: var(--columns-four-weeks);
+  }
+
+  .day {
+    --day-columns: var(--columns-wide);
+    --day-rows: var(--rows-wide);
+  }
+}
+
+@media (min-width: 48rem) {
+  .field {
+    --columns: var(--columns-eight-weeks);
+    --days: 56;
+  }
+
+  .day:nth-last-child(n + 29) {
+    display: block;
+  }
+
+  .day:nth-last-child(n + 57) {
+    display: none;
+  }
+
+  .fourWeeks {
+    display: none;
+  }
+
+  .eightWeeks {
+    display: block;
+  }
+}
+
+@media (min-width: 69rem) {
+  .field {
+    --columns: var(--columns-thirteen-weeks);
+    --days: 91;
+  }
+
+  .day:nth-last-child(n + 57) {
+    display: block;
+  }
+
+  .eightWeeks {
+    display: none;
+  }
+
+  .thirteenWeeks {
+    display: block;
+  }
+}
+
+/* What the visitor points at, taps or steps to. */
+.marker {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: var(--marker-size);
+  block-size: var(--marker-size);
+  outline: 2px solid var(--background);
+  box-shadow: 0 0 0 4px var(--foreground);
+  pointer-events: none;
+  translate: var(--marker-x) var(--marker-y);
+}
+
+.panel {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 10;
+  inline-size: max-content;
+  max-inline-size: min(22rem, 100cqi);
+  padding: 0.75rem 1rem 0.875rem;
+  border: 2px solid var(--foreground);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  pointer-events: none;
+  translate: var(--panel-x) var(--panel-y);
+}
+
+.pinned {
+  pointer-events: auto;
+}
+
+/* The load sequence: the bar slides in, then the days stack up on it from
+   the oldest to today. Without motion the chart is simply there. */
+@media (prefers-reduced-motion: no-preference) {
+  .slab {
+    animation: slide 0.8s var(--ease-out) both;
+  }
+
+  .axis {
+    animation: appear 0.5s ease-out 0.7s both;
+  }
+
+  .stack {
+    --place: calc(var(--index) - 91 + var(--days));
+    animation: rise calc(var(--day-rows) * 18ms + 160ms)
+      steps(var(--day-rows), end) calc(var(--place) * 13ms + 450ms) both;
+  }
+
+  .inside .stack {
+    animation-name: sink;
+    animation-duration: calc(var(--day-rows) * 40ms + 160ms);
+    animation-delay: calc(var(--place) * 13ms + 1000ms);
+  }
+}
+
+@keyframes slide {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes rise {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes sink {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The keyboard's way through the chart: a range input that is there for
+   assistive technology and the keyboard, and shows nothing of its own. */
+.stepper {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.frame:has(.stepper:focus-visible) {
+  outline: 3px solid var(--ring);
+  outline-offset: 6px;
+}

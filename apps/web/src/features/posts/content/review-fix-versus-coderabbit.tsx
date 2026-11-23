@@ -163,7 +163,7 @@ const ReviewFixWorkflow = (): ReactNode => (
 const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 The result</MDXHeadingOne>
+      <MDXHeadingOne>The result</MDXHeadingOne>
       <MDXHeadingTwo>
         Fifteen material findings to zero valid findings.
       </MDXHeadingTwo>
@@ -191,7 +191,7 @@ const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 What the findings would have broken</MDXHeadingOne>
+      <MDXHeadingOne>What the findings would have broken</MDXHeadingOne>
       <MDXHeadingTwo>
         The findings changed whether the work was safe to ship.
       </MDXHeadingTwo>
@@ -264,7 +264,7 @@ const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 CodeRabbit's false positive</MDXHeadingOne>
+      <MDXHeadingOne>CodeRabbit's false positive</MDXHeadingOne>
       <MDXHeadingTwo>
         The whole package already followed one consistent design.
       </MDXHeadingTwo>
@@ -300,7 +300,7 @@ const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 How review-fix moves through a change</MDXHeadingOne>
+      <MDXHeadingOne>How review-fix moves through a change</MDXHeadingOne>
       <MDXHeadingTwo>
         It is a bounded workflow with a hard stop and a human handoff.
       </MDXHeadingTwo>

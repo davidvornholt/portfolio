@@ -8,12 +8,9 @@ const anchorCssNames = {
   line300: 'line-300',
   ink900: 'ink-900',
   ink600: 'ink-600',
-  green700: 'green-700',
-  green800: 'green-800',
-  clay600: 'clay-600',
-  deepGround900: 'deep-ground-900',
-  deepInk100: 'deep-ink-100',
-  deepGreen300: 'deep-green-300',
+  ink400: 'ink-400',
+  ink200: 'ink-200',
+  red600: 'red-600',
 } as const satisfies Readonly<Record<keyof typeof themeAnchorColors, string>>;
 
 type Oklch = Readonly<{

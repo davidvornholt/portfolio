@@ -6,78 +6,47 @@ import { OgCard } from '../presentation/components/og-card';
 import { loadGoogleFont } from './og-fonts';
 import { ogImageSize } from './og-image-size';
 
-const sansWeight = 500 as const;
-const serifWeight = 600 as const;
-const monoWeight = 400 as const;
+const family = 'Sofia Sans';
+const boldWeight = 700 as const;
+const regularWeight = 400 as const;
 
 type OgCardProps = Readonly<{
-  eyebrow: string;
   title: string;
-  italicPhrase?: string;
+  subtitle?: string;
   footerLeft: string;
   footerRight: string;
 }>;
 
 export const createOgImageResponse = Effect.fn('createOgImageResponse')(
   function* (props: OgCardProps) {
-    const { eyebrow, title, italicPhrase, footerLeft, footerRight } = props;
+    const { title, subtitle, footerLeft, footerRight } = props;
 
     const fonts = yield* Effect.all(
       [
         loadGoogleFont({
-          family: 'IBM Plex Sans',
-          weight: sansWeight,
-          // The card uppercases the eyebrow, so subset the uppercase glyphs.
-          text: eyebrow.toUpperCase(),
+          family,
+          weight: boldWeight,
+          text: `${title}${footerLeft}`,
         }).pipe(
           Effect.map((data) => ({
-            name: 'IBM Plex Sans',
+            name: family,
             data,
-            weight: sansWeight,
+            weight: boldWeight,
             style: 'normal' as const,
           })),
         ),
         loadGoogleFont({
-          family: 'Source Serif 4',
-          weight: serifWeight,
-          text: title,
+          family,
+          weight: regularWeight,
+          text: `${subtitle ?? ''}${footerRight}`,
         }).pipe(
           Effect.map((data) => ({
-            name: 'Source Serif 4',
+            name: family,
             data,
-            weight: serifWeight,
+            weight: regularWeight,
             style: 'normal' as const,
           })),
         ),
-        loadGoogleFont({
-          family: 'IBM Plex Mono',
-          weight: monoWeight,
-          text: `${footerLeft}${footerRight}`,
-        }).pipe(
-          Effect.map((data) => ({
-            name: 'IBM Plex Mono',
-            data,
-            weight: monoWeight,
-            style: 'normal' as const,
-          })),
-        ),
-        ...(italicPhrase === undefined
-          ? []
-          : [
-              loadGoogleFont({
-                family: 'Source Serif 4',
-                weight: serifWeight,
-                text: italicPhrase,
-                italic: true,
-              }).pipe(
-                Effect.map((data) => ({
-                  name: 'Source Serif 4',
-                  data,
-                  weight: serifWeight,
-                  style: 'italic' as const,
-                })),
-              ),
-            ]),
       ],
       { concurrency: 'unbounded' },
     );

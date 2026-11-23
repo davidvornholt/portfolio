@@ -1,52 +1,29 @@
-import { SiGithub, SiX } from '@icons-pack/react-simple-icons';
-import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { LinkedInLogo } from './linkedin-logo';
 
-type SocialLink = {
-  readonly label: string;
-  readonly href: string;
-  readonly icon: ReactNode;
-};
-
-const socialLinks: ReadonlyArray<SocialLink> = [
-  {
-    label: 'GitHub',
-    href: 'https://github.com/davidvornholt',
-    icon: <SiGithub className="size-5" />,
-  },
+const socialLinks = [
+  { label: 'GitHub', href: 'https://github.com/davidvornholt' },
   {
     label: 'LinkedIn',
     href: 'https://www.linkedin.com/in/david-vornholt-055239366',
-    icon: (
-      <LinkedInLogo className="size-5 opacity-60 transition-opacity duration-200 hover:opacity-100" />
-    ),
   },
-  {
-    label: 'X',
-    href: 'https://x.com/davidvornholt',
-    icon: <SiX className="size-5" />,
-  },
+  { label: 'X', href: 'https://x.com/davidvornholt' },
 ] as const;
 
-const SocialIcon = ({ link }: { readonly link: SocialLink }): ReactNode => (
-  <Link
-    href={link.href}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={link.label}
-    data-umami-event="social-link"
-    data-umami-event-network={link.label}
-    className="text-muted-foreground transition-colors hover:text-foreground"
-  >
-    {link.icon}
-  </Link>
-);
-
 export const SocialLinks = (): ReactNode => (
-  <div className="flex items-center gap-4">
+  <ul className="flex flex-wrap gap-x-6 gap-y-2 font-semibold">
     {socialLinks.map((link) => (
-      <SocialIcon key={link.href} link={link} />
+      <li key={link.href}>
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-umami-event="social-link"
+          data-umami-event-network={link.label}
+          className="underline decoration-2 underline-offset-4 hover:decoration-4"
+        >
+          {link.label}
+        </a>
+      </li>
     ))}
-  </div>
+  </ul>
 );

@@ -1,70 +1,52 @@
-import { easing } from '@portfolio/ui/easing';
-import { Clock, ExternalLink, Users } from 'lucide-react';
-import { header as MotionHeader } from 'motion/react-client';
+import type { StaticImageData } from 'next/image';
+import Image from 'next/image';
 import type { ReactNode } from 'react';
-
-import { Badge } from '@/shared/ui/presentation/components/badge';
-import { Separator } from '@/shared/ui/presentation/components/separator';
 
 type CaseStudyLayoutProps = Readonly<{
   title: string;
   subtitle: string;
-  timeline: string;
+  since: string;
   role: string;
+  stage: string;
   techStack: ReadonlyArray<string>;
   liveUrl?: string;
+  image: Readonly<{ src: StaticImageData; alt: string; caption?: string }>;
   children: ReactNode;
 }>;
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-100px' },
-};
 
 export const CaseStudyLayout = ({
   title,
   subtitle,
-  timeline,
+  since,
   role,
+  stage,
   techStack,
   liveUrl,
+  image,
   children,
 }: CaseStudyLayoutProps): ReactNode => (
-  <article className="pb-24">
-    <MotionHeader
-      {...fadeInUp}
-      transition={{ duration: 0.6, ease: easing }}
-      className="mx-auto mt-12 mb-16 max-w-4xl px-6"
-    >
-      <p className="mb-4 font-medium text-primary text-sm uppercase tracking-widest">
-        Case study
-      </p>
-      <h1 className="mb-6 font-semibold font-serif text-4xl text-foreground leading-tight md:text-5xl lg:text-6xl">
+  <article className="page-column pt-8 pb-24 md:pt-12">
+    <header>
+      <h1 className="max-w-4xl font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
         {title}
       </h1>
-      <p className="mb-8 max-w-2xl font-serif text-muted-foreground text-xl italic md:text-2xl">
+      <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
         {subtitle}
       </p>
 
-      <div className="flex flex-wrap items-center gap-6 text-sm">
-        <div className="flex items-center gap-2">
-          <Clock className="size-4 text-primary" />
-          <span className="text-muted-foreground">{timeline}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Users className="size-4 text-primary" />
-          <span className="text-muted-foreground">{role}</span>
-        </div>
-      </div>
-
-      <div className="mt-6 flex flex-wrap gap-2">
-        {techStack.map((tech) => (
-          <Badge key={tech} variant="secondary" className="font-mono text-xs">
-            {tech}
-          </Badge>
+      <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 leading-snug">
+        {[
+          ['My part', role],
+          ['Since', since],
+          ['Stage', stage],
+          ['Built with', techStack.join(', ')],
+        ].map(([term, value]) => (
+          <div key={term}>
+            <dt className="text-muted-foreground text-sm">{term}</dt>
+            <dd className="font-semibold">{value}</dd>
+          </div>
         ))}
-      </div>
+      </dl>
 
       {liveUrl === undefined ? null : (
         <a
@@ -73,16 +55,29 @@ export const CaseStudyLayout = ({
           rel="noopener noreferrer"
           data-umami-event="live-platform-visit"
           data-umami-event-title={title}
-          className="mt-8 inline-flex h-9 items-center justify-center gap-2 bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary-strong"
+          className="mt-8 inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground"
         >
-          Visit live platform
-          <ExternalLink className="size-4" />
+          Visit {new URL(liveUrl).host}
         </a>
       )}
-    </MotionHeader>
 
-    <Separator className="mx-auto mb-16 max-w-4xl" />
+      <figure className="mt-12 max-w-5xl">
+        <Image
+          src={image.src}
+          alt={image.alt}
+          priority={true}
+          placeholder="blur"
+          sizes="(min-width: 80rem) 64rem, 100vw"
+          className="w-full border border-border"
+        />
+        {image.caption === undefined ? null : (
+          <figcaption className="mt-2 text-muted-foreground text-sm">
+            {image.caption}
+          </figcaption>
+        )}
+      </figure>
+    </header>
 
-    <div className="mx-auto max-w-4xl">{children}</div>
+    {children}
   </article>
 );

@@ -1,8 +1,4 @@
-import { easing } from '@portfolio/ui/easing';
-import { Code2 } from 'lucide-react';
-import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
-import { Badge } from '@/shared/ui/presentation/components/badge';
 import { getMdxNodeText } from './mdx-node-text';
 import { SyntaxHighlighter } from './syntax-highlighter';
 
@@ -43,25 +39,14 @@ export const MDXCodeSnippet = ({
   const code = reindentCode(source);
 
   return (
-    <MotionDiv
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.6, ease: easing }}
-      className="my-8 border border-border"
-    >
+    <div className="my-8 bg-muted">
       {title === undefined ? null : (
-        <div className="flex items-center gap-2 border-border border-b bg-muted/50 px-4 py-3">
-          <Code2 className="size-4 shrink-0 text-muted-foreground" />
-          <span className="wrap-anywhere min-w-0 font-mono text-muted-foreground text-xs">
-            {title}
-          </span>
-          <Badge variant="outline" className="ml-auto text-xs">
-            {language}
-          </Badge>
+        <div className="flex items-baseline justify-between gap-4 px-5 pt-4 text-muted-foreground text-sm">
+          <span className="wrap-anywhere min-w-0">{title}</span>
+          <span className="shrink-0">{language}</span>
         </div>
       )}
       <SyntaxHighlighter code={code} language={language} />
-    </MotionDiv>
+    </div>
   );
 };

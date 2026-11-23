@@ -83,27 +83,23 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/posts" label="All posts" />
-      <article className="mx-auto max-w-4xl px-6 pt-32 pb-24">
-        <header className="my-12 border-border border-b pb-8">
-          <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-            {post.meta.category}
-          </p>
-          <h1 className="mb-4 font-semibold font-serif text-4xl text-foreground md:text-5xl">
+      <BackNavigation href="/posts" label="All articles" />
+      <article className="page-column pt-8 pb-24 md:pt-12">
+        <header className="max-w-4xl">
+          <h1 className="font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
             {post.meta.title}
           </h1>
           {post.meta.subtitle === undefined ? null : (
-            <p className="mb-4 text-lg text-muted-foreground">
+            <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
               {post.meta.subtitle}
             </p>
           )}
-          <div className="flex items-center gap-4 text-muted-foreground text-sm">
+          <p className="mt-6 text-muted-foreground">
             <time dateTime={post.meta.date}>
               {formatPostDate(post.meta.date)}
             </time>
-            <span>·</span>
-            <span>{post.meta.readTime}</span>
-          </div>
+            , {post.meta.readTime}
+          </p>
         </header>
         <Body />
       </article>

@@ -1,25 +1,20 @@
-import { easing } from '@portfolio/ui/easing';
-import { div as MotionDiv } from 'motion/react-client';
 import type { ReactNode } from 'react';
 
-// The bar has its final width from the start and grows from the left edge by
-// scaling, so the server-rendered markup shows the full bar. The `<noscript>`
-// style in the root layout resets the scaled start frame without JavaScript.
+// A bar's share of its track. The value comes from the post's data, so it
+// reaches the browser as the bar's own width.
 export const ChartBarFill = ({
   percentage,
-  delaySeconds,
   className,
 }: Readonly<{
   percentage: number;
-  delaySeconds: number;
   className: string;
 }>): ReactNode => (
-  <MotionDiv
-    initial={{ scaleX: 0 }}
-    whileInView={{ scaleX: 1 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.8, delay: delaySeconds, ease: easing }}
-    style={{ width: `${percentage}%` }}
-    className={`h-full origin-left ${className}`}
-  />
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 100 1"
+    preserveAspectRatio="none"
+    className={`block size-full fill-current ${className}`}
+  >
+    <rect width={percentage} height="1" />
+  </svg>
 );

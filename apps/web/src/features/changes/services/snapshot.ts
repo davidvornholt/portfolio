@@ -52,15 +52,38 @@ const Day = Schema.Struct({
 });
 
 /**
- * Everything the page knows about merged changes: one entry per calendar day
- * in Germany, oldest first, ending with the day the data was fetched.
+ * What the checks said about every change merged into this site's own
+ * repository since its first one.
+ */
+const SiteRecord = Schema.Struct({
+  repository: Schema.String,
+  firstMergedOn: IsoDay,
+  passed: Schema.Int,
+  failed: Schema.Int,
+  unchecked: Schema.Int,
+});
+
+/** Changes merged into a public project that David does not maintain. */
+const AcceptedProject = Schema.Struct({
+  repository: Schema.String,
+  changes: Schema.Int,
+});
+
+/**
+ * Everything the page knows about merged changes. `days` has one entry per
+ * calendar day in Germany, oldest first, ending with the day the data was
+ * fetched. `site` and `elsewhere` reach back to the first change.
  */
 export const Snapshot = Schema.Struct({
   updatedOn: IsoDay,
   days: Schema.NonEmptyArray(Day),
+  site: SiteRecord,
+  elsewhere: Schema.Array(AcceptedProject),
 });
 
 export type Snapshot = typeof Snapshot.Type;
 export type SnapshotDay = typeof Day.Type;
 export type SnapshotChange = typeof Change.Type;
 export type SnapshotAttempt = typeof SentBackAttempt.Type;
+export type SnapshotSiteRecord = typeof SiteRecord.Type;
+export type SnapshotAcceptedProject = typeof AcceptedProject.Type;

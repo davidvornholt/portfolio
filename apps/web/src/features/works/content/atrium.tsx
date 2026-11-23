@@ -11,12 +11,13 @@ import {
   MDXParagraph,
   MDXStrong,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
+import atriumImage from './images/atrium.png';
 import type { Work } from './work-meta';
 
 const AtriumBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 The school day, on paper</MDXHeadingOne>
+      <MDXHeadingOne>The school day, on paper</MDXHeadingOne>
       <MDXHeadingTwo>
         A school runs on a hundred small records a day.
       </MDXHeadingTwo>
@@ -35,7 +36,7 @@ const AtriumBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The judgment calls</MDXHeadingOne>
+      <MDXHeadingOne>The judgment calls</MDXHeadingOne>
       <MDXHeadingTwo>Most of the architecture is restraint.</MDXHeadingTwo>
       <MDXCheckList>
         <MDXCheckItem
@@ -58,7 +59,7 @@ const AtriumBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 One contract, every surface</MDXHeadingOne>
+      <MDXHeadingOne>One contract, every surface</MDXHeadingOne>
       <MDXHeadingTwo>
         A single typed API schema is the source of truth.
       </MDXHeadingTwo>
@@ -78,16 +79,13 @@ const AtriumBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 Where it stands</MDXHeadingOne>
+      <MDXHeadingOne>Where it stands</MDXHeadingOne>
       <MDXHeadingTwo>In pilot at its first school.</MDXHeadingTwo>
       <MDXParagraph>
         The Freie Evangelische Schule Kirchheim runs the first Atrium pilot. The
         path there is its own story: a website engagement that grew into
         infrastructure and then into a product. It is told in the{' '}
         <MDXAnchor href="/works/fes-kirchheim">FESK case study</MDXAnchor>.
-      </MDXParagraph>
-      <MDXParagraph>
-        A public home for the product is coming at atrium.schule this autumn.
       </MDXParagraph>
     </MDXSection>
   </>
@@ -96,16 +94,20 @@ const AtriumBody = (): ReactNode => (
 export const atriumWork: Work = {
   meta: {
     title: 'Atrium',
-    subtitle: 'A platform for the operative day of a school',
+    subtitle: 'A school’s day in one place',
     slug: 'atrium',
     date: '2026-08-17',
-    timeline: '2026 – present',
+    since: '2026',
     role: 'Founder',
+    stage: 'In pilot at its first school',
     techStack: ['TypeScript', 'Effect', 'Bun', 'TanStack Start'],
     summary:
-      'The operative day of a school in one place: class register, absences, sick notes, parent letters, cleaning rota. One typed contract from API to screen.',
-    outcome:
-      'In pilot at its first school, the Freie Evangelische Schule Kirchheim. A public home at atrium.schule follows this autumn.',
+      'Class register, absences, sick notes, parent letters and the cleaning rota in one system instead of spreadsheets and paper. Grades and certificates stay in the school’s official records.',
+    image: {
+      src: atriumImage,
+      alt: 'Atrium’s cleaning rota: four families, each with an area of the school building for the week.',
+      caption: 'The design for the coming version, with invented demo data.',
+    },
   },
   body: AtriumBody,
 };

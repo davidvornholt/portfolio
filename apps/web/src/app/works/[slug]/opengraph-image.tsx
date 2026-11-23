@@ -29,8 +29,8 @@ const OpengraphImage = async ({
 
   return Effect.runPromise(
     createOgImageResponse({
-      eyebrow: 'Case study',
       title: work.meta.title,
+      subtitle: work.meta.subtitle,
       footerLeft: 'David Vornholt',
       footerRight: new URL(siteUrl).host,
     }),

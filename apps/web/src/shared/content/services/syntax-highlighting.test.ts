@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { Cause, Effect, Option } from 'effect';
 import { ShikiHighlightError } from '../errors/content-errors';
-import { warmPrintCodeTheme } from '../presentation/components/code-theme';
+import { inkCodeTheme } from '../presentation/components/code-theme';
 import { highlightCode } from './syntax-highlighting';
 
 describe('highlightCode', () => {
@@ -10,7 +10,7 @@ describe('highlightCode', () => {
       highlightCode({
         code: 'const answer = 42;',
         language: 'typescript',
-        theme: warmPrintCodeTheme,
+        theme: inkCodeTheme,
       }),
     );
 
@@ -23,7 +23,7 @@ describe('highlightCode', () => {
       highlightCode({
         code: 'not valid for a missing grammar',
         language: 'not-a-real-language',
-        theme: warmPrintCodeTheme,
+        theme: inkCodeTheme,
       }),
     );
 

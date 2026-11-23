@@ -9,7 +9,7 @@ import { StudyScorecard } from './study-outcomes';
 
 export const StudyFindings = (): ReactNode => (
   <MDXSection>
-    <MDXHeadingOne>02 The difference was working software</MDXHeadingOne>
+    <MDXHeadingOne>The difference was working software</MDXHeadingOne>
     <MDXParagraph>
       <MDXStrong>Astra found and repaired three important bugs</MDXStrong> that
       the cheaper setups did not independently catch. These affected normal,

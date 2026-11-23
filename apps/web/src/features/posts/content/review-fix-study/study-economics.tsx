@@ -9,7 +9,7 @@ import { CostFigure } from './study-charts';
 
 export const StudyEconomics = (): ReactNode => (
   <MDXSection>
-    <MDXHeadingOne>04 Lower cost did not mean equivalent work</MDXHeadingOne>
+    <MDXHeadingOne>Lower cost did not mean equivalent work</MDXHeadingOne>
     <MDXParagraph>
       I estimated what the two latest tasks would cost at the model prices
       recorded for the study. These are estimates from recorded usage, not

@@ -40,7 +40,7 @@ export default async function NewsPage() {
 const SolvingTheColdBootProblemBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 Five seconds of nothing</MDXHeadingOne>
+      <MDXHeadingOne>Five seconds of nothing</MDXHeadingOne>
       <MDXHeadingTwo>The first visitor of the day always paid.</MDXHeadingTwo>
       <MDXParagraph>
         A parent checks the school website on a phone, on the way to drop-off.
@@ -63,7 +63,7 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The diagnosis</MDXHeadingOne>
+      <MDXHeadingOne>The diagnosis</MDXHeadingOne>
       <MDXHeadingTwo>Rendering on demand was the wrong default.</MDXHeadingTwo>
       <MDXParagraph>
         The content changes a few times a day. The pages were being rendered
@@ -82,7 +82,7 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 The architecture</MDXHeadingOne>
+      <MDXHeadingOne>The architecture</MDXHeadingOne>
       <MDXHeadingTwo>Render per change, not per request.</MDXHeadingTwo>
       <MDXParagraph>
         The rebuilt platform uses Next.js with{' '}
@@ -100,7 +100,7 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 What it saved</MDXHeadingOne>
+      <MDXHeadingOne>What it saved</MDXHeadingOne>
       <MDXHeadingTwo>Speed and cost come from the same decision.</MDXHeadingTwo>
       <MDXParagraph>
         Rendering per change instead of per request collapses the load. A
@@ -113,22 +113,16 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
           label="Cold boot time"
           value="0s"
           subtext="Down from 5 seconds"
-          trend="down"
-          icon="zap"
         />
         <MDXStatCard
           label="Infrastructure cost"
           value="-60%"
           subtext="Per year"
-          trend="down"
-          icon="trendingDown"
         />
         <MDXStatCard
           label="Lighthouse performance"
           value="100"
           subtext="Core Web Vitals"
-          trend="up"
-          icon="gauge"
         />
       </MDXStatGrid>
       <MDXAttributedBlockquote author="Feedback from the FESK administration">

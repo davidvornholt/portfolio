@@ -9,7 +9,7 @@ import {
 
 export const StudyDecision = (): ReactNode => (
   <MDXSection>
-    <MDXHeadingOne>05 One default, one less decision</MDXHeadingOne>
+    <MDXHeadingOne>One default, one less decision</MDXHeadingOne>
     <MDXParagraph>
       I will use{' '}
       <MDXStrong>

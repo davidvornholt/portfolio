@@ -4,18 +4,17 @@ import { siteUrl } from '@/config/site';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
-export const alt = 'David Vornholt, founder & CTO';
+export const alt = 'David Vornholt, co-founder and CTO of ProsaBridge';
 export const size = ogImageSize;
 export const contentType = 'image/png';
 
 const OpengraphImage = (): Promise<ImageResponse> =>
   Effect.runPromise(
     createOgImageResponse({
-      eyebrow: 'Founder & CTO',
       title: 'David Vornholt',
-      italicPhrase: 'Speaking the languages of humans and machines.',
+      subtitle: 'AI writes most of my code. It still has to get over this bar.',
       footerLeft: new URL(siteUrl).host,
-      footerRight: 'Portfolio',
+      footerRight: 'Co-founder and CTO of ProsaBridge',
     }),
   );
 

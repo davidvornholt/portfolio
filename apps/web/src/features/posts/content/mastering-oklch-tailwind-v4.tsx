@@ -46,7 +46,7 @@ const themeSnippet = `/* theme.css: the single source of design values */
 const MasteringOklchBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 The problem with HSL</MDXHeadingOne>
+      <MDXHeadingOne>The problem with HSL</MDXHeadingOne>
       <MDXHeadingTwo>
         Its lightness number does not mean lightness.
       </MDXHeadingTwo>
@@ -70,7 +70,7 @@ const MasteringOklchBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 Enter OKLCH</MDXHeadingOne>
+      <MDXHeadingOne>Enter OKLCH</MDXHeadingOne>
       <MDXHeadingTwo>A color space built on measured perception.</MDXHeadingTwo>
       <MDXParagraph>
         OKLCH, from CSS Color Level 4, describes color as lightness, chroma, and
@@ -81,22 +81,16 @@ const MasteringOklchBody = (): ReactNode => (
       </MDXParagraph>
       <MDXFeatureGrid>
         <MDXFeatureCard
-          icon="zap"
           title="L: lightness"
           description="0 to 1. The same L value is the same perceived brightness for every hue, which makes contrast something you can calculate."
-          delay={0}
         />
         <MDXFeatureCard
-          icon="gauge"
           title="C: chroma"
           description="Color intensity from gray outward. Lowering it desaturates cleanly instead of drifting toward mud."
-          delay={0.1}
         />
         <MDXFeatureCard
-          icon="lineChart"
           title="H: hue"
           description="The angle on the color wheel. Rotating it keeps lightness and intensity stable, so hue shifts stay smooth."
-          delay={0.2}
         />
       </MDXFeatureGrid>
       <MDXParagraph>
@@ -108,7 +102,7 @@ const MasteringOklchBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 Beyond sRGB</MDXHeadingOne>
+      <MDXHeadingOne>Beyond sRGB</MDXHeadingOne>
       <MDXHeadingTwo>
         HEX cannot name the colors modern screens show.
       </MDXHeadingTwo>
@@ -123,28 +117,22 @@ const MasteringOklchBody = (): ReactNode => (
           label="Legacy sRGB"
           value="35%"
           subtext="Of the visible spectrum"
-          trend="down"
-          icon="server"
         />
         <MDXStatCard
           label="Display P3"
           value="+25%"
           subtext="More colors than sRGB"
-          trend="up"
-          icon="zap"
         />
         <MDXStatCard
           label="Browser support"
           value="95%+"
           subtext="For oklch() in CSS"
-          trend="up"
-          icon="checkCircle"
         />
       </MDXStatGrid>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 Implementation in Tailwind v4</MDXHeadingOne>
+      <MDXHeadingOne>Implementation in Tailwind v4</MDXHeadingOne>
       <MDXHeadingTwo>
         Primitive ramps, semantic aliases, utilities.
       </MDXHeadingTwo>

@@ -8,7 +8,7 @@ import {
 
 export const StudyCoordination = (): ReactNode => (
   <MDXSection>
-    <MDXHeadingOne>03 A stronger supervisor was not enough</MDXHeadingOne>
+    <MDXHeadingOne>A stronger supervisor was not enough</MDXHeadingOne>
     <MDXParagraph>
       The obvious compromise was to put Astra in charge while cheaper Luna
       agents did the reviewing and fixing. Astra was better at rejecting weak

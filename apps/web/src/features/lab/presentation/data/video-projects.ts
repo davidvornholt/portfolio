@@ -1,6 +1,5 @@
 export type VideoProject = Readonly<{
   id: string;
-  number: string;
   title: string;
   date: string;
   language: string;
@@ -12,7 +11,6 @@ export type VideoProject = Readonly<{
 export const videoProjects: ReadonlyArray<VideoProject> = [
   {
     id: 'im-schatten-des-roten-sterns',
-    number: '01',
     title:
       'Im Schatten des Roten Sterns – Die Geschichte der UdSSR (Dokumentarfilm)',
     date: 'July 2026',
@@ -24,7 +22,6 @@ export const videoProjects: ReadonlyArray<VideoProject> = [
   },
   {
     id: 'pas-besoin-de-souffrir',
-    number: '02',
     title: 'Pas besoin de souffrir',
     date: 'February 2026',
     language: 'French',
@@ -35,7 +32,6 @@ export const videoProjects: ReadonlyArray<VideoProject> = [
   },
   {
     id: 'une-journee-normale',
-    number: '03',
     title: 'Une Journée Normale',
     date: 'March 2025',
     language: 'French',
@@ -46,7 +42,6 @@ export const videoProjects: ReadonlyArray<VideoProject> = [
   },
   {
     id: 'comment-ne-pas-faire-ses-devoirs',
-    number: '04',
     title: 'Comment ne pas faire ses devoirs',
     date: 'June 2024',
     language: 'French',
@@ -57,7 +52,6 @@ export const videoProjects: ReadonlyArray<VideoProject> = [
   },
   {
     id: 'das-blut',
-    number: '05',
     title: 'Das Blut — Blutaufbau, Bluttransfusionen & mehr',
     date: 'April 2024',
     language: 'German',
@@ -68,7 +62,6 @@ export const videoProjects: ReadonlyArray<VideoProject> = [
   },
   {
     id: 'nous-sommes-louis-et-david',
-    number: '06',
     title: 'Nous Sommes Louis et David',
     date: 'September 2023',
     language: 'French',

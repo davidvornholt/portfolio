@@ -17,12 +17,13 @@ import {
   MDXStatCard,
   MDXStatGrid,
 } from '@/shared/content/presentation/components/mdx-metric-components';
+import fesKirchheimImage from './images/fes-kirchheim.png';
 import type { Work } from './work-meta';
 
 const FesKirchheimBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 The starting point</MDXHeadingOne>
+      <MDXHeadingOne>The starting point</MDXHeadingOne>
       <MDXHeadingTwo>A good school behind a slow website.</MDXHeadingTwo>
       <MDXParagraph>
         The Freie Evangelische Schule Kirchheim is a strong school that looked
@@ -37,56 +38,44 @@ const FesKirchheimBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The results</MDXHeadingOne>
+      <MDXHeadingOne>The results</MDXHeadingOne>
       <MDXHeadingTwo>Measured, not estimated.</MDXHeadingTwo>
       <MDXStatGrid>
         <MDXStatCard
           label="Cold boot time"
           value="0s"
           subtext="Down from 5 seconds"
-          trend="down"
-          icon="zap"
         />
         <MDXStatCard
           label="Lighthouse score"
           value="100"
           subtext="SEO and best practices"
-          trend="up"
-          icon="gauge"
         />
         <MDXStatCard
           label="Time to interactive"
           value="3x"
           subtext="Faster than the legacy site"
-          trend="up"
-          icon="lineChart"
         />
         <MDXStatCard
           label="Search impressions"
           value="+300%"
           subtext="Year over year"
-          trend="up"
-          icon="search"
         />
         <MDXStatCard
           label="Click-through rate"
           value="2.5x"
           subtext="In search results"
-          trend="up"
-          icon="trendingUp"
         />
         <MDXStatCard
           label="Infrastructure cost"
           value="-60%"
           subtext="Per year"
-          trend="down"
-          icon="server"
         />
       </MDXStatGrid>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 The build</MDXHeadingOne>
+      <MDXHeadingOne>The build</MDXHeadingOne>
       <MDXHeadingTwo>Boring architecture, chosen deliberately.</MDXHeadingTwo>
       <MDXParagraph>
         The site moved to Next.js with server rendering and incremental static
@@ -111,7 +100,7 @@ const FesKirchheimBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 The second chapter: infrastructure</MDXHeadingOne>
+      <MDXHeadingOne>The second chapter: infrastructure</MDXHeadingOne>
       <MDXHeadingTwo>
         The school now owns its platform, declaratively.
       </MDXHeadingTwo>
@@ -125,7 +114,7 @@ const FesKirchheimBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>05 The third chapter: Atrium</MDXHeadingOne>
+      <MDXHeadingOne>The third chapter: Atrium</MDXHeadingOne>
       <MDXHeadingTwo>From client to pilot school.</MDXHeadingTwo>
       <MDXParagraph>
         Working inside the school’s daily operations showed how much of the
@@ -153,18 +142,20 @@ const FesKirchheimBody = (): ReactNode => (
 export const fesKirchheimWork: Work = {
   meta: {
     title: 'Freie Evangelische Schule Kirchheim',
-    subtitle:
-      'A website engagement that grew into infrastructure, then into a product pilot',
+    subtitle: 'A school website that appears at once',
     slug: 'fes-kirchheim',
     date: '2024-08-01',
-    timeline: 'August 2024 – present',
-    role: 'Lead full stack developer',
+    since: 'August 2024',
+    role: 'Lead developer',
+    stage: 'In daily use',
     techStack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'NixOS'],
     liveUrl: 'https://fes-kirchheim.de',
     summary:
-      'The digital home of a school: a fast, accessible website, the declarative infrastructure under it, and the groundwork that made FESK the first Atrium pilot school.',
-    outcome:
-      'Cold boots eliminated, search impressions tripled, infrastructure cost down 60 percent. Now the first Atrium pilot school.',
+      'The old site took five seconds to appear. The new one is there at once, costs 60 percent less to run, and the school office edits it without a developer. Search shows it four times as often as before.',
+    image: {
+      src: fesKirchheimImage,
+      alt: 'The home page of the Freie Evangelische Schule Kirchheim, with the headline “Schule, die Freude bereitet.”',
+    },
   },
   body: FesKirchheimBody,
 };

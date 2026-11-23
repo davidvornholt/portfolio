@@ -35,7 +35,7 @@ export type Work = Readonly<{
 const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 What this site is for</MDXHeadingOne>
+      <MDXHeadingOne>What this site is for</MDXHeadingOne>
       <MDXHeadingTwo>A portfolio is a claim you have to back up.</MDXHeadingTwo>
       <MDXParagraph>
         This site says I build software carefully. That claim is cheap unless
@@ -47,7 +47,7 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The design: warm print</MDXHeadingOne>
+      <MDXHeadingOne>The design: warm print</MDXHeadingOne>
       <MDXHeadingTwo>Paper, ink, and one green voice.</MDXHeadingTwo>
       <MDXParagraph>
         The current design borrows its rules from print. The background is a
@@ -70,7 +70,7 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 Content is TypeScript</MDXHeadingOne>
+      <MDXHeadingOne>Content is TypeScript</MDXHeadingOne>
       <MDXHeadingTwo>The compiler replaced the content pipeline.</MDXHeadingTwo>
       <MDXParagraph>
         The first version of this blog ran on Velite: posts were MDX files,
@@ -98,7 +98,7 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 How it ships</MDXHeadingOne>
+      <MDXHeadingOne>How it ships</MDXHeadingOne>
       <MDXHeadingTwo>Agents write the code. Gates decide.</MDXHeadingTwo>
       <MDXParagraph>
         Agents write most of the code on this site, under the same rules as

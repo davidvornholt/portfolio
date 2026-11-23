@@ -82,14 +82,16 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/#works" label="Back to works" />
+      <BackNavigation href="/#work" label="Home" />
       <CaseStudyLayout
         title={work.meta.title}
         subtitle={work.meta.subtitle}
-        timeline={work.meta.timeline}
+        since={work.meta.since}
         role={work.meta.role}
+        stage={work.meta.stage}
         techStack={work.meta.techStack}
         liveUrl={work.meta.liveUrl}
+        image={work.meta.image}
       >
         <Body />
       </CaseStudyLayout>

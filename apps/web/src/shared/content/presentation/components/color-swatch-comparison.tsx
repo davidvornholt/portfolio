@@ -1,7 +1,5 @@
 'use client';
 
-import { easing } from '@portfolio/ui/easing';
-import { div as MotionDiv } from 'motion/react-client';
 import { type ReactNode, useState } from 'react';
 import { ChartBarFill } from './chart-bar-fill';
 
@@ -86,19 +84,7 @@ const oklchSwatches: ReadonlyArray<Swatch> = [
   },
 ];
 
-// =============================================================================
-// Animation
-// =============================================================================
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-100px' },
-};
-
-const swatchStaggerSeconds = 0.06;
 const fallbackBrightnessPercent = 50;
-const brightnessBarDelaySeconds = 0.3;
 
 // =============================================================================
 // Sub-components
@@ -106,51 +92,29 @@ const brightnessBarDelaySeconds = 0.3;
 
 type SwatchCardProps = Readonly<{
   swatch: Swatch;
-  index: number;
   isActive: boolean;
 }>;
 
-const SwatchCard = ({
-  swatch,
-  index,
-  isActive,
-}: SwatchCardProps): ReactNode => (
-  <MotionDiv
-    initial={{ opacity: 0, scale: 0.9 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true }}
-    transition={{
-      duration: 0.4,
-      delay: index * swatchStaggerSeconds,
-      ease: easing,
-    }}
-    className="flex flex-col items-center gap-2"
-  >
+const SwatchCard = ({ swatch, isActive }: SwatchCardProps): ReactNode => (
+  <div className="flex flex-col items-center gap-2">
     <div
       className={`relative h-16 w-full border border-border sm:h-20 ${swatch.colorClassName}`}
       data-slot="color-swatch"
     />
     <div className="flex flex-col items-center gap-0.5 text-center">
-      <span className="font-medium text-foreground text-xs">
-        {swatch.label}
-      </span>
-      <span className="font-mono text-[10px] text-muted-foreground">
+      <span className="font-semibold text-sm">{swatch.label}</span>
+      <span className="font-mono text-muted-foreground text-xs">
         L: {swatch.lightness}
       </span>
     </div>
     {isActive ? (
-      <MotionDiv
-        initial={{ opacity: 0, height: 0 }}
-        animate={{ opacity: 1, height: 'auto' }}
-        transition={{ ease: easing }}
-        className="wrap-anywhere max-w-full px-0 py-1 text-center sm:px-2"
-      >
-        <span className="text-[10px] text-muted-foreground leading-tight">
+      <div className="wrap-anywhere max-w-full px-0 py-1 text-center sm:px-2">
+        <span className="text-muted-foreground text-xs leading-tight">
           {swatch.perceivedNote}
         </span>
-      </MotionDiv>
+      </div>
     ) : null}
-  </MotionDiv>
+  </div>
 );
 
 type SwatchRowProps = Readonly<{
@@ -173,29 +137,22 @@ const SwatchRow = ({
   <div className="space-y-4">
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <h4 className="font-semibold text-foreground text-sm">{title}</h4>
+        <h4 className="font-bold">{title}</h4>
         <span
-          className={`px-2.5 py-0.5 font-medium text-[10px] uppercase tracking-wider ${
-            tagVariant === 'broken'
-              ? 'bg-destructive/10 text-destructive'
-              : 'bg-primary/10 text-primary'
+          className={`font-semibold text-sm ${
+            tagVariant === 'broken' ? 'text-failed' : 'text-foreground'
           }`}
         >
           {tag}
         </span>
       </div>
-      <p className="hidden text-muted-foreground text-xs sm:block">
+      <p className="hidden text-muted-foreground text-sm sm:block">
         {description}
       </p>
     </div>
     <div className="grid grid-cols-5 gap-3">
-      {swatches.map((swatch, index) => (
-        <SwatchCard
-          key={swatch.label}
-          swatch={swatch}
-          index={index}
-          isActive={isActive}
-        />
+      {swatches.map((swatch) => (
+        <SwatchCard key={swatch.label} swatch={swatch} isActive={isActive} />
       ))}
     </div>
   </div>
@@ -234,8 +191,8 @@ const BrightnessBar = ({ swatches, label }: BrightnessBarProps): ReactNode => {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
-          {label} — perceived brightness
+        <span className="text-muted-foreground text-sm">
+          {label}: perceived brightness
         </span>
       </div>
       <div className="grid grid-cols-5 gap-3">
@@ -247,13 +204,10 @@ const BrightnessBar = ({ swatches, label }: BrightnessBarProps): ReactNode => {
               <div className="h-1.5 w-full overflow-hidden bg-muted">
                 <ChartBarFill
                   percentage={brightness}
-                  delaySeconds={brightnessBarDelaySeconds}
-                  className={
-                    label === 'HSL' ? 'bg-destructive/60' : 'bg-primary'
-                  }
+                  className={label === 'HSL' ? 'text-failed' : 'text-foreground'}
                 />
               </div>
-              <span className="block text-center font-mono text-[10px] text-muted-foreground">
+              <span className="block text-center font-mono text-muted-foreground text-xs">
                 {brightness}%
               </span>
             </div>
@@ -272,23 +226,16 @@ export const ColorSwatchComparison = (): ReactNode => {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <MotionDiv
-      {...fadeInUp}
-      transition={{ duration: 0.6, ease: easing }}
-      className="my-10 border border-border"
-    >
+    <div className="my-10 border border-border">
       {/* Header */}
       <div className="flex items-center justify-between border-border border-b px-5 py-3">
-        <div className="flex items-center gap-2">
-          <div className="size-2.5 rounded-full bg-primary" />
-          <span className="font-medium text-muted-foreground text-xs">
-            Interactive comparison
-          </span>
-        </div>
+        <span className="text-muted-foreground text-sm">
+          Interactive comparison
+        </span>
         <button
           type="button"
           onClick={() => setShowDetails((prev) => !prev)}
-          className="px-2.5 py-1 font-medium text-[11px] text-primary transition-colors hover:bg-primary/5"
+          className="font-semibold text-sm underline decoration-2 underline-offset-4 hover:decoration-4"
         >
           {showDetails ? 'Hide notes' : 'Show notes'}
         </button>
@@ -298,7 +245,7 @@ export const ColorSwatchComparison = (): ReactNode => {
       <div className="space-y-8 p-5 sm:p-6">
         {/* HSL Row */}
         <SwatchRow
-          title="HSL — 50% lightness"
+          title="HSL at 50% lightness"
           tag="Non-uniform"
           tagVariant="broken"
           swatches={hslSwatches}
@@ -309,21 +256,11 @@ export const ColorSwatchComparison = (): ReactNode => {
         {/* Brightness comparison */}
         <BrightnessBar swatches={hslSwatches} label="HSL" />
 
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-border border-t border-dashed" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-background px-3 font-medium text-[10px] text-muted-foreground uppercase tracking-widest">
-              vs
-            </span>
-          </div>
-        </div>
+        <hr className="border-border" />
 
         {/* OKLCH Row */}
         <SwatchRow
-          title="OKLCH — 0.6 lightness"
+          title="OKLCH at 0.6 lightness"
           tag="Perceptually uniform"
           tagVariant="correct"
           swatches={oklchSwatches}
@@ -337,13 +274,13 @@ export const ColorSwatchComparison = (): ReactNode => {
 
       {/* Footer insight */}
       <div className="border-border border-t px-5 py-3">
-        <p className="text-center text-[11px] text-muted-foreground">
+        <p className="text-center text-muted-foreground text-sm">
           HSL blue at 50% lightness appears{' '}
           <strong className="text-foreground">3.4×</strong> darker than HSL
           yellow at 50% lightness. In OKLCH, all five colors share identical
           perceived brightness.
         </p>
       </div>
-    </MotionDiv>
+    </div>
   );
 };

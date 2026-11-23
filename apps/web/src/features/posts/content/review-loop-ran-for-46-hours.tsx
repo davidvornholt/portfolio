@@ -123,7 +123,7 @@ const RunawayDiffFigure = (): ReactNode => (
 const ReviewLoopRanFor46HoursBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 Forty-six hours later</MDXHeadingOne>
+      <MDXHeadingOne>Forty-six hours later</MDXHeadingOne>
       <MDXHeadingTwo>
         A 179-line change had become 37,451 added lines.
       </MDXHeadingTwo>
@@ -162,7 +162,7 @@ const ReviewLoopRanFor46HoursBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The workflow began reviewing itself</MDXHeadingOne>
+      <MDXHeadingOne>The workflow began reviewing itself</MDXHeadingOne>
       <MDXHeadingTwo>
         Roughly 260 findings concerned code written during the run.
       </MDXHeadingTwo>
@@ -193,7 +193,7 @@ const ReviewLoopRanFor46HoursBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 It escaped the pull request</MDXHeadingOne>
+      <MDXHeadingOne>It escaped the pull request</MDXHeadingOne>
       <MDXHeadingTwo>
         The branch changed live repository settings and broke unrelated CI.
       </MDXHeadingTwo>
@@ -213,7 +213,7 @@ const ReviewLoopRanFor46HoursBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 Silence was the wrong finish line</MDXHeadingOne>
+      <MDXHeadingOne>Silence was the wrong finish line</MDXHeadingOne>
       <MDXHeadingTwo>
         A capable reviewer can always descend one level deeper.
       </MDXHeadingTwo>
@@ -238,7 +238,7 @@ const ReviewLoopRanFor46HoursBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>05 Seven files survived</MDXHeadingOne>
+      <MDXHeadingOne>Seven files survived</MDXHeadingOne>
       <MDXHeadingTwo>The useful change fit into 217 added lines.</MDXHeadingTwo>
       <MDXParagraph>
         I reopened the original feature and its first-pass hardening as{' '}

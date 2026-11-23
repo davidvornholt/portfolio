@@ -23,12 +23,12 @@ type FinalCommit = NonNullable<
 >['commit'];
 
 // GitHub returns at most this many results for one search.
-const searchLimit = 1000;
+export const searchLimit = 1000;
 const daysPerSearch = 7;
 const concurrentSearches = 3;
 const retries = 4;
 
-const request = <A, R>(
+export const request = <A, R>(
   operation: string,
   effect: Effect.Effect<A, GraphQLClientError.GraphQLClientError, R>,
 ) =>
@@ -43,7 +43,7 @@ const request = <A, R>(
     ),
   );
 
-const allPages = Effect.fnUntraced(function* <Node, E, R>(
+export const allPages = Effect.fnUntraced(function* <Node, E, R>(
   page: (
     after: string | null,
   ) => Effect.Effect<GraphQLClient.NodesConnection<Node | null>, E, R>,
@@ -99,7 +99,7 @@ const judged = Effect.fnUntraced(function* (node: PrivatePullRequestNode) {
   };
 });
 
-const publicChange = Effect.fnUntraced(function* (node: PublicPullRequestNode) {
+export const publicChange = Effect.fnUntraced(function* (node: PublicPullRequestNode) {
   const change: FetchedChange = {
     ...(yield* judged(node)),
     source: {
@@ -149,7 +149,7 @@ const changesWithin = Effect.fnUntraced(function* (
   return yield* Effect.forEach(nodes, privateChange);
 });
 
-const countWithin = Effect.fnUntraced(function* (query: string) {
+export const countWithin = Effect.fnUntraced(function* (query: string) {
   const github = yield* GitHubGraphQL;
   const result = yield* request(
     'count merged changes',

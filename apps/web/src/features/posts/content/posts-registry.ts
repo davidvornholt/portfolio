@@ -18,8 +18,9 @@ export const posts: ReadonlyArray<Post> = [
 ];
 
 export const featuredPosts: ReadonlyArray<Post> = [
-  executableEngineeringStandardsPost,
+  reviewFixVersusCodeRabbitPost,
   reviewLoopRanFor46HoursPost,
+  cheapAiCodeReviewsPost,
   solvingTheColdBootProblemPost,
 ];
 

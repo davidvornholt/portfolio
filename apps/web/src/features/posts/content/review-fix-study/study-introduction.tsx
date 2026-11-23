@@ -9,7 +9,7 @@ import { StudyConfigurations } from './study-outcomes';
 
 export const StudyIntroduction = (): ReactNode => (
   <MDXSection>
-    <MDXHeadingOne>01 Could cheaper models handle the reviews?</MDXHeadingOne>
+    <MDXHeadingOne>Could cheaper models handle the reviews?</MDXHeadingOne>
     <MDXParagraph>
       I wanted to spend less on AI-assisted development. Code review seemed like
       a reasonable place to save. Let a cheaper model check the work and bring

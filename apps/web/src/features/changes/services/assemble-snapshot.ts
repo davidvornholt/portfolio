@@ -1,6 +1,12 @@
 import { DateTime, Order } from 'effect';
 import { berlinDay, daysEndingOn } from './berlin-day';
-import type { Snapshot, SnapshotAttempt, SnapshotChange } from './snapshot';
+import type {
+  Snapshot,
+  SnapshotAcceptedProject,
+  SnapshotAttempt,
+  SnapshotChange,
+  SnapshotSiteRecord,
+} from './snapshot';
 import type { Verdict } from './verdict';
 
 /** A merged change as fetched. `source` is undefined for a private repository. */
@@ -76,11 +82,15 @@ export const assembleSnapshot = ({
   dayCount,
   changes,
   attempts,
+  site,
+  elsewhere,
 }: Readonly<{
   fetchedAt: DateTime.Utc;
   dayCount: number;
   changes: ReadonlyArray<MergedChange>;
   attempts: ReadonlyArray<FailedAttempt>;
+  site: SnapshotSiteRecord;
+  elsewhere: ReadonlyArray<SnapshotAcceptedProject>;
 }>): Snapshot => {
   const updatedOn = berlinDay(fetchedAt);
   const changesByDay = groupByDay(
@@ -105,5 +115,5 @@ export const assembleSnapshot = ({
   if (firstDay === undefined) {
     throw new RangeError('A snapshot covers at least one day.');
   }
-  return { updatedOn, days: [firstDay, ...laterDays] };
+  return { updatedOn, days: [firstDay, ...laterDays], site, elsewhere };
 };

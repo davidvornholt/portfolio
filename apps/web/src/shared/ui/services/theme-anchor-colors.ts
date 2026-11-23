@@ -6,15 +6,12 @@
  * update its mirror here.
  */
 export const themeAnchorColors = {
-  paper100: '#f8f3ea',
-  paper200: '#f0eadf',
-  line300: '#d5cdc0',
-  ink900: '#281e17',
-  ink600: '#60564e',
-  green700: '#245333',
-  green800: '#164225',
-  clay600: '#a55a37',
-  deepGround900: '#251c16',
-  deepInk100: '#f0ebe1',
-  deepGreen300: '#7cb88c',
+  paper100: '#fafafa',
+  paper200: '#f0f0f1',
+  line300: '#d0d1d2',
+  ink900: '#0f0f11',
+  ink600: '#4f5053',
+  ink400: '#858689',
+  ink200: '#aaabad',
+  red600: '#dd141e',
 } as const;

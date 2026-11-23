@@ -2,105 +2,133 @@ import type { ReactNode } from 'react';
 import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
 
 /**
- * Shared warm-print card for Open Graph images: paper ground, one hairline
- * frame, eyebrow + serif display + mono footer. Rendered by satori, which
- * requires inline styles and explicit flex displays.
+ * The card for Open Graph images: the title on paper, standing on the bar,
+ * with a short row of squares beside it. Rendered by satori, which requires
+ * inline styles and explicit flex displays.
  */
 const longTitleLength = 40;
-const longTitleFontSize = 64;
-const titleFontSize = 88;
+const longTitleFontSize = 60;
+const titleFontSize = 84;
+const squareSize = 16;
+const squareGap = 4;
+
+// A fixed, decorative skyline: how many squares stand in each column.
+const skyline = [2, 4, 3, 6, 4, 7, 5, 3, 6, 8, 5, 7] as const;
+
+const Skyline = (): ReactNode => (
+  <div style={{ display: 'flex', alignItems: 'flex-end', gap: squareGap }}>
+    {skyline.map((height, column) => (
+      <div
+        // biome-ignore lint/suspicious/noArrayIndexKey: the columns are a fixed decoration and never reorder.
+        key={column}
+        style={{ display: 'flex', flexDirection: 'column', gap: squareGap }}
+      >
+        {Array.from({ length: height }, (_, row) => (
+          <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: the squares of a column are identical and never reorder.
+            key={row}
+            style={{
+              width: squareSize,
+              height: squareSize,
+              backgroundColor: themeAnchorColors.ink900,
+            }}
+          />
+        ))}
+      </div>
+    ))}
+  </div>
+);
 
 export const OgCard = ({
-  eyebrow,
   title,
-  italicPhrase,
+  subtitle,
   footerLeft,
   footerRight,
 }: Readonly<{
-  eyebrow: string;
   title: string;
-  italicPhrase?: string;
+  subtitle?: string;
   footerLeft: string;
   footerRight: string;
 }>): ReactNode => (
   <div
     style={{
       display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
       width: '100%',
       height: '100%',
       backgroundColor: themeAnchorColors.paper100,
-      padding: 40,
+      fontFamily: 'Sofia Sans',
     }}
   >
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        flex: 1,
-        border: `1px solid ${themeAnchorColors.line300}`,
-        padding: 64,
+        gap: 20,
+        padding: '72px 72px 0',
       }}
     >
       <div
         style={{
           display: 'flex',
-          fontFamily: 'IBM Plex Sans',
-          fontSize: 24,
-          fontWeight: 500,
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          color: themeAnchorColors.green700,
+          fontSize:
+            title.length > longTitleLength ? longTitleFontSize : titleFontSize,
+          fontWeight: 700,
+          lineHeight: 1.05,
+          letterSpacing: '-0.02em',
+          color: themeAnchorColors.ink900,
         }}
       >
-        {eyebrow}
+        {title}
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {subtitle === undefined ? null : (
         <div
           style={{
             display: 'flex',
-            fontFamily: 'Source Serif 4',
-            fontSize:
-              title.length > longTitleLength
-                ? longTitleFontSize
-                : titleFontSize,
-            fontWeight: 600,
-            lineHeight: 1.1,
-            color: themeAnchorColors.ink900,
+            fontSize: 34,
+            fontWeight: 400,
+            lineHeight: 1.3,
+            color: themeAnchorColors.ink600,
           }}
         >
-          {title}
+          {subtitle}
         </div>
-        {italicPhrase === undefined ? null : (
-          <div
-            style={{
-              display: 'flex',
-              fontFamily: 'Source Serif 4',
-              fontSize: 36,
-              fontStyle: 'italic',
-              color: themeAnchorColors.clay600,
-            }}
-          >
-            {italicPhrase}
-          </div>
-        )}
-      </div>
+      )}
+    </div>
 
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          padding: `0 72px ${squareGap}px`,
+        }}
+      >
+        <Skyline />
+      </div>
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          borderTop: `1px solid ${themeAnchorColors.line300}`,
-          paddingTop: 32,
-          fontFamily: 'IBM Plex Mono',
-          fontSize: 24,
-          color: themeAnchorColors.ink600,
+          padding: '28px 72px',
+          backgroundColor: themeAnchorColors.ink900,
+          color: themeAnchorColors.paper100,
+          fontSize: 28,
+          fontWeight: 700,
         }}
       >
         <div style={{ display: 'flex' }}>{footerLeft}</div>
-        <div style={{ display: 'flex' }}>{footerRight}</div>
+        <div
+          style={{
+            display: 'flex',
+            fontWeight: 400,
+            color: themeAnchorColors.ink200,
+          }}
+        >
+          {footerRight}
+        </div>
       </div>
     </div>
   </div>

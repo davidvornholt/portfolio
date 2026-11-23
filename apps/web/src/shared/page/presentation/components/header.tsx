@@ -1,41 +1,34 @@
-import { easing } from '@portfolio/ui/easing';
-import { header as MotionHeader } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { type NavItem, navItems } from './nav-items';
-import { SocialLinks } from './social-links';
-
-const NavLink = ({ item }: { readonly item: NavItem }): ReactNode => (
-  <Link
-    href={item.href}
-    className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
-  >
-    {item.label}
-  </Link>
-);
+import { BarMark } from '@/shared/ui/presentation/components/bar-mark';
+import { contactItem, navItems } from './nav-items';
 
 export const Header = (): ReactNode => (
-  <MotionHeader
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, ease: easing }}
-    className="fixed inset-x-0 top-0 z-50 border-border border-b bg-background"
-  >
-    <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+  <header className="page-column flex h-16 items-center justify-between md:h-19">
+    <Link
+      href="/"
+      className="inline-flex items-center gap-2.5 font-bold text-lg tracking-tight"
+    >
+      <BarMark className="h-4 w-4.5" />
+      David Vornholt
+    </Link>
+
+    <nav aria-label="Main" className="flex items-center gap-8 font-medium">
+      {navItems.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className="hidden underline-offset-4 hover:underline hover:decoration-2 md:inline"
+        >
+          {item.label}
+        </Link>
+      ))}
       <Link
-        href="/"
-        className="font-semibold font-serif text-foreground text-lg tracking-tight"
+        href={contactItem.href}
+        className="inline-flex h-11 items-center border-2 border-foreground px-4 hover:bg-foreground hover:text-background"
       >
-        David Vornholt
+        {contactItem.label}
       </Link>
-
-      <div className="hidden items-center gap-8 md:flex">
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
-      </div>
-
-      <SocialLinks />
     </nav>
-  </MotionHeader>
+  </header>
 );

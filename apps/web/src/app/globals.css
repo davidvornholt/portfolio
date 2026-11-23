@@ -107,6 +107,12 @@
 }
 
 @layer components {
+  /* The mark's square and bar turn and move about their own middles. */
+  .mark-hops rect {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
   /* The footer's square drops onto its bar over the first stretch of its way
      into view, short enough that it has landed when the page ends,
      where the browser can tie an animation to scrolling. */

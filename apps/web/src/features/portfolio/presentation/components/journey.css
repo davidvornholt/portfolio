@@ -51,10 +51,13 @@
     stroke-dasharray: 1;
   }
 
+  /* The loop's word and arrow come in softly while the loop is drawn. */
   .journey-arrow,
   .journey-loop-label {
     fill: var(--foreground);
-    transition: opacity 0.3s var(--ease-out);
+    transition:
+      opacity 0.6s var(--ease-out),
+      translate 0.6s var(--ease-out);
   }
 
   .journey-loop-label {
@@ -103,6 +106,10 @@
     opacity: 0;
   }
 
+  .journey-loop-label[data-lit="off"] {
+    translate: 0 0.4rem;
+  }
+
   /* What the review said, beside its station. */
   .journey-flag {
     position: absolute;
@@ -115,7 +122,9 @@
     font-weight: 600;
     line-height: 1.2;
     white-space: nowrap;
-    transition: opacity 0.3s var(--ease-out);
+    transition:
+      opacity 0.5s var(--ease-out),
+      translate 0.5s var(--ease-out);
   }
 
   @media (min-width: 48rem) {
@@ -126,22 +135,27 @@
     }
   }
 
-  .journey-flag [data-flag-text="bad"],
-  .journey-flag[data-lit="bad"] [data-flag-text="ok"] {
-    display: none;
-  }
-
-  .journey-flag[data-lit="bad"] {
+  /* Two verdicts share the place. Drawn is the second one, and while the
+     way plays, one fades out as the other fades in. */
+  .journey-flag[data-flag="bad"] {
     border-color: var(--failed);
     color: var(--failed);
   }
 
-  .journey-flag[data-lit="bad"] [data-flag-text="bad"] {
-    display: inline;
+  .journey-flag[data-flag="bad"]:not([data-lit="on"]),
+  .journey-flag[data-flag="ok"][data-lit="off"] {
+    opacity: 0;
+    translate: 0 0.4rem;
   }
 
-  .journey-flag[data-lit="off"] {
-    opacity: 0;
+  /* The first verdict leaves before the second arrives, so the two are
+     never read on top of each other. */
+  .journey-flag[data-flag="bad"][data-lit="off"] {
+    transition-duration: 0.2s;
+  }
+
+  .journey-flag[data-flag="ok"][data-lit="on"] {
+    transition-delay: 0.15s;
   }
 
   /* The bar: what is live. The line leaves it and comes back to it. */

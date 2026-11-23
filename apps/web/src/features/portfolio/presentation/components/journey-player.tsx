@@ -31,7 +31,7 @@ const searchRounds = 30;
 const half = 2;
 const cubic = 3;
 
-type Lit = 'off' | 'on' | 'bad' | 'ok';
+type Lit = 'off' | 'on' | 'bad';
 
 type Stage = Readonly<{
   root: HTMLElement;
@@ -189,7 +189,8 @@ const firstRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
     to: lengths.review,
     duration: pace.toReview,
   });
-  setLit(root, '[data-node="review"], [data-flag]', 'bad');
+  setLit(root, '[data-node="review"]', 'bad');
+  setLit(root, '[data-flag="bad"]', 'on');
   setCurrent(root, 'review');
   await sleep(pace.verdict, stage.signal);
 };
@@ -222,7 +223,8 @@ const secondRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
     },
   });
   reach(root, 'review');
-  setLit(root, '[data-flag]', 'ok');
+  setLit(root, '[data-flag="bad"]', 'off');
+  setLit(root, '[data-flag="ok"]', 'on');
   await sleep(pace.second, stage.signal);
   await travel(stage, {
     path: route,

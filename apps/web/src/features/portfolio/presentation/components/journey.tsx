@@ -56,9 +56,11 @@ export const Journey = (): ReactNode => (
       <div className="journey-stage page-column" data-stage="">
         <JourneyDiagram geometry={wideGeometry} size="wide" />
         <JourneyDiagram geometry={narrowGeometry} size="narrow" />
-        <p aria-hidden="true" className="journey-flag" data-flag="">
-          <span data-flag-text="bad">3 blockers</span>
-          <span data-flag-text="ok">Round 2: nothing found</span>
+        <p aria-hidden="true" className="journey-flag" data-flag="bad">
+          3 blockers
+        </p>
+        <p aria-hidden="true" className="journey-flag" data-flag="ok">
+          Round 2: nothing found
         </p>
       </div>
       <div aria-hidden="true" className="journey-bar bleed">

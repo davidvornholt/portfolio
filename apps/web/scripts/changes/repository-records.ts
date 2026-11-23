@@ -76,12 +76,15 @@ const byChangesThenName = Order.combine(
 
 /**
  * The public repositories of other owners that merged a change by `login`,
- * with how many each merged, the most first.
+ * with how many each merged, the most first. `ownOwners` are the accounts and
+ * organisations whose repositories are `login`'s own. The search leaves them
+ * out, so the answer doesn't depend on whose token asks.
  */
 export const fetchAcceptedElsewhere = Effect.fn('fetchAcceptedElsewhere')(
-  function* (login: string) {
+  function* (login: string, ownOwners: ReadonlyArray<string>) {
     const github = yield* GitHubGraphQL;
-    const query = `is:pr is:merged is:public author:${login} -user:${login}`;
+    const own = ownOwners.map((owner) => `-user:${owner}`).join(' ');
+    const query = `is:pr is:merged is:public author:${login} ${own}`;
     yield* withinOneSearch(query);
     const nodes = yield* allPages('the changes merged elsewhere', (after) =>
       request(
@@ -91,14 +94,10 @@ export const fetchAcceptedElsewhere = Effect.fn('fetchAcceptedElsewhere')(
     );
     const merged = new Map<string, number>();
     for (const { repository } of nodes) {
-      // An organisation that `login` belongs to grants more than `READ`, and
-      // its repositories are not someone else's.
-      if (repository.viewerPermission === 'READ') {
-        merged.set(
-          repository.nameWithOwner,
-          (merged.get(repository.nameWithOwner) ?? 0) + 1,
-        );
-      }
+      merged.set(
+        repository.nameWithOwner,
+        (merged.get(repository.nameWithOwner) ?? 0) + 1,
+      );
     }
     return [...merged]
       .map(

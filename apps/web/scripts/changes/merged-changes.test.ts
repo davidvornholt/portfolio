@@ -145,7 +145,7 @@ describe('fetchMergedChanges beyond the limits of one request', () => {
           Effect.succeed(
             found([privateNode(checks([passedCheck], moreAfter('more'), 2))]),
           ),
-        commitChecks: ({ after }) =>
+        pullRequestChecks: ({ after }) =>
           Effect.succeed({
             node: {
               statusCheckRollup: {

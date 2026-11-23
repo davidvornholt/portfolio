@@ -171,6 +171,19 @@ describe('trusted preview consumer boundary', () => {
   });
 });
 
+// Actions, checks, metadata, pull requests and statuses.
+const readPermissionsPerToken = 5;
+const mintedOwnerPattern = /^ {10}owner: (?<owner>\S+)$/gmu;
+const namedOwnersPattern = /^ {10}CHANGES_OWNERS: (?<owners>\S+)$/mu;
+const usedTokenPattern =
+  /steps\.changes-token-(?<owner>[\w-]+)\.outputs\.token/gu;
+const clientIdUsePattern = /steps\.changes-app-client-id\.outputs\.value/gu;
+const privateKeyUsePattern = /steps\.changes-app-private-key\.outputs\.value/gu;
+const readPermissionPattern = /permission-[a-z-]+: read/gu;
+const writePermissionPattern = /permission-[a-z-]+: write/u;
+const appTokenStepPattern = /uses: actions\/create-github-app-token@/gu;
+const changesTokenStepPattern = /id: changes-token-/gu;
+
 describe('chart data on publish', () => {
   const buildJob = producer.slice(
     producer.indexOf('  build:'),
@@ -182,24 +195,46 @@ describe('chart data on publish', () => {
   );
 
   it('fetches the day’s changes with read-only tokens before anything is built', () => {
-    const resolve = buildJob.indexOf('secret-key: changes_github_tokens');
+    const clientId = buildJob.indexOf('secret-key: changes_app.client_id');
+    const privateKey = buildJob.indexOf('secret-key: changes_app.private_key');
     const install = buildJob.indexOf('bun install --frozen-lockfile');
     const fetch = buildJob.indexOf('bun run --cwd apps/web changes:fetch');
     const build = buildJob.indexOf('name: Build and publish the commit image');
 
-    expect(resolve).toBeGreaterThan(0);
-    expect(install).toBeGreaterThan(resolve);
+    expect(clientId).toBeGreaterThan(0);
+    expect(privateKey).toBeGreaterThan(clientId);
+    expect(install).toBeGreaterThan(privateKey);
     expect(fetch).toBeGreaterThan(install);
     expect(build).toBeGreaterThan(fetch);
-    expect(
-      buildJob.match(/steps\.changes-tokens\.outputs\.value/gu),
-    ).toHaveLength(1);
+  });
+
+  it('mints one read-only token for each of the owners it names', () => {
+    const minted = [...buildJob.matchAll(mintedOwnerPattern)].map(
+      (match) => match.groups?.owner ?? '',
+    );
+    const named = namedOwnersPattern.exec(buildJob)?.groups?.owners?.split(',');
+    const used = [...buildJob.matchAll(usedTokenPattern)].map(
+      (match) => match.groups?.owner ?? '',
+    );
+
+    expect(minted.length).toBeGreaterThan(0);
+    expect(named).toEqual(minted);
+    // Each token is named once, in the step that fetches the data.
+    expect(used).toEqual(minted);
+    // The App's credentials reach the mint steps and nothing else.
+    expect(buildJob.match(clientIdUsePattern)).toHaveLength(minted.length);
+    expect(buildJob.match(privateKeyUsePattern)).toHaveLength(minted.length);
+    expect(buildJob.match(readPermissionPattern)).toHaveLength(
+      minted.length * readPermissionsPerToken,
+    );
+    expect(buildJob).not.toMatch(writePermissionPattern);
   });
 
   it('never gives the tokens to a pull request build', () => {
     expect(pullRequestJob).not.toContain('sops-secret');
     expect(pullRequestJob).not.toContain('secrets.');
     expect(pullRequestJob).not.toContain('changes:fetch');
+    expect(pullRequestJob).not.toContain('create-github-app-token');
   });
 
   it('says that a build is released only in the release build', () => {
@@ -289,7 +324,13 @@ describe('production release boundary', () => {
   it('no longer announces images to an infrastructure repository', () => {
     expect(producer).not.toContain('IMAGE_PROMOTION');
     expect(producer).not.toContain('image-bump');
-    expect(producer).not.toContain('create-github-app-token');
+    // The only App tokens left in this workflow are the read-only ones that
+    // fetch the chart's data. The broker App, which can write, stays out.
+    expect(producer).not.toContain('broker_app');
+    expect(releaseJob).not.toContain('create-github-app-token');
+    expect(producer.match(appTokenStepPattern)).toHaveLength(
+      producer.match(changesTokenStepPattern)?.length ?? 0,
+    );
   });
 
   it('rolls back from main of this repository in the same queue as releases', () => {

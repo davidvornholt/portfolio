@@ -293,15 +293,92 @@ jobs:
         with:
           persist-credentials: false
 
-      # The tokens can only read. They are resolved before any dependency is
-      # installed and reach the one step that fetches the data.
-      - name: Resolve the tokens that read the merged changes
-        id: changes-tokens
+      # The App that reads the merged changes can write nothing and can't read
+      # code. Its credentials are resolved before any dependency is installed
+      # and reach only the steps that mint tokens from them.
+      - name: Resolve the client ID of the App that reads the changes
+        id: changes-app-client-id
         uses: ./.github/actions/sops-secret
         with:
           age-key: ${{ secrets.SOPS_AGE_KEY }}
           secret-file: secrets/ci.yaml
-          secret-key: changes_github_tokens
+          secret-key: changes_app.client_id
+
+      - name: Resolve the private key of the App that reads the changes
+        id: changes-app-private-key
+        uses: ./.github/actions/sops-secret
+        with:
+          age-key: ${{ secrets.SOPS_AGE_KEY }}
+          secret-file: secrets/ci.yaml
+          secret-key: changes_app.private_key
+
+      # One token per owner the App is installed on, each good for an hour.
+      # These owners and CHANGES_OWNERS below are one list: to add or remove
+      # an owner, change both and install or remove the App there.
+      - name: Mint the token that reads davidvornholt
+        id: changes-token-davidvornholt
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ steps.changes-app-client-id.outputs.value }}
+          private-key: ${{ steps.changes-app-private-key.outputs.value }}
+          owner: davidvornholt
+          permission-actions: read
+          permission-checks: read
+          permission-metadata: read
+          permission-pull-requests: read
+          permission-statuses: read
+
+      - name: Mint the token that reads prosabridge
+        id: changes-token-prosabridge
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ steps.changes-app-client-id.outputs.value }}
+          private-key: ${{ steps.changes-app-private-key.outputs.value }}
+          owner: prosabridge
+          permission-actions: read
+          permission-checks: read
+          permission-metadata: read
+          permission-pull-requests: read
+          permission-statuses: read
+
+      - name: Mint the token that reads atrium-schule
+        id: changes-token-atrium-schule
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ steps.changes-app-client-id.outputs.value }}
+          private-key: ${{ steps.changes-app-private-key.outputs.value }}
+          owner: atrium-schule
+          permission-actions: read
+          permission-checks: read
+          permission-metadata: read
+          permission-pull-requests: read
+          permission-statuses: read
+
+      - name: Mint the token that reads fes-kirchheim
+        id: changes-token-fes-kirchheim
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ steps.changes-app-client-id.outputs.value }}
+          private-key: ${{ steps.changes-app-private-key.outputs.value }}
+          owner: fes-kirchheim
+          permission-actions: read
+          permission-checks: read
+          permission-metadata: read
+          permission-pull-requests: read
+          permission-statuses: read
+
+      - name: Mint the token that reads cg-bibi
+        id: changes-token-cg-bibi
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ steps.changes-app-client-id.outputs.value }}
+          private-key: ${{ steps.changes-app-private-key.outputs.value }}
+          owner: cg-bibi
+          permission-actions: read
+          permission-checks: read
+          permission-metadata: read
+          permission-pull-requests: read
+          permission-statuses: read
 
       - name: Set up Bun for the data fetch
         uses: oven-sh/setup-bun@v2
@@ -316,7 +393,13 @@ jobs:
       # snapshot that is checked in, which only serves previews and tests.
       - name: Fetch the day's merged changes
         env:
-          CHANGES_GITHUB_TOKENS: ${{ steps.changes-tokens.outputs.value }}
+          CHANGES_GITHUB_TOKENS: >-
+            ${{ steps.changes-token-davidvornholt.outputs.token }},
+            ${{ steps.changes-token-prosabridge.outputs.token }},
+            ${{ steps.changes-token-atrium-schule.outputs.token }},
+            ${{ steps.changes-token-fes-kirchheim.outputs.token }},
+            ${{ steps.changes-token-cg-bibi.outputs.token }}
+          CHANGES_OWNERS: davidvornholt,prosabridge,atrium-schule,fes-kirchheim,cg-bibi
         run: bun run --cwd apps/web changes:fetch
 
       - name: Write the build line of the release

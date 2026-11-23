@@ -44,6 +44,15 @@ const tokens = Config.Redacted('CHANGES_GITHUB_TOKENS').pipe(
   ),
 );
 
+// The accounts and organisations whose repositories are David's own,
+// separated like the tokens. A public repository of any other owner counts
+// as someone else's project that accepted a change.
+const ownOwners = Config.String('CHANGES_OWNERS').pipe(
+  Config.map((value) =>
+    value.split(tokenSeparator).filter((owner) => owner !== ''),
+  ),
+);
+
 const gitHub = (token: Redacted.Redacted) =>
   Layer.mergeAll(GitHubGraphQL.layer, GitHubRest.layer).pipe(
     Layer.provide(Layer.succeed(GitHubToken, token)),
@@ -98,11 +107,17 @@ const fetchChanges = Effect.gen(function* () {
       new Error('CHANGES_GITHUB_TOKENS holds no token.'),
     );
   }
+  const owners = yield* ownOwners;
+  if (!owners.includes(login)) {
+    return yield* Effect.fail(
+      new Error(`CHANGES_OWNERS has to name ${login} among the own owners.`),
+    );
+  }
 
   const open = yield* Effect.gen(function* () {
     const visible = yield* changesAndAttempts(searchDays, 'public', new Set());
     const site = yield* fetchSiteRecord(login, siteRepository, fetchedAt);
-    const elsewhere = yield* fetchAcceptedElsewhere(login);
+    const elsewhere = yield* fetchAcceptedElsewhere(login, owners);
     return { ...visible, site, elsewhere };
   }).pipe(Effect.provide(gitHub(firstToken)));
 

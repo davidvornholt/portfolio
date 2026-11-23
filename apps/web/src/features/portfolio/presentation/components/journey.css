@@ -1,16 +1,15 @@
 /* The path of one change, as a square that travels along the bar.
 
-   Without scroll-driven animations, or when the visitor prefers reduced
-   motion, everything below the first media query is the whole design: the
-   six steps as a list and the rail in its final state. Where the browser can
-   tie an animation to scrolling, the section becomes one screen that stays
-   in place while the square moves from station to station. */
+   This file is the whole design where the browser can't tie an animation to
+   scrolling, or the visitor prefers reduced motion: the rail in its final
+   state, and under it the six steps as a list. `journey-motion.css` adds the
+   version in which the rail stays at the top of the screen while the steps
+   scroll past and the square moves with them. */
 @layer components {
   .journey {
     --sq: clamp(1.5rem, min(3.4vw, 5svh), 2.5rem);
     --gap: calc(var(--sq) * 0.12);
     --zone: calc(var(--sq) * 1.6);
-    --bar-h: calc(var(--zone) + 2rem);
     --sink: calc(var(--sq) + (var(--zone) - var(--sq)) / 2);
     padding-block-start: 7rem;
   }
@@ -21,36 +20,9 @@
     }
   }
 
-  .journey-steps {
-    display: grid;
-    gap: 2.5rem 3rem;
-    margin-block-start: 3rem;
-  }
-
-  @media (min-width: 48rem) {
-    .journey-steps {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 80rem) {
-    .journey-steps {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  .journey-rail {
-    margin-block-start: 2.5rem;
-  }
-
-  .journey-title {
-    font-size: 1.5rem;
-    line-height: 1.15;
-  }
-
-  .journey-text {
-    font-size: 1.125rem;
-    line-height: 1.5;
+  .journey-band {
+    margin-block-start: 2rem;
+    background-color: var(--background);
   }
 
   /* The squares stand in here, on top of the bar. Its width is the unit the
@@ -58,22 +30,27 @@
   .journey-track {
     position: relative;
     z-index: 1;
-    block-size: calc(3 * (var(--sq) + var(--gap)) + 1.5rem);
+    block-size: calc(3 * (var(--sq) + var(--gap)) + 0.5rem);
     container-type: inline-size;
   }
 
   .journey-bar {
-    block-size: var(--bar-h);
     background-color: var(--bar);
     color: var(--bar-foreground);
+  }
+
+  /* What happens inside the bar: the checks tick, and what the reviewers
+     catch stays caught. */
+  .journey-inside {
+    position: relative;
+    block-size: var(--zone);
+    container-type: inline-size;
   }
 
   .journey-stations {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    align-items: end;
-    block-size: 100%;
-    padding-block-end: 0.5rem;
+    padding-block: 0.375rem 0.5rem;
     font-size: 0.8125rem;
     font-weight: 600;
     text-align: center;
@@ -145,16 +122,17 @@
     background-color: var(--foreground);
   }
 
-  /* Sixteen checks, one tick each. */
+  /* Sixteen checks, one tick each, at the foot of the bar under the station
+     where they run. */
   .journey-checks {
-    --tick: calc(var(--sq) * 0.14);
+    --tick: calc(var(--sq) * 0.1);
     position: absolute;
-    inset-block-end: calc(var(--sq) + 0.625rem);
+    inset-block-end: 0;
     inline-size: calc(var(--tick) * 31);
-    block-size: calc(var(--tick) * 2.5);
+    block-size: calc(var(--zone) * 0.28);
     background: repeating-linear-gradient(
       to right,
-      var(--foreground) 0 var(--tick),
+      var(--bar-foreground) 0 var(--tick),
       transparent var(--tick) calc(var(--tick) * 2)
     );
   }
@@ -167,12 +145,13 @@
     inset-inline-start: calc(75cqw - var(--tick) * 15.5);
   }
 
-  /* The eight faults the reviewers found, caught in the bar. */
+  /* The eight faults the reviewers found hang under the bar's upper edge,
+     like the attempts sent back in the chart at the top of the page. */
   .journey-caught {
-    --fault: calc(var(--sq) * 0.36);
+    --fault: calc(var(--sq) * 0.32);
     position: absolute;
-    inset-block-start: calc(100% + (var(--zone) - var(--fault)) / 2);
-    inset-inline-start: calc(58.333cqw + var(--sq) / 2 + var(--fault) * 0.8);
+    inset-block-start: calc(var(--zone) * 0.14);
+    inset-inline-start: calc(58.333cqw + var(--sq) / 2 + var(--fault) * 0.7);
     display: grid;
     grid-auto-flow: column;
     gap: calc(var(--fault) * 0.3);
@@ -187,5 +166,33 @@
       transparent 0 64%,
       var(--bar-caught) 0
     );
+  }
+
+  .journey-steps {
+    display: grid;
+    gap: 2.5rem 3rem;
+    margin-block-start: 3rem;
+  }
+
+  @media (min-width: 48rem) {
+    .journey-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .journey-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .journey-title {
+    font-size: 1.5rem;
+    line-height: 1.15;
+  }
+
+  .journey-text {
+    font-size: 1.125rem;
+    line-height: 1.5;
   }
 }

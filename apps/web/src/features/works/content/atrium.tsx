@@ -102,7 +102,7 @@ export const atriumWork: Work = {
     stage: 'In pilot at its first school',
     techStack: ['TypeScript', 'Effect', 'Bun', 'TanStack Start'],
     summary:
-      'Class register, absences, sick notes, parent letters and the cleaning rota in one system instead of spreadsheets and paper. Grades and certificates stay in the school’s official records.',
+      'Class register, absences, sick notes, parent letters and the cleaning rota in one system instead of spreadsheets and paper.',
     image: {
       src: atriumImage,
       alt: 'Atrium’s class register for one Monday, laid out like the paper register German teachers know: six lessons as ruled rows with their numbers in a red margin, the running lesson open with the attendance of 24 children, and signed lessons marked with the teacher’s initials in blue ink.',

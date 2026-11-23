@@ -22,32 +22,7 @@ const otherFixes = [
   },
 ] as const;
 
-const ownProjects = [
-  {
-    name: 'standards',
-    about:
-      'The rules, checks and AI instructions behind every project I run, and the tool that keeps all of them in step.',
-  },
-  {
-    name: 'rota',
-    about:
-      'A photographed wardrobe that keeps its own rotation and proposes one outfit each morning.',
-  },
-  {
-    name: 'runlet',
-    about:
-      'Runs each automated check in a fresh, locked-down container that is thrown away afterwards.',
-  },
-  {
-    name: 'pim',
-    about:
-      'Lets an AI assistant read mail, calendars and contacts. It can draft a reply but never send one.',
-  },
-  {
-    name: 'wordhold',
-    about: 'A vocabulary trainer that learns from photos of a textbook page.',
-  },
-] as const;
+const ownProjects = ['standards', 'rota', 'runlet', 'pim', 'wordhold'] as const;
 
 // One square per merged change, like the squares on the bar.
 const Squares = ({ count }: { readonly count: number }): ReactNode => (
@@ -67,10 +42,10 @@ const Featured = ({ changes }: { readonly changes: number }): ReactNode => (
     rel="noopener noreferrer"
     data-umami-event="accepted-open"
     data-umami-event-project="super-productivity"
-    className="group grid gap-x-14 gap-y-5 border-foreground border-t-2 py-7 md:grid-cols-13 md:py-9"
+    className="group grid gap-x-14 gap-y-5 border-foreground border-t-2 py-7 md:grid-cols-2 md:py-9"
   >
-    <span className="md:col-span-7">
-      <strong className="block font-bold text-2xl tracking-tight underline-offset-4 group-hover:underline group-hover:decoration-2">
+    <span>
+      <strong className="block font-bold text-2xl tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current">
         Super Productivity
       </strong>
       <span className="mt-2 block max-w-xl text-lg text-muted-foreground leading-relaxed">
@@ -79,7 +54,7 @@ const Featured = ({ changes }: { readonly changes: number }): ReactNode => (
         task lists.
       </span>
     </span>
-    <span className="md:col-span-6 md:pt-2">
+    <span className="md:pt-2">
       <Squares count={changes} />
       <span className="mt-3 block font-semibold text-sm">
         {changes} changes merged
@@ -122,7 +97,7 @@ export const Accepted = ({
                 data-umami-event-project={fix.name}
                 className="group block"
               >
-                <strong className="font-bold text-xl tracking-tight underline-offset-4 group-hover:underline group-hover:decoration-2">
+                <strong className="font-bold text-xl tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current">
                   {fix.name}
                 </strong>
                 <span className="mt-1 block max-w-lg text-muted-foreground leading-relaxed">
@@ -134,31 +109,24 @@ export const Accepted = ({
         </ul>
       </div>
 
-      <h3 className="mt-16 font-bold text-2xl tracking-tight md:mt-20">
-        My own projects, open to read
-      </h3>
-      <ul className="mt-6 grid gap-x-14 gap-y-6 md:grid-cols-2">
-        {ownProjects.map((project) => (
-          <li key={project.name}>
+      <p className="mt-10 max-w-3xl text-lg leading-relaxed md:mt-12">
+        My own projects are open to read too:{' '}
+        {ownProjects.map((project, position) => (
+          <span key={project}>
+            {position === 0 ? null : ', '}
             <a
-              href={`https://github.com/davidvornholt/${project.name}`}
+              href={`https://github.com/davidvornholt/${project}`}
               target="_blank"
               rel="noopener noreferrer"
               data-umami-event="open-source-open"
-              data-umami-event-project={project.name}
-              className="group block"
+              data-umami-event-project={project}
+              className={textLinkClassName}
             >
-              <strong className="font-medium font-mono underline-offset-4 group-hover:underline">
-                {project.name}
-              </strong>
-              <span className="mt-0.5 block max-w-lg text-muted-foreground leading-relaxed">
-                {project.about}
-              </span>
+              {project}
             </a>
-          </li>
+          </span>
         ))}
-      </ul>
-      <p className="mt-8">
+        , and{' '}
         <a
           href="https://github.com/davidvornholt"
           target="_blank"
@@ -167,8 +135,9 @@ export const Accepted = ({
           data-umami-event-network="GitHub"
           className={textLinkClassName}
         >
-          Everything on GitHub
+          everything else on GitHub
         </a>
+        .
       </p>
     </Section>
   );

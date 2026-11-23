@@ -36,7 +36,6 @@ const workSummaries: ReadonlyArray<WorkSummary> = works.map((work) => ({
 const postSummaries: ReadonlyArray<PostListEntry> = featuredPosts.map(
   (post) => ({
     title: post.meta.title,
-    excerpt: post.meta.excerpt,
     readTime: post.meta.readTime,
     href: `/posts/${post.meta.slug}`,
   }),

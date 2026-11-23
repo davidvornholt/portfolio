@@ -151,7 +151,7 @@ export const fesKirchheimWork: Work = {
     techStack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'NixOS'],
     liveUrl: 'https://fes-kirchheim.de',
     summary:
-      'The old site took five seconds to appear. The new one is there at once, costs 60 percent less to run, and the school office edits it without a developer. Search shows it four times as often as before.',
+      'The new site appears at once instead of after five seconds, costs 60 percent less to run, and search shows it four times as often.',
     image: {
       src: fesKirchheimImage,
       alt: 'The home page of the Freie Evangelische Schule Kirchheim, with the headline “Schule, die Freude bereitet.”',

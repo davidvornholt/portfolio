@@ -265,8 +265,9 @@
     pointer-events: auto;
   }
 
-  /* The load sequence: the bar slides in, then the days stack up on it from
-     the oldest to today. Without motion the chart is simply there. */
+  /* The load sequence: the bar slides in, then the days rise on it from the
+     oldest to today, each in one smooth move. Without motion the chart is
+     simply there. */
   @media (prefers-reduced-motion: no-preference) {
     .field-slab {
       animation: field-slide 0.8s var(--ease-out) both;
@@ -278,13 +279,13 @@
 
     .field-stack {
       --place: calc(var(--index) - 91 + var(--days));
-      animation: field-rise calc(var(--day-rows) * 18ms + 160ms)
-        steps(var(--day-rows), end) calc(var(--place) * 13ms + 450ms) both;
+      animation: field-rise calc(var(--day-rows) * 14ms + 380ms) var(--ease-out)
+        calc(var(--place) * 13ms + 450ms) both;
     }
 
     .field-inside .field-stack {
       animation-name: field-sink;
-      animation-duration: calc(var(--day-rows) * 40ms + 160ms);
+      animation-duration: calc(var(--day-rows) * 30ms + 380ms);
       animation-delay: calc(var(--place) * 13ms + 1000ms);
     }
   }

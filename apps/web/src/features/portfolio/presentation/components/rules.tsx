@@ -70,7 +70,7 @@ export const Rules = ({
   <Section
     id="rules"
     heading="Every rule is written twice"
-    lede="Once in plain words for people, and once in code for the machine. These are five rules from the project this site is built from, each next to the line that enforces it."
+    lede="Once in plain words for people, and once in code for the machine. Five rules of this site, each beside the line that enforces it."
   >
     <div className="mt-10 md:mt-13">
       <div

@@ -21,10 +21,8 @@ export const Foundations = (): ReactNode => (
           Every project copies the same rules
         </h3>
         <p className="mt-3 max-w-xl text-lg text-muted-foreground leading-relaxed">
-          The rulebook is a public project of its own. Every project of mine
-          holds a copy, and a check fails as soon as a file of that copy is
-          changed by hand. A better rule reaches every project with its next
-          sync.
+          The rulebook is a public project of its own. A check fails as soon as
+          a project’s copy of it is changed by hand.
         </p>
         <p className="mt-4">
           <Link
@@ -40,9 +38,8 @@ export const Foundations = (): ReactNode => (
           A server is written down like code
         </h3>
         <p className="mt-3 max-w-xl text-lg text-muted-foreground leading-relaxed">
-          Which programs run on a server, in which version, and who may reach
-          them stands in files. Building from the same files gives the same
-          server, so a bad change is undone by going back one version.
+          What runs on a server stands in files, so a bad change is undone by
+          going back one version.
         </p>
         <p className="mt-4">
           <a
@@ -61,10 +58,8 @@ export const Foundations = (): ReactNode => (
           That is what lets AI agents work on it
         </h3>
         <p className="mt-3 max-w-xl text-lg text-muted-foreground leading-relaxed">
-          An agent can read all of it. Nothing hides in a dashboard or in
-          someone’s memory, so a change to a server arrives like any other
-          change: as text that has to pass the checks and a review before it
-          touches anything real.
+          An agent can read all of it, and its change to a server has to pass
+          the same checks and review as any other.
         </p>
       </li>
     </ul>

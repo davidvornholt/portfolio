@@ -25,8 +25,7 @@ export const About = (): ReactNode => (
         </p>
         <p className="mt-5 max-w-xl text-lg text-muted-foreground leading-relaxed">
           I speak German and English at native level and get by in French and
-          Spanish. That is part of why I ended up building a translation
-          company.
+          Spanish.
         </p>
       </div>
       <ol className="border-foreground border-t-2 lg:col-span-6 lg:mt-2">

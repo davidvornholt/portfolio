@@ -110,7 +110,7 @@ export const prosabridgeWork: Work = {
     techStack: ['TypeScript', 'LLM pipelines', 'XLIFF', 'PostgreSQL'],
     liveUrl: 'https://prosabridge.com',
     summary:
-      'A publisher sends a manuscript in Word and gets it back in another language, with every heading, footnote and italic where it was. It is built for books and studies of a thousand pages, where a term has to mean the same thing on page 900 as on page 9.',
+      'A publisher sends a manuscript in Word and gets it back in another language, with every heading, footnote and italic where it was.',
     image: {
       src: prosabridgeImage,
       alt: 'ProsaBridge while it translates a book from German into English: 23 of 35 sections are done, and it expects to finish within the hour.',

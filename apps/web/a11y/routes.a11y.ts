@@ -236,40 +236,63 @@ test('the keyboard steps through the chart and each change is described', async 
   ).toBeHidden();
 });
 
-// The section that follows one change holds still while the visitor scrolls
-// and shows its six steps one at a time. With reduced motion it is a list.
-test('the path of one change shows one step at a time while scrolling', async ({
+const stepCount = 6;
+const fourthStepIndex = 3;
+// How far down the screen the middle of the step being read is.
+const readingPlace = 0.58;
+
+// The section that follows one change keeps its rail at the top of the screen
+// while the six steps scroll past, and the step being read is in full ink.
+// With reduced motion the rail scrolls with the page like everything else.
+test('the path of one change keeps its rail in view while its steps scroll', async ({
   page,
 }) => {
   await page.goto('/');
   const section = page.locator('#how');
-  const steps = section.getByRole('listitem');
-  const fourthStep = steps.filter({ hasText: 'Reviewers try to break it' });
-  const thirdStep = steps.filter({ hasText: 'Every check has to pass' });
-  // The middle of the fourth step's share of the scrolling distance.
-  const fourthStepProgress = 0.58;
+  const rail = section.locator('.journey-band');
+  const steps = section
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('heading') });
+  const fourthStep = steps.nth(fourthStepIndex);
+  const lastStep = steps.last();
+  const colorOf = (step: typeof lastStep): Promise<string> =>
+    step.evaluate((element) => getComputedStyle(element).color);
 
-  await section.evaluate((element, progress) => {
-    const top = element.getBoundingClientRect().top + window.scrollY;
-    const distance = element.clientHeight - window.innerHeight;
-    window.scrollTo(0, top + distance * progress);
-  }, fourthStepProgress);
+  // Bring the middle of the fourth step to where a step is read.
+  await fourthStep.evaluate((element, place) => {
+    const box = element.getBoundingClientRect();
+    window.scrollTo({
+      top:
+        box.top + window.scrollY + box.height / 2 - window.innerHeight * place,
+      behavior: 'instant',
+    });
+  }, readingPlace);
 
-  await expect(fourthStep).toHaveCSS('opacity', '1');
-  await expect(thirdStep).toHaveCSS('opacity', '0');
+  await expect
+    .poll(() => rail.evaluate((element) => element.getBoundingClientRect().top))
+    .toBe(0);
+  // The step being read is darker than one that is still to come. The two
+  // colors are compared with each other, because an animated color is written
+  // in another notation than a fixed one.
+  await expect
+    .poll(async () => (await colorOf(fourthStep)) === (await colorOf(lastStep)))
+    .toBe(false);
   expect(await scanWcag22AaViolations(page)).toEqual([]);
 });
 
-test('the path of one change is a list of six steps with reduced motion', async ({
+test('the path of one change is a plain list of six steps with reduced motion', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const steps = page.locator('#how').getByRole('listitem');
-  const stepCount = 6;
+  const section = page.locator('#how');
+  const steps = section
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('heading') });
 
   await expect(steps).toHaveCount(stepCount);
-  for (const step of await steps.all()) {
-    await expect(step).toHaveCSS('opacity', '1');
-  }
+  await expect(section.locator('.journey-band')).toHaveCSS(
+    'position',
+    'static',
+  );
 });

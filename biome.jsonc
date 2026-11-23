@@ -12,7 +12,15 @@
     // biome.jsonc; nested biome.json(c) files are scanner-priority special
     // files, so only force-ignore (`!!`) guarantees they are never discovered
     // as nested roots.
-    "includes": ["**", "!.claude/workflows", "!!.claude/worktrees"]
+    // The changes snapshot is data that `changes:fetch` writes on one line.
+    // Formatting it would turn every refresh into a diff of tens of thousands
+    // of lines.
+    "includes": [
+      "**",
+      "!.claude/workflows",
+      "!!.claude/worktrees",
+      "!apps/web/src/features/changes/data/changes.json"
+    ]
   },
   "overrides": [
     {
@@ -176,6 +184,18 @@
         "rules": {
           "correctness": {
             "noUnresolvedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      // GitHub's REST API answers in snake_case, and this test declares
+      // responses the way the API sends them.
+      "includes": ["apps/web/scripts/changes/failed-attempts.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
           }
         }
       }

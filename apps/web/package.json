@@ -9,7 +9,8 @@
     "start": "bun --bun next start",
     "check-types": "tsc --noEmit",
     "test": "bun test",
-    "test:a11y": "playwright test --config playwright.config.ts"
+    "test:a11y": "playwright test --config playwright.config.ts",
+    "changes:fetch": "bun scripts/changes/fetch-changes.ts"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.15.1",

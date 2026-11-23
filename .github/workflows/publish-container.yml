@@ -4,7 +4,8 @@ name: Publish container
 # trusted preview follow-up, which binds runs by workflow path and id. A push
 # to main builds the commit image while Standards runs, then releases that
 # exact digest once Standards has passed on the exact squash commit, instead
-# of relying on the pull request's checks.
+# of relying on the pull request's checks. The daily run rebuilds the newest
+# commit of main the same way, with the day's data.
 on:
   pull_request:
     types:
@@ -17,6 +18,10 @@ on:
   push:
     branches:
       - main
+  # Once a day, so the chart of merged changes and its "updated" date stay
+  # current without anyone touching the site.
+  schedule:
+    - cron: "17 4 * * *"
 
 permissions: {}
 
@@ -219,7 +224,7 @@ jobs:
   # `check` job for this exact commit — no run, an unfinished run, a run that
   # ended any other way, a missing job, an expired deadline — exits non-zero.
   gate:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -239,7 +244,8 @@ jobs:
           deadline=$(($(date -u +%s) + 2400))
           while :; do
             # Newest first, so a re-run decides. A green run that was later
-            # re-run into a failure must not keep publishing.
+            # re-run into a failure must not keep publishing. The daily run
+            # asks for the same run: the one the push of this commit started.
             run=$(gh api \
               "repos/$REPOSITORY/actions/workflows/$GATE_WORKFLOW/runs?head_sha=$SHA&event=push&per_page=1" \
               --jq '.workflow_runs[0] // empty')
@@ -274,7 +280,7 @@ jobs:
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
   build:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -286,6 +292,32 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+
+      # The tokens can only read. They are resolved before any dependency is
+      # installed and reach the one step that fetches the data.
+      - name: Resolve the tokens that read the merged changes
+        id: changes-tokens
+        uses: ./.github/actions/sops-secret
+        with:
+          age-key: ${{ secrets.SOPS_AGE_KEY }}
+          secret-file: secrets/ci.yaml
+          secret-key: changes_github_tokens
+
+      - name: Set up Bun for the data fetch
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+
+      - name: Install the dependencies of the data fetch
+        run: bun install --frozen-lockfile
+
+      # Fail closed: when the fetch fails, nothing is built or released, and
+      # the live site keeps the chart it has. The image never ships the
+      # snapshot that is checked in, which only serves previews and tests.
+      - name: Fetch the day's merged changes
+        env:
+          CHANGES_GITHUB_TOKENS: ${{ steps.changes-tokens.outputs.value }}
+        run: bun run --cwd apps/web changes:fetch
 
       - name: Write the build line of the release
         env:

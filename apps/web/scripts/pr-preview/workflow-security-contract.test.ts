@@ -171,6 +171,45 @@ describe('trusted preview consumer boundary', () => {
   });
 });
 
+describe('chart data on publish', () => {
+  const buildJob = producer.slice(
+    producer.indexOf('  build:'),
+    producer.indexOf('  release:'),
+  );
+  const pullRequestJob = producer.slice(
+    producer.indexOf('  container-smoke:'),
+    producer.indexOf('  gate:'),
+  );
+
+  it('fetches the day’s changes with read-only tokens before anything is built', () => {
+    const resolve = buildJob.indexOf('secret-key: changes_github_tokens');
+    const install = buildJob.indexOf('bun install --frozen-lockfile');
+    const fetch = buildJob.indexOf('bun run --cwd apps/web changes:fetch');
+    const build = buildJob.indexOf('name: Build and publish the commit image');
+
+    expect(resolve).toBeGreaterThan(0);
+    expect(install).toBeGreaterThan(resolve);
+    expect(fetch).toBeGreaterThan(install);
+    expect(build).toBeGreaterThan(fetch);
+    expect(
+      buildJob.match(/steps\.changes-tokens\.outputs\.value/gu),
+    ).toHaveLength(1);
+  });
+
+  it('never gives the tokens to a pull request build', () => {
+    expect(pullRequestJob).not.toContain('sops-secret');
+    expect(pullRequestJob).not.toContain('secrets.');
+    expect(pullRequestJob).not.toContain('changes:fetch');
+  });
+
+  it('says that a build is released only in the release build', () => {
+    expect(pullRequestJob).toContain('released: false}');
+    expect(pullRequestJob).not.toContain('released: true}');
+    expect(buildJob).toContain('released: true}');
+    expect(buildJob).not.toContain('released: false}');
+  });
+});
+
 describe('production release boundary', () => {
   const buildJob = producer.slice(
     producer.indexOf('  build:'),
@@ -195,7 +234,9 @@ describe('production release boundary', () => {
   const mainRef = "github.ref == 'refs/heads/main'";
 
   it('builds the pushed commit beside the gate with its revision bound', () => {
-    expect(buildJob).toContain("    if: github.event_name == 'push'");
+    expect(buildJob).toContain(
+      "    if: github.event_name == 'push' || github.event_name == 'schedule'",
+    );
     expect(buildJob).not.toContain('needs:');
     expect(buildJob).toContain(
       `org.opencontainers.image.revision=${githubExpression('github.sha')}`,
@@ -205,18 +246,6 @@ describe('production release boundary', () => {
       'cache-to: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true',
     );
     expect(buildJob).not.toContain('id-token');
-  });
-
-  it('says that a build is released only in the release build', () => {
-    const pullRequestJob = producer.slice(
-      producer.indexOf('  container-smoke:'),
-      producer.indexOf('  gate:'),
-    );
-
-    expect(pullRequestJob).toContain('released: false}');
-    expect(pullRequestJob).not.toContain('released: true}');
-    expect(buildJob).toContain('released: true}');
-    expect(buildJob).not.toContain('released: false}');
   });
 
   it('releases only the gated exact commit digest through the queued host action', () => {

@@ -21,6 +21,8 @@ The chart on the home page is drawn from `apps/web/src/features/changes/data/cha
 
 [personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release.
 
+Publish container also runs once a day, and every run fetches the chart data again with the read-only tokens in `ci.changes_github_tokens`, described in `secrets/ci.example.yaml`. A failed fetch fails the run, and production keeps the release it has.
+
 Label a same-repository, non-draft PR `pr-preview` to request `https://<number>.pr.david.vornholt.online`; removing the label tears it down.
 
 ## License

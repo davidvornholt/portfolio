@@ -207,18 +207,6 @@ describe('production release boundary', () => {
     expect(buildJob).not.toContain('id-token');
   });
 
-  it('says that a build is released only in the release build', () => {
-    const pullRequestJob = producer.slice(
-      producer.indexOf('  container-smoke:'),
-      producer.indexOf('  gate:'),
-    );
-
-    expect(pullRequestJob).toContain('released: false}');
-    expect(pullRequestJob).not.toContain('released: true}');
-    expect(buildJob).toContain('released: true}');
-    expect(buildJob).not.toContain('released: false}');
-  });
-
   it('releases only the gated exact commit digest through the queued host action', () => {
     expect(releaseJob).toContain('    needs:\n      - gate\n      - build');
     expect(releaseJob).toContain(

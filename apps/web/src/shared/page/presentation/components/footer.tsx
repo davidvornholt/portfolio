@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { buildInfo } from '@/shared/build-info/services/build-info';
-import { BuildLine } from './build-line';
 import { contactItem, navItems } from './nav-items';
 
 const legalLinks = [
@@ -16,14 +14,10 @@ export const Footer = (): ReactNode => {
 
   return (
     <footer className="page-column pb-10">
-      {/* The page itself, as one change standing on the bar. */}
+      {/* One change standing on the bar. */}
       <div aria-hidden="true">
         <div className="mb-0.5 size-3 bg-foreground" />
         <div className="bleed h-4 bg-bar" />
-      </div>
-
-      <div className="mt-6 max-w-3xl">
-        <BuildLine build={buildInfo} />
       </div>
 
       <div className="mt-12 flex flex-col gap-4 text-muted-foreground text-sm md:flex-row md:items-center md:justify-between">

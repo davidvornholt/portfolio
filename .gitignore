@@ -40,6 +40,9 @@ yarn-error.log*
 .env*
 !.envrc
 
+# direnv
+.direnv/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

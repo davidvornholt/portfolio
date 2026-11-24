@@ -5,7 +5,6 @@ import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import type { WorkMeta } from '@/features/works/content/work-meta';
 import { getWorkBySlug, works } from '@/features/works/content/works-registry';
-import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { CaseStudyLayout } from '@/shared/content/presentation/components/case-study-layout';
 
 type WorkPageProps = Readonly<{
@@ -82,7 +81,6 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/#works" label="Back to works" />
       <CaseStudyLayout
         slug={slug}
         outcome={work.meta.outcome}

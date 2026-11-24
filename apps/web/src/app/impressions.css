@@ -1,0 +1,221 @@
+@layer overrides {
+  :root {
+    --sheet: oklch(0.964 0.019 88);
+    --letterpress: oklch(0.18 0.032 286);
+    --ultramarine: oklch(0.435 0.255 270);
+    --vermillion: oklch(0.66 0.23 33);
+    --blush: oklch(0.855 0.09 30);
+    --background: var(--sheet);
+    --foreground: var(--letterpress);
+    --primary: var(--ultramarine);
+    --primary-strong: oklch(0.33 0.19 270);
+    --welcome: oklch(0.47 0.17 32);
+    --deep: var(--ultramarine);
+    --deep-muted-foreground: var(--sheet);
+    --deep-border: oklch(0.76 0.08 272);
+    --deep-primary: var(--sheet);
+  }
+}
+@layer components {
+  .dv-mark {
+    display: block;
+    inline-size: 2.4rem;
+    block-size: 1.9rem;
+    padding: 0 0.28em 0.12em 0.2em;
+    background: var(--letterpress) url("/icon.svg") center / contain no-repeat;
+    color: var(--sheet);
+    font: italic 800 1.7rem / 1 var(--font-serif);
+    letter-spacing: -0.15em;
+    box-shadow: 3px 3px var(--vermillion);
+    transition:
+      transform 0.25s,
+      box-shadow 0.25s;
+  }
+  a:active .dv-mark {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 var(--vermillion);
+  }
+  .cover-sheet {
+    padding-block-start: 5.1rem;
+    background: var(--blush);
+  }
+  .edition-line,
+  .plate-top,
+  .cover-credit {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .edition-line {
+    font: 500 0.64rem / 1.3 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .cover-sheet > div > .edition-line {
+    border-block-end: 1px solid;
+    padding-block-end: 0.7rem;
+  }
+  .cover-composition {
+    display: grid;
+    grid-template-columns: 1fr 0.92fr;
+    gap: 2.3%;
+    align-items: center;
+    padding-block: clamp(2.5rem, 4vw, 5rem);
+  }
+  .cover-title,
+  .folio-heading,
+  .footer-name,
+  .proof-heading,
+  .publication-title {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 800;
+    line-height: 0.89;
+    letter-spacing: -0.035em;
+  }
+  .cover-title {
+    font-size: clamp(5.2rem, 10.6vw, 10.5rem);
+  }
+  .cover-title em {
+    font: italic 600 0.91em / 0.9 var(--font-serif);
+    letter-spacing: -0.09em;
+    color: var(--ultramarine);
+  }
+  .cover-copy > p {
+    max-inline-size: 27rem;
+    margin-block: 1.4rem;
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    line-height: 1.33;
+  }
+  .press-link {
+    display: inline-flex;
+    gap: 1.1rem;
+    align-items: center;
+    background: var(--letterpress);
+    color: var(--sheet);
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    transition:
+      box-shadow 0.25s,
+      transform 0.25s;
+  }
+  .press-link:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px var(--ultramarine);
+  }
+  .cover-art {
+    position: relative;
+    padding: 1.05rem;
+    border: 1px solid var(--letterpress);
+    background: var(--sheet);
+    box-shadow: 6px 7px var(--vermillion);
+  }
+  .register-cross {
+    inline-size: 1rem;
+    block-size: 1rem;
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat,
+      linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat;
+  }
+  .ink-dots {
+    inline-size: 1.7rem;
+    block-size: 0.85rem;
+    background:
+      radial-gradient(
+        circle at 30% 50%,
+        var(--ultramarine) 37%,
+        transparent 40%
+      ),
+      radial-gradient(circle at 69% 50%, var(--vermillion) 37%, transparent 40%);
+  }
+  .book-impression {
+    display: block;
+    inline-size: 100%;
+    overflow: visible;
+  }
+  .book-impression g {
+    mix-blend-mode: multiply;
+  }
+  .book-impression path {
+    stroke-width: 1.35;
+    stroke-linejoin: round;
+  }
+  .vermillion-plate {
+    fill: var(--vermillion);
+    stroke: var(--sheet);
+  }
+  .ultramarine-plate {
+    fill: var(--ultramarine);
+    stroke: var(--sheet);
+    transform-origin: 54% 85%;
+  }
+  .cover-art figcaption {
+    padding-block-start: 0.6rem;
+    border-block-start: 1px solid;
+    font-size: 0.58rem;
+  }
+  .cover-credit {
+    border-block-start: 1px solid;
+    padding-block: 0.9rem;
+  }
+  .cover-credit strong {
+    font: 650 1.1rem var(--font-sans);
+  }
+  .author-photo {
+    inline-size: 2.9rem;
+    block-size: auto;
+    filter: grayscale(1);
+    mix-blend-mode: multiply;
+  }
+  .folio-heading,
+  .footer-name {
+    font-size: clamp(3.2rem, 6.8vw, 6rem);
+  }
+  .footer-sheet {
+    padding-block: 2rem;
+    background: var(--blush);
+  }
+  .footer-name {
+    font-size: clamp(2.5rem, 5vw, 5rem);
+  }
+  .cover-credit > a {
+    font-size: 0.85rem;
+  }
+  @media (width < 720px) {
+    .cover-composition {
+      grid-template-columns: 1fr;
+      gap: 1.8rem;
+      padding-block: 1.6rem 1.4rem;
+    }
+    .cover-title {
+      font-size: clamp(5rem, 18vw, 8rem);
+    }
+    .cover-copy > p {
+      margin-block: 0.9rem;
+    }
+    .cover-art {
+      padding: 0.7rem;
+    }
+    .cover-art .book-impression {
+      max-block-size: 13.5rem;
+    }
+    .edition-line {
+      font-size: 0.55rem;
+    }
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .cover-art .ultramarine-plate {
+      animation: ink-register 1.1s var(--ease-out) both;
+    }
+    @keyframes ink-register {
+      from {
+        transform: translate(13px, -6px) rotate(4deg);
+        opacity: 0.6;
+      }
+      to {
+        transform: none;
+        opacity: 1;
+      }
+    }
+  }
+}

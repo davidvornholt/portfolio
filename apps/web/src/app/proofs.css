@@ -1,0 +1,261 @@
+@layer components {
+  .method-spread {
+    display: grid;
+    grid-template-columns: 0.77fr 1.23fr;
+    align-items: start;
+    gap: 5%;
+    padding-block: 2.5rem 1rem;
+  }
+  .method-intro > p {
+    max-inline-size: 24rem;
+    margin-block-start: 1.1rem;
+  }
+  .method-intro h2 {
+    font-size: clamp(4rem, 7.8vw, 7.5rem);
+  }
+  .proof-stack {
+    margin: 0 8px 8px 0;
+    background: var(--sheet);
+    color: var(--letterpress);
+    padding: 1.25rem;
+    box-shadow:
+      4px 4px var(--vermillion),
+      8px 8px var(--blush);
+  }
+  .proof-stack > .edition-line {
+    padding-block-end: 0.75rem;
+    border-block-end: 1px solid;
+  }
+  .proof-face {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    align-items: start;
+    padding-block: 1.5rem;
+    min-block-size: 18rem;
+  }
+  .proof-number,
+  .paragraph-plate {
+    font: 800 clamp(6rem, 9vw, 9rem) / 0.78 var(--font-display);
+    letter-spacing: -0.08em;
+    color: var(--ultramarine);
+    text-shadow: -0.035em 0.02em var(--vermillion);
+  }
+  .proof-heading {
+    font-size: clamp(2rem, 3.2vw, 3rem);
+    margin-block: 0.65rem;
+  }
+  .proof-copy > p {
+    line-height: 1.4;
+  }
+  .proof-result {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    margin-block-start: 1rem;
+  }
+  .proof-result strong {
+    background: var(--blush);
+    padding: 0.18rem 0.4rem;
+  }
+  .proof-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    border-block-start: 1px solid;
+    padding-block-start: 0.6rem;
+    gap: 0.6rem;
+  }
+  .proof-controls > div,
+  .proof-controls fieldset {
+    display: flex;
+  }
+  .proof-controls button {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+    display: grid;
+    place-items: center;
+    padding-inline: 0.55rem;
+    font-size: 0.85rem;
+  }
+  .proof-controls button[aria-pressed="true"] {
+    background: var(--letterpress);
+    color: var(--sheet);
+  }
+  .proof-controls button:disabled {
+    opacity: 0.35;
+  }
+  .publication-cover,
+  .case-cover {
+    padding-block-start: 4.2rem;
+    background: var(--blush);
+    margin-block-end: 2rem;
+  }
+  .case-cover {
+    background: var(--sheet);
+  }
+  .case-cover .edition-line {
+    border-block-end: 1px solid;
+  }
+  .publication-spread,
+  .case-spread {
+    display: grid;
+    grid-template-columns: 1.6fr 0.65fr;
+    gap: 5%;
+    align-items: center;
+    padding-block: 2rem 3rem;
+    border-block-start: 1px solid;
+  }
+  .case-spread {
+    grid-template-columns: 1fr 0.9fr;
+  }
+  .publication-title {
+    font-size: clamp(3.3rem, 7.2vw, 7.5rem);
+  }
+  .paragraph-plate {
+    font: 800 clamp(12rem, 21vw, 22rem) / 1 var(--font-serif);
+    text-align: center;
+    transform: rotate(8deg);
+  }
+  .work-plate[data-plate="prosabridge"] {
+    background: var(--blush);
+  }
+  .translation-print {
+    display: grid;
+    inline-size: 75%;
+    transform: rotate(-7deg);
+  }
+  .translation-print > div {
+    inline-size: 74%;
+    padding: 0.7rem 1rem 1.2rem;
+    background: var(--sheet);
+    color: var(--ultramarine);
+    border: 1px solid;
+    box-shadow: -3px 3px var(--ultramarine);
+  }
+  .translation-print > div + div {
+    justify-self: end;
+    margin-block-start: -1rem;
+    color: var(--letterpress);
+    background: var(--vermillion);
+    transform: rotate(3deg);
+  }
+  .translation-print span {
+    display: block;
+    font: 0.55rem var(--font-mono);
+    text-transform: uppercase;
+    border-block-end: 1px solid;
+  }
+  .translation-print strong {
+    font: italic 600 clamp(2.2rem, 3.8vw, 4rem) / 1 var(--font-serif);
+    letter-spacing: -0.07em;
+  }
+  .translation-print sup {
+    font-size: 0.38em;
+  }
+  .case-cover .work-plate {
+    block-size: clamp(15rem, 26vw, 26rem);
+  }
+  .case-cover .translation-print strong {
+    font-size: clamp(3.2rem, 6vw, 6rem);
+  }
+  @media (width < 800px) {
+    .method-spread,
+    .case-spread {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .method-intro h2 br {
+      display: none;
+    }
+    .method-intro > p {
+      max-inline-size: 35rem;
+    }
+    .proof-face {
+      min-block-size: 18.5rem;
+      gap: 1rem;
+    }
+    .publication-spread {
+      grid-template-columns: 1fr;
+    }
+    .paragraph-plate {
+      display: none;
+    }
+  }
+  @media (width < 480px) {
+    .proof-face {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+      min-block-size: 20rem;
+    }
+    .proof-number {
+      font-size: 4.2rem;
+    }
+    .proof-stack {
+      padding: 0.85rem;
+    }
+    .case-cover .edition-line {
+      align-items: start;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .proof-face {
+      animation: proof-register 0.3s var(--ease-out);
+    }
+    @keyframes proof-register {
+      from {
+        opacity: 0.65;
+        transform: translateX(4px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+}
+@layer components {
+  .work-catalog {
+    display: grid;
+    gap: 1rem;
+  }
+  .catalog-entry {
+    display: grid;
+    grid-template-columns: 1fr 0.85fr;
+    align-items: center;
+    background: var(--secondary);
+    border-block-start: 2px solid var(--letterpress);
+  }
+  .catalog-description {
+    padding: 1rem clamp(1.25rem, 3vw, 3rem) 2rem;
+  }
+  .catalog-title {
+    font: 800 clamp(2.6rem, 4.5vw, 4.8rem) / 0.98 var(--font-display);
+    margin-block: 0.4rem 0.75rem;
+    letter-spacing: -0.03em;
+  }
+  .writing-entry {
+    display: grid;
+    grid-template-columns: 0.46fr 1fr 1fr;
+    gap: 2rem;
+    border-block-start: 1px solid var(--letterpress);
+    padding-block: 1.75rem;
+  }
+  @media (width < 700px) {
+    .catalog-entry,
+    .writing-entry {
+      grid-template-columns: 1fr;
+    }
+    .catalog-entry .work-plate {
+      grid-row: 1;
+    }
+    .writing-entry {
+      gap: 0.6rem;
+    }
+  }
+}

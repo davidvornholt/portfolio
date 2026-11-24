@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
+import { Activity } from '../../activity/activity';
 import { BlogTeaser } from '../components/blog-teaser';
 import { CTA } from '../components/cta';
 import { Expertise } from '../components/expertise';
@@ -20,8 +21,11 @@ export const PortfolioScreen = ({
 }: PortfolioScreenProps): ReactNode => (
   <>
     <Hero />
-    <SelectedWorks works={works} />
     <HowIWork />
+    <div className="folio-wrap my-12 md:my-20">
+      <Activity />
+    </div>
+    <SelectedWorks works={works} />
     <OpenSource />
     <Expertise />
     <BlogTeaser posts={posts} />

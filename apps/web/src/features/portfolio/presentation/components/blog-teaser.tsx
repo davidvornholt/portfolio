@@ -13,25 +13,21 @@ export const BlogTeaser = ({
         All articles ↗
       </Link>
     </div>
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="writing-index">
       {posts.map((post) => (
-        <Link
-          className="group border-border border-t pt-4"
-          key={post.href}
-          href={post.href}
-        >
+        <Link className="writing-entry group" key={post.href} href={post.href}>
           {post.date !== undefined && (
             <time
               dateTime={post.date}
-              className="folio-label mb-3 block text-muted-foreground"
+              className="folio-label block text-muted-foreground"
             >
               {formatPostDate(post.date)}
             </time>
           )}
-          <h3 className="font-medium font-serif text-2xl tracking-tight transition-colors group-hover:text-primary">
+          <h3 className="font-medium font-serif text-2xl tracking-tight transition-colors group-hover:text-primary md:text-3xl">
             {post.title}
           </h3>
-          <p className="mt-2 text-muted-foreground">{post.excerpt}</p>
+          <p className="text-muted-foreground">{post.excerpt}</p>
         </Link>
       ))}
     </div>

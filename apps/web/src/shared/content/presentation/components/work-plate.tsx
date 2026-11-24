@@ -1,15 +1,17 @@
-const lines = ['first', 'second', 'third', 'fourth', 'last'];
 const Manuscript = () => (
-  <div className="manuscript" aria-hidden="true">
-    {['Source', 'Translation'].map((side, i) => (
-      <div className="leaf" key={side}>
-        <span className="folio-label">{side}</span>
-        <strong>{i === 0 ? 'Aa' : 'Ää'}</strong>
-        {lines.map((length) => (
-          <i key={length} />
-        ))}
-      </div>
-    ))}
+  <div className="translation-print">
+    <div>
+      <span>English manuscript</span>
+      <strong>
+        note<sup>1</sup>
+      </strong>
+    </div>
+    <div>
+      <span>German translation</span>
+      <strong>
+        Notiz<sup>1</sup>
+      </strong>
+    </div>
   </div>
 );
 const Register = () => (

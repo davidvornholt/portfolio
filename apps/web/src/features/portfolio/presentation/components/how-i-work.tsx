@@ -2,23 +2,31 @@ import snapshot from '../../activity/snapshot.json' with { type: 'json' };
 import { ReviewPath } from './review-path';
 import { rules, sourceRevision } from './rules';
 export const HowIWork = () => (
-  <section id="method" className="bg-deep py-16 text-deep-foreground md:py-24">
+  <section id="method" className="bg-deep py-10 text-deep-foreground md:py-14">
     <div className="folio-wrap">
-      <p className="folio-label mb-4 text-deep-primary">How I work</p>
-      <div className="grid gap-6 md:grid-cols-2">
-        <h2 className="folio-heading">
-          From an issue
-          <br />
-          to a release.
-        </h2>
-        <p className="max-w-lg self-end text-deep-muted-foreground text-lg">
-          I wrote code by hand for six years before I used AI. Reading both
-          editions of Clean Code and studying Design Patterns shaped the
-          questions I ask in review. Today I give an agent the problem and the
-          constraints. Every change goes through automated checks and review.
-        </p>
+      <div className="edition-line border-current border-b pb-3">
+        <span>Engineering practice</span>
+        <span>Review &amp; repair</span>
       </div>
-      <ReviewPath />
+      <div className="method-spread">
+        <div className="method-intro">
+          <h2 className="folio-heading">
+            Before I <br />
+            sign off.
+          </h2>
+          <p>
+            I wrote code by hand for six years before I used AI. Today an agent
+            can draft a repair. I still have to decide whether it solves the
+            problem.
+          </p>
+          <p>
+            Reading both editions of Clean Code and studying Design Patterns
+            shaped how I review a change. Here’s one repair I took through to
+            release.
+          </p>
+        </div>
+        <ReviewPath />
+      </div>
       <details className="mt-5 border-deep-border border-y">
         <summary className="cursor-pointer py-4 font-medium">
           Inspect five rules that protect this site

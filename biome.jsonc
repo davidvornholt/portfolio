@@ -17,7 +17,11 @@
   "overrides": [
     {
       // Biome cannot trace classes from the root layout's global stylesheet into descendant route components.
-      "includes": ["apps/web/src/app/folio.css"],
+      "includes": [
+        "apps/web/src/app/folio.css",
+        "apps/web/src/app/impressions.css",
+        "apps/web/src/app/proofs.css"
+      ],
       "linter": { "rules": { "nursery": { "noUnusedClasses": "off" } } }
     },
     {

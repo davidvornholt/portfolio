@@ -33,8 +33,8 @@ export const readingMyChangeRecordPost: Post = {
         a record of the work I can show, not a measure of how hard I worked.
       </p>
       <p>
-        I put a real repair next to the chart because even a perfect run of
-        green squares would leave a question unanswered. What did the tests
+        I put a real repair before the chart because even a perfect run of
+        passing checks would leave a question unanswered. What did the tests
         actually protect? In the standards example, the answer is access that
         should end when I withdraw a credential.
       </p>

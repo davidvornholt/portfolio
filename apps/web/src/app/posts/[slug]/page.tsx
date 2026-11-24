@@ -83,25 +83,38 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/posts" label="All posts" />
-      <article className="mx-auto max-w-4xl px-6 pt-8 pb-24">
-        <header className="my-12 border-border border-b pb-8">
-          <p className="folio-label mb-3 text-welcome">{post.meta.category}</p>
-          <h1 className="folio-heading mb-4">{post.meta.title}</h1>
-          {post.meta.subtitle === undefined ? null : (
-            <p className="mb-4 text-lg text-muted-foreground">
-              {post.meta.subtitle}
-            </p>
-          )}
-          <div className="flex items-center gap-4 text-muted-foreground text-sm">
-            <time dateTime={post.meta.date}>
-              {formatPostDate(post.meta.date)}
-            </time>
-            <span>·</span>
-            <span>{post.meta.readTime}</span>
+      <article className="pb-24">
+        <div className="publication-cover">
+          <div className="folio-wrap">
+            <BackNavigation href="/posts" label="All posts" />
+            <div className="publication-spread">
+              <div>
+                <p className="folio-label mb-4">
+                  Engineering notes / {post.meta.category}
+                </p>
+                <h1 className="publication-title">{post.meta.title}</h1>
+                {post.meta.subtitle !== undefined && (
+                  <p className="mt-3 text-lg">{post.meta.subtitle}</p>
+                )}
+              </div>
+              <div aria-hidden="true" className="paragraph-plate">
+                ¶
+              </div>
+            </div>
+            <div className="edition-line border-current border-t py-4">
+              <span>David Vornholt</span>
+              <span>
+                <time dateTime={post.meta.date}>
+                  {formatPostDate(post.meta.date)}
+                </time>{' '}
+                · {post.meta.readTime}
+              </span>
+            </div>
           </div>
-        </header>
-        <Body />
+        </div>
+        <div className="mx-auto max-w-4xl px-6 pt-6">
+          <Body />
+        </div>
       </article>
     </>
   );

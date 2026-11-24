@@ -19,7 +19,7 @@ test('a reader can inspect the record, weekly totals, and a review stage', async
   await expect(page.getByRole('table')).toBeVisible();
   await page.getByRole('button', { name: 'Review', exact: true }).click();
   await expect(
-    page.getByRole('heading', { name: 'Inspect the repair' }),
+    page.getByRole('heading', { name: 'Cut a misleading comment.' }),
   ).toBeVisible();
   await page.getByText('Inspect five rules that protect this site').click();
   expect(await scanWcag22AaViolations(page)).toEqual([]);

@@ -11,9 +11,9 @@ export const contentType = 'image/png';
 const OpengraphImage = (): Promise<ImageResponse> =>
   Effect.runPromise(
     createOgImageResponse({
-      eyebrow: 'Founder & CTO',
+      eyebrow: 'Co-founder & CTO, ProsaBridge',
       title: 'David Vornholt',
-      italicPhrase: 'Speaking the languages of humans and machines.',
+      italicPhrase: 'I build software for publishers.',
       footerLeft: new URL(siteUrl).host,
       footerRight: 'Portfolio',
     }),

@@ -4,8 +4,8 @@ import { prosabridgeWork } from './prosabridge';
 import type { Work } from './work-meta';
 
 export const works: ReadonlyArray<Work> = [
-  atriumWork,
   prosabridgeWork,
+  atriumWork,
   fesKirchheimWork,
 ];
 

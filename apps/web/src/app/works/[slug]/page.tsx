@@ -84,6 +84,8 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
       />
       <BackNavigation href="/#works" label="Back to works" />
       <CaseStudyLayout
+        slug={slug}
+        outcome={work.meta.outcome}
         title={work.meta.title}
         subtitle={work.meta.subtitle}
         timeline={work.meta.timeline}

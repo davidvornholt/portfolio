@@ -9,6 +9,7 @@
     "start": "bun --bun next start",
     "check-types": "tsc --noEmit",
     "test": "bun test",
+    "fetch:activity": "python3 scripts/test-activity.py && python3 scripts/fetch-activity.py",
     "test:a11y": "playwright test --config playwright.config.ts"
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
+import './folio.css';
 import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     template: '%s | David Vornholt',
   },
   description:
-    'Founder of Atrium and co-founder & CTO of ProsaBridge. Agents write most of my code, and strict quality gates decide what ships.',
+    'I co-founded ProsaBridge to help editors translate whole books. Explore my work, test results, and engineering notes.',
   keywords: [
     'Founder',
     'CTO',
@@ -68,13 +69,13 @@ export const metadata: Metadata = {
     siteName: 'David Vornholt',
     title: 'David Vornholt | Founder & CTO',
     description:
-      'Speaking the languages of humans and machines with equal precision.',
+      'I build software for publishers at ProsaBridge. Explore my work, test results, and engineering notes.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'David Vornholt | Founder & CTO',
     description:
-      'Speaking the languages of humans and machines with equal precision.',
+      'I build software for publishers at ProsaBridge. Explore my work, test results, and engineering notes.',
     creator: '@davidvornholt',
   },
 };

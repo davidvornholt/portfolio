@@ -1,5 +1,5 @@
 import { easing } from '@portfolio/ui/easing';
-import { PenLine } from 'lucide-react';
+
 import { header as MotionHeader } from 'motion/react-client';
 import type { ReactNode } from 'react';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
@@ -28,16 +28,12 @@ export const PostsScreen = ({ posts }: PostsScreenProps): ReactNode => (
         className="mb-16 border-border border-b pb-8"
       >
         <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-          <PenLine className="mr-1.5 inline-block size-4" />
-          Insights
+          David Vornholt
         </p>
-        <h1 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
-          Programming blog
-        </h1>
+        <h1 className="folio-heading">Writing</h1>
         <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
-          Notes from building products and the systems behind them.
-          Architecture, measured results, and failed experiments all belong
-          here.
+          I write about what I measure, what breaks, and what I change
+          afterward.
         </p>
       </MotionHeader>
 

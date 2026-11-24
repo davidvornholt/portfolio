@@ -16,6 +16,11 @@
   },
   "overrides": [
     {
+      // Biome cannot trace classes from the root layout's global stylesheet into descendant route components.
+      "includes": ["apps/web/src/app/folio.css"],
+      "linter": { "rules": { "nursery": { "noUnusedClasses": "off" } } }
+    },
+    {
       // skills-lock.json vendors this third-party skill verbatim and
       // overwrites local edits on update, so its decorative icon cannot carry
       // a title element.
@@ -45,7 +50,6 @@
       // position, grid, transition, and data-display values with no named utility.
       "includes": [
         "apps/web/src/features/lab/presentation/components/lab-hero.tsx",
-        "apps/web/src/features/portfolio/presentation/components/certification-item.tsx",
         "apps/web/src/features/posts/content/executable-engineering-standards.tsx",
         "apps/web/src/features/posts/content/review-fix-versus-coderabbit.tsx",
         "apps/web/src/features/posts/content/review-loop-ran-for-46-hours.tsx",
@@ -81,6 +85,7 @@
         "apps/web/postcss.config.mjs",
         "apps/web/src/app/**/layout.tsx",
         "apps/web/src/app/**/page.tsx",
+        "apps/web/src/app/not-found.tsx",
         "apps/web/src/app/**/opengraph-image.tsx",
         "apps/web/src/app/robots.ts",
         "apps/web/src/app/sitemap.ts"

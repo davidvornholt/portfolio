@@ -3,6 +3,9 @@ import { getPostBySlug, posts } from './posts-registry';
 
 // These slugs are published URLs shared on LinkedIn and X; they must never change.
 const publishedSlugs = [
+  'cheap-ai-code-reviews',
+  'review-fix-versus-coderabbit',
+  'review-loop-ran-for-46-hours',
   'executable-engineering-standards',
   'building-the-architects-portfolio',
   'solving-the-cold-boot-problem',

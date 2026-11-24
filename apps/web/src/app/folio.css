@@ -1,0 +1,394 @@
+@layer components {
+  .folio-wrap {
+    inline-size: min(100% - clamp(2rem, 9vw, 10rem), 76rem);
+    margin-inline: auto;
+  }
+  .folio-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .dv-mark {
+    display: grid;
+    place-items: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    color: var(--background);
+    background: var(--primary) url("/icon.svg") center / cover;
+    font: italic 600 1.8rem / 1 var(--font-serif);
+    transition:
+      transform 0.35s,
+      background 0.35s;
+  }
+  a:active .dv-mark {
+    transform: rotate(-9deg) scale(0.9);
+    background: var(--welcome);
+  }
+  .ink-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background:
+      linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+    transition:
+      background-size 0.25s,
+      color 0.25s;
+    padding-block: 0.25rem;
+  }
+  .ink-link:hover,
+  .ink-link:focus-visible {
+    background-size: 100% 1px;
+    color: var(--primary);
+  }
+  .intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(13rem, 22vw, 18rem);
+    align-items: center;
+    gap: 2rem;
+    padding-block-end: clamp(1.75rem, 2.25vw, 2.5rem);
+  }
+  .display-title {
+    font-size: clamp(3.6rem, 6.8vw, 6.75rem);
+    font-weight: 440;
+    letter-spacing: -0.068em;
+    line-height: 0.94;
+  }
+  .display-title em {
+    font-weight: 400;
+    color: var(--primary);
+  }
+  .portrait-print {
+    block-size: clamp(13rem, 20vw, 16rem);
+    position: relative;
+    margin-inline-end: 0.7rem;
+    background: var(--primary);
+    isolation: isolate;
+  }
+  .portrait-print img {
+    object-position: center 25%;
+    filter: grayscale(1) sepia(0.12);
+    mix-blend-mode: normal;
+  }
+  .portrait-print::before {
+    content: "";
+    position: absolute;
+    inset: 0.7rem -0.7rem -0.7rem 0.7rem;
+    z-index: -1;
+    background: repeating-linear-gradient(
+      135deg,
+      var(--primary) 0 1px,
+      transparent 1px 4px
+    );
+  }
+  .portrait-print figcaption {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    background: var(--background);
+    padding: 0.4rem 0.75rem 0.2rem 0;
+  }
+  .folio-heading {
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 450;
+    letter-spacing: -0.06em;
+    line-height: 1.02;
+  }
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+  @media (width < 640px) {
+    .intro-grid {
+      display: block;
+      position: relative;
+    }
+    .portrait-print {
+      block-size: 3.5rem;
+      inline-size: 3rem;
+      position: absolute;
+      inset-block-start: -0.3rem;
+      inset-inline-end: 0;
+      margin: 0;
+    }
+    .portrait-print figcaption {
+      display: none;
+    }
+    .display-title {
+      font-size: clamp(2.75rem, 10.4vw, 4rem);
+    }
+    .intro-copy > p:first-child {
+      min-block-size: 3rem;
+      font-size: 0.6rem;
+    }
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .intro-copy,
+    .portrait-print {
+      animation: lift-in 0.8s var(--ease-out) both;
+    }
+    .portrait-print {
+      animation-delay: 0.1s;
+    }
+    @keyframes lift-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+}
+@layer components {
+  .plot {
+    background: repeating-linear-gradient(
+      to top,
+      var(--border) 0 1px,
+      transparent 1px 25%
+    );
+    cursor: crosshair;
+  }
+  .plot svg {
+    block-size: auto;
+  }
+  .sample {
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    display: inline-block;
+  }
+  .sample[data-result="passed"] {
+    background: var(--primary);
+  }
+  .sample[data-result="failed"] {
+    background: linear-gradient(
+      var(--welcome) 40%,
+      transparent 40% 60%,
+      var(--welcome) 60%
+    );
+  }
+  .sample[data-result="untested"] {
+    border: 1px solid var(--muted-foreground);
+  }
+  path[data-result="passed"] {
+    fill: var(--primary);
+  }
+  path[data-result="failed"] {
+    fill: var(--welcome);
+  }
+  path[data-result="untested"] {
+    fill: var(--background);
+    stroke: var(--muted-foreground);
+    stroke-width: 1;
+  }
+  path[data-result="skipped"] {
+    fill: var(--muted-foreground);
+    stroke: var(--background);
+    stroke-dasharray: 1 1;
+  }
+  .sample[data-result="skipped"] {
+    border: 1px dashed currentColor;
+  }
+  .weekly summary {
+    list-style: none;
+  }
+}
+@layer components {
+  .work-plate {
+    block-size: clamp(12rem, 18vw, 17rem);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    isolation: isolate;
+    position: relative;
+  }
+  [data-plate="prosabridge"] {
+    background: var(--primary-strong);
+    color: var(--foreground);
+  }
+  .manuscript {
+    inline-size: 70%;
+    max-inline-size: 19rem;
+    display: flex;
+    transform: perspective(700px) rotateX(13deg) rotateZ(-7deg);
+    filter: drop-shadow(
+      0.45rem 0.65rem 0 color-mix(in oklch, var(--foreground) 32%, transparent)
+    );
+    transition: transform 0.5s;
+  }
+  a:hover .manuscript {
+    transform: perspective(700px) rotateX(4deg) rotateZ(-3deg);
+  }
+  .leaf {
+    inline-size: 50%;
+    padding: 0.65rem 0.8rem 0.95rem;
+    background: var(--background);
+    border-block-end: 4px double var(--border);
+  }
+  .leaf:first-child {
+    transform: skewY(6deg);
+    background: linear-gradient(90deg, var(--background) 66%, var(--border));
+  }
+  .leaf:last-child {
+    transform: skewY(-6deg);
+  }
+  .leaf strong {
+    display: block;
+    font: normal clamp(2.4rem, 4vw, 3.4rem) / 1.2 var(--font-serif);
+    letter-spacing: -0.09em;
+  }
+  .leaf .folio-label {
+    font-size: 0.43rem;
+  }
+  .leaf i {
+    display: block;
+    block-size: 1px;
+    margin-block-start: 4px;
+    background: var(--muted-foreground);
+  }
+  [data-plate="atrium"] {
+    background: var(--secondary);
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent 0 16px,
+      var(--border) 16px 17px
+    );
+  }
+  .register {
+    background: var(--background);
+    color: var(--primary-strong);
+    inline-size: 64%;
+    max-inline-size: 16rem;
+    border-block-start: 5px solid var(--primary);
+    box-shadow: 0.5rem 0.5rem 0 var(--border);
+    padding: 0.8rem 1rem;
+    transform: rotate(-3deg);
+    transition: transform 0.4s;
+  }
+  a:hover .register {
+    transform: rotate(0deg);
+  }
+  [data-plate="fes-kirchheim"] {
+    background: var(--welcome);
+    color: var(--background);
+  }
+  .search-print {
+    border-block: 1px solid currentColor;
+    padding: 0.45rem 0.2rem;
+    min-inline-size: 66%;
+  }
+  .search-print > span {
+    font: 0.6rem var(--font-mono);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  .search-print strong {
+    display: block;
+    font: 440 clamp(3.3rem, 6vw, 5.7rem) / 1 var(--font-serif);
+    letter-spacing: -0.09em;
+  }
+  .search-print strong span {
+    font-size: 0.5em;
+  }
+}
+@layer components {
+  .track-stop {
+    inline-size: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    text-align: start;
+    font: 0.72rem var(--font-mono);
+    position: relative;
+    padding-block: 0.5rem;
+  }
+  .track-stop::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 1px;
+    inset-block-start: 0.9rem;
+    background: var(--deep-muted-foreground);
+  }
+  li:last-child > .track-stop::before {
+    inline-size: 0;
+  }
+  .track-node {
+    display: block;
+    inline-size: 0.85rem;
+    block-size: 0.85rem;
+    border: 1px solid var(--deep-muted-foreground);
+    background: var(--deep);
+    position: relative;
+    transition:
+      background 0.3s,
+      transform 0.3s;
+  }
+  .track-node.complete {
+    background: var(--deep-primary);
+    border-color: var(--deep-primary);
+  }
+  .track-stop[aria-pressed="true"] .track-node {
+    transform: rotate(45deg);
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .stage-copy {
+      animation: lift-in 0.35s var(--ease-out) both;
+    }
+  }
+}
+@layer components {
+  .essay {
+    max-inline-size: 43rem;
+    margin-inline: auto;
+    font-size: 1.11rem;
+    line-height: 1.7;
+  }
+  .essay > p {
+    margin-block: 1.2rem;
+  }
+  .essay > p:first-child {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    line-height: 1.42;
+  }
+  .essay > h2 {
+    margin-block-start: 2.6rem;
+    font-size: 1.8rem;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+  }
+  .essay a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@layer components {
+  .leaf i:last-child {
+    inline-size: 60%;
+  }
+  .leaf i:nth-last-child(3) {
+    inline-size: 88%;
+  }
+}
+
+@layer components {
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .plot svg {
+      animation: print-record 0.95s var(--ease-out) both;
+    }
+    @keyframes print-record {
+      from {
+        clip-path: inset(0 100% 0 0);
+      }
+      to {
+        clip-path: inset(0);
+      }
+    }
+  }
+}

@@ -22,8 +22,8 @@ export const PortfolioScreen = ({
     <Hero />
     <SelectedWorks works={works} />
     <HowIWork />
-    <Expertise />
     <OpenSource />
+    <Expertise />
     <BlogTeaser posts={posts} />
     <CTA />
   </>

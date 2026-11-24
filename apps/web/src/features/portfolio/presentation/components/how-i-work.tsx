@@ -1,97 +1,67 @@
-import { easing } from '@portfolio/ui/easing';
-import { ArrowUpRight } from 'lucide-react';
-import { div as MotionDiv, header as MotionHeader } from 'motion/react-client';
-import type { ReactNode } from 'react';
-
-type Principle = Readonly<{
-  title: string;
-  description: string;
-}>;
-
-const principles: ReadonlyArray<Principle> = [
-  {
-    title: 'Fail-closed gates',
-    description:
-      'Lint, types, tests, and WCAG 2.2 AA accessibility run as one command. A gate that errors fails, and deploys run only for commits the gate has passed.',
-  },
-  {
-    title: 'Verified review loops',
-    description:
-      'Agent review passes fix findings, then verify the fixes. Nothing merges on an agent’s self-report.',
-  },
-  {
-    title: 'One synced contract',
-    description:
-      'Every repository shares the same operating contract and skills, kept aligned by a sync engine. The gates strengthen over time and never weaken to let a change pass.',
-  },
-];
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-100px' },
-};
-
-export const HowIWork = (): ReactNode => (
-  <section id="how-i-work" className="px-6 py-24 md:py-32">
-    <div className="mx-auto max-w-6xl">
-      <MotionHeader
-        {...fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mb-12"
-      >
-        <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-          How I work
-        </p>
-        <h2 className="max-w-3xl font-semibold font-serif text-4xl text-foreground md:text-5xl">
-          Agents write most of my code. Quality gates decide what ships.
+import snapshot from '../../activity/snapshot.json' with { type: 'json' };
+import { ReviewPath } from './review-path';
+import { rules, sourceRevision } from './rules';
+export const HowIWork = () => (
+  <section id="method" className="bg-deep py-16 text-deep-foreground md:py-24">
+    <div className="folio-wrap">
+      <p className="folio-label mb-4 text-deep-primary">How I work</p>
+      <div className="grid gap-6 md:grid-cols-2">
+        <h2 className="folio-heading">
+          From an issue
+          <br />
+          to a release.
         </h2>
-      </MotionHeader>
-
-      <MotionDiv
-        {...fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mb-12 max-w-2xl"
-      >
-        <p className="text-foreground/80 leading-relaxed">
-          My engineering standards are public: one operating contract for humans
-          and agents, strict lint and type configuration, accessibility testing,
-          and the sync engine that keeps every repository aligned with it. The
-          work is verified mechanically, so nothing relies on an agent’s word,
-          including mine.
+        <p className="max-w-lg self-end text-deep-muted-foreground text-lg">
+          I wrote code by hand for six years before I used AI. Reading both
+          editions of Clean Code and studying Design Patterns shaped the
+          questions I ask in review. Today I give an agent the problem and the
+          constraints. Every change goes through automated checks and review.
         </p>
-      </MotionDiv>
-
-      <div className="mb-12">
-        {principles.map((principle) => (
-          <MotionDiv
-            key={principle.title}
-            {...fadeInUp}
-            transition={{ duration: 0.6, ease: easing }}
-            className="grid gap-2 border-border border-t py-6 md:grid-cols-12 md:gap-12"
-          >
-            <h3 className="font-medium text-foreground md:col-span-4">
-              {principle.title}
-            </h3>
-            <p className="text-foreground/80 leading-relaxed md:col-span-8">
-              {principle.description}
-            </p>
-          </MotionDiv>
-        ))}
       </div>
-
-      <MotionDiv {...fadeInUp} transition={{ duration: 0.6, ease: easing }}>
-        <a
-          href="https://github.com/davidvornholt/standards"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-umami-event="standards-open"
-          className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors hover:text-primary/80"
-        >
-          Read the standards on GitHub
-          <ArrowUpRight className="size-4" />
-        </a>
-      </MotionDiv>
+      <ReviewPath />
+      <details className="mt-5 border-deep-border border-y">
+        <summary className="cursor-pointer py-4 font-medium">
+          Inspect five rules that protect this site
+        </summary>
+        <ol>
+          {rules.map((rule) => (
+            <li
+              key={rule.title}
+              className="grid gap-2 border-deep-border border-t py-4 md:grid-cols-2"
+            >
+              <p>{rule.title}</p>
+              <div className="min-w-0">
+                <a
+                  className="break-all font-mono text-deep-primary text-xs underline"
+                  href={`https://github.com/davidvornholt/portfolio/blob/${sourceRevision}/${rule.path}#L${rule.line}`}
+                >
+                  {rule.path}:{rule.line}
+                </a>
+                <code className="mt-1 block break-words text-deep-muted-foreground text-xs">
+                  {rule.quote}
+                </code>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </details>
+      {snapshot.portfolioAllPassed !== null && (
+        <p className="mt-3 text-sm">
+          {snapshot.portfolioAllPassed} changes I’ve merged in this repository
+          since its first change. All passed their checks.
+        </p>
+      )}
+      <div className="mt-8 grid gap-3 md:grid-cols-2">
+        <h3 className="font-normal font-serif text-2xl">
+          My servers have a source file, too.
+        </h3>
+        <p className="max-w-lg text-deep-muted-foreground">
+          I describe the server I want in code. An agent can read the same
+          configuration I do, propose a change, and show me the difference
+          before it reaches a running machine. I can rebuild the setup from that
+          record.
+        </p>
+      </div>
     </div>
   </section>
 );

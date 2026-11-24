@@ -1,41 +1,27 @@
-import { easing } from '@portfolio/ui/easing';
-import { header as MotionHeader } from 'motion/react-client';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
-import { type NavItem, navItems } from './nav-items';
-import { SocialLinks } from './social-links';
+import { navItems } from './nav-items';
 
-const NavLink = ({ item }: { readonly item: NavItem }): ReactNode => (
-  <Link
-    href={item.href}
-    className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
-  >
-    {item.label}
-  </Link>
-);
-
-export const Header = (): ReactNode => (
-  <MotionHeader
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, ease: easing }}
-    className="fixed inset-x-0 top-0 z-50 border-border border-b bg-background"
-  >
-    <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+export const Header = () => (
+  <header className="fixed inset-x-0 top-0 z-50 border-border border-b bg-background">
+    <nav
+      aria-label="Main"
+      className="folio-wrap flex h-16 items-center justify-between gap-3"
+    >
       <Link
         href="/"
-        className="font-semibold font-serif text-foreground text-lg tracking-tight"
+        aria-label="David Vornholt, home"
+        className="group inline-flex items-center gap-3 font-semibold font-serif text-xl tracking-tight"
       >
-        David Vornholt
+        <span aria-hidden="true" className="dv-mark" />
+        <span className="hidden sm:inline">David Vornholt</span>
       </Link>
-
-      <div className="hidden items-center gap-8 md:flex">
+      <div className="flex items-center gap-4 text-sm sm:gap-7">
         {navItems.map((item) => (
-          <NavLink key={item.href} item={item} />
+          <Link className="ink-link" key={item.href} href={item.href}>
+            {item.label}
+          </Link>
         ))}
       </div>
-
-      <SocialLinks />
     </nav>
-  </MotionHeader>
+  </header>
 );

@@ -29,7 +29,7 @@ export const OgCard = ({
       width: '100%',
       height: '100%',
       backgroundColor: themeAnchorColors.paper100,
-      padding: 40,
+      padding: 48,
     }}
   >
     <div
@@ -38,13 +38,15 @@ export const OgCard = ({
         flexDirection: 'column',
         justifyContent: 'space-between',
         flex: 1,
-        border: `1px solid ${themeAnchorColors.line300}`,
-        padding: 64,
+        borderTop: `4px solid ${themeAnchorColors.green700}`,
+        padding: 48,
       }}
     >
       <div
         style={{
           display: 'flex',
+          alignItems: 'center',
+          gap: 18,
           fontFamily: 'IBM Plex Sans',
           fontSize: 24,
           fontWeight: 500,
@@ -53,6 +55,22 @@ export const OgCard = ({
           color: themeAnchorColors.green700,
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 54,
+            height: 54,
+            backgroundColor: themeAnchorColors.green700,
+            color: themeAnchorColors.paper100,
+            fontFamily: 'Source Serif 4',
+            fontSize: 40,
+            letterSpacing: 0,
+          }}
+        >
+          V
+        </div>
         {eyebrow}
       </div>
 

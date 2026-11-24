@@ -17,14 +17,10 @@ export const LegalDocument = ({
 }: LegalDocumentProps): ReactNode => (
   <>
     <BackNavigation href="/" label="Back to home" />
-    <article className="mx-auto max-w-4xl px-6 pt-12 pb-24">
-      <header className="mb-12 border-border border-b pb-8">
-        <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-          {eyebrow}
-        </p>
-        <h1 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
-          {title}
-        </h1>
+    <article className="folio-wrap grid gap-8 py-16 md:grid-cols-[1fr_1.4fr]">
+      <header className="self-start border-foreground border-t-2 pt-4">
+        <p className="folio-label mb-3 text-welcome">{eyebrow}</p>
+        <h1 className="folio-heading">{title}</h1>
         <p className="mt-4 text-muted-foreground text-sm">
           Last updated: {lastUpdated}
         </p>

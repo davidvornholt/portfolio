@@ -1,70 +1,46 @@
-import { easing } from '@portfolio/ui/easing';
 import { ArrowUpRight } from 'lucide-react';
-import { div as MotionDiv, header as MotionHeader } from 'motion/react-client';
-import type { ReactNode } from 'react';
-import { Badge } from '@/shared/ui/presentation/components/badge';
-import { openSourceProjects } from './open-source-data';
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-100px' },
-};
-
-export const OpenSource = (): ReactNode => (
-  <section id="open-source" className="px-6 py-24 md:py-32">
-    <div className="mx-auto max-w-6xl">
-      <MotionHeader
-        {...fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mb-12"
+const projects = [
+  [
+    'standards',
+    'The checks, review instructions, and update tool I share across my projects.',
+  ],
+  [
+    'runlet',
+    'Short-lived machines that build and test code, then discard the working environment.',
+  ],
+  [
+    'wordhold',
+    'Vocabulary practice that starts with a photo of the page I’m studying.',
+  ],
+  [
+    'rota',
+    'A wardrobe planner that remembers what I wore and what is in the laundry.',
+  ],
+] as const;
+export const OpenSource = () => (
+  <section className="folio-wrap grid gap-8 py-16 md:grid-cols-[1fr_1.5fr] md:py-24">
+    <div>
+      <h2 className="folio-heading">Open source</h2>
+      <a
+        className="ink-link mt-4 text-primary"
+        href="https://github.com/davidvornholt"
       >
-        <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-          Open source
-        </p>
-        <h2 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
-          Code you can read
-        </h2>
-      </MotionHeader>
-
-      <div>
-        {openSourceProjects.map((project) => (
-          <MotionDiv
-            key={project.name}
-            {...fadeInUp}
-            transition={{ duration: 0.6, ease: easing }}
-            className="border-border border-t"
-          >
-            <a
-              href={project.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-umami-event="open-source-open"
-              data-umami-event-project={project.name}
-              className="group grid gap-3 py-6 md:grid-cols-12 md:items-baseline md:gap-12"
-            >
-              <h3 className="font-medium font-mono text-foreground transition-colors group-hover:text-primary md:col-span-3">
-                {project.name}
-              </h3>
-              <p className="text-foreground/80 leading-relaxed md:col-span-6">
-                {project.description}
-              </p>
-              <span className="flex flex-wrap items-center gap-2 md:col-span-3 md:justify-end">
-                {project.tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="font-mono text-xs"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-                <ArrowUpRight className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
-              </span>
-            </a>
-          </MotionDiv>
-        ))}
-      </div>
+        My GitHub profile <ArrowUpRight size={15} />
+      </a>
+    </div>
+    <div>
+      {projects.map(([name, description]) => (
+        <a
+          key={name}
+          className="group grid grid-cols-[1fr_auto] gap-2 border-border border-t py-5"
+          href={`https://github.com/davidvornholt/${name}`}
+        >
+          <h3 className="font-mono text-lg">{name}</h3>
+          <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-1" />
+          <p className="text-muted-foreground">{description}</p>
+        </a>
+      ))}
     </div>
   </section>
 );

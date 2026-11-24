@@ -8,15 +8,13 @@ const workSummaries: ReadonlyArray<WorkSummary> = works.map((work) => ({
   slug: work.meta.slug,
   title: work.meta.title,
   role: work.meta.role,
-  timeline: work.meta.timeline,
-  stack: work.meta.techStack,
   summary: work.meta.summary,
-  outcome: work.meta.outcome,
 }));
 
 const postSummaries: ReadonlyArray<PostListEntry> = featuredPosts.map(
   (post) => ({
     title: post.meta.title,
+    date: post.meta.date,
     excerpt: post.meta.excerpt,
     category: post.meta.category,
     readTime: post.meta.readTime,

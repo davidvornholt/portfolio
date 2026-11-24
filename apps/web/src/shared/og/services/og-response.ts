@@ -40,7 +40,7 @@ export const createOgImageResponse = Effect.fn('createOgImageResponse')(
         loadGoogleFont({
           family: 'Source Serif 4',
           weight: serifWeight,
-          text: title,
+          text: `V${title}`,
         }).pipe(
           Effect.map((data) => ({
             name: 'Source Serif 4',

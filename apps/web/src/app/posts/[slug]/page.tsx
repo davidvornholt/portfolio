@@ -84,14 +84,10 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackNavigation href="/posts" label="All posts" />
-      <article className="mx-auto max-w-4xl px-6 pt-32 pb-24">
+      <article className="mx-auto max-w-4xl px-6 pt-8 pb-24">
         <header className="my-12 border-border border-b pb-8">
-          <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-            {post.meta.category}
-          </p>
-          <h1 className="mb-4 font-semibold font-serif text-4xl text-foreground md:text-5xl">
-            {post.meta.title}
-          </h1>
+          <p className="folio-label mb-3 text-welcome">{post.meta.category}</p>
+          <h1 className="folio-heading mb-4">{post.meta.title}</h1>
           {post.meta.subtitle === undefined ? null : (
             <p className="mb-4 text-lg text-muted-foreground">
               {post.meta.subtitle}

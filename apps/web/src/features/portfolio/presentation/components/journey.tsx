@@ -5,34 +5,48 @@ import { narrowGeometry, stationNames, wideGeometry } from './journey-geometry';
 import { JourneyPlayer } from './journey-player';
 import { textLinkClassName } from './text-link';
 
-const exampleUrl = 'https://github.com/davidvornholt/standards/pull/566';
+const repository = 'https://github.com/davidvornholt/standards';
+const exampleUrl = `${repository}/pull/566`;
 const reportUrl = `${exampleUrl}#issuecomment-6923936877`;
 
-// What happens at each station, in the order of `stationNames`.
+// What happens at each station, in the order of `stationNames`, and what the
+// example change left behind there: `proof` names it and `href` leads to it.
 const steps = [
   {
     title: 'The problem',
     text: 'What is wrong and what counts as fixed, written down first.',
+    proof: 'the issue that describes it',
+    href: `${repository}/issues/545`,
   },
   {
     title: 'The agent',
     text: 'An AI agent builds the fix on its own copy of the project.',
+    proof: 'the agent’s first commit',
+    href: `${exampleUrl}/commits/feef850c99a9400b750f0b18e8f3e60cd3204288`,
   },
   {
     title: 'The proposal',
     text: 'It says what was before, what is now, and how that was verified.',
+    proof: 'the pull request',
+    href: exampleUrl,
   },
   {
     title: 'The checks',
     text: 'Style, types, tests, build, and accessibility. One failure stops it.',
+    proof: 'the checks that ran on it',
+    href: `${exampleUrl}/checks`,
   },
   {
     title: 'The review',
     text: 'A different AI model looks for what the checks can’t see.',
+    proof: 'the report of the review',
+    href: reportUrl,
   },
   {
     title: 'Live',
     text: 'Merged as one change, released automatically, one step to undo.',
+    proof: 'the merged change',
+    href: `${repository}/commit/7fc822fd03434059b0787db1f4bfb1a29f20a09b`,
   },
 ] as const;
 
@@ -63,12 +77,25 @@ export const Journey = (): ReactNode => (
           Round 2: nothing found
         </p>
       </div>
-      <div aria-hidden="true" className="journey-bar bleed">
-        <ol className="journey-stations page-column">
+      <div className="journey-bar bleed">
+        <ol
+          aria-label="What the example change left at each station"
+          className="journey-stations page-column"
+        >
           {steps.map((step, position) => (
             <li key={step.title}>
-              <span className="journey-station-number">{position + 1}</span>
-              <span className="journey-station-name">{step.title}</span>
+              <a
+                href={step.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-umami-event="journey-station-open"
+                data-umami-event-station={step.title}
+                aria-label={`${position + 1}. ${step.title}: ${step.proof}, on GitHub`}
+                className="journey-station"
+              >
+                <span className="md:hidden">{position + 1}</span>
+                <span className="hidden md:inline">{step.title}</span>
+              </a>
             </li>
           ))}
         </ol>
@@ -107,6 +134,7 @@ export const Journey = (): ReactNode => (
         >
           access keys had expired without warning and stopped a release
         </a>
+        . Each station on the bar opens what that change left there.
       </p>
       <div className="journey-example">
         <p>

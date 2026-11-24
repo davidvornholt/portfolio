@@ -123,27 +123,57 @@
     translate: 0 -2px;
   }
 
-  /* The footer's square drops onto its bar over the first stretch of its way
-     into view, short enough that it has landed when the page ends,
-     where the browser can tie an animation to scrolling. */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .landing-square {
-        animation-name: landing-square;
-        animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
-        animation-fill-mode: both;
-        animation-timeline: view();
-        animation-range: cover 0% cover 6rem;
-      }
-    }
+  /* The footer's square drops onto its bar when the footer comes into view,
+     and lands as the logo's does: it squashes a little and the bar gives. */
+  .landing-square {
+    transform-origin: 50% 100%;
+  }
+
+  [data-run="waiting"] .landing-square {
+    translate: 0 -5rem;
+  }
+
+  [data-run="playing"] .landing-square {
+    animation: landing-square 560ms cubic-bezier(0.5, 0, 0.9, 0.6) both;
+  }
+
+  [data-run="playing"] .landing-bar {
+    animation: landing-bar 560ms linear both;
   }
 
   @keyframes landing-square {
-    from {
+    0% {
       translate: 0 -5rem;
     }
 
-    to {
+    76% {
+      translate: 0 0;
+      scale: 1 1;
+      animation-timing-function: ease-out;
+    }
+
+    88% {
+      translate: 0 1px;
+      scale: 1.12 0.78;
+    }
+
+    100% {
+      translate: 0 0;
+      scale: 1 1;
+    }
+  }
+
+  @keyframes landing-bar {
+    0%,
+    76% {
+      translate: 0 0;
+    }
+
+    88% {
+      translate: 0 1px;
+    }
+
+    100% {
       translate: 0 0;
     }
   }

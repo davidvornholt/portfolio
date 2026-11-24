@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'bun:test';
-import { getPostBySlug, movedPosts, posts } from './posts-registry';
+import {
+  getPostBySlug,
+  movedPosts,
+  posts,
+  postsNewestFirst,
+} from './posts-registry';
 
 // These slugs are published URLs shared on LinkedIn and X; they must never change.
 const publishedSlugs = [
@@ -25,6 +30,13 @@ describe('posts registry', () => {
     for (const slug of Object.keys(movedPosts)) {
       expect(getPostBySlug(slug)).toBeUndefined();
     }
+  });
+
+  it('lists every post once, the newest first', () => {
+    const dates = postsNewestFirst.map((post) => post.meta.date);
+
+    expect(postsNewestFirst).toHaveLength(posts.length);
+    expect(dates).toEqual([...dates].sort().reverse());
   });
 
   it('has unique slugs', () => {

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { PlayOnView } from '@/shared/ui/presentation/components/play-on-view';
 import { contactItem, navItems } from './nav-items';
 
 const legalLinks = [
@@ -15,10 +16,13 @@ export const Footer = (): ReactNode => {
 
   return (
     <footer className="page-column pb-10">
-      {/* One change standing on the bar. */}
-      <div aria-hidden="true" className="keeps-colors">
-        <div className="landing-square mb-0.5 size-3 bg-foreground" />
-        <div className="bleed h-4 bg-bar" />
+      {/* One change standing on the bar. It drops onto it when the footer
+          comes into view. */}
+      <div aria-hidden="true">
+        <PlayOnView className="keeps-colors" margin="0px 0px -24px 0px">
+          <div className="landing-square mb-0.5 size-3 bg-foreground" />
+          <div className="landing-bar bleed h-4 bg-bar" />
+        </PlayOnView>
       </div>
 
       <div className="mt-12 flex flex-col gap-4 text-muted-foreground text-sm md:flex-row md:items-center md:justify-between">

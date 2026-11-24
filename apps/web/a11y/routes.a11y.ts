@@ -278,6 +278,8 @@ test('the keyboard steps through the chart and each change is described', {
 });
 
 const stepCount = 6;
+const exampleRepositoryPattern =
+  /^https:\/\/github\.com\/davidvornholt\/standards\//u;
 
 // The diagram of a change's path plays by itself once it is on screen, and
 // the visitor can end it at any moment. With reduced motion it stands still
@@ -301,8 +303,30 @@ test('the path of every change plays in view and can be skipped', {
     section.getByRole('button', { name: 'Play it again' }),
   ).toBeVisible();
   await expect(figure).not.toHaveAttribute('data-run');
-  await expect(section.getByRole('listitem')).toHaveCount(stepCount);
+  await expect(
+    section.locator('.journey-steps').getByRole('listitem'),
+  ).toHaveCount(stepCount);
   expect(await scanWcag22AaViolations(page)).toEqual([]);
+});
+
+// Each station on the bar leads to what the example change left there, on a
+// phone too, where a station shows its number in place of its name.
+test('the stations of the path lead to the example change', {
+  tag: mobileDeviceTag,
+}, async ({ page }) => {
+  await page.goto('/');
+  const stations = page
+    .locator('#how')
+    .getByRole('list', { name: 'What the example change left at each station' })
+    .getByRole('link');
+
+  await expect(stations).toHaveCount(stepCount);
+  await expect(stations.first()).toHaveAccessibleName(
+    '1. The problem: the issue that describes it, on GitHub',
+  );
+  for (const station of await stations.all()) {
+    await expect(station).toHaveAttribute('href', exampleRepositoryPattern);
+  }
 });
 
 test('the path of every change stands still with reduced motion', async ({
@@ -313,7 +337,9 @@ test('the path of every change stands still with reduced motion', async ({
   const section = page.locator('#how');
 
   await section.scrollIntoViewIfNeeded();
-  await expect(section.getByRole('listitem')).toHaveCount(stepCount);
+  await expect(
+    section.locator('.journey-steps').getByRole('listitem'),
+  ).toHaveCount(stepCount);
   await expect(section.getByRole('button')).toHaveCount(0);
   await expect(section.locator('.journey-figure')).not.toHaveAttribute(
     'data-run',

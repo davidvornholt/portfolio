@@ -12,7 +12,7 @@ import {
 } from '@/features/changes/services/weekly-table';
 import type { WorkSummary } from '@/features/portfolio/presentation/components/work';
 import { PortfolioScreen } from '@/features/portfolio/presentation/screens/portfolio-screen';
-import { featuredPosts } from '@/features/posts/content/posts-registry';
+import { postsNewestFirst } from '@/features/posts/content/posts-registry';
 import { works } from '@/features/works/content/works-registry';
 import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
 
@@ -34,13 +34,17 @@ const workSummaries: ReadonlyArray<WorkSummary> = works.map((work) => ({
   image: work.meta.image,
 }));
 
-const postSummaries: ReadonlyArray<PostListEntry> = featuredPosts.map(
-  (post) => ({
+// The home page shows the newest articles, and the archive has all of them.
+const homePostCount = 5;
+
+const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst
+  .slice(0, homePostCount)
+  .map((post) => ({
     title: post.meta.title,
     readTime: post.meta.readTime,
     href: `/posts/${post.meta.slug}`,
-  }),
-);
+    date: post.meta.date,
+  }));
 
 const HomePage = (): ReactNode => (
   <PortfolioScreen

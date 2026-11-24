@@ -167,14 +167,27 @@
   .journey-stations {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    padding-block: 0.7rem;
     font-size: 0.8125rem;
     font-weight: 600;
     text-align: center;
   }
 
-  .journey-station-name {
-    display: none;
+  /* A station's name leads to what the example change left there. */
+  .journey-station {
+    display: block;
+    padding-block: 0.7rem;
+    text-decoration: underline 2px transparent;
+    text-underline-offset: 4px;
+  }
+
+  .journey-station:hover {
+    text-decoration-color: currentcolor;
+  }
+
+  /* On the bar the page's dark focus ring would not show. */
+  .journey-station:focus-visible {
+    outline-color: var(--bar-foreground);
+    outline-offset: -4px;
   }
 
   .journey-steps {
@@ -192,14 +205,6 @@
   @media (min-width: 48rem) {
     .journey-stations {
       font-size: 0.9375rem;
-    }
-
-    .journey-station-number {
-      display: none;
-    }
-
-    .journey-station-name {
-      display: inline;
     }
 
     /* Each step stands under its station. */

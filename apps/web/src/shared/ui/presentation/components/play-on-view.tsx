@@ -2,10 +2,10 @@
 
 import { type ReactNode, useEffect, useRef } from 'react';
 
-// It plays once its upper edge has come up past the lowest quarter of the
-// screen. A share of the element would never be reached by one that is much
-// taller than the screen.
-const margin = '0px 0px -25% 0px';
+// By default it plays once its upper edge has come up past the lowest
+// quarter of the screen. A share of the element would never be reached by one
+// that is much taller than the screen.
+const quarterUp = '0px 0px -25% 0px';
 
 /**
  * Lets its content play once when it scrolls into view. It marks itself
@@ -16,7 +16,18 @@ const margin = '0px 0px -25% 0px';
 export const PlayOnView = ({
   children,
   className,
-}: Readonly<{ children: ReactNode; className?: string }>): ReactNode => {
+  margin = quarterUp,
+}: Readonly<{
+  children: ReactNode;
+  className?: string;
+  /**
+   * How far inside the screen the element has to be, as an
+   * IntersectionObserver root margin, which takes pixels and percent only.
+   * An element at the very end of a page never rises a quarter up the screen
+   * and needs a smaller one.
+   */
+  margin?: string;
+}>): ReactNode => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,7 +50,7 @@ export const PlayOnView = ({
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [margin]);
 
   return (
     <div ref={ref} className={className}>

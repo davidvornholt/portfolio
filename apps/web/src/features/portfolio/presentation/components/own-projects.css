@@ -65,8 +65,10 @@
     transition: fill 160ms var(--ease-out);
   }
 
+  /* Beside the text, every bar ends at the same edge, which is today. */
   @media (min-width: 48rem) {
     .project-weeks {
+      justify-self: end;
       margin-block-start: 0;
     }
   }

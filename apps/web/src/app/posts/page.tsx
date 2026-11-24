@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { siteUrl } from '@/config/site';
-import { posts } from '@/features/posts/content/posts-registry';
+import { postsNewestFirst } from '@/features/posts/content/posts-registry';
 import { PostsScreen } from '@/features/posts/presentation/screens/posts-screen';
 import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
 
@@ -28,17 +28,15 @@ export const metadata: Metadata = {
   },
 };
 
-const postSummaries: ReadonlyArray<PostListEntry> = [...posts]
-  .sort(
-    (a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime(),
-  )
-  .map((post) => ({
+const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst.map(
+  (post) => ({
     title: post.meta.title,
     excerpt: post.meta.excerpt,
     readTime: post.meta.readTime,
     href: `/posts/${post.meta.slug}`,
     date: post.meta.date,
-  }));
+  }),
+);
 
 const PostsPage = (): ReactNode => <PostsScreen posts={postSummaries} />;
 

@@ -1,7 +1,14 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
+import {
+  Archivo_Narrow,
+  IBM_Plex_Mono,
+  IBM_Plex_Sans,
+  Source_Serif_4,
+} from 'next/font/google';
 import './globals.css';
 import './folio.css';
+import './stations.css';
+import './network.css';
 import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
@@ -9,6 +16,8 @@ import { Footer } from '@/shared/page/presentation/components/footer';
 import { MotionProvider } from '@/shared/ui/presentation/components/motion-provider';
 import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
 import { Header } from '../shared/page/presentation/components/header';
+
+const display = Archivo_Narrow({ variable: '--font-sign', subsets: ['latin'] });
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: '--font-sans',
@@ -149,7 +158,7 @@ const RootLayout = ({
       </noscript>
     </head>
     <body
-      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
+      className={`${display.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
     >
       <MotionProvider>
         <Header />

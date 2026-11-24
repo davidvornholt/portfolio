@@ -1,123 +1,97 @@
 'use client';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+
+import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 
+const pullRequest = 'https://github.com/davidvornholt/standards/pull/598';
 const stages = [
-  [
-    'Issue',
-    'Define the failure',
-    'When I removed the setting that gave a service access, its current key stopped working. An older key could still grant access for up to 30 days.',
-  ],
-  [
-    'Draft',
-    'Change the decision',
-    'I give the agent a specific repair. Trace both keys to the setting that authorized them, and revoke both when the setting disappears.',
-  ],
-  [
-    'Checks',
-    'Test the boundary',
-    'A token still needed during a deployment must keep working. The tests distinguish that case from a withdrawal.',
-  ],
-  [
-    'Review',
-    'Inspect the repair',
-    'In my review-fix process, fresh reviewers read the change, repairs address their findings, and another pass checks those repairs.',
-  ],
-  [
-    'Land',
-    'Publish the decision',
-    'I land the tested version. The code and the instructions for operators now agree on when access ends.',
-  ],
+  {
+    name: 'Issue',
+    title: 'An old key still opened the door.',
+    text: 'When I withdrew access to a service, its current key stopped working. A previous key could still grant access for up to 30 days.',
+    link: pullRequest,
+    source: 'Read the change',
+  },
+  {
+    name: 'Draft',
+    title: 'Trace both keys to one setting.',
+    text: 'I changed the plan so it revokes both active keys when the setting that granted them disappears. If a deployment still needs the old key, it keeps working.',
+    link: `${pullRequest}/files`,
+    source: 'Inspect the patch',
+  },
+  {
+    name: 'Check',
+    title: 'Reproduce the failure first.',
+    text: 'Three tests failed on the original code and passed with the repair. I also tested that withdrawing one part of a paired key leaves the remaining access in place.',
+    link: pullRequest,
+    source: 'See verification',
+  },
+  {
+    name: 'Review',
+    title: 'Inspect the repair',
+    text: 'Two reviewers examined the behavior and the assumptions behind it. I checked two proposed blockers against the old code. Both were already present. Two comments in the new code still needed correcting.',
+    link: `${pullRequest}#issuecomment-7087643522`,
+    source: 'Read the review',
+  },
+  {
+    name: 'Release',
+    title: 'Ship the checked version.',
+    text: 'I ran the full gate after the edits and merged the repair. Version 0.44.1 of my standards tool shipped the change.',
+    link: 'https://github.com/davidvornholt/standards/releases/tag/v0.44.1',
+    source: 'Open release 0.44.1',
+  },
+  {
+    name: 'Fix',
+    title: 'Correct two comments and check again.',
+    text: 'One comment overlooked disabled keys. Another repeated the same policy in a second place. I cut both and reran the checks. These edits changed no behavior, so the review ended there.',
+    link: `${pullRequest}/commits/e5cefbee24b5233cf36b1c36f21095d00e96c8df`,
+    source: 'Read the edits',
+  },
 ] as const;
-const evidence = [
-  [
-    ['Current key', 'Revoked'],
-    ['Previous key', 'Still active'],
-  ],
-  [
-    ['Current key', 'Trace setting'],
-    ['Previous key', 'Trace setting'],
-  ],
-  [
-    ['Setting removed', 'Revoke both'],
-    ['Deploy in progress', 'Keep access'],
-  ],
-  [
-    ['Inspect', 'Original change'],
-    ['Verify', 'Accepted repairs'],
-  ],
-  [
-    ['Current key', 'Revoked'],
-    ['Previous key', 'Revoked'],
-  ],
-] as const;
+
 export const ReviewPath = () => {
-  const [step, setStep] = useState(0);
-  const stage = stages[step] ?? stages[0];
+  const [selected, setSelected] = useState(0);
+  const stage = stages[selected] ?? stages[0];
   return (
-    <div className="review-path mt-9 border border-deep-border p-5 md:p-8">
-      <div className="flex items-center justify-between gap-4">
-        <p className="folio-label text-deep-primary">Withdrawing access</p>
-        <a
-          className="text-xs underline"
-          href="https://github.com/davidvornholt/standards/pull/598"
-        >
-          standards #598 ↗
-        </a>
+    <div className="review-path">
+      <div className="review-caption">
+        <span>Standards</span>
+        <a href={pullRequest}>PR #598 ↗</a>
       </div>
-      <ol className="my-8 grid grid-cols-5">
-        {stages.map(([name], i) => (
-          <li key={name}>
-            <button
-              type="button"
-              aria-pressed={step === i}
-              onClick={() => setStep(i)}
-              className="track-stop"
-            >
-              <span className={`track-node ${i <= step ? 'complete' : ''}`} />
-              <span>{name}</span>
-            </button>
-          </li>
+      <div className="review-schematic">
+        <svg
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <title>Repair branch returns from review to checks</title>
+          <path d="M100 25H900" className="main-track" />
+          <path
+            d="M700 25v31q0 12 -14 12H514q-14 0 -14 -12V25M559 61l-9 7 9 7"
+            className="fix-track"
+          />
+        </svg>
+        {stages.map(({ name }, i) => (
+          <button
+            key={name}
+            type="button"
+            className={name === 'Fix' ? 'branch-stop' : 'review-stop'}
+            aria-pressed={selected === i}
+            onClick={() => setSelected(i)}
+          >
+            <i aria-hidden="true" />
+            {name}
+          </button>
         ))}
-      </ol>
-      <div className="grid items-end gap-6 md:grid-cols-[1fr_auto_auto]">
-        <div
-          key={stage[0]}
-          aria-live="polite"
-          className="stage-copy min-h-36 max-w-lg"
-        >
-          <p className="font-mono text-deep-primary text-xs">
-            0{step + 1} / 05
-          </p>
-          <h3 className="my-2 font-normal text-2xl md:text-3xl">{stage[1]}</h3>
-          <p className="text-deep-muted-foreground">{stage[2]}</p>
-        </div>
-        <dl
-          key={stage[1]}
-          className="stage-copy grid min-w-48 gap-3 border-deep-border border-l pl-4"
-        >
-          {evidence[step]?.map(([label, value]) => (
-            <div key={label}>
-              <dt className="folio-label text-deep-muted-foreground">
-                {label}
-              </dt>
-              <dd className="font-mono text-deep-primary text-sm">{value}</dd>
-            </div>
-          ))}
-        </dl>
-        <div className="flex">
-          {[-1, 1].map((dir) => (
-            <button
-              type="button"
-              aria-label={dir > 0 ? 'Next stage' : 'Previous stage'}
-              disabled={step + dir < 0 || step + dir >= stages.length}
-              className="grid size-11 place-items-center border border-deep-border disabled:opacity-40"
-              key={dir}
-              onClick={() => setStep(step + dir)}
-            >
-              {dir < 0 ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
-            </button>
-          ))}
+      </div>
+      <div className="stage-detail" aria-live="polite">
+        <div key={stage.name}>
+          <h3>{stage.title}</h3>
+          <p>{stage.text}</p>
+          <a href={stage.link} className="ink-link">
+            {stage.source}
+            <ArrowUpRight size={15} />
+          </a>
         </div>
       </div>
     </div>

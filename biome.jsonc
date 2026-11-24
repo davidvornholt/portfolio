@@ -17,7 +17,11 @@
   "overrides": [
     {
       // Biome cannot trace classes from the root layout's global stylesheet into descendant route components.
-      "includes": ["apps/web/src/app/folio.css"],
+      "includes": [
+        "apps/web/src/app/folio.css",
+        "apps/web/src/app/network.css",
+        "apps/web/src/app/stations.css"
+      ],
       "linter": { "rules": { "nursery": { "noUnusedClasses": "off" } } }
     },
     {
@@ -140,6 +144,7 @@
       // These stable IDs are deliberate public fragment targets referenced by
       // the site navigation; generated IDs would break incoming hash links.
       "includes": [
+        "apps/web/src/features/portfolio/presentation/screens/portfolio-screen.tsx",
         "apps/web/src/features/portfolio/presentation/components/blog-teaser.tsx",
         "apps/web/src/features/portfolio/presentation/components/cta.tsx",
         "apps/web/src/features/portfolio/presentation/components/expertise.tsx",

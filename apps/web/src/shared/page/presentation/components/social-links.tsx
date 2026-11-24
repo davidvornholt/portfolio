@@ -19,7 +19,7 @@ const socialLinks: ReadonlyArray<SocialLink> = [
     label: 'LinkedIn',
     href: 'https://www.linkedin.com/in/david-vornholt-055239366',
     icon: (
-      <LinkedInLogo className="size-5 opacity-60 transition-opacity duration-200 hover:opacity-100" />
+      <LinkedInLogo className="size-5 opacity-90 invert transition-opacity duration-200 hover:opacity-100" />
     ),
   },
   {
@@ -37,7 +37,7 @@ const SocialIcon = ({ link }: { readonly link: SocialLink }): ReactNode => (
     aria-label={link.label}
     data-umami-event="social-link"
     data-umami-event-network={link.label}
-    className="text-muted-foreground transition-colors hover:text-foreground"
+    className="text-deep-muted-foreground transition-colors hover:text-deep-foreground"
   >
     {link.icon}
   </Link>

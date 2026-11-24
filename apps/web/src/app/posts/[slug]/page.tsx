@@ -84,24 +84,31 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackNavigation href="/posts" label="All posts" />
-      <article className="mx-auto max-w-4xl px-6 pt-8 pb-24">
-        <header className="my-12 border-border border-b pb-8">
-          <p className="folio-label mb-3 text-welcome">{post.meta.category}</p>
-          <h1 className="folio-heading mb-4">{post.meta.title}</h1>
-          {post.meta.subtitle === undefined ? null : (
-            <p className="mb-4 text-lg text-muted-foreground">
-              {post.meta.subtitle}
-            </p>
-          )}
-          <div className="flex items-center gap-4 text-muted-foreground text-sm">
-            <time dateTime={post.meta.date}>
-              {formatPostDate(post.meta.date)}
-            </time>
-            <span>·</span>
-            <span>{post.meta.readTime}</span>
+      <article className="pb-20">
+        <header className="folio-wrap arrival article-arrival">
+          <div className="section-sign">
+            <span className="line-symbol key-notes">W</span>
+            <span>
+              Writing <span aria-hidden="true">/</span> {post.meta.category}
+            </span>
           </div>
+          <div className="arrival-grid">
+            <h1>{post.meta.title}</h1>
+            <div className="arrival-meta">
+              <p>David Vornholt</p>
+              <time dateTime={post.meta.date}>
+                {formatPostDate(post.meta.date)}
+              </time>
+              <p>{post.meta.readTime}</p>
+            </div>
+          </div>
+          {post.meta.subtitle !== undefined && (
+            <p className="mt-6 max-w-2xl text-lg">{post.meta.subtitle}</p>
+          )}
         </header>
-        <Body />
+        <div className="mx-auto max-w-4xl px-6">
+          <Body />
+        </div>
       </article>
     </>
   );

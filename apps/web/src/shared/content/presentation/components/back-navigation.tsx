@@ -17,7 +17,7 @@ export const BackNavigation = ({
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.5, ease: easing }}
-    className="mx-auto max-w-4xl px-6 pt-32"
+    className="folio-wrap pt-24"
   >
     <Link
       href={href}

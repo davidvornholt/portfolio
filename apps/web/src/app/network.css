@@ -1,0 +1,383 @@
+@layer overrides {
+  :root {
+    --background: oklch(0.979 0.006 153);
+    --foreground: oklch(0.245 0.035 234);
+    --card: var(--background);
+    --card-foreground: var(--foreground);
+    --muted-foreground: oklch(0.43 0.028 230);
+    --secondary: oklch(0.935 0.017 157);
+    --secondary-foreground: var(--foreground);
+    --muted: var(--secondary);
+    --primary: oklch(0.46 0.17 259);
+    --primary-strong: oklch(0.37 0.13 255);
+    --welcome: oklch(0.48 0.14 39);
+    --border: oklch(0.8 0.022 168);
+    --deep: oklch(0.225 0.036 237);
+    --deep-foreground: oklch(0.979 0.012 150);
+    --deep-muted-foreground: oklch(0.84 0.019 166);
+    --deep-border: oklch(0.48 0.032 232);
+    --line-work: oklch(0.53 0.2 259);
+    --line-method: oklch(0.64 0.19 43);
+    --line-notes: oklch(0.52 0.109 168);
+    --map-ground: oklch(0.948 0.024 145);
+    --map-block: oklch(0.917 0.025 148);
+    --map-river: oklch(0.867 0.053 203);
+  }
+}
+@layer components {
+  .brand-link,
+  .sign-link,
+  .section-sign,
+  .map-key,
+  .map-key span,
+  .destination-link,
+  .map-heading,
+  .review-caption {
+    display: flex;
+    align-items: center;
+  }
+  .brand-link {
+    gap: 0.8rem;
+    font: 650 1.35rem var(--font-sign);
+    letter-spacing: -0.024em;
+  }
+  .network-mark {
+    position: relative;
+    display: block;
+    inline-size: 32px;
+    block-size: 32px;
+    border: 5px solid var(--deep-foreground);
+    border-radius: 50%;
+    transition: transform 0.4s;
+  }
+  .network-mark::after {
+    content: "";
+    position: absolute;
+    inline-size: 38px;
+    block-size: 6px;
+    background: var(--line-method);
+    inset: 8px auto auto -8px;
+    transform: rotate(-35deg);
+  }
+  .brand-link:active .network-mark {
+    transform: rotate(35deg);
+  }
+  .sign-link {
+    min-block-size: 44px;
+    text-decoration: underline;
+    text-underline-offset: 0.4em;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.24s;
+  }
+  .sign-link:hover {
+    text-decoration-color: currentColor;
+  }
+  .guide-hero {
+    padding-block: clamp(7rem, 10vw, 10rem) clamp(2rem, 4vw, 4.5rem);
+    border-block-end: 1px solid var(--border);
+  }
+  .guide-opening {
+    display: grid;
+    grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.35fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+  .guide-portrait {
+    inline-size: 62px;
+    block-size: 68px;
+    object-fit: cover;
+    object-position: center top;
+    background: var(--secondary);
+    filter: grayscale(1);
+  }
+  .guide-intro h1,
+  .arrival h1,
+  .method-title {
+    font-family: var(--font-sign);
+    font-weight: 650;
+    letter-spacing: -0.058em;
+    line-height: 0.96;
+    text-wrap: balance;
+  }
+  .guide-intro h1 {
+    font-size: clamp(3.6rem, 6.4vw, 6.4rem);
+    margin-block: 1.8rem 1.3rem;
+  }
+  .guide-intro span {
+    display: block;
+    color: var(--primary);
+  }
+  .intro-deck {
+    font-size: clamp(1rem, 1.38vw, 1.22rem);
+    line-height: 1.52;
+    max-inline-size: 34ch;
+  }
+  .destination-link {
+    background: var(--foreground);
+    color: var(--deep-foreground);
+    gap: 1.2rem;
+    inline-size: fit-content;
+    padding: 0.8rem 1.2rem;
+    font-weight: 550;
+    font-size: 0.94rem;
+    margin-block-start: 1.7rem;
+    transition: background 0.2s;
+  }
+  .destination-link:hover {
+    background: var(--primary);
+  }
+  .network {
+    background: var(--map-ground);
+    border: 1px solid var(--border);
+    position: relative;
+    isolation: isolate;
+  }
+  .map-heading {
+    position: absolute;
+    inset: 0 0 auto;
+    justify-content: space-between;
+    padding: 0.9rem 1.1rem;
+    pointer-events: none;
+  }
+  .map-heading span,
+  .review-caption,
+  .folio-label {
+    font: 600 0.7rem var(--font-mono);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  .map-heading span {
+    background: var(--foreground);
+    color: var(--background);
+    padding: 0.35rem 0.65rem;
+  }
+  .network-drawing {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+  .city-block {
+    fill: var(--map-block);
+  }
+  .waterway,
+  .water-edge {
+    fill: none;
+    stroke: var(--map-river);
+    stroke-width: 28;
+  }
+  .water-edge {
+    stroke-width: 1.5;
+  }
+  .park-hatch {
+    stroke: var(--border);
+    stroke-width: 1.2;
+  }
+  .route,
+  .route-bed {
+    fill: none;
+    stroke-width: 7;
+    stroke-linecap: round;
+  }
+  .route-bed {
+    stroke: var(--background);
+    stroke-width: 12;
+  }
+  [data-line="work"] {
+    stroke: var(--line-work);
+  }
+  [data-line="method"] {
+    stroke: var(--line-method);
+  }
+  [data-line="notes"] {
+    stroke: var(--line-notes);
+  }
+  .map-landmarks {
+    stroke: var(--muted-foreground);
+    stroke-width: 1.35;
+    fill: none;
+  }
+  .landmark-face {
+    fill: var(--background);
+  }
+  .landmark-side {
+    fill: var(--map-block);
+  }
+  .landmark-ribbon {
+    fill: var(--line-method);
+  }
+  .landmark-shadow {
+    fill: var(--border);
+    stroke: none;
+  }
+  .station-ring {
+    fill: var(--background);
+    stroke: var(--foreground);
+    stroke-width: 3;
+    transition: stroke-width 0.22s;
+  }
+  .station-core {
+    fill: var(--foreground);
+  }
+  .map-stop text {
+    font: 620 18px var(--font-sign);
+    fill: var(--foreground);
+    stroke: var(--map-ground);
+    stroke-width: 5;
+    paint-order: stroke;
+    stroke-linejoin: round;
+  }
+  .map-stop .hub-name {
+    font-size: 31px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+  .map-stop:hover text,
+  .map-stop:focus-visible text {
+    fill: var(--primary);
+    text-decoration: underline;
+  }
+  .map-stop:hover .station-ring,
+  .map-stop:focus-visible .station-ring {
+    stroke-width: 5;
+  }
+  .map-key {
+    gap: 1.6rem;
+    border-block-start: 1px solid var(--border);
+    padding: 0.65rem 1.1rem;
+    background: var(--background);
+    font-size: 0.78rem;
+    font-weight: 550;
+  }
+  .map-key span {
+    gap: 0.5rem;
+  }
+  .map-key i {
+    display: grid;
+    place-items: center;
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    font: 700 0.74rem var(--font-sign);
+  }
+  .map-prompt {
+    margin-inline-end: auto;
+    color: var(--muted-foreground);
+  }
+  .key-work {
+    background: var(--line-work);
+    color: var(--background);
+  }
+  .key-method {
+    background: var(--line-method);
+    color: var(--foreground);
+  }
+  .key-notes {
+    background: var(--line-notes);
+    color: var(--background);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .route {
+      stroke-dasharray: 1;
+      animation: draw-route 1.25s var(--ease-out) both;
+    }
+    .stage-detail > div {
+      animation: lift-in 0.28s ease-out;
+    }
+    @keyframes draw-route {
+      from {
+        stroke-dashoffset: 1;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  }
+  @media (width < 800px) {
+    .guide-hero {
+      padding-block: 5.8rem 1.75rem;
+    }
+    .guide-opening,
+    .method-grid,
+    .case-arrival,
+    .arrival-grid {
+      grid-template-columns: 1fr;
+      gap: 1.4rem;
+    }
+    .guide-intro h1 {
+      font-size: clamp(3.05rem, 10.8vw, 5rem);
+      margin-block: 1rem 0.65rem;
+      max-inline-size: 18ch;
+    }
+    .guide-intro span {
+      display: inline;
+    }
+    .intro-deck {
+      max-inline-size: 45ch;
+    }
+    .guide-portrait {
+      inline-size: 46px;
+      block-size: 48px;
+    }
+    .destination-link {
+      margin-block-start: 0.9rem;
+      padding: 0.6rem 0.9rem;
+    }
+    .map-heading {
+      padding: 0.55rem 0.7rem;
+    }
+    .map-key {
+      gap: 0.8rem;
+      padding: 0.55rem 0.75rem;
+    }
+    .destination-row {
+      grid-template-columns: 16px 1fr auto;
+      gap: 0.3rem 0.8rem;
+    }
+    .destination-row p {
+      grid-column: 2;
+      grid-row: 2;
+      font-size: 0.88rem;
+    }
+    .destination-row svg {
+      grid-column: 3;
+      grid-row: 1 / 3;
+    }
+    .stage-detail {
+      min-block-size: 13.8rem;
+    }
+    .arrival {
+      margin-block: 1.2rem 2rem;
+    }
+  }
+  @media (width < 530px) {
+    .brand-link {
+      font-size: 1.05rem;
+      gap: 0.55rem;
+    }
+    .network-mark {
+      inline-size: 23px;
+      block-size: 23px;
+      border-width: 4px;
+    }
+    .network-mark::after {
+      inline-size: 28px;
+      block-size: 4px;
+      inset: 5.5px auto auto -6.5px;
+    }
+    .map-stop text {
+      font-size: 22px;
+    }
+    .map-stop .hub-name {
+      font-size: 33px;
+    }
+  }
+  @media (width < 370px) {
+    .map-prompt {
+      display: none;
+    }
+  }
+  @media (width < 370px) {
+    header .brand-link > span:last-child {
+      display: none;
+    }
+  }
+}

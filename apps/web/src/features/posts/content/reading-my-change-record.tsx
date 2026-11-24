@@ -2,7 +2,7 @@ import type { Post } from './post-meta';
 
 export const readingMyChangeRecordPost: Post = {
   meta: {
-    title: 'Why I put my change record on the front page',
+    title: 'How I read the test results on my map',
     slug: 'reading-my-change-record',
     date: '2026-11-24',
     category: 'Engineering',
@@ -14,9 +14,9 @@ export const readingMyChangeRecordPost: Post = {
     <div className="essay">
       <p>
         A publishing editor and a software engineer can both ask me how I know a
-        change is ready. I wanted the first answer on my portfolio to work for
-        either of them. Each square on the home page stands for one change.
-        Select it and you can read what happened.
+        change is ready. I wanted an answer that would work for either of them.
+        The Test results station on my map opens a chart. Each square stands for
+        one change. Select it and you can read what happened.
       </p>
       <h2>Which result belongs to a change?</h2>
       <p>
@@ -33,7 +33,7 @@ export const readingMyChangeRecordPost: Post = {
         a record of the work I can show, not a measure of how hard I worked.
       </p>
       <p>
-        I put a real repair next to the chart because even a perfect run of
+        I included a route through one real repair because even a perfect run of
         green squares would leave a question unanswered. What did the tests
         actually protect? In the standards example, the answer is access that
         should end when I withdraw a credential.

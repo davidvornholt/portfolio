@@ -25,27 +25,37 @@ export const CaseStudyLayout = ({
   children,
 }: CaseStudyLayoutProps) => (
   <article className="pb-24">
-    <header className="folio-wrap my-12 grid items-center gap-10 border-border border-b pb-12 md:grid-cols-[1.3fr_1fr]">
-      <div>
-        <p className="folio-label mb-3 text-welcome">
-          {role} · {timeline}
-        </p>
-        <h1 className="folio-heading">{title}</h1>
-        <p className="my-5 max-w-md text-xl">{subtitle}</p>
-        <p className="text-muted-foreground text-sm">{techStack.join(' / ')}</p>
-        {liveUrl !== undefined && (
-          <a href={liveUrl} className="ink-link mt-3 text-primary">
-            Visit the website <ArrowUpRight size={16} />
-          </a>
-        )}
+    <header className="folio-wrap arrival">
+      <div className="section-sign">
+        <span className="line-symbol key-work">P</span>
+        <span>Selected work / Case study</span>
       </div>
-      <figure>
-        <WorkPlate slug={slug} />
-        <figcaption className="mt-3 text-muted-foreground text-sm">
-          {slug === 'atrium' ? 'Class register concept. ' : ''}
-          {outcome}
-        </figcaption>
-      </figure>
+      <div className="case-arrival">
+        <div>
+          <p className="folio-label mb-3 text-welcome">
+            {role} · {timeline}
+          </p>
+          <h1>{title}</h1>
+          <p className="my-5 max-w-md text-xl">{subtitle}</p>
+          <p className="text-muted-foreground text-sm">
+            {techStack.join(' / ')}
+          </p>
+          {liveUrl !== undefined && (
+            <a href={liveUrl} className="ink-link mt-3 text-primary">
+              Visit the website <ArrowUpRight size={16} />
+            </a>
+          )}
+        </div>
+        <figure>
+          <WorkPlate slug={slug} />
+          <figcaption className="mt-3 text-muted-foreground text-sm">
+            {slug === 'atrium' && 'Class register concept. '}
+            {slug === 'prosabridge' &&
+              'A footnote stays with its passage in both languages. '}
+            {outcome}
+          </figcaption>
+        </figure>
+      </div>
     </header>
     {children}
   </article>

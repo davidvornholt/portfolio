@@ -8,7 +8,10 @@ export const BlogTeaser = ({
 }) => (
   <section id="blog" className="folio-wrap border-border border-t py-16">
     <div className="mb-8 flex items-baseline justify-between gap-3">
-      <h2 className="folio-heading">Recent writing</h2>
+      <div className="section-sign">
+        <span className="line-symbol key-notes">W</span>
+        <h2>Recent writing</h2>
+      </div>
       <Link className="ink-link text-primary" href="/posts">
         All articles ↗
       </Link>

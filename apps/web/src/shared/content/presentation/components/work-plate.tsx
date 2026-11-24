@@ -1,17 +1,5 @@
-const lines = ['first', 'second', 'third', 'fourth', 'last'];
-const Manuscript = () => (
-  <div className="manuscript" aria-hidden="true">
-    {['Source', 'Translation'].map((side, i) => (
-      <div className="leaf" key={side}>
-        <span className="folio-label">{side}</span>
-        <strong>{i === 0 ? 'Aa' : 'Ää'}</strong>
-        {lines.map((length) => (
-          <i key={length} />
-        ))}
-      </div>
-    ))}
-  </div>
-);
+import { ManuscriptTransfer } from './manuscript-transfer';
+
 const Register = () => (
   <div className="register" aria-hidden="true">
     <div className="flex items-center justify-between border-current border-b pb-1">
@@ -33,7 +21,7 @@ const Register = () => (
 );
 export const WorkPlate = ({ slug }: { readonly slug: string }) => (
   <div className="work-plate" data-plate={slug} aria-hidden="true">
-    {slug === 'prosabridge' && <Manuscript />}{' '}
+    {slug === 'prosabridge' && <ManuscriptTransfer />}{' '}
     {slug === 'atrium' && <Register />}{' '}
     {slug === 'fes-kirchheim' && (
       <div className="search-print">

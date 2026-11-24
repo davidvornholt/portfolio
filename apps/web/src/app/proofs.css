@@ -155,6 +155,9 @@
   }
   .translation-print sup {
     font-size: 0.38em;
+    vertical-align: super;
+    inset-block-start: auto;
+    margin-inline-start: 0.12em;
   }
   .case-cover .work-plate {
     block-size: clamp(15rem, 26vw, 26rem);

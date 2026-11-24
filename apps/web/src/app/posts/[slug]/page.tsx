@@ -89,9 +89,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
             <BackNavigation href="/posts" label="All posts" />
             <div className="publication-spread">
               <div>
-                <p className="folio-label mb-4">
-                  Engineering notes / {post.meta.category}
-                </p>
+                <p className="folio-label mb-4">{post.meta.category} notes</p>
                 <h1 className="publication-title">{post.meta.title}</h1>
                 {post.meta.subtitle !== undefined && (
                   <p className="mt-3 text-lg">{post.meta.subtitle}</p>

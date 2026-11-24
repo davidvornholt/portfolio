@@ -123,7 +123,7 @@ test('code snippet headers fit a 320 CSS pixel viewport', async ({ page }) => {
   });
   await title.scrollIntoViewIfNeeded();
   await expect(title).toBeVisible();
-  await expect(page.getByText('css', { exact: true })).toBeInViewport({
+  await expect(page.getByText('CSS', { exact: true })).toBeInViewport({
     ratio: 1,
   });
   expect(

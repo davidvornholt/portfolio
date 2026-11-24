@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { loosenedRule } from './loosened-rule';
 
-const repositoryRoot = new URL('../../../../../../../', import.meta.url);
+const repositoryRoot = new URL('../../../../../../', import.meta.url);
 
 describe('the loosened rule', () => {
   it('quotes a rule that stands in its section of the file', async () => {

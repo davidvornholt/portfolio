@@ -215,6 +215,27 @@ const valueText = (
     .join(', ');
 };
 
+/** Lets Escape close the panel from the chart and from the panel's own buttons. */
+const useEscape = (
+  frameRef: RefObject<HTMLDivElement | null>,
+  open: boolean,
+  setSelection: Dispatch<SetStateAction<Selection | undefined>>,
+): void => {
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (frame === null || !open) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setSelection(undefined);
+      }
+    };
+    frame.addEventListener('keydown', onKeyDown);
+    return () => frame.removeEventListener('keydown', onKeyDown);
+  }, [frameRef, open, setSelection]);
+};
+
 /**
  * Lets a visitor ask the chart about single changes: by pointing, by tapping,
  * or with the keyboard through a range input that steps from change to
@@ -239,6 +260,7 @@ export const FieldExplorer = ({
   const pinned = selection?.pinned === true;
   usePointerSelection({ frameRef, panelRef, marks, pinned, setSelection });
   usePlacement(frameRef, panelRef, mark);
+  useEscape(frameRef, selection !== undefined, setSelection);
   const stepTo = (target: number): void =>
     setSelection({ index: Math.max(0, Math.min(target, last)), pinned: true });
 
@@ -260,9 +282,7 @@ export const FieldExplorer = ({
           setSelection((current) => current ?? { index: last, pinned: true })
         }
         onKeyDown={(event) => {
-          if (event.key === 'Escape') {
-            setSelection(undefined);
-          } else if (event.key === 'PageUp' || event.key === 'PageDown') {
+          if (event.key === 'PageUp' || event.key === 'PageDown') {
             event.preventDefault();
             stepTo(
               markOfNextDay(marks, index, event.key === 'PageUp' ? 1 : -1),

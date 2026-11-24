@@ -24,19 +24,18 @@ export const PostList = ({
           href={post.href}
           data-umami-event="post-open"
           data-umami-event-post={post.title}
-          className="group grid gap-x-14 gap-y-2 py-6 md:grid-cols-13 md:items-baseline md:py-7"
+          data-excerpt={post.excerpt === undefined ? undefined : ''}
+          className="group grid gap-x-14 gap-y-2 py-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-baseline lg:py-7 data-excerpt:lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)_auto]"
         >
-          <strong
-            className={`font-bold text-xl leading-snug tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current md:text-2xl ${post.excerpt === undefined ? 'max-w-4xl md:col-span-11' : 'max-w-xl md:col-span-7'}`}
-          >
+          <strong className="max-w-4xl font-bold text-xl leading-snug tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current md:text-2xl">
             {post.title}
           </strong>
           {post.excerpt === undefined ? null : (
-            <span className="text-muted-foreground leading-relaxed md:col-span-4">
+            <span className="max-w-2xl text-muted-foreground leading-relaxed">
               {post.excerpt}
             </span>
           )}
-          <span className="text-muted-foreground text-sm md:col-span-2 md:col-start-12 md:text-right">
+          <span className="whitespace-nowrap text-muted-foreground text-sm lg:text-right">
             {post.date === undefined ? null : (
               <time dateTime={post.date} className="block">
                 {formatPostDate(post.date)}

@@ -130,8 +130,14 @@
   @media (min-width: 48rem) {
     .journey-flag {
       inset-block-start: 22%;
-      inset-inline: 77% auto;
       font-size: 0.9375rem;
+    }
+  }
+
+  /* Beside the review's station, where the column is wide enough for it. */
+  @media (min-width: 64rem) {
+    .journey-flag {
+      inset-inline: 77% auto;
     }
   }
 
@@ -202,7 +208,9 @@
     transition: color 0.3s var(--ease-out);
   }
 
-  @media (min-width: 48rem) {
+  /* Six columns of text need a wide screen. Below it the stations carry
+     their numbers and the steps are a list. */
+  @media (min-width: 64rem) {
     .journey-stations {
       font-size: 0.9375rem;
     }

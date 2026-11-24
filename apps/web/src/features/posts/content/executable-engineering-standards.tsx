@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { MDXCodeSnippet } from '@/shared/content/presentation/components/mdx-code-snippet';
+import { LoosenedRuleTerminal } from '@/shared/content/presentation/components/loosened-rule-terminal';
 import {
   MDXCallToAction,
   MDXSection,
@@ -16,22 +16,6 @@ import { PostFigure } from './figures/post-figure';
 import type { Post } from './post-meta';
 
 const standards = 'https://github.com/davidvornholt/standards';
-
-// What `bun standards check` printed in this repository on November 23, 2026,
-// after the rule above it had been rewritten in AGENTS.md. The home page
-// shows the same run.
-const loosenedRuleRun = `# An agent "loosens" a rule in AGENTS.md:
-- Don't weaken a quality gate to make a change pass.
-+ Weaken a quality gate if a change doesn't pass.
-
-$ bun standards check
-standards: 1 canonical path(s) drifted from the last synced state:
-  modified: AGENTS.md (expected 6b12033227b4, found 309f073185f2)
-These files are read-only. Restore them with \`bun standards sync\`, or move your change upstream.
-standards doctor: consumer integration seams are wired
-standards structure: workspace layout matches the standards
-standards github: live GitHub settings match the declared configuration
-error: script "standards" exited with code 1`;
 
 const owners = [
   {
@@ -137,7 +121,9 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         reads it at the start of each session. An agent can also edit it. This
         is what happens when one does, tried in this site’s own project:
       </MDXParagraph>
-      <MDXCodeSnippet language="text" code={loosenedRuleRun} wrap={true} />
+      <div className="my-8">
+        <LoosenedRuleTerminal />
+      </div>
       <MDXParagraph>
         The file no longer matches what was recorded when the rules were last
         copied in, so the check fails, and with it everything that follows. The

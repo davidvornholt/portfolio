@@ -113,7 +113,10 @@ export const Work = ({
       )}
       <div className="mt-16 grid gap-x-14 gap-y-16 md:mt-22 md:grid-cols-2">
         {others.map((work) => (
-          <article key={work.slug}>
+          <article
+            key={work.slug}
+            className="md:row-span-2 md:grid md:grid-rows-subgrid md:gap-y-0"
+          >
             <Picture work={work} sizes="(min-width: 48rem) 46vw, 100vw" />
             <div className="mt-6">
               <Description work={work} />

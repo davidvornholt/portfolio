@@ -2,8 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+// The page stands for no address, so it names no canonical one and stays out
+// of search results.
 export const metadata: Metadata = {
   title: 'Nothing stands at this address',
+  alternates: { canonical: null },
+  openGraph: { url: null },
+  robots: { index: false },
 };
 
 const linkClassName =
@@ -30,7 +35,7 @@ const NotFound = (): ReactNode => (
       Nothing stands at this address.
     </h1>
     <p className="mt-4 max-w-2xl text-lg md:text-xl md:leading-snug">
-      The page may have moved, or the address has a typing mistake in it.
+      The page may have moved, or the address has a typo in it.
     </p>
     <p className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
       <Link href="/" className={linkClassName}>

@@ -37,81 +37,91 @@
       --mark-caught 200ms var(--ease-out);
   }
 
-  /* Pointed at or focused. */
-  section:has([data-legend="p"]:is(:hover, :focus-visible)) .field {
-    --mark-failed: var(--mark-faint);
-    --mark-unchecked: var(--mark-faint);
-    --mark-caught: var(--mark-faint-inside);
+  /* The keys work where a pointer can rest on them without pressing. On a
+     touch screen the chart is far above the key and out of sight, and a
+     touch leaves a hover behind, so there the keys are plain text. */
+  @media (hover: hover) {
+    /* Pointed at or focused. */
+    section:has([data-legend="p"]:is(:hover, :focus-visible)) .field {
+      --mark-failed: var(--mark-faint);
+      --mark-unchecked: var(--mark-faint);
+      --mark-caught: var(--mark-faint-inside);
+    }
+
+    section:has([data-legend="f"]:is(:hover, :focus-visible)) .field {
+      --mark-passed: var(--mark-faint);
+      --mark-unchecked: var(--mark-faint);
+      --mark-caught: var(--mark-faint-inside);
+    }
+
+    section:has([data-legend="u"]:is(:hover, :focus-visible)) .field {
+      --mark-passed: var(--mark-faint);
+      --mark-failed: var(--mark-faint);
+      --mark-caught: var(--mark-faint-inside);
+    }
+
+    section:has([data-legend="c"]:is(:hover, :focus-visible)) .field {
+      --mark-passed: var(--mark-faint);
+      --mark-failed: var(--mark-faint);
+      --mark-unchecked: var(--mark-faint);
+      --mark-caught: var(--bar-foreground);
+    }
+
+    /* Held, while no key is pointed at. */
+    section:has([data-legend="p"][aria-pressed="true"]):not(
+        :has([data-legend]:is(:hover, :focus-visible))
+      ) .field {
+      --mark-failed: var(--mark-faint);
+      --mark-unchecked: var(--mark-faint);
+      --mark-caught: var(--mark-faint-inside);
+    }
+
+    section:has([data-legend="f"][aria-pressed="true"]):not(
+        :has([data-legend]:is(:hover, :focus-visible))
+      )
+      .field {
+      --mark-passed: var(--mark-faint);
+      --mark-unchecked: var(--mark-faint);
+      --mark-caught: var(--mark-faint-inside);
+    }
+
+    section:has([data-legend="u"][aria-pressed="true"]):not(
+        :has([data-legend]:is(:hover, :focus-visible))
+      )
+      .field {
+      --mark-passed: var(--mark-faint);
+      --mark-failed: var(--mark-faint);
+      --mark-caught: var(--mark-faint-inside);
+    }
+
+    section:has([data-legend="c"][aria-pressed="true"]):not(
+        :has([data-legend]:is(:hover, :focus-visible))
+      )
+      .field {
+      --mark-passed: var(--mark-faint);
+      --mark-failed: var(--mark-faint);
+      --mark-unchecked: var(--mark-faint);
+      --mark-caught: var(--bar-foreground);
+    }
+
+    .field-legend-key:hover,
+    .field-legend-key[aria-pressed="true"] {
+      color: var(--foreground);
+    }
+
+    .field-legend-key[aria-pressed="true"] {
+      text-decoration-color: currentcolor;
+    }
   }
 
-  section:has([data-legend="f"]:is(:hover, :focus-visible)) .field {
-    --mark-passed: var(--mark-faint);
-    --mark-unchecked: var(--mark-faint);
-    --mark-caught: var(--mark-faint-inside);
+  @media (hover: none) {
+    .field-legend-key {
+      pointer-events: none;
+    }
   }
 
-  section:has([data-legend="u"]:is(:hover, :focus-visible)) .field {
-    --mark-passed: var(--mark-faint);
-    --mark-failed: var(--mark-faint);
-    --mark-caught: var(--mark-faint-inside);
-  }
-
-  section:has([data-legend="c"]:is(:hover, :focus-visible)) .field {
-    --mark-passed: var(--mark-faint);
-    --mark-failed: var(--mark-faint);
-    --mark-unchecked: var(--mark-faint);
-    --mark-caught: var(--bar-foreground);
-  }
-
-  /* Held, while no key is pointed at. */
-  section:has([data-legend="p"][aria-pressed="true"]):not(
-    :has([data-legend]:is(:hover, :focus-visible))
-  ) .field {
-    --mark-failed: var(--mark-faint);
-    --mark-unchecked: var(--mark-faint);
-    --mark-caught: var(--mark-faint-inside);
-  }
-
-  section:has([data-legend="f"][aria-pressed="true"]):not(
-      :has([data-legend]:is(:hover, :focus-visible))
-    )
-    .field {
-    --mark-passed: var(--mark-faint);
-    --mark-unchecked: var(--mark-faint);
-    --mark-caught: var(--mark-faint-inside);
-  }
-
-  section:has([data-legend="u"][aria-pressed="true"]):not(
-      :has([data-legend]:is(:hover, :focus-visible))
-    )
-    .field {
-    --mark-passed: var(--mark-faint);
-    --mark-failed: var(--mark-faint);
-    --mark-caught: var(--mark-faint-inside);
-  }
-
-  section:has([data-legend="c"][aria-pressed="true"]):not(
-      :has([data-legend]:is(:hover, :focus-visible))
-    )
-    .field {
-    --mark-passed: var(--mark-faint);
-    --mark-failed: var(--mark-faint);
-    --mark-unchecked: var(--mark-faint);
-    --mark-caught: var(--bar-foreground);
-  }
-
-  /* A held key says so with a line under its words. */
   .field-legend-key {
     text-decoration: underline 2px transparent;
     text-underline-offset: 4px;
-  }
-
-  .field-legend-key:hover,
-  .field-legend-key[aria-pressed="true"] {
-    color: var(--foreground);
-  }
-
-  .field-legend-key[aria-pressed="true"] {
-    text-decoration-color: currentcolor;
   }
 }

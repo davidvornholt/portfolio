@@ -24,7 +24,7 @@ export const About = (): ReactNode => (
           and what is good enough to go live.
         </p>
         <p className="mt-5 max-w-xl text-lg text-muted-foreground leading-relaxed">
-          I speak German and English at native level and get by in French and
+          I speak German and English at a native level and get by in French and
           Spanish.
         </p>
       </div>

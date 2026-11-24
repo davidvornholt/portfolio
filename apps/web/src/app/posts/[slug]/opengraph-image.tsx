@@ -8,7 +8,7 @@ import { getPostBySlug, posts } from '@/features/posts/content/posts-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
-export const alt = 'Blog post by David Vornholt';
+export const alt = 'An article by David Vornholt, its title over the bar';
 export const size = ogImageSize;
 export const contentType = 'image/png';
 

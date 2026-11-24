@@ -160,10 +160,7 @@
       // Biome's import resolver does not follow the generated next/font
       // declarations or React's conditional export map. TypeScript and the
       // production build remain the authoritative module-resolution gates.
-      "includes": [
-        "apps/web/src/app/layout.tsx",
-        "apps/web/src/shared/content/presentation/components/mdx-markdown-elements.tsx"
-      ],
+      "includes": ["apps/web/src/app/layout.tsx"],
       "linter": {
         "rules": {
           "correctness": {

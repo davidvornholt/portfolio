@@ -17,7 +17,7 @@ export const PostsScreen = ({ posts }: PostsScreenProps): ReactNode => (
         <h1 className="font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
           Articles
         </h1>
-        <p className="mt-4 max-w-2xl text-lg md:text-xl md:leading-snug">
+        <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
           Notes from building products and the systems behind them: decisions,
           measured results, and experiments that failed.
         </p>

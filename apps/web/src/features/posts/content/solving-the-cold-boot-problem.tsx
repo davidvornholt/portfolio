@@ -127,7 +127,8 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
         A thousand visitors in one minute used to mean a thousand trips to the
         database. Now they can mean one. The same change cut what the site costs
         to run by 60 percent a year. Lighthouse, Google’s tool for measuring web
-        pages, rates the new site’s performance at 100 out of 100.
+        pages, gives the new site 100 out of 100 for accessibility and for best
+        practices.
       </MDXParagraph>
       <MDXParagraph>
         What I took from it: before I make a server faster, I ask whether it has

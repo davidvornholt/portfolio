@@ -1,10 +1,6 @@
 import type { ReactNode } from 'react';
-import { PlayOnView } from '@/shared/ui/presentation/components/play-on-view';
-import './rulebook.css';
-import { checkOutput, loosenedRule } from './loosened-rule';
+import { LoosenedRuleTerminal } from '@/shared/content/presentation/components/loosened-rule-terminal';
 import { textLinkClassName } from './text-link';
-
-const command = 'bun standards check';
 
 const places = [
   'on my machine, before a change is sent',
@@ -26,39 +22,6 @@ const reasons = [
     text: 'One public rulebook feeds all my projects. A better rule reaches each of them as a proposed change.',
   },
 ] as const;
-
-const Terminal = (): ReactNode => (
-  <PlayOnView className="terminal keeps-colors">
-    <p className="terminal-title">~/dev/portfolio</p>
-    <div className="terminal-body">
-      <p className="terminal-dim">
-        # An agent "loosens" a rule in {loosenedRule.file}:
-      </p>
-      <p className="terminal-dim">- {loosenedRule.before}</p>
-      <p>+ {loosenedRule.after}</p>
-      <p className="mt-4">
-        <span className="terminal-dim">$</span>{' '}
-        <span className="terminal-typed">{command}</span>
-        <span aria-hidden="true" className="terminal-caret" data-at="command" />
-      </p>
-      <div className="terminal-output mt-1 grid gap-1">
-        {checkOutput.map((line) => (
-          <p
-            key={line.text}
-            className="terminal-line"
-            data-failed={line.failed ? '' : undefined}
-          >
-            {line.text}
-          </p>
-        ))}
-        <p aria-hidden="true">
-          <span className="terminal-dim">$</span>{' '}
-          <span className="terminal-caret" />
-        </p>
-      </div>
-    </div>
-  </PlayOnView>
-);
 
 /**
  * Why the rules hold: each one is checked, and the check notices when a rule
@@ -100,7 +63,7 @@ export const Rulebook = ({
         </ol>
       </div>
       <div className="lg:col-span-8">
-        <Terminal />
+        <LoosenedRuleTerminal plays={true} />
       </div>
     </div>
 

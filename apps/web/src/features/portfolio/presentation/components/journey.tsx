@@ -93,8 +93,8 @@ export const Journey = (): ReactNode => (
                 aria-label={`${position + 1}. ${step.title}: ${step.proof}, on GitHub`}
                 className="journey-station"
               >
-                <span className="md:hidden">{position + 1}</span>
-                <span className="hidden md:inline">{step.title}</span>
+                <span className="lg:hidden">{position + 1}</span>
+                <span className="hidden lg:inline">{step.title}</span>
               </a>
             </li>
           ))}
@@ -114,7 +114,7 @@ export const Journey = (): ReactNode => (
               {position + 1}
             </span>
             <span>
-              <strong className="font-bold md:sr-only">{step.title}. </strong>
+              <strong className="font-bold lg:sr-only">{step.title}. </strong>
               <span className="leading-snug">{step.text}</span>
             </span>
           </li>
@@ -165,7 +165,7 @@ export const Journey = (): ReactNode => (
           </span>
         </p>
         <p>
-          <strong className="block font-bold text-5xl tracking-tight md:text-6xl">
+          <strong className="block whitespace-nowrap font-bold text-5xl tracking-tight md:text-6xl">
             25 min
           </strong>
           <span className="mt-2 block text-muted-foreground">

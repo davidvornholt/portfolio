@@ -29,7 +29,7 @@ export const generateMetadata = async ({
 
   return {
     title: work.meta.title,
-    description: work.meta.subtitle,
+    description: work.meta.summary,
     alternates: {
       canonical: url,
     },
@@ -37,14 +37,14 @@ export const generateMetadata = async ({
       type: 'article',
       url,
       title: work.meta.title,
-      description: work.meta.subtitle,
+      description: work.meta.summary,
       publishedTime: work.meta.date,
       authors: ['David Vornholt'],
     },
     twitter: {
       card: 'summary_large_image',
       title: work.meta.title,
-      description: work.meta.subtitle,
+      description: work.meta.summary,
     },
   };
 };
@@ -53,7 +53,7 @@ const createCreativeWorkJsonLd = (meta: WorkMeta): Record<string, unknown> => ({
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   name: meta.title,
-  description: meta.subtitle,
+  description: meta.summary,
   url: `${siteUrl}/works/${meta.slug}`,
   dateCreated: meta.date,
   author: {

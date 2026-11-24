@@ -90,6 +90,27 @@
   forced-color-adjust: none;
 }
 
+/* On paper a heading stays with what follows it, and a picture, a terminal
+   or a row is not cut in two. */
+@media print {
+  @layer overrides {
+    h1,
+    h2,
+    h3,
+    h4 {
+      break-after: avoid;
+    }
+
+    figure,
+    article,
+    li,
+    table,
+    pre {
+      break-inside: avoid;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   @layer overrides {
     *,

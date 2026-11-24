@@ -34,7 +34,7 @@ export const Servers = (): ReactNode => (
   <Section
     id="servers"
     heading="The server is code too"
-    lede="I change nothing on a server by hand. What runs there stands in files, so what is live always matches a version that was checked, and an AI agent can read all of it."
+    lede="I change nothing on a server by hand. What runs there is written down in files, so what is live always matches a version that was checked, and an AI agent can read all of it."
   >
     <ol className="servers-track keeps-colors">
       {steps.map((step) => (

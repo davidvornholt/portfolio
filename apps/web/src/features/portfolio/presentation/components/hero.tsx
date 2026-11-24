@@ -42,7 +42,7 @@ export const Hero = ({
         </figcaption>
       </figure>
 
-      <div className="lg:col-span-8">
+      <div className="min-w-0 lg:col-span-8">
         <p className="max-w-2xl text-xl leading-snug md:text-[1.4rem]">
           I’m David. I co-founded ProsaBridge, where we translate whole books
           for publishers, and I’m building Atrium, which takes a school’s daily
@@ -52,7 +52,7 @@ export const Hero = ({
         <p className="mt-5 flex flex-wrap gap-3 print:hidden">
           <Link
             href="#work"
-            className="inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
+            className="keeps-colors inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
           >
             See what I build
           </Link>

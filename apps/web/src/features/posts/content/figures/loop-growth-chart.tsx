@@ -20,10 +20,11 @@ const lineHeight = 1.35;
 const noteGap = 0.7;
 const leaderGap = 1.4;
 
-// The chart is drawn twice, because text in a drawing shrinks with it: once
-// for a wide column and once for a phone.
+// The chart is drawn three times, because text in a drawing shrinks with it.
+// Each drawing is shown over a range of widths of its own column in which
+// its labels stay readable.
 type Geometry = Readonly<{
-  size: 'wide' | 'narrow';
+  size: 'wide' | 'medium' | 'narrow';
   width: number;
   height: number;
   left: number;
@@ -50,18 +51,38 @@ const wide: Geometry = {
   keptNote: 21_000,
 };
 
-const narrow: Geometry = {
-  size: 'narrow',
-  width: 360,
-  height: 330,
-  left: 46,
-  right: 4,
-  top: 34,
-  bottom: 30,
-  font: 12,
+const medium: Geometry = {
+  size: 'medium',
+  width: 600,
+  height: 380,
+  left: 58,
+  right: 6,
+  top: 38,
+  bottom: 34,
+  font: 15,
   band: 3,
   keptNote: 34_500,
 };
+
+const narrow: Geometry = {
+  size: 'narrow',
+  width: 320,
+  height: 320,
+  left: 48,
+  right: 4,
+  top: 34,
+  bottom: 30,
+  font: 13,
+  band: 3,
+  keptNote: 34_500,
+};
+
+// Which drawing shows at which width of the chart's own column.
+const shownAt = {
+  narrow: 'block h-auto w-full @min-[28rem]:hidden',
+  medium: 'hidden h-auto w-full @min-[28rem]:block @min-[52rem]:hidden',
+  wide: 'hidden h-auto w-full @min-[52rem]:block',
+} as const;
 
 const fixed = (value: number): string => value.toFixed(1);
 
@@ -180,11 +201,7 @@ const Drawing = ({ geometry }: { readonly geometry: Geometry }): ReactNode => {
   return (
     <svg
       viewBox={`0 0 ${geometry.width} ${geometry.height}`}
-      className={
-        geometry.size === 'wide'
-          ? 'hidden h-auto w-full md:block'
-          : 'block h-auto w-full md:hidden'
-      }
+      className={shownAt[geometry.size]}
     >
       <title>
         The change grows from 179 added lines to 37,451 in 46 hours. After 23
@@ -219,8 +236,9 @@ const Drawing = ({ geometry }: { readonly geometry: Geometry }): ReactNode => {
  * and thrown away, and the black band at the bottom is what was kept.
  */
 export const LoopGrowthChart = (): ReactNode => (
-  <>
+  <div className="@container">
     <Drawing geometry={wide} />
+    <Drawing geometry={medium} />
     <Drawing geometry={narrow} />
-  </>
+  </div>
 );

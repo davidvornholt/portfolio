@@ -1,5 +1,5 @@
 /**
- * The rule the home page shows an agent loosening, and what the check
+ * The rule the home page and an article show an agent loosening, and what the check
  * printed when that was tried in this repository on November 23, 2026.
  * `loosened-rule.test.ts` fails when the rule no longer stands in AGENTS.md.
  */

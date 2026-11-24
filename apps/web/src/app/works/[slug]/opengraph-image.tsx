@@ -8,7 +8,7 @@ import { getWorkBySlug, works } from '@/features/works/content/works-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
-export const alt = 'Case study by David Vornholt';
+export const alt = 'A case study by David Vornholt, its title over the bar';
 export const size = ogImageSize;
 export const contentType = 'image/png';
 

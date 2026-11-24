@@ -29,21 +29,6 @@ export const MDXCallout = ({
   </div>
 );
 
-export const MDXAttributedBlockquote = ({
-  children,
-  author,
-}: Readonly<{
-  children: ReactNode;
-  author?: string;
-}>): ReactNode => (
-  <blockquote className="mt-8 border-border border-l-4 pl-6">
-    <div className="font-semibold text-xl leading-snug">{children}</div>
-    {author === undefined ? null : (
-      <footer className="mt-3 text-muted-foreground">{author}</footer>
-    )}
-  </blockquote>
-);
-
 export const MDXCheckItem = ({
   title,
   description,
@@ -89,7 +74,7 @@ export const MDXCallToAction = ({
       rel="noopener noreferrer"
       data-umami-event="content-cta"
       data-umami-event-title={title}
-      className="inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
+      className="keeps-colors inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
     >
       {linkText}
     </a>

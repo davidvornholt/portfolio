@@ -55,7 +55,7 @@ export const CaseStudyLayout = ({
           rel="noopener noreferrer"
           data-umami-event="live-platform-visit"
           data-umami-event-title={title}
-          className="mt-8 inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
+          className="keeps-colors mt-8 inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
         >
           Visit {new URL(liveUrl).host}
         </a>

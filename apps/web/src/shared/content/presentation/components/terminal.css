@@ -17,6 +17,12 @@
     }
   }
 
+  @media print {
+    .terminal {
+      break-inside: avoid;
+    }
+  }
+
   .terminal-title {
     padding: 0.6rem 1.25rem;
     border-block-end: 1px solid var(--bar-muted-foreground);

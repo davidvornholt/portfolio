@@ -29,7 +29,7 @@ export const SiteRecord = ({
   const since = monthAndYear(record.firstMergedOn);
   return (
     <>
-      <span aria-hidden="true" className="field-key" />{' '}
+      <span aria-hidden="true" className="field-key keeps-colors" />{' '}
       {record.unchecked === 0
         ? `All ${count(total)} changes merged into this site’s project since ${since} passed their checks.`
         : `None of the ${count(total)} changes merged into this site’s project since ${since} had a failed check. ${count(record.passed)} passed, and ${count(record.unchecked)} merged before a check had finished.`}

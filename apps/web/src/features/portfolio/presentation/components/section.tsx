@@ -12,7 +12,10 @@ export const Section = ({
   lede?: ReactNode;
   children: ReactNode;
 }>): ReactNode => (
-  <section id={id} className="page-column scroll-mt-8 pt-28 md:pt-36">
+  <section
+    id={id}
+    className="page-column -scroll-mt-16 pt-28 md:-scroll-mt-24 md:pt-36"
+  >
     <h2 className="max-w-4xl font-bold text-3xl tracking-tight md:text-5xl md:leading-[1.05]">
       {heading}
     </h2>

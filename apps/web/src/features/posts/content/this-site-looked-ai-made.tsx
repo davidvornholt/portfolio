@@ -22,7 +22,7 @@ const ThisSiteLookedAiMadeBody = (): ReactNode => (
   <>
     <MDXSection>
       <MDXParagraph>
-        Until this month my site had a cream background, a serif typeface and
+        Until this month my site had a cream background, a serif typeface, and
         forest green buttons. It was pleasant. It was also the look that AI
         design tools produce when nobody tells them otherwise. For a site that
         claims I use AI with care, that was the wrong look.
@@ -50,8 +50,8 @@ const ThisSiteLookedAiMadeBody = (): ReactNode => (
         thirteen weeks stands on that bar as one small square: black when its
         automated checks passed, red with a slot when one of them failed, and an
         outline when none had finished. The attempts that the checks sent back
-        before they could merge sit inside the bar as grey marks. On November
-        23, 2026 that was 2,390 squares and 357 grey marks.
+        before they could merge sit inside the bar as gray marks. On November
+        23, 2026 that was 2,390 squares and 357 gray marks.
       </MDXParagraph>
       <MDXParagraph>
         The rest of the design follows from that picture. White, black, and one
@@ -178,7 +178,7 @@ export const thisSiteLookedAiMadePost: Post = {
     category: 'Engineering',
     readTime: '3 min read',
     excerpt:
-      'The first version was cream paper, a serif and forest green, the look AI design tools produce by default. The new one is a black bar with every change I merged standing on it.',
+      'The first version was cream paper, a serif, and forest green, the look AI design tools produce by default. The new one is a black bar with every change I merged standing on it.',
   },
   body: ThisSiteLookedAiMadeBody,
 };

@@ -243,7 +243,7 @@ export const FieldExplorer = ({
     setSelection({ index: Math.max(0, Math.min(target, last)), pinned: true });
 
   return (
-    <div ref={frameRef} className="field-frame">
+    <div ref={frameRef} className="field-frame keeps-colors">
       {children}
       <input
         type="range"

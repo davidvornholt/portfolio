@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { Arrow } from '@/shared/ui/presentation/components/arrow';
 
 type BackNavigationProps = Readonly<{
   href: string;
@@ -15,8 +16,7 @@ export const BackNavigation = ({
       href={href}
       className="font-semibold underline decoration-2 underline-offset-4 hover:decoration-4"
     >
-      <span aria-hidden="true">← </span>
-      {label}
+      <Arrow to="left" /> {label}
     </Link>
   </p>
 );

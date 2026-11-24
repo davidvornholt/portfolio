@@ -27,7 +27,7 @@ const siteDescription =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'David Vornholt | Founder & CTO',
+    default: 'David Vornholt | Co-founder and CTO of ProsaBridge',
     template: '%s | David Vornholt',
   },
   description: siteDescription,
@@ -64,12 +64,12 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName: 'David Vornholt',
-    title: 'David Vornholt | Founder & CTO',
+    title: 'David Vornholt | Co-founder and CTO of ProsaBridge',
     description: siteDescription,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'David Vornholt | Founder & CTO',
+    title: 'David Vornholt | Co-founder and CTO of ProsaBridge',
     description: siteDescription,
     creator: '@davidvornholt',
   },
@@ -83,7 +83,7 @@ const personJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'David Vornholt',
-  jobTitle: 'Founder & CTO',
+  jobTitle: 'Co-founder and CTO',
   url: siteUrl,
   image: `${siteUrl}/portrait.png`,
   sameAs: [

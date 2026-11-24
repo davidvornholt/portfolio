@@ -15,13 +15,15 @@ export type AxisLabel = Readonly<{
 }>;
 
 // A month label needs this many days of room after the window's first day,
-// whose date is printed there, and before its last day, which says "Today".
+// whose date is printed there, and before its last day, whose date is
+// printed too.
 const daysAfterStart = 6;
 const daysBeforeEnd = 5;
 
 const asUtcDate = (day: string): Date => new Date(`${day}T00:00:00Z`);
 
-const startText = (day: string): string =>
+/** A day as the axis prints it, such as "Nov 24". */
+export const shortDay = (day: string): string =>
   asUtcDate(day).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -59,7 +61,7 @@ export const axisLabels = (
       : [];
     return [
       ...(starts.length > 0
-        ? [{ kind: 'start', text: startText(day), windows: starts } as const]
+        ? [{ kind: 'start', text: shortDay(day), windows: starts } as const]
         : []),
       ...(months.length > 0
         ? [{ kind: 'month', text: monthText(day), windows: months } as const]

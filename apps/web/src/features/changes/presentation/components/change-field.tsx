@@ -1,10 +1,14 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { AxisLabel } from '@/features/changes/services/axis-labels';
+import {
+  type AxisLabel,
+  shortDay,
+} from '@/features/changes/services/axis-labels';
 import type {
   FieldDay,
   FieldModel,
 } from '@/features/changes/services/field-model';
 import './change-field.css';
+import './field-legend.css';
 import { FieldExplorer } from './field-explorer';
 
 const squaresPerRow = 2;
@@ -65,7 +69,7 @@ const Axis = ({ days }: { readonly days: FieldModel['days'] }): ReactNode => (
           <Tick key={label.kind} label={label} />
         ))}
         {index === days.length - 1 ? (
-          <span className="field-tick field-today">Today</span>
+          <span className="field-tick field-today">{shortDay(day.date)}</span>
         ) : null}
       </div>
     ))}

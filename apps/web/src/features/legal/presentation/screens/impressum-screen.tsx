@@ -12,11 +12,11 @@ export const ImpressumScreen = (): ReactNode => (
     title="Legal notice"
     lastUpdated="November 2026"
   >
-    <LegalSection title="Information under § 5 DDG">
+    <LegalSection title="Information under §&nbsp;5&nbsp;DDG">
       <OperatorAddress />
     </LegalSection>
 
-    <LegalSection title="Responsible for content under § 18(2) MStV">
+    <LegalSection title="Responsible for content under §&nbsp;18(2)&nbsp;MStV">
       <MDXParagraph>David Vornholt, at the address above.</MDXParagraph>
     </LegalSection>
 

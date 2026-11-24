@@ -14,6 +14,11 @@
   }
 
   .field {
+    /* The colors of the four marks, which the key under the chart can dim. */
+    --mark-passed: var(--foreground);
+    --mark-failed: var(--failed);
+    --mark-unchecked: var(--foreground);
+    --mark-caught: var(--bar-caught);
     --gap: 1px;
     --rows-above: 40;
     --rows-inside: 12;
@@ -102,6 +107,10 @@
     background-color: var(--foreground);
   }
 
+  .field-stack i {
+    background-color: var(--mark-passed);
+  }
+
   /* The same marks inside a sentence, where they explain themselves. */
   .field-key {
     --square: 0.62em;
@@ -128,18 +137,27 @@
   /* A failed check: a square with a slot through it. */
   .field-stack i[data-v="f"],
   .field-key[data-v="f"] {
+    --slot-color: var(--failed);
     background: linear-gradient(
-      var(--failed) 0 var(--slot-start),
+      var(--slot-color) 0 var(--slot-start),
       transparent 0 var(--slot-end),
-      var(--failed) 0
+      var(--slot-color) 0
     );
   }
 
-  /* No check had run: an outline. */
+  .field-stack i[data-v="f"] {
+    --slot-color: var(--mark-failed);
+  }
+
+  /* No check had finished: an outline. */
   .field-stack i[data-v="u"],
   .field-key[data-v="u"] {
     background: none;
     box-shadow: inset 0 0 0 1px var(--foreground);
+  }
+
+  .field-stack i[data-v="u"] {
+    box-shadow: inset 0 0 0 1px var(--mark-unchecked);
   }
 
   .field-key[data-v="u"] {
@@ -149,11 +167,16 @@
   /* An attempt the checks sent back keeps the slot and loses the alarm. */
   .field-inside .field-stack i,
   .field-key[data-v="c"] {
+    --slot-color: var(--bar-caught);
     background: linear-gradient(
-      var(--bar-caught) 0 var(--slot-start),
+      var(--slot-color) 0 var(--slot-start),
       transparent 0 var(--slot-end),
-      var(--bar-caught) 0
+      var(--slot-color) 0
     );
+  }
+
+  .field-inside .field-stack i {
+    --slot-color: var(--mark-caught);
   }
 
   .field-axis {
@@ -277,6 +300,19 @@
 
   .field-panel[data-pinned] {
     pointer-events: auto;
+  }
+
+  /* On a narrow chart there is no room beside a square. The panel then takes
+     its own place under the chart and moves the page down, where laid over
+     the headline it would leave pieces of it showing. */
+  @container field (max-width: 34.99rem) {
+    .field-panel {
+      position: static;
+      inline-size: auto;
+      max-inline-size: none;
+      margin-block-start: 0.75rem;
+      translate: none;
+    }
   }
 
   /* The load sequence: the bar slides in, then the days rise on it from the

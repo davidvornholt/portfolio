@@ -53,9 +53,9 @@ export const HomeLink = (): ReactNode => {
     <Link
       href="/"
       onClick={play}
-      className="inline-flex items-center gap-2.5 font-bold text-lg tracking-tight"
+      className="mark-lifts inline-flex items-center gap-2.5 font-bold text-lg tracking-tight"
     >
-      <BarMark ref={markRef} className="mark-hops h-4 w-4.5" />
+      <BarMark ref={markRef} className="mark-hops h-3.75 w-4.5" />
       David Vornholt
     </Link>
   );

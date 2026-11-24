@@ -35,7 +35,7 @@ const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
         On July 19, 2026 I merged two changes to my standards repository. Two
         reviewers read them. One was <MDXStrong>review-fix</MDXStrong>, a
         workflow I wrote myself, in which AI agents review a change, fix what
-        they find and check the fixes. The other was CodeRabbit Pro, a
+        they find, and check the fixes. The other was CodeRabbit Pro, a
         commercial AI reviewer, on its Assertive profile.
       </MDXParagraph>
       <MDXParagraph>
@@ -201,14 +201,14 @@ const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
         wrote one of the two tools. That says nothing about CodeRabbit on other
         code. What I can say is narrower: on these two changes, a reviewer that
         knows the repository and checks its own fixes found 15 problems, and a
-        general one found none. Every review, fix and comment is public, so you
+        general one found none. Every review, fix, and comment is public, so you
         can check my counting.
       </MDXParagraph>
     </MDXSection>
 
     <MDXCallToAction
       title="Check the counting"
-      description="Every finding, fix, accepted risk and CodeRabbit review is in the standards repository."
+      description="Every finding, fix, accepted risk, and CodeRabbit review is in the standards repository."
       href={standards}
       linkText="Open the repository"
     />

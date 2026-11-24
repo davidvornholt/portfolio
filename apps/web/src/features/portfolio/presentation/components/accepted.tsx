@@ -1,71 +1,48 @@
 import type { ReactNode } from 'react';
+import { OwnProjects, type ProjectActivity } from './own-projects';
 import { Section } from './section';
-import { textLinkClassName } from './text-link';
 
 /** How many of David's changes one project he doesn't maintain has merged. */
 export type AcceptedProject = Readonly<{ repository: string; changes: number }>;
 
-const featuredRepository = 'super-productivity/super-productivity';
+// The project with the most accepted changes, and the repository that
+// packages it for Flathub, which belongs to the same project.
+const featured = {
+  repository: 'super-productivity/super-productivity',
+  packaging: 'flathub/com.super_productivity.SuperProductivity',
+} as const;
 
-const otherFixes = [
-  {
+// What the page can say about a project. A project the data names and this
+// list doesn't still gets a row, with its name and its count.
+const described: Readonly<
+  Record<string, Readonly<{ name: string; about: string; href: string }>>
+> = {
+  'storaged-project/libblockdev': {
     name: 'libblockdev',
-    about: 'The library Linux desktops use to manage disks.',
-    fix: 'A damaged exFAT drive is now reported as damaged instead of stopping the check.',
+    about:
+      'The library Linux desktops use to manage disks. A damaged exFAT drive is now reported as damaged instead of stopping the check.',
     href: 'https://github.com/storaged-project/libblockdev/pull/1226',
   },
-  {
+  'serokell/deploy-rs': {
     name: 'deploy-rs',
-    about: 'A tool that rolls out server configurations.',
-    fix: 'I fixed a race that could undo a rollout that had succeeded.',
+    about:
+      'A tool that rolls out server configurations. I fixed a race that could undo a rollout that had succeeded.',
     href: 'https://github.com/serokell/deploy-rs/pull/385',
   },
-] as const;
+};
 
-// A choice of David's public projects, the ones that show the most range.
-const ownProjects = [
-  {
-    name: 'standards',
-    about:
-      'The rulebook behind every project, and the tool that keeps them in step.',
-  },
-  {
-    name: 'wordhold',
-    about: 'Vocabulary practice from photographed textbook pages.',
-  },
-  {
-    name: 'rota',
-    about: 'A photographed wardrobe that proposes one outfit each morning.',
-  },
-  {
-    name: 'postlude',
-    about: 'A calm journal for closing out the day.',
-  },
-  {
-    name: 'glimpse',
-    about: 'A phone app that hands a photo to an AI agent.',
-  },
-  {
-    name: 'keepsake',
-    about: 'Turns a folder of photos into a small album of the best ones.',
-  },
-  {
-    name: 'pim',
-    about: 'Lets AI agents work with mail, calendars and contacts.',
-  },
-  {
-    name: 'runlet',
-    about: 'Runs each automated check in a fresh, locked-down container.',
-  },
-  {
-    name: 'klarfunk-box',
-    about: 'An internet radio for seniors: five buttons on a Raspberry Pi.',
-  },
-] as const;
+const merged = (changes: number): string =>
+  `${changes} ${changes === 1 ? 'change' : 'changes'} merged`;
+
+const mergedBy = (repository: string): string =>
+  `https://github.com/${repository}/pulls?q=is%3Apr+is%3Amerged+author%3Adavidvornholt`;
 
 // One square per merged change, like the squares on the bar.
 const Squares = ({ count }: { readonly count: number }): ReactNode => (
-  <span aria-hidden="true" className="flex max-w-88 flex-wrap gap-0.75">
+  <span
+    aria-hidden="true"
+    className="keeps-colors flex max-w-88 flex-wrap gap-0.75"
+  >
     {Array.from({ length: count }, (_, ordinal) => ordinal + 1).map(
       (ordinal) => (
         <span key={ordinal} className="size-2.75 bg-foreground" />
@@ -74,9 +51,12 @@ const Squares = ({ count }: { readonly count: number }): ReactNode => (
   </span>
 );
 
-const Featured = ({ changes }: { readonly changes: number }): ReactNode => (
+const Featured = ({
+  changes,
+  packaged,
+}: Readonly<{ changes: number; packaged: number }>): ReactNode => (
   <a
-    href="https://github.com/super-productivity/super-productivity/pulls?q=is%3Apr+is%3Amerged+author%3Adavidvornholt"
+    href={mergedBy(featured.repository)}
     target="_blank"
     rel="noopener noreferrer"
     data-umami-event="accepted-open"
@@ -89,14 +69,15 @@ const Featured = ({ changes }: { readonly changes: number }): ReactNode => (
       </strong>
       <span className="mt-2 block max-w-xl text-lg text-muted-foreground leading-relaxed">
         A to-do and time-tracking app with more than 20,000 stars on GitHub. I
-        fixed lost tracked time, reminders that fired on the wrong day and slow
+        fixed lost tracked time, reminders that fired on the wrong day, and slow
         task lists.
       </span>
     </span>
     <span className="md:pt-2">
-      <Squares count={changes} />
+      <Squares count={changes + packaged} />
       <span className="mt-3 block font-semibold text-sm">
-        {changes} changes merged
+        {merged(changes + packaged)}
+        {packaged === 0 ? null : `, ${packaged} of them in its Flathub package`}
       </span>
     </span>
   </a>
@@ -104,86 +85,75 @@ const Featured = ({ changes }: { readonly changes: number }): ReactNode => (
 
 /**
  * Changes that maintainers of other projects reviewed and merged, and David's
- * own projects that are open to read.
+ * own projects that are open to read. Every project the lede counts has a
+ * row, and the counts in the rows add up to the lede's total.
  */
 export const Accepted = ({
   projects,
-}: {
-  readonly projects: ReadonlyArray<AcceptedProject>;
-}): ReactNode => {
+  activity,
+}: Readonly<{
+  projects: ReadonlyArray<AcceptedProject>;
+  /** What David's own public projects merged, week by week. */
+  activity: ReadonlyArray<ProjectActivity>;
+}>): ReactNode => {
   const total = projects.reduce((sum, project) => sum + project.changes, 0);
-  const featured = projects.find(
-    (project) => project.repository === featuredRepository,
+  const changesOf = (repository: string): number =>
+    projects.find((project) => project.repository === repository)?.changes ?? 0;
+  const others = projects.filter(
+    (project) =>
+      project.repository !== featured.repository &&
+      project.repository !== featured.packaging,
   );
+  const featuredChanges = changesOf(featured.repository);
+  const projectCount = others.length + (featuredChanges > 0 ? 1 : 0);
   return (
     <Section
       id="accepted"
       heading="Other projects accept my changes too"
-      lede={`A check I wrote myself only proves so much. The maintainers of ${projects.length} projects I don’t run have reviewed ${total} of my changes and merged them.`}
+      lede={`A check I wrote myself only proves so much. The maintainers of ${projectCount} projects I don’t run have reviewed ${total} of my changes and merged them.`}
     >
       <div className="mt-10 md:mt-13">
-        {featured === undefined ? null : (
-          <Featured changes={featured.changes} />
+        {featuredChanges === 0 ? null : (
+          <Featured
+            changes={featuredChanges}
+            packaged={changesOf(featured.packaging)}
+          />
         )}
         <ul className="grid gap-x-14 border-border border-t md:grid-cols-2">
-          {otherFixes.map((fix) => (
-            <li key={fix.name} className="border-border border-b py-6">
-              <a
-                href={fix.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-umami-event="accepted-open"
-                data-umami-event-project={fix.name}
-                className="group block"
+          {others.map((project) => {
+            const known = described[project.repository];
+            return (
+              <li
+                key={project.repository}
+                className="border-border border-b py-6"
               >
-                <strong className="font-bold text-xl tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current">
-                  {fix.name}
-                </strong>
-                <span className="mt-1 block max-w-lg text-muted-foreground leading-relaxed">
-                  {fix.about} {fix.fix}
-                </span>
-              </a>
-            </li>
-          ))}
+                <a
+                  href={known?.href ?? mergedBy(project.repository)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-umami-event="accepted-open"
+                  data-umami-event-project={known?.name ?? project.repository}
+                  className="group block"
+                >
+                  <strong className="font-bold text-xl tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current">
+                    {known?.name ?? project.repository}
+                  </strong>
+                  {known === undefined ? null : (
+                    <span className="mt-1 block max-w-lg text-muted-foreground leading-relaxed">
+                      {known.about}
+                    </span>
+                  )}
+                  <span className="mt-2 block font-semibold text-sm">
+                    {merged(project.changes)}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
-      <h3 className="mt-14 font-bold text-2xl tracking-tight md:mt-16">
-        My own projects, open to read
-      </h3>
-      <ul className="mt-5 grid gap-x-14 gap-y-5 border-border border-t pt-6 sm:grid-cols-2 lg:grid-cols-3">
-        {ownProjects.map((project) => (
-          <li key={project.name}>
-            <a
-              href={`https://github.com/davidvornholt/${project.name}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-umami-event="open-source-open"
-              data-umami-event-project={project.name}
-              className="group block"
-            >
-              <strong className="font-bold underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current">
-                {project.name}
-              </strong>
-              <span className="mt-0.5 block text-muted-foreground leading-snug">
-                {project.about}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-7">
-        <a
-          href="https://github.com/davidvornholt"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-umami-event="social-link"
-          data-umami-event-network="GitHub"
-          className={textLinkClassName}
-        >
-          Everything on GitHub
-        </a>
-      </p>
+      <OwnProjects activity={activity} />
     </Section>
   );
 };

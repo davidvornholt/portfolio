@@ -89,7 +89,7 @@ export const MDXCallToAction = ({
       rel="noopener noreferrer"
       data-umami-event="content-cta"
       data-umami-event-title={title}
-      className="inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground"
+      className="inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
     >
       {linkText}
     </a>

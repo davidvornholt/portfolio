@@ -47,6 +47,23 @@
     transition-timing-function: var(--ease-out);
   }
 
+  /* A heading shares its words evenly over its lines, and running text does
+     not end on a single word. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  @supports (text-wrap: pretty) {
+    p,
+    li,
+    dd,
+    figcaption {
+      text-wrap: pretty;
+    }
+  }
+
   ::selection {
     background-color: var(--foreground);
     color: var(--background);
@@ -63,6 +80,14 @@
 @utility bleed {
   margin-inline: calc(50% - 50vw);
   padding-inline: calc(50vw - 50%);
+}
+
+/* For the pictures that are drawn with background colors: the bar, the
+   squares and the marks. On paper and in a forced color theme a browser
+   drops backgrounds, which would leave nothing of them. */
+@utility keeps-colors {
+  print-color-adjust: exact;
+  forced-color-adjust: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -86,6 +111,16 @@
   .mark-hops rect {
     transform-box: fill-box;
     transform-origin: center;
+  }
+
+  /* Pointing at the home link lifts the square a little, as the wind-up
+     before the hop that a click starts. */
+  .mark-hops [data-mark="square"] {
+    transition: translate 160ms var(--ease-out);
+  }
+
+  .mark-lifts:hover [data-mark="square"] {
+    translate: 0 -2px;
   }
 
   /* The footer's square drops onto its bar over the first stretch of its way

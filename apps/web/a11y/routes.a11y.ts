@@ -40,6 +40,7 @@ const routes = [
   { name: 'ProsaBridge case study', path: '/works/prosabridge' },
   { name: 'legal notice', path: '/impressum' },
   { name: 'privacy notice', path: '/privacy' },
+  { name: 'page for an unknown address', path: '/no-such-page' },
 ] as const;
 
 // The tracker loads in every environment, so this suite now reaches the
@@ -195,9 +196,38 @@ for (const route of routes) {
   });
 }
 
+// The key under the chart dims every mark but its own. The dimming is drawn by
+// the stylesheet, which reads `aria-pressed` from the key that is held.
+test('a key under the chart is held by a press and released by the next', async ({
+  page,
+}) => {
+  await page.goto('/');
+
+  const failed = page.locator('button[data-legend="f"]');
+  const passed = page.locator('button[data-legend="p"]');
+  const colorOfPassed = (): Promise<string> =>
+    page
+      .locator('.field')
+      .evaluate((field) =>
+        getComputedStyle(field).getPropertyValue('--mark-passed'),
+      );
+  const atRest = await colorOfPassed();
+
+  await failed.click();
+  await page.mouse.move(0, 0);
+  await expect(failed).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(colorOfPassed).not.toBe(atRest);
+
+  await passed.click();
+  await page.mouse.move(0, 0);
+  await expect(failed).toHaveAttribute('aria-pressed', 'false');
+  await expect(passed).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(colorOfPassed).toBe(atRest);
+});
+
 // What the chart says about a change ends with one of its four verdicts.
 const describedChangePattern =
-  /, (?:Its checks had passed|It went live with a failed check|No check had run|Sent back by the checks)$/u;
+  /, (?:Its checks had passed|It went live with a failed check|No check had finished|Sent back by the checks)$/u;
 
 // The chart's two further states: its numbers as a table, and one change
 // picked out and described.

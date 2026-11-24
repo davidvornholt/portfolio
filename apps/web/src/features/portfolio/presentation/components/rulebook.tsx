@@ -19,7 +19,7 @@ const reasons = [
   },
   {
     title: 'Every agent works differently',
-    text: 'Instructions fix what a problem note, a proposal and a review have to contain.',
+    text: 'Instructions fix what a problem note, a proposal, and a review have to contain.',
   },
   {
     title: 'Copies drift apart',
@@ -28,17 +28,18 @@ const reasons = [
 ] as const;
 
 const Terminal = (): ReactNode => (
-  <PlayOnView className="terminal">
+  <PlayOnView className="terminal keeps-colors">
     <p className="terminal-title">~/dev/portfolio</p>
     <div className="terminal-body">
       <p className="terminal-dim">
-        # An agent “loosens” a rule in {loosenedRule.file}:
+        # An agent "loosens" a rule in {loosenedRule.file}:
       </p>
       <p className="terminal-dim">- {loosenedRule.before}</p>
       <p>+ {loosenedRule.after}</p>
       <p className="mt-4">
         <span className="terminal-dim">$</span>{' '}
         <span className="terminal-typed">{command}</span>
+        <span aria-hidden="true" className="terminal-caret" data-at="command" />
       </p>
       <div className="terminal-output mt-1 grid gap-1">
         {checkOutput.map((line) => (
@@ -50,6 +51,10 @@ const Terminal = (): ReactNode => (
             {line.text}
           </p>
         ))}
+        <p aria-hidden="true">
+          <span className="terminal-dim">$</span>{' '}
+          <span className="terminal-caret" />
+        </p>
       </div>
     </div>
   </PlayOnView>
@@ -65,7 +70,10 @@ export const Rulebook = ({
 }: {
   readonly record: ReactNode;
 }): ReactNode => (
-  <section id="rules" className="page-column scroll-mt-8 pt-28 md:pt-36">
+  <section
+    id="rules"
+    className="page-column -scroll-mt-16 pt-28 md:-scroll-mt-24 md:pt-36"
+  >
     <div className="grid gap-x-14 gap-y-8 lg:grid-cols-13">
       <div className="lg:col-span-5">
         <h2 className="font-bold text-3xl tracking-tight md:text-5xl md:leading-[1.05]">

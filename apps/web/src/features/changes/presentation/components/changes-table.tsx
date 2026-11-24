@@ -13,11 +13,11 @@ const day = (date: string): string =>
 const columns = [
   ['Checks passed', 'passed'],
   ['A check failed', 'failed'],
-  ['No check ran', 'unchecked'],
+  ['No finished check', 'unchecked'],
   ['Sent back', 'sentBack'],
 ] as const;
 
-const cellClassName = 'px-3 py-2 text-right tabular-nums';
+const cellClassName = 'px-3 py-2 text-right tabular-nums last:pr-0';
 
 /**
  * The exact numbers behind the chart, one row per week. It opens from a
@@ -30,8 +30,8 @@ export const ChangesTable = ({
   weeks: ReadonlyArray<WeekCounts>;
   total: WeekCounts;
 }>): ReactNode => (
-  <details className="mt-3 max-w-2xl text-sm">
-    <summary className="w-fit cursor-pointer font-semibold underline decoration-2 underline-offset-4 hover:decoration-4">
+  <details className="mt-3 max-w-2xl text-sm print:hidden">
+    <summary className="w-fit cursor-pointer list-none font-semibold underline decoration-2 underline-offset-4 hover:decoration-4 [&::-webkit-details-marker]:hidden">
       Show the numbers as a table
     </summary>
     <div className="mt-4 overflow-x-auto">

@@ -43,7 +43,7 @@ const MasteringOklchBody = (): ReactNode => (
         text in that color can be read.
       </MDXParagraph>
       <MDXParagraph>
-        The reason is that HSL’s lightness is arithmetic on the red, green and
+        The reason is that HSL’s lightness is arithmetic on the red, green, and
         blue values of a color: the largest plus the smallest, divided by two.
         It knows nothing about eyes, and eyes see green as far lighter than
         blue.
@@ -70,7 +70,7 @@ const MasteringOklchBody = (): ReactNode => (
         they were spread from {hslLowest} to {hslHighest}.
       </MDXParagraph>
       <MDXParagraph>
-        This is what I use it for. When I need a second grey, I change L and
+        This is what I use it for. When I need a second gray, I change L and
         leave the other two numbers alone. When two colors have the same L, I
         know they will carry about the same weight on the page.
       </MDXParagraph>
@@ -102,8 +102,8 @@ const MasteringOklchBody = (): ReactNode => (
     <MDXSection>
       <MDXHeadingOne>On this site</MDXHeadingOne>
       <MDXParagraph>
-        This site has eight colors, and seven of them are grey. All of them are
-        written in OKLCH, and the greys differ in little but their L.
+        This site has eight colors, and seven of them are gray. All of them are
+        written in OKLCH, and the grays differ in little but their L.
       </MDXParagraph>
       <MDXCodeSnippet
         language="css"
@@ -126,8 +126,8 @@ const MasteringOklchBody = (): ReactNode => (
       </MDXParagraph>
       <MDXParagraph>
         OKLCH can also describe colors beyond sRGB, which newer screens can
-        show. I use none of them. A site in black, white and one red has no need
-        for them.
+        show. I use none of them. A site in black, white, and one red has no
+        need for them.
       </MDXParagraph>
     </MDXSection>
 

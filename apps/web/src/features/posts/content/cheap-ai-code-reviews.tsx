@@ -16,15 +16,15 @@ import type { Post } from './post-meta';
 const setups = [
   {
     name: 'Luna for everything',
-    detail: 'GPT-5.6 Luna leads, reviews and fixes.',
+    detail: 'GPT-5.6 Luna leads, reviews, and fixes.',
   },
   {
     name: 'Spark for everything',
-    detail: 'Muse Spark 1.3 leads, reviews and fixes.',
+    detail: 'Muse Spark 1.3 leads, reviews, and fixes.',
   },
   {
     name: 'Astra for everything',
-    detail: 'GPT-6 Astra leads, reviews and fixes.',
+    detail: 'GPT-6 Astra leads, reviews, and fixes.',
   },
   {
     name: 'Astra leads, Luna works',
@@ -167,7 +167,7 @@ const CheapAiCodeReviewsBody = (): ReactNode => (
       </MDXParagraph>
       <MDXParagraph>
         So I decided on one setting: Astra at medium effort for the lead, the
-        reviewers and the fixers. I did not compare effort levels, so medium is
+        reviewers, and the fixers. I did not compare effort levels, so medium is
         a choice and not a result. I also no longer ask myself before each
         review whether a change is hard enough to deserve the good model.
       </MDXParagraph>
@@ -203,7 +203,7 @@ const CheapAiCodeReviewsBody = (): ReactNode => (
 
 export const cheapAiCodeReviewsPost: Post = {
   meta: {
-    title: 'Cheaper AI reviews missed the bugs that mattered',
+    title: 'Cheaper AI reviews missed the bugs that mattered.',
     subtitle:
       'The cheapest setup found none of three real bugs. The one that found them cost sixteen times as much, and I now use it for every review.',
     slug: 'cheap-ai-code-reviews',

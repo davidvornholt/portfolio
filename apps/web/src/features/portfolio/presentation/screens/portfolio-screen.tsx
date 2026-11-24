@@ -5,6 +5,7 @@ import { Accepted, type AcceptedProject } from '../components/accepted';
 import { Contact } from '../components/contact';
 import { Hero } from '../components/hero';
 import { Journey } from '../components/journey';
+import type { ProjectActivity } from '../components/own-projects';
 import { Rulebook } from '../components/rulebook';
 import { Servers } from '../components/servers';
 import { Work, type WorkSummary } from '../components/work';
@@ -17,6 +18,8 @@ type PortfolioScreenProps = Readonly<{
   /** What the checks said about every change to this site's repository. */
   record: ReactNode;
   accepted: ReadonlyArray<AcceptedProject>;
+  /** What each public repository merged, week by week. */
+  activity: ReadonlyArray<ProjectActivity>;
   works: ReadonlyArray<WorkSummary>;
   posts: ReadonlyArray<PostListEntry>;
 }>;
@@ -26,6 +29,7 @@ export const PortfolioScreen = ({
   legend,
   record,
   accepted,
+  activity,
   works,
   posts,
 }: PortfolioScreenProps): ReactNode => (
@@ -35,7 +39,7 @@ export const PortfolioScreen = ({
     <Journey />
     <Rulebook record={record} />
     <Servers />
-    <Accepted projects={accepted} />
+    <Accepted projects={accepted} activity={activity} />
     <Writing posts={posts} />
     <About />
     <Contact />

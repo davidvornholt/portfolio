@@ -137,7 +137,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         reads it at the start of each session. An agent can also edit it. This
         is what happens when one does, tried in this site’s own project:
       </MDXParagraph>
-      <MDXCodeSnippet language="text" code={loosenedRuleRun} />
+      <MDXCodeSnippet language="text" code={loosenedRuleRun} wrap={true} />
       <MDXParagraph>
         The file no longer matches what was recorded when the rules were last
         copied in, so the check fails, and with it everything that follows. The
@@ -224,7 +224,7 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
       </MDXParagraph>
       <MDXParagraph>
         You don’t have to take my word for any of this. The rulebook, the tool,
-        the checks and the history of every change are public.
+        the checks, and the history of every change are public.
       </MDXParagraph>
     </MDXSection>
 

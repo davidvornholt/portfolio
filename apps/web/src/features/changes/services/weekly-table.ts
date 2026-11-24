@@ -26,23 +26,27 @@ const countWeek = (days: ReadonlyArray<SnapshotDay>): WeekCounts => {
 };
 
 /**
- * The exact counts behind the chart, one row per seven days. The rows end on
- * the snapshot's last day, so the first row is shorter when the days do not
- * divide into whole weeks.
+ * The days in rows of seven. The rows end on the last day, so the first row
+ * is shorter when the days do not divide into whole weeks.
  */
-export const weeklyTable = (
+export const weeksOf = (
   days: ReadonlyArray<SnapshotDay>,
-): ReadonlyArray<WeekCounts> => {
+): ReadonlyArray<ReadonlyArray<SnapshotDay>> => {
   const firstWeekLength = days.length % daysPerWeek;
-  const weeks: Array<WeekCounts> = [];
+  const weeks: Array<ReadonlyArray<SnapshotDay>> = [];
   if (firstWeekLength > 0) {
-    weeks.push(countWeek(days.slice(0, firstWeekLength)));
+    weeks.push(days.slice(0, firstWeekLength));
   }
   for (let start = firstWeekLength; start < days.length; start += daysPerWeek) {
-    weeks.push(countWeek(days.slice(start, start + daysPerWeek)));
+    weeks.push(days.slice(start, start + daysPerWeek));
   }
   return weeks;
 };
+
+/** The exact counts behind the chart, one row per seven days. */
+export const weeklyTable = (
+  days: ReadonlyArray<SnapshotDay>,
+): ReadonlyArray<WeekCounts> => weeksOf(days).map(countWeek);
 
 export const totalCounts = (days: ReadonlyArray<SnapshotDay>): WeekCounts =>
   countWeek(days);

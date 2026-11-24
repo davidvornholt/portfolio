@@ -55,19 +55,19 @@ export const CaseStudyLayout = ({
           rel="noopener noreferrer"
           data-umami-event="live-platform-visit"
           data-umami-event-title={title}
-          className="mt-8 inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground"
+          className="mt-8 inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
         >
           Visit {new URL(liveUrl).host}
         </a>
       )}
 
-      <figure className="mt-12 max-w-5xl">
+      <figure className="mt-12">
         <Image
           src={image.src}
           alt={image.alt}
           priority={true}
           placeholder="blur"
-          sizes="(min-width: 80rem) 64rem, 100vw"
+          sizes="(min-width: 102.5rem) 102.5rem, 100vw"
           className="w-full border border-border"
         />
         {image.caption === undefined ? null : (

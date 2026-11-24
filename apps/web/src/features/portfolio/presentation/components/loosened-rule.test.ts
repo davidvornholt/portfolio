@@ -3,9 +3,6 @@ import { loosenedRule } from './loosened-rule';
 
 const repositoryRoot = new URL('../../../../../../../', import.meta.url);
 
-// The page writes the rule with a typographic apostrophe.
-const asTyped = (text: string): string => text.replaceAll('’', "'");
-
 describe('the loosened rule', () => {
   it('quotes a rule that stands in its section of the file', async () => {
     const lines = (
@@ -19,8 +16,8 @@ describe('the loosened rule', () => {
     const section = end === -1 ? rest : rest.slice(0, end);
 
     expect(start).toBeGreaterThan(-1);
-    expect(
-      section.some((line) => line.includes(asTyped(loosenedRule.before))),
-    ).toBe(true);
+    expect(section.some((line) => line.includes(loosenedRule.before))).toBe(
+      true,
+    );
   });
 });

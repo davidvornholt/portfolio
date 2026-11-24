@@ -6,6 +6,8 @@ import { inkCodeTheme } from './code-theme';
 type SyntaxHighlighterProps = Readonly<{
   code: string;
   language: string;
+  /** Breaks long lines instead of letting the block scroll sideways. */
+  wrap?: boolean;
 }>;
 
 /**
@@ -16,6 +18,7 @@ type SyntaxHighlighterProps = Readonly<{
 export const SyntaxHighlighter = async ({
   code,
   language,
+  wrap = false,
 }: SyntaxHighlighterProps): Promise<ReactNode> => {
   const html = await Effect.runPromise(
     highlightCode({ code, language, theme: inkCodeTheme }),
@@ -23,7 +26,8 @@ export const SyntaxHighlighter = async ({
 
   return (
     <div
-      className="overflow-x-auto [&_code]:font-mono [&_code]:text-sm [&_code]:leading-relaxed [&_pre]:m-0 [&_pre]:p-4"
+      data-wrap={wrap ? '' : undefined}
+      className="data-wrap:[&_pre]:wrap-anywhere overflow-x-auto [&_code]:font-mono [&_code]:text-sm [&_code]:leading-relaxed [&_pre]:m-0 [&_pre]:p-4 data-wrap:[&_pre]:whitespace-pre-wrap"
       // biome-ignore lint/security/noDangerouslySetInnerHtml: Shiki output is trusted
       dangerouslySetInnerHTML={{ __html: html }}
     />

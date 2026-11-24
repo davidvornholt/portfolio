@@ -36,7 +36,7 @@ export const Servers = (): ReactNode => (
     heading="The server is code too"
     lede="I change nothing on a server by hand. What runs there stands in files, so what is live always matches a version that was checked, and an AI agent can read all of it."
   >
-    <ol className="servers-track">
+    <ol className="servers-track keeps-colors">
       {steps.map((step) => (
         <li key={step.title} className="servers-step" data-kind={step.kind}>
           <h3 className="font-bold text-xl tracking-tight">{step.title}</h3>

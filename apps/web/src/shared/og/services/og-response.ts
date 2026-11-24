@@ -15,6 +15,7 @@ type OgCardProps = Readonly<{
   subtitle?: string;
   footerLeft: string;
   footerRight: string;
+  skyline: ReadonlyArray<number>;
 }>;
 
 export const createOgImageResponse = Effect.fn('createOgImageResponse')(

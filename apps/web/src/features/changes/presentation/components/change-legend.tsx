@@ -6,6 +6,7 @@ import type {
 import type { WeekCounts } from '@/features/changes/services/weekly-table';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
 import './change-field.css';
+import { type LegendKey, LegendKeys } from './legend-keys';
 
 // The chart shows four, eight or thirteen weeks by the width of the screen,
 // at the same widths as the stylesheet. Each window's numbers are in the
@@ -64,14 +65,61 @@ const Item = ({
   pick: (counts: WeekCounts) => number;
   children: ReactNode;
 }>): ReactNode => (
-  <li className="whitespace-nowrap">
+  <>
     {mark}{' '}
     <strong className="font-semibold text-foreground tabular-nums">
       <PerWindow model={model} text={(counts) => count(pick(counts))} />
     </strong>{' '}
     {children}
-  </li>
+  </>
 );
+
+const keysOf = (model: FieldModel): ReadonlyArray<LegendKey> => [
+  {
+    mark: 'p',
+    content: (
+      <Item mark={<Key />} model={model} pick={(counts) => counts.passed}>
+        passed their checks
+      </Item>
+    ),
+  },
+  {
+    mark: 'f',
+    content: (
+      <Item
+        mark={<Key verdict="f" />}
+        model={model}
+        pick={(counts) => counts.failed}
+      >
+        had a failed check
+      </Item>
+    ),
+  },
+  {
+    mark: 'u',
+    content: (
+      <Item
+        mark={<Key verdict="u" />}
+        model={model}
+        pick={(counts) => counts.unchecked}
+      >
+        had no finished check
+      </Item>
+    ),
+  },
+  {
+    mark: 'c',
+    content: (
+      <Item
+        mark={<CaughtKey />}
+        model={model}
+        pick={(counts) => counts.sentBack}
+      >
+        were sent back
+      </Item>
+    ),
+  },
+];
 
 /**
  * Says in plain words what each mark of the chart stands for, in one short
@@ -83,37 +131,12 @@ export const ChangeLegend = ({
   model,
 }: Readonly<{ id: string; model: FieldModel }>): ReactNode => (
   <>
-    <div id={id} className="mt-4 max-w-3xl text-muted-foreground">
+    <div id={id} className="keeps-colors mt-4 max-w-3xl text-muted-foreground">
       <p>
         One square is one change to my software, from the last{' '}
         <PerWindow model={model} text={(_, weeks) => String(weeks)} /> weeks.
       </p>
-      <ul className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
-        <Item mark={<Key />} model={model} pick={(counts) => counts.passed}>
-          passed their checks
-        </Item>
-        <Item
-          mark={<Key verdict="f" />}
-          model={model}
-          pick={(counts) => counts.failed}
-        >
-          had a failed check
-        </Item>
-        <Item
-          mark={<Key verdict="u" />}
-          model={model}
-          pick={(counts) => counts.unchecked}
-        >
-          had no check
-        </Item>
-        <Item
-          mark={<CaughtKey />}
-          model={model}
-          pick={(counts) => counts.sentBack}
-        >
-          were sent back
-        </Item>
-      </ul>
+      <LegendKeys keys={keysOf(model)} />
     </div>
     <p className="mt-2 max-w-3xl text-muted-foreground text-sm">
       Updated{' '}

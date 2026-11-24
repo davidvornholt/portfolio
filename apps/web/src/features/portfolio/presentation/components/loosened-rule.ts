@@ -6,8 +6,8 @@
 export const loosenedRule = {
   file: 'AGENTS.md',
   section: 'Quality gates',
-  before: 'Don’t weaken a quality gate to make a change pass.',
-  after: 'Weaken a quality gate if a change doesn’t pass.',
+  before: "Don't weaken a quality gate to make a change pass.",
+  after: "Weaken a quality gate if a change doesn't pass.",
 } as const;
 
 type OutputLine = Readonly<{ text: string; failed: boolean }>;

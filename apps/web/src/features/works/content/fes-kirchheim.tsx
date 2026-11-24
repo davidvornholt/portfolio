@@ -86,7 +86,7 @@ const FesKirchheimBody = (): ReactNode => (
       <MDXCheckList>
         <MDXCheckItem
           title="Strict typing"
-          description="TypeScript in strict mode, so mistakes surface at compile time instead of in a parent's browser."
+          description="TypeScript in strict mode, so mistakes surface at compile time instead of in a parent’s browser."
         />
         <MDXCheckItem
           title="Accessible by default"

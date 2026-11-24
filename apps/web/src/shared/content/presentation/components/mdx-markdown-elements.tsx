@@ -82,7 +82,7 @@ export const MDXUnorderedList = ({
 }: {
   readonly children: ReactNode;
 }): ReactNode => (
-  <ul className="mb-6 list-disc space-y-2 pl-6 text-lg leading-relaxed">
+  <ul className="my-5 list-disc space-y-2 pl-6 text-lg leading-relaxed">
     {children}
   </ul>
 );
@@ -92,7 +92,7 @@ export const MDXOrderedList = ({
 }: {
   readonly children: ReactNode;
 }): ReactNode => (
-  <ol className="mb-6 list-decimal space-y-2 pl-6 text-lg leading-relaxed">
+  <ol className="my-5 list-decimal space-y-2 pl-6 text-lg leading-relaxed">
     {children}
   </ol>
 );

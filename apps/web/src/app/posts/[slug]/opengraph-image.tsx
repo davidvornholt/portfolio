@@ -2,6 +2,8 @@ import { Effect } from 'effect';
 import { notFound } from 'next/navigation';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
+import { cardSkyline } from '@/features/changes/services/card-skyline';
+import { snapshot } from '@/features/changes/services/load-snapshot';
 import { getPostBySlug, posts } from '@/features/posts/content/posts-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
@@ -32,6 +34,7 @@ const OpengraphImage = async ({
       title: post.meta.title,
       footerLeft: 'David Vornholt',
       footerRight: new URL(siteUrl).host,
+      skyline: cardSkyline(snapshot.days),
     }),
   );
 };

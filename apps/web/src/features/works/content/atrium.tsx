@@ -41,7 +41,7 @@ const AtriumBody = (): ReactNode => (
       <MDXCheckList>
         <MDXCheckItem
           title="Official data keeps its home"
-          description="Certificates, grades, and promotions stay in the school's official system of record, Atlantis at the pilot school. Atrium syncs from it and never has the last word."
+          description="Certificates, grades, and promotions stay in the school’s official system of record, Atlantis at the pilot school. Atrium syncs from it and never has the last word."
         />
         <MDXCheckItem
           title="Students are records, not users"
@@ -49,11 +49,11 @@ const AtriumBody = (): ReactNode => (
         />
         <MDXCheckItem
           title="No passwords"
-          description="Atrium is an OIDC relying party only. Identity and roles come from the school's identity provider, and Atrium stores no credentials."
+          description="Atrium is an OIDC relying party only. Identity and roles come from the school’s identity provider, and Atrium stores no credentials."
         />
         <MDXCheckItem
           title="One school, one instance"
-          description="Every school runs its own isolated instance, deployed and owned by that school's infrastructure repository."
+          description="Every school runs its own isolated instance, deployed and owned by that school’s infrastructure repository."
         />
       </MDXCheckList>
     </MDXSection>
@@ -102,7 +102,7 @@ export const atriumWork: Work = {
     stage: 'In pilot at its first school',
     techStack: ['TypeScript', 'Effect', 'Bun', 'TanStack Start'],
     summary:
-      'Class register, absences, sick notes, parent letters and the cleaning rota in one system instead of spreadsheets and paper.',
+      'Class register, absences, sick notes, parent letters, and the cleaning rota in one system instead of spreadsheets and paper.',
     image: {
       src: atriumImage,
       alt: 'Atrium’s class register for one Monday, laid out like the paper register German teachers know: six lessons as ruled rows with their numbers in a red margin, the running lesson open with the attendance of 24 children, and signed lessons marked with the teacher’s initials in blue ink.',

@@ -1,0 +1,121 @@
+/* The ledger of David's own projects: one row per project, with its piece of
+   the bar and the changes of thirteen weeks standing on it. */
+@layer components {
+  .project-row {
+    display: grid;
+    grid-template:
+      "name total"
+      "about about"
+      "weeks weeks" / minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    margin-inline: -0.75rem;
+    padding: 1.125rem 0.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    .project-row {
+      grid-template:
+        "name weeks total"
+        "about weeks total" / minmax(0, 1fr) auto 3.5rem;
+      align-items: center;
+      column-gap: 2.5rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .project-row {
+      grid-template: "name about weeks total" / 10rem minmax(0, 1fr) auto 3.5rem;
+    }
+  }
+
+  /* The whole row is the link, and pointing at it turns it into a bar. */
+  .project-row:is(:hover, :focus-visible) {
+    background-color: var(--bar);
+    color: var(--bar-foreground);
+  }
+
+  .project-name {
+    grid-area: name;
+  }
+
+  .project-about {
+    grid-area: about;
+    color: var(--muted-foreground);
+    transition: color 160ms var(--ease-out);
+  }
+
+  .project-row:is(:hover, :focus-visible) .project-about {
+    color: var(--bar-muted-foreground);
+  }
+
+  .project-total {
+    grid-area: total;
+    text-align: end;
+  }
+
+  .project-weeks {
+    grid-area: weeks;
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    margin-block-start: 0.5rem;
+    fill: currentcolor;
+    stroke: none;
+    transition: fill 160ms var(--ease-out);
+  }
+
+  @media (min-width: 48rem) {
+    .project-weeks {
+      margin-block-start: 0;
+    }
+  }
+
+  /* The marks of the large chart: a change whose checks passed is solid, one
+     that merged before a check had finished is an outline, and one with a
+     failed check is red. */
+  .project-weeks [data-v="u"] {
+    fill: none;
+    stroke: currentcolor;
+  }
+
+  .project-weeks [data-v="f"] {
+    fill: var(--failed);
+  }
+
+  /* The newest change hops once when the row is pointed at, as the square
+     of the logo does. */
+  .project-weeks [data-newest] {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .project-row:is(:hover, :focus-visible) [data-newest] {
+      animation: project-hop 520ms var(--ease-out);
+    }
+  }
+
+  @keyframes project-hop {
+    0% {
+      translate: 0 0;
+    }
+
+    45% {
+      translate: 0 -9px;
+      rotate: 90deg;
+    }
+
+    80% {
+      translate: 0 0;
+      rotate: 180deg;
+      scale: 1.25 0.75;
+    }
+
+    100% {
+      translate: 0 0;
+      rotate: 180deg;
+      scale: 1 1;
+    }
+  }
+}

@@ -18,7 +18,7 @@ export type WorkSummary = Readonly<{
 }>;
 
 const Facts = ({ work }: { readonly work: WorkSummary }): ReactNode => (
-  <dl className="mt-5 flex flex-wrap gap-x-9 gap-y-3 text-sm leading-snug">
+  <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm leading-snug sm:flex sm:flex-wrap sm:gap-x-9">
     {[
       ['My part', work.role],
       ['Since', work.since],

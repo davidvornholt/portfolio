@@ -60,7 +60,7 @@ const ReviewLoopRanFor46HoursBody = (): ReactNode => (
           >
             archived branch
           </MDXAnchor>
-          . Grey is what the loop wrote and I threw away. The black band along
+          . Gray is what the loop wrote and I threw away. The black band along
           the bottom is what I merged in the end, drawn a little thicker than
           its true height so that it can be seen.
         </>

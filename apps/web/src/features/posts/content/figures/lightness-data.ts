@@ -71,7 +71,7 @@ export const themeColors = {
     token: '--ink-600',
     lch: { lightness: 0.43, chroma: 0.005, hue: 270 },
   },
-  caughtGrey: {
+  caughtGray: {
     token: '--ink-400',
     lch: { lightness: 0.62, chroma: 0.004, hue: 270 },
   },
@@ -108,9 +108,9 @@ export const siteContrasts = [
     ),
   },
   {
-    name: 'The grey marks inside the black bar',
+    name: 'The gray marks inside the black bar',
     value: contrast(
-      painted(themeColors.caughtGrey.lch),
+      painted(themeColors.caughtGray.lch),
       painted(themeColors.ink.lch),
     ),
   },

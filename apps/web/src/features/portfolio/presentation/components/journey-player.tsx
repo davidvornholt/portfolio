@@ -358,10 +358,12 @@ export const JourneyPlayer = ({
 
   const playback: Playback = { rootRef, controllerRef, setPlaying };
   return (
-    <div ref={rootRef} className="journey-figure">
+    <div ref={rootRef} className="journey-figure keeps-colors">
       {children}
-      {ready ? (
-        <p className="page-column mt-6">
+      {/* The line keeps its room before the script has started, so that
+          the sections below don't move when the button appears. */}
+      <p className="page-column mt-6 min-h-6 print:hidden">
+        {ready ? (
           <button
             type="button"
             onClick={() =>
@@ -371,8 +373,8 @@ export const JourneyPlayer = ({
           >
             {playing ? 'Skip to the end' : 'Play it again'}
           </button>
-        </p>
-      ) : null}
+        ) : null}
+      </p>
     </div>
   );
 };

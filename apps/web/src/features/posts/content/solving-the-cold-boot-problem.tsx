@@ -76,7 +76,7 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
       <MDXHeadingOne>Why it was slow</MDXHeadingOne>
       <MDXParagraph>
         The old site built every page at the moment somebody asked for it. It
-        connected to the database, fetched the content, put the HTML together
+        connected to the database, fetched the content, put the HTML together,
         and sent it. It also ran on cheap shared hosting, where the server went
         to sleep when nobody had visited for a while. The first visitor after a
         quiet spell waited for the server to wake up as well.

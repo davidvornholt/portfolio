@@ -24,7 +24,7 @@ const steps = [
   },
   {
     title: 'The checks',
-    text: 'Style, types, tests, build and accessibility. One failure stops it.',
+    text: 'Style, types, tests, build, and accessibility. One failure stops it.',
   },
   {
     title: 'The review',
@@ -41,7 +41,7 @@ const steps = [
  * back to it, and under it a real change that took it.
  */
 export const Journey = (): ReactNode => (
-  <section id="how" className="journey scroll-mt-8">
+  <section id="how" className="journey -scroll-mt-16 md:-scroll-mt-24">
     <div className="page-column">
       <h2 className="max-w-4xl font-bold text-3xl tracking-tight md:text-5xl md:leading-[1.05]">
         The path of every change

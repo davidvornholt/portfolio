@@ -32,8 +32,10 @@
     color: var(--bar-muted-foreground);
   }
 
+  /* The output keeps the indents the command printed. */
   .terminal-line {
     color: var(--bar-muted-foreground);
+    white-space: pre-wrap;
   }
 
   /* A line of a failed check: the one red on the page, as a mark beside it. */
@@ -49,6 +51,30 @@
     overflow: hidden;
     vertical-align: bottom;
     white-space: nowrap;
+  }
+
+  /* The cursor is the site's square. It stands after the prompt while the
+     command is typed, leaves when the output begins, and rests after a new
+     prompt at the end. It does not blink. */
+  .terminal-caret {
+    display: inline-block;
+    inline-size: 1ch;
+    block-size: 1.15em;
+    margin-inline-start: 1px;
+    background-color: var(--bar-foreground);
+    vertical-align: text-bottom;
+  }
+
+  .terminal-caret[data-at="command"] {
+    opacity: 0;
+  }
+
+  [data-run="waiting"] .terminal-caret[data-at="command"] {
+    opacity: 1;
+  }
+
+  [data-run="playing"] .terminal-caret[data-at="command"] {
+    animation: terminal-caret-leaves 0.01s linear 1.7s both;
   }
 
   [data-run="waiting"] .terminal-typed {
@@ -95,6 +121,10 @@
     animation-delay: 2.5s;
   }
 
+  [data-run="playing"] .terminal-output > :nth-child(8) {
+    animation-delay: 2.9s;
+  }
+
   /* The command is 19 characters long. */
   @keyframes terminal-type {
     from {
@@ -103,6 +133,16 @@
 
     to {
       inline-size: 19ch;
+    }
+  }
+
+  @keyframes terminal-caret-leaves {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
     }
   }
 

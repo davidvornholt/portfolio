@@ -28,11 +28,14 @@ export const MDXCodeSnippet = ({
   language = 'typescript',
   title,
   code: codeProp,
+  wrap = false,
   children,
 }: Readonly<{
   language?: string;
   title?: string;
   code?: string;
+  /** Breaks long lines instead of scrolling, for output that isn't code. */
+  wrap?: boolean;
   children?: ReactNode;
 }>): ReactNode => {
   const source = (codeProp ?? getMdxNodeText(children)).trim();
@@ -41,12 +44,12 @@ export const MDXCodeSnippet = ({
   return (
     <div className="my-8 bg-muted">
       {title === undefined ? null : (
-        <div className="flex items-baseline justify-between gap-4 px-5 pt-4 text-muted-foreground text-sm">
+        <div className="flex items-baseline justify-between gap-4 px-4 pt-4 text-muted-foreground text-sm">
           <span className="wrap-anywhere min-w-0">{title}</span>
           <span className="shrink-0">{language}</span>
         </div>
       )}
-      <SyntaxHighlighter code={code} language={language} />
+      <SyntaxHighlighter code={code} language={language} wrap={wrap} />
     </div>
   );
 };

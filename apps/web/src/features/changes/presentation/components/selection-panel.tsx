@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { MarkDescription } from '@/features/changes/services/describe-mark';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
+import { Arrow } from '@/shared/ui/presentation/components/arrow';
 import './change-field.css';
 
 const keyCodes = {
@@ -11,7 +12,7 @@ const keyCodes = {
 } as const;
 
 const stepClassName =
-  'inline-flex size-11 items-center justify-center border-2 border-foreground font-bold text-lg hover:bg-foreground hover:text-background';
+  'inline-flex size-11 items-center justify-center border-2 border-foreground font-bold text-lg hover:bg-foreground hover:text-background active:translate-y-px';
 
 /** What the selected square stands for, with the ways to move on from it. */
 export const SelectionPanel = ({
@@ -64,7 +65,7 @@ export const SelectionPanel = ({
           onClick={() => onStep(-1)}
           className={stepClassName}
         >
-          <span aria-hidden="true">←</span>
+          <Arrow to="left" />
         </button>
         <button
           type="button"
@@ -72,7 +73,7 @@ export const SelectionPanel = ({
           onClick={() => onStep(1)}
           className={stepClassName}
         >
-          <span aria-hidden="true">→</span>
+          <Arrow to="right" />
         </button>
         {description?.href === undefined ? null : (
           <a

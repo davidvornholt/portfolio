@@ -12,17 +12,23 @@ const titleFontSize = 84;
 const squareSize = 16;
 const squareGap = 4;
 
-// A fixed, decorative skyline: how many squares stand in each column.
-// biome-ignore lint/style/noMagicNumbers: the heights are the drawing itself, and a name for each would say nothing more.
-const skyline = [2, 4, 3, 6, 4, 7, 5, 3, 6, 8, 5, 7] as const;
-
-const Skyline = (): ReactNode => (
+// The chart in the small: how many squares stand in each week's column.
+const Skyline = ({
+  columns,
+}: {
+  readonly columns: ReadonlyArray<number>;
+}): ReactNode => (
   <div style={{ display: 'flex', alignItems: 'flex-end', gap: squareGap }}>
-    {skyline.map((height, column) => (
+    {columns.map((height, column) => (
       <div
-        // biome-ignore lint/suspicious/noArrayIndexKey: the columns are a fixed decoration and never reorder.
+        // biome-ignore lint/suspicious/noArrayIndexKey: a column is a week, identified by its place and by nothing else.
         key={column}
-        style={{ display: 'flex', flexDirection: 'column', gap: squareGap }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: squareGap,
+          width: squareSize,
+        }}
       >
         {Array.from({ length: height }, (_, row) => (
           <div
@@ -45,11 +51,14 @@ export const OgCard = ({
   subtitle,
   footerLeft,
   footerRight,
+  skyline,
 }: Readonly<{
   title: string;
   subtitle?: string;
   footerLeft: string;
   footerRight: string;
+  /** The squares in each column of the chart beside the title, oldest first. */
+  skyline: ReadonlyArray<number>;
 }>): ReactNode => (
   <div
     style={{
@@ -106,7 +115,7 @@ export const OgCard = ({
           padding: `0 72px ${squareGap}px`,
         }}
       >
-        <Skyline />
+        <Skyline columns={skyline} />
       </div>
       <div
         style={{

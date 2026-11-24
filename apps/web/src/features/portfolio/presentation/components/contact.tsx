@@ -5,7 +5,7 @@ import { SocialLinks } from '@/shared/page/presentation/components/social-links'
 export const Contact = (): ReactNode => (
   <section
     id="contact"
-    className="page-column scroll-mt-8 pt-32 pb-28 md:pt-44 md:pb-36"
+    className="page-column -scroll-mt-20 pt-32 pb-28 md:-scroll-mt-32 md:pt-44 md:pb-36"
   >
     <h2 className="font-bold text-[2.5rem] leading-[1.04] tracking-tight md:text-7xl md:leading-[1.02]">
       <span className="block text-balance">AI writes my code.</span>{' '}

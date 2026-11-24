@@ -1,0 +1,117 @@
+/* The key under the chart is a row of toggles. While one of them is pointed
+   at, focused or held, the marks of the three others step back, so that its
+   own marks stand alone. The four colors are registered, which makes the step
+   a fade of the chart and not of each of its squares. */
+@layer components {
+  @property --mark-passed {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: black;
+  }
+
+  @property --mark-failed {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: red;
+  }
+
+  @property --mark-unchecked {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: black;
+  }
+
+  @property --mark-caught {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: gray;
+  }
+
+  .field {
+    --mark-faint: var(--border);
+    --mark-faint-inside: color-mix(in oklab, var(--bar-caught) 28%, var(--bar));
+    transition:
+      --mark-passed 200ms var(--ease-out),
+      --mark-failed 200ms var(--ease-out),
+      --mark-unchecked 200ms var(--ease-out),
+      --mark-caught 200ms var(--ease-out);
+  }
+
+  /* Pointed at or focused. */
+  section:has([data-legend="p"]:is(:hover, :focus-visible)) .field {
+    --mark-failed: var(--mark-faint);
+    --mark-unchecked: var(--mark-faint);
+    --mark-caught: var(--mark-faint-inside);
+  }
+
+  section:has([data-legend="f"]:is(:hover, :focus-visible)) .field {
+    --mark-passed: var(--mark-faint);
+    --mark-unchecked: var(--mark-faint);
+    --mark-caught: var(--mark-faint-inside);
+  }
+
+  section:has([data-legend="u"]:is(:hover, :focus-visible)) .field {
+    --mark-passed: var(--mark-faint);
+    --mark-failed: var(--mark-faint);
+    --mark-caught: var(--mark-faint-inside);
+  }
+
+  section:has([data-legend="c"]:is(:hover, :focus-visible)) .field {
+    --mark-passed: var(--mark-faint);
+    --mark-failed: var(--mark-faint);
+    --mark-unchecked: var(--mark-faint);
+    --mark-caught: var(--bar-foreground);
+  }
+
+  /* Held, while no key is pointed at. */
+  section:has([data-legend="p"][aria-pressed="true"]):not(
+    :has([data-legend]:is(:hover, :focus-visible))
+  ) .field {
+    --mark-failed: var(--mark-faint);
+    --mark-unchecked: var(--mark-faint);
+    --mark-caught: var(--mark-faint-inside);
+  }
+
+  section:has([data-legend="f"][aria-pressed="true"]):not(
+      :has([data-legend]:is(:hover, :focus-visible))
+    )
+    .field {
+    --mark-passed: var(--mark-faint);
+    --mark-unchecked: var(--mark-faint);
+    --mark-caught: var(--mark-faint-inside);
+  }
+
+  section:has([data-legend="u"][aria-pressed="true"]):not(
+      :has([data-legend]:is(:hover, :focus-visible))
+    )
+    .field {
+    --mark-passed: var(--mark-faint);
+    --mark-failed: var(--mark-faint);
+    --mark-caught: var(--mark-faint-inside);
+  }
+
+  section:has([data-legend="c"][aria-pressed="true"]):not(
+      :has([data-legend]:is(:hover, :focus-visible))
+    )
+    .field {
+    --mark-passed: var(--mark-faint);
+    --mark-failed: var(--mark-faint);
+    --mark-unchecked: var(--mark-faint);
+    --mark-caught: var(--bar-foreground);
+  }
+
+  /* A held key says so with a line under its words. */
+  .field-legend-key {
+    text-decoration: underline 2px transparent;
+    text-underline-offset: 4px;
+  }
+
+  .field-legend-key:hover,
+  .field-legend-key[aria-pressed="true"] {
+    color: var(--foreground);
+  }
+
+  .field-legend-key[aria-pressed="true"] {
+    text-decoration-color: currentcolor;
+  }
+}

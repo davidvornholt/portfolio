@@ -39,7 +39,7 @@ const failedCheckInPlainWords = (checks: ReadonlyArray<string>): string => {
 const verdicts = {
   passed: 'Its checks had passed',
   failed: 'It went live with a failed check',
-  unchecked: 'No check had run',
+  unchecked: 'No check had finished',
 } as const;
 
 /**

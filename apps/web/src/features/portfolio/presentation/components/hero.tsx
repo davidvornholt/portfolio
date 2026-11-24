@@ -17,7 +17,7 @@ export const Hero = ({
     <div className="grid gap-y-5 pt-6 md:pt-8 lg:grid-cols-13">
       <h1 className="font-bold text-[2.125rem] leading-[1.06] tracking-tight sm:text-5xl lg:col-span-10 lg:text-[4rem] lg:leading-[1.03] 2xl:text-[4.5rem]">
         <span className="block text-balance">
-          I wrote code by hand for six years.
+          I wrote code by&nbsp;hand for six years.
         </span>{' '}
         <span className="block text-balance">Now AI writes most of it.</span>{' '}
         <span className="block text-balance">
@@ -49,16 +49,16 @@ export const Hero = ({
           paperwork off its staff.
         </p>
         {legend}
-        <p className="mt-5 flex flex-wrap gap-3">
+        <p className="mt-5 flex flex-wrap gap-3 print:hidden">
           <Link
             href="#work"
-            className="inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground"
+            className="inline-flex h-12 items-center border-2 border-foreground bg-foreground px-6 font-semibold text-background hover:bg-background hover:text-foreground active:translate-y-px"
           >
             See what I build
           </Link>
           <Link
             href="#contact"
-            className="inline-flex h-12 items-center border-2 border-foreground px-6 font-semibold hover:bg-foreground hover:text-background"
+            className="inline-flex h-12 items-center border-2 border-foreground px-6 font-semibold hover:bg-foreground hover:text-background active:translate-y-px"
           >
             Write to me
           </Link>

@@ -5,6 +5,7 @@ import { ChangesTable } from '@/features/changes/presentation/components/changes
 import { SiteRecord } from '@/features/changes/presentation/components/site-record';
 import { fieldModel } from '@/features/changes/services/field-model';
 import { snapshot } from '@/features/changes/services/load-snapshot';
+import { repositoryActivity } from '@/features/changes/services/repository-activity';
 import {
   totalCounts,
   weeklyTable,
@@ -55,6 +56,7 @@ const HomePage = (): ReactNode => (
     }
     record={<SiteRecord record={snapshot.site} />}
     accepted={snapshot.elsewhere}
+    activity={repositoryActivity(snapshot.days)}
     works={workSummaries}
     posts={postSummaries}
   />

@@ -2,23 +2,27 @@ import snapshot from '../../activity/snapshot.json' with { type: 'json' };
 import { ReviewPath } from './review-path';
 import { rules, sourceRevision } from './rules';
 export const HowIWork = () => (
-  <section id="method" className="bg-deep py-16 text-deep-foreground md:py-24">
+  <section id="method" className="film-ground py-12 md:py-20">
     <div className="folio-wrap">
-      <p className="folio-label mb-4 text-deep-primary">How I work</p>
-      <div className="grid gap-6 md:grid-cols-2">
-        <h2 className="folio-heading">
-          From an issue
-          <br />
-          to a release.
-        </h2>
-        <p className="max-w-lg self-end text-deep-muted-foreground text-lg">
-          I wrote code by hand for six years before I used AI. Reading both
-          editions of Clean Code and studying Design Patterns shaped the
-          questions I ask in review. Today I give an agent the problem and the
-          constraints. Every change goes through automated checks and review.
+      <div className="method-heading">
+        <p className="credit-label">
+          <span className="cue" />
+          Engineering · Standards #598
         </p>
+        <h2>When access should end.</h2>
       </div>
       <ReviewPath />
+      <div className="mt-10 grid gap-4 md:grid-cols-2">
+        <h3 className="font-normal font-serif text-2xl">
+          How I review software
+        </h3>
+        <p className="max-w-lg text-deep-muted-foreground">
+          I wrote code by hand for six years before using AI. Both editions of
+          Clean Code and the examples in Design Patterns shaped how I read a
+          change. Today I give agents the constraints. Every change goes through
+          automated checks and review.
+        </p>
+      </div>
       <details className="mt-5 border-deep-border border-y">
         <summary className="cursor-pointer py-4 font-medium">
           Inspect five rules that protect this site

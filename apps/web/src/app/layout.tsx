@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
 import './folio.css';
+import './documentary.css';
 import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';

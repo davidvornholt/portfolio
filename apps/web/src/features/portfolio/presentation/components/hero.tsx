@@ -1,46 +1,45 @@
-import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import portrait from '@/public/portrait.png';
-import { Activity } from '../../activity/activity';
 
 export const Hero = () => (
-  <section className="folio-wrap pt-24 md:pt-24">
-    <div className="intro-grid">
-      <div className="intro-copy">
-        <p className="folio-label mb-4 flex items-center gap-3 text-primary">
-          <span className="h-px w-9 bg-current" />
-          Co-founder &amp; CTO, ProsaBridge
+  <section className="opening">
+    <Image
+      src="/stills/binding.webp"
+      alt="A bookbinder draws linen thread through folded sheets."
+      fill={true}
+      preload={true}
+      sizes="100vw"
+      className="opening-still"
+    />
+    <div className="opening-titles folio-wrap">
+      <div className="title-block">
+        <p className="credit-label">
+          <span className="cue" />
+          Publishing software
         </p>
-        <h1 className="display-title">
-          I build software
+        <h1>
+          I make software
           <br />
-          for <em>publishers.</em>
+          for books.
         </h1>
-        <p className="mt-5 max-w-xl text-[1.08rem] leading-snug md:text-xl">
-          I’m David Vornholt. At ProsaBridge, I help editors translate whole
-          books and keep every footnote in place.
+        <p className="opening-deck">
+          I co-founded ProsaBridge to help editors translate a whole manuscript
+          and keep every footnote in place.
         </p>
-        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-          <Link className="ink-link" href="/works/prosabridge">
-            Inside ProsaBridge <ArrowUpRight size={15} />
-          </Link>
-          <a className="ink-link" href="#method">
-            How I work <ArrowDownRight size={15} />
-          </a>
-        </div>
+        <Link className="film-link" href="/works/prosabridge">
+          Inside ProsaBridge <ArrowUpRight size={16} />
+        </Link>
       </div>
-      <figure className="portrait-print">
-        <Image
-          src={portrait}
-          preload={true}
-          sizes="(max-width: 640px) 88px, 300px"
-          alt="David Vornholt"
-          className="size-full object-cover object-center"
-        />
-        <figcaption className="folio-label">David Vornholt</figcaption>
-      </figure>
+      <div className="closing-credit">
+        <p>
+          <span className="credit-label">David Vornholt</span>
+          <span>Co-founder &amp; CTO, ProsaBridge</span>
+        </p>
+        <a href="#method" className="credit-label flex items-center gap-3">
+          How I work <ArrowDown size={16} />
+        </a>
+      </div>
     </div>
-    <Activity />
   </section>
 );

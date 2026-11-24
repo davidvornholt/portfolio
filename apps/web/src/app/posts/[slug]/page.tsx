@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -84,24 +85,35 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackNavigation href="/posts" label="All posts" />
-      <article className="mx-auto max-w-4xl px-6 pt-8 pb-24">
-        <header className="my-12 border-border border-b pb-8">
-          <p className="folio-label mb-3 text-welcome">{post.meta.category}</p>
-          <h1 className="folio-heading mb-4">{post.meta.title}</h1>
-          {post.meta.subtitle === undefined ? null : (
-            <p className="mb-4 text-lg text-muted-foreground">
-              {post.meta.subtitle}
+      <article className="pb-20">
+        <header className="article-cover folio-wrap my-7">
+          <div className="article-titles">
+            <p className="credit-label">Writing / {post.meta.category}</p>
+            <h1>{post.meta.title}</h1>
+            {post.meta.subtitle !== undefined && (
+              <p className="mb-3">{post.meta.subtitle}</p>
+            )}
+            <p className="text-deep-muted-foreground text-sm">
+              David Vornholt ·{' '}
+              <time dateTime={post.meta.date}>
+                {formatPostDate(post.meta.date)}
+              </time>{' '}
+              · {post.meta.readTime}
             </p>
-          )}
-          <div className="flex items-center gap-4 text-muted-foreground text-sm">
-            <time dateTime={post.meta.date}>
-              {formatPostDate(post.meta.date)}
-            </time>
-            <span>·</span>
-            <span>{post.meta.readTime}</span>
+          </div>
+          <div className="article-image">
+            <Image
+              src="/stills/proof.webp"
+              alt="Metal type set for printing"
+              fill={true}
+              sizes="(max-width: 760px) 92vw, 42vw"
+              className="object-cover"
+            />
           </div>
         </header>
-        <Body />
+        <div className="mx-auto max-w-4xl px-6 pt-3">
+          <Body />
+        </div>
       </article>
     </>
   );

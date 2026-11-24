@@ -1,124 +1,74 @@
 'use client';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 
-const stages = [
-  [
-    'Issue',
-    'Define the failure',
-    'When I removed the setting that gave a service access, its current key stopped working. An older key could still grant access for up to 30 days.',
-  ],
-  [
-    'Draft',
-    'Change the decision',
-    'I give the agent a specific repair. Trace both keys to the setting that authorized them, and revoke both when the setting disappears.',
-  ],
-  [
-    'Checks',
-    'Test the boundary',
-    'A token still needed during a deployment must keep working. The tests distinguish that case from a withdrawal.',
-  ],
-  [
-    'Review',
-    'Inspect the repair',
-    'In my review-fix process, fresh reviewers read the change, repairs address their findings, and another pass checks those repairs.',
-  ],
-  [
-    'Land',
-    'Publish the decision',
-    'I land the tested version. The code and the instructions for operators now agree on when access ends.',
-  ],
-] as const;
-const evidence = [
-  [
-    ['Current key', 'Revoked'],
-    ['Previous key', 'Still active'],
-  ],
-  [
-    ['Current key', 'Trace setting'],
-    ['Previous key', 'Trace setting'],
-  ],
-  [
-    ['Setting removed', 'Revoke both'],
-    ['Deploy in progress', 'Keep access'],
-  ],
-  [
-    ['Inspect', 'Original change'],
-    ['Verify', 'Accepted repairs'],
-  ],
-  [
-    ['Current key', 'Revoked'],
-    ['Previous key', 'Revoked'],
-  ],
+const frames = [
+  {
+    name: 'Issue',
+    title: 'One key still worked.',
+    image: 'proof',
+    alt: 'One piece of metal type sits out of alignment.',
+    caption:
+      'I withdrew permission from a service. Its current key stopped working. Its previous key could still grant access for up to 30 days.',
+  },
+  {
+    name: 'Repair',
+    title: 'I traced both keys to one setting.',
+    image: 'press',
+    alt: 'A book press holds folded pages together.',
+    caption:
+      'I asked the agent to tie both keys to the permission that issued them. The tests also covered a deployment that still needed its key.',
+  },
+  {
+    name: 'Review',
+    title: 'I checked what happened after withdrawal.',
+    image: 'turn',
+    alt: 'A bound book opens across its spine.',
+    caption:
+      'Fresh reviewers inspect the repair. I resolve their findings and check the revised version. With this change in place, withdrawing permission revokes both keys.',
+  },
 ] as const;
 export const ReviewPath = () => {
-  const [step, setStep] = useState(0);
-  const stage = stages[step] ?? stages[0];
+  const [selected, setSelected] = useState(0);
+  const frame = frames[selected] ?? frames[0];
   return (
-    <div className="review-path mt-9 border border-deep-border p-5 md:p-8">
-      <div className="flex items-center justify-between gap-4">
-        <p className="folio-label text-deep-primary">Withdrawing access</p>
+    <div className="sequence">
+      <div className="frame-window">
+        <Image
+          key={frame.image}
+          src={`/stills/${frame.image}.webp`}
+          alt={frame.alt}
+          fill={true}
+          sizes="(max-width: 760px) 92vw, 65vw"
+          className="frame-image object-cover"
+        />
+        <span className="frame-counter credit-label">0{selected + 1} / 03</span>
+      </div>
+      <div className="sequence-script">
+        <p className="credit-label">A change in three frames</p>
+        <div aria-live="polite" className="frame-caption">
+          <h3>{frame.title}</h3>
+          <p>{frame.caption}</p>
+        </div>
+        <div className="frame-selectors">
+          {frames.map((still, i) => (
+            <button
+              type="button"
+              key={still.name}
+              aria-pressed={selected === i}
+              onClick={() => setSelected(i)}
+            >
+              <span aria-hidden="true">0{i + 1}</span>
+              {still.name}
+            </button>
+          ))}
+        </div>
         <a
-          className="text-xs underline"
+          className="film-link mt-5"
           href="https://github.com/davidvornholt/standards/pull/598"
         >
-          standards #598 ↗
+          Read the change on GitHub ↗
         </a>
-      </div>
-      <ol className="my-8 grid grid-cols-5">
-        {stages.map(([name], i) => (
-          <li key={name}>
-            <button
-              type="button"
-              aria-pressed={step === i}
-              onClick={() => setStep(i)}
-              className="track-stop"
-            >
-              <span className={`track-node ${i <= step ? 'complete' : ''}`} />
-              <span>{name}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      <div className="grid items-end gap-6 md:grid-cols-[1fr_auto_auto]">
-        <div
-          key={stage[0]}
-          aria-live="polite"
-          className="stage-copy min-h-36 max-w-lg"
-        >
-          <p className="font-mono text-deep-primary text-xs">
-            0{step + 1} / 05
-          </p>
-          <h3 className="my-2 font-normal text-2xl md:text-3xl">{stage[1]}</h3>
-          <p className="text-deep-muted-foreground">{stage[2]}</p>
-        </div>
-        <dl
-          key={stage[1]}
-          className="stage-copy grid min-w-48 gap-3 border-deep-border border-l pl-4"
-        >
-          {evidence[step]?.map(([label, value]) => (
-            <div key={label}>
-              <dt className="folio-label text-deep-muted-foreground">
-                {label}
-              </dt>
-              <dd className="font-mono text-deep-primary text-sm">{value}</dd>
-            </div>
-          ))}
-        </dl>
-        <div className="flex">
-          {[-1, 1].map((dir) => (
-            <button
-              type="button"
-              aria-label={dir > 0 ? 'Next stage' : 'Previous stage'}
-              disabled={step + dir < 0 || step + dir >= stages.length}
-              className="grid size-11 place-items-center border border-deep-border disabled:opacity-40"
-              key={dir}
-              onClick={() => setStep(step + dir)}
-            >
-              {dir < 0 ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

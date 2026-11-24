@@ -126,7 +126,8 @@ const SolvingTheColdBootProblemBody = (): ReactNode => (
       <MDXParagraph>
         A thousand visitors in one minute used to mean a thousand trips to the
         database. Now they can mean one. The same change cut what the site costs
-        to run by 60 percent a year.
+        to run by 60 percent a year. Lighthouse, Google’s tool for measuring web
+        pages, rates the new site’s performance at 100 out of 100.
       </MDXParagraph>
       <MDXParagraph>
         What I took from it: before I make a server faster, I ask whether it has
@@ -151,7 +152,6 @@ export const solvingTheColdBootProblemPost: Post = {
       'The server built every page again for every visitor. Now it builds a page when its content changes.',
     slug: 'solving-the-cold-boot-problem',
     date: '2026-02-01',
-    updated: '2026-11-23',
     category: 'Engineering',
     readTime: '2 min read',
     excerpt:

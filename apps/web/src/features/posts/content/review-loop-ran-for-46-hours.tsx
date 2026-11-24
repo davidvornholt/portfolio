@@ -229,7 +229,6 @@ export const reviewLoopRanFor46HoursPost: Post = {
       'A 179-line change grew to 37,451 lines. Everything I kept in the end existed after 23 minutes.',
     slug: 'review-loop-ran-for-46-hours',
     date: '2026-08-26',
-    updated: '2026-11-23',
     category: 'Engineering',
     readTime: '5 min read',
     excerpt:

@@ -186,7 +186,7 @@ const CheapAiCodeReviewsBody = (): ReactNode => (
         say what was counted and what was not.
       </MDXParagraph>
       <MDXParagraph>
-        One thing has changed since. The reviewers still run on Astra at medium
+        Update, November 2026: the reviewers still run on Astra at medium
         effort, now in version 6.2. The fixes are made by whichever model leads
         the work, and that is no longer always Astra.
       </MDXParagraph>
@@ -208,7 +208,6 @@ export const cheapAiCodeReviewsPost: Post = {
       'The cheapest setup found none of three real bugs. The one that found them cost sixteen times as much, and I now use it for every review.',
     slug: 'cheap-ai-code-reviews',
     date: '2026-09-07',
-    updated: '2026-11-23',
     category: 'Engineering',
     readTime: '4 min read',
     excerpt:

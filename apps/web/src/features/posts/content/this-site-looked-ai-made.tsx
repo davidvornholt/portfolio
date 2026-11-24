@@ -18,12 +18,12 @@ import type { Post } from './post-meta';
 
 const repository = 'https://github.com/davidvornholt/portfolio';
 
-const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
+const ThisSiteLookedAiMadeBody = (): ReactNode => (
   <>
     <MDXSection>
       <MDXParagraph>
-        Until November 2026 this site had a cream background, a serif typeface
-        and forest green buttons. It was pleasant. It was also the look that AI
+        Until this month my site had a cream background, a serif typeface and
+        forest green buttons. It was pleasant. It was also the look that AI
         design tools produce when nobody tells them otherwise. For a site that
         claims I use AI with care, that was the wrong look.
       </MDXParagraph>
@@ -50,7 +50,8 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
         thirteen weeks stands on that bar as one small square: black when its
         automated checks passed, red with a slot when one of them failed, and an
         outline when none had finished. The attempts that the checks sent back
-        before they could merge sit inside the bar as grey marks.
+        before they could merge sit inside the bar as grey marks. On November
+        23, 2026 that was 2,390 squares and 357 grey marks.
       </MDXParagraph>
       <MDXParagraph>
         The rest of the design follows from that picture. White, black, and one
@@ -83,11 +84,10 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>What I turned down</MDXHeadingOne>
+      <MDXHeadingOne>What did not survive</MDXHeadingOne>
       <MDXParagraph>
-        Agents wrote the code for the new design too. The model was Claude Fable
-        5.2. My part was to say what I wanted and to send back what was not good
-        enough. These things went:
+        The redesign took several rounds, and a good deal of it was thrown out
+        on the way:
       </MDXParagraph>
       <MDXUnorderedList>
         <MDXListItem>
@@ -105,8 +105,8 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
         </MDXListItem>
         <MDXListItem>
           <MDXStrong>A table that quoted five of my rules.</MDXStrong> It was
-          correct and dull. In its place a terminal shows an agent rewriting a
-          rule and the check failing because of it.
+          correct and dull. In its place a terminal shows a rule being rewritten
+          and the check failing because of it.
         </MDXListItem>
         <MDXListItem>
           <MDXStrong>A good part of the text.</MDXStrong> I doubted that anybody
@@ -151,7 +151,7 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
         </MDXListItem>
       </MDXUnorderedList>
       <MDXParagraph>
-        The colors are written in OKLCH, which gets{' '}
+        The colors are written in OKLCH, which has{' '}
         <MDXAnchor href="/posts/mastering-oklch-tailwind-v4">
           an article of its own
         </MDXAnchor>
@@ -168,18 +168,17 @@ const BuildingTheArchitectsPortfolioBody = (): ReactNode => (
   </>
 );
 
-export const buildingTheArchitectsPortfolioPost: Post = {
+export const thisSiteLookedAiMadePost: Post = {
   meta: {
     title: 'This site looked AI-made. So I threw the design away.',
     subtitle:
-      'What replaced it, what I turned down on the way, and how the site is built.',
-    slug: 'building-the-architects-portfolio',
-    date: '2026-08-17',
-    updated: '2026-11-23',
+      'What replaced it, what did not survive on the way, and how the site is built.',
+    slug: 'this-site-looked-ai-made',
+    date: '2026-11-24',
     category: 'Engineering',
     readTime: '3 min read',
     excerpt:
       'The first version was cream paper, a serif and forest green, the look AI design tools produce by default. The new one is a black bar with every change I merged standing on it.',
   },
-  body: BuildingTheArchitectsPortfolioBody,
+  body: ThisSiteLookedAiMadeBody,
 };

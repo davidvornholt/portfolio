@@ -223,7 +223,6 @@ export const reviewFixVersusCodeRabbitPost: Post = {
       'The same two changes, the same repository, and every finding public.',
     slug: 'review-fix-versus-coderabbit',
     date: '2026-08-26',
-    updated: '2026-11-23',
     category: 'Engineering',
     readTime: '4 min read',
     excerpt:

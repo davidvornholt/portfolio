@@ -69,11 +69,10 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
   <>
     <MDXSection>
       <MDXParagraph>
-        On November 23, 2026 the{' '}
-        <MDXAnchor href="/">chart on the home page</MDXAnchor> of this site
-        showed 2,390 changes that I had merged in the thirteen weeks before. AI
-        agents wrote most of them. In the same weeks my automated checks sent
-        357 attempts back before they could merge.
+        AI agents write most of my code. The{' '}
+        <MDXAnchor href="/">chart on the home page</MDXAnchor> shows the changes
+        I merged in the last thirteen weeks, and what my automated checks said
+        about each of them.
       </MDXParagraph>
       <MDXParagraph>
         This article is about what the chart can’t show: why I let a change go
@@ -122,11 +121,11 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         run, the change does not merge either.
       </MDXParagraph>
       <MDXParagraph>
-        The chart also shows where this has not held. Of the 2,390 changes, 23
-        merged before any check had finished, and 2 merged with a failed check.
-        Those two were contributions to another project, whose maintainers
-        merged them. From my private projects the chart shows only the changes
-        that passed, so for those it proves nothing either way.
+        The chart also shows where this did not hold. A red square is a change
+        that merged although a check had failed, and an outline is a change that
+        merged before any check had finished. From my private projects the chart
+        shows only the changes that passed, so for those it proves nothing
+        either way.
       </MDXParagraph>
     </MDXSection>
 
@@ -186,17 +185,16 @@ const ExecutableEngineeringStandardsBody = (): ReactNode => (
         the one that wrote the change reviews it before it merges. Only a change
         so plain that a review could not find a bug anybody would run into goes
         without. The review has a hard limit: at most three reviews, then a
-        report, then it stops. A recent example is{' '}
-        <MDXAnchor href={`${standards}/pull/566`}>
-          a change to the rulebook’s own tool
+        report, then it stops. On two changes in July 2026 it{' '}
+        <MDXAnchor href="/posts/review-fix-versus-coderabbit">
+          found 15 problems
         </MDXAnchor>
-        . The first review found 3 problems that had to be fixed, the second
-        found none, and both reviews and all fixes took 25 minutes.
+        , and more than half of them turned up while it checked its own fixes.
       </MDXParagraph>
       <MDXParagraph>
-        The limit is there because I once left it out. In July 2026 an earlier
-        review workflow was told to go on until two reviews in a row found
-        nothing. It{' '}
+        The limit is there because I once left it out. A few days earlier, a
+        review workflow without one was told to go on until two reviews in a row
+        found nothing. It{' '}
         <MDXAnchor href="/posts/review-loop-ran-for-46-hours">
           ran for 46 hours
         </MDXAnchor>
@@ -246,7 +244,6 @@ export const executableEngineeringStandardsPost: Post = {
       'Every change has to pass checks that no agent can argue with. How they work, and where they have failed.',
     slug: 'executable-engineering-standards',
     date: '2026-08-31',
-    updated: '2026-11-23',
     category: 'Engineering',
     readTime: '4 min read',
     excerpt:

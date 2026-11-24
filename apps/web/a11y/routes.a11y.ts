@@ -12,8 +12,8 @@ const routes = [
     path: '/posts/executable-engineering-standards',
   },
   {
-    name: 'architect portfolio post',
-    path: '/posts/building-the-architects-portfolio',
+    name: 'post on the redesign',
+    path: '/posts/this-site-looked-ai-made',
   },
   {
     name: 'cold boot post',
@@ -128,6 +128,23 @@ test('code snippet headers fit a 320 CSS pixel viewport', async ({ page }) => {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(320);
+});
+
+// The address was shared on LinkedIn and X before the article was replaced.
+test('the old address of the article on this site leads to the new one', async ({
+  page,
+}) => {
+  await page.goto('/posts/building-the-architects-portfolio');
+
+  await expect(page).toHaveURL(
+    (url) => url.pathname === '/posts/this-site-looked-ai-made',
+  );
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'This site looked AI-made. So I threw the design away.',
+    }),
+  ).toBeVisible();
 });
 
 test('footer section links reach the home page sections from other routes', async ({

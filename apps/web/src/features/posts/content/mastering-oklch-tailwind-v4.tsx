@@ -147,7 +147,6 @@ export const masteringOklchPost: Post = {
       'Five colors with the same HSL lightness, and contrast against white from 1.07 to 8.59. Why this site’s colors are written in OKLCH, and what OKLCH doesn’t fix.',
     slug: 'mastering-oklch-tailwind-v4',
     date: '2026-03-01',
-    updated: '2026-11-23',
     category: 'Engineering',
     readTime: '3 min read',
     excerpt:

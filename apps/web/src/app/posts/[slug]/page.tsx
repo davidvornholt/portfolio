@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
 import { siteUrl } from '@/config/site';
 import type { PostMeta } from '@/features/posts/content/post-meta';
-import { getPostBySlug, posts } from '@/features/posts/content/posts-registry';
+import {
+  getPostBySlug,
+  movedPosts,
+  posts,
+} from '@/features/posts/content/posts-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
 
@@ -12,8 +16,11 @@ type PostPageProps = Readonly<{
   params: Promise<{ slug: string }>;
 }>;
 
-export const generateStaticParams = (): Array<{ slug: string }> =>
-  posts.map((post) => ({ slug: post.meta.slug }));
+// The old addresses are known too, so that each one is built as a redirect.
+export const generateStaticParams = (): Array<{ slug: string }> => [
+  ...posts.map((post) => ({ slug: post.meta.slug })),
+  ...Object.keys(movedPosts).map((slug) => ({ slug })),
+];
 
 export const generateMetadata = async ({
   params,
@@ -39,7 +46,6 @@ export const generateMetadata = async ({
       title: post.meta.title,
       description: post.meta.excerpt,
       publishedTime: post.meta.date,
-      modifiedTime: post.meta.updated,
       authors: ['David Vornholt'],
       section: post.meta.category,
     },
@@ -58,7 +64,6 @@ const createArticleJsonLd = (meta: PostMeta): Record<string, unknown> => ({
   description: meta.excerpt,
   url: `${siteUrl}/posts/${meta.slug}`,
   datePublished: meta.date,
-  dateModified: meta.updated ?? meta.date,
   author: {
     '@type': 'Person',
     name: 'David Vornholt',
@@ -69,6 +74,10 @@ const createArticleJsonLd = (meta: PostMeta): Record<string, unknown> => ({
 
 const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
   const { slug } = await params;
+  const movedTo = movedPosts[slug];
+  if (movedTo !== undefined) {
+    permanentRedirect(`/posts/${movedTo}`);
+  }
   const post = getPostBySlug(slug);
 
   if (!post) {
@@ -100,14 +109,6 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
             <time dateTime={post.meta.date}>
               {formatPostDate(post.meta.date)}
             </time>
-            {post.meta.updated === undefined ? null : (
-              <>
-                , rewritten{' '}
-                <time dateTime={post.meta.updated}>
-                  {formatPostDate(post.meta.updated)}
-                </time>
-              </>
-            )}
             , {post.meta.readTime}
           </p>
         </header>

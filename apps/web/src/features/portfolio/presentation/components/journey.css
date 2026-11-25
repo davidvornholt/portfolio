@@ -243,6 +243,19 @@
     color: var(--foreground);
   }
 
+  /* While the start is set up off screen, nothing fades. */
+  .journey-figure[data-still]
+  :is(
+    .journey-node,
+    .journey-tick,
+    .journey-arrow,
+    .journey-loop-label,
+    .journey-flag,
+    .journey-token
+  ) {
+    transition: none;
+  }
+
   /* The real change the picture follows. */
   .journey-example {
     display: grid;

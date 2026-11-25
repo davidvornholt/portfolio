@@ -10,6 +10,14 @@ import {
   useState,
 } from 'react';
 import { between, type Point } from './journey-geometry';
+import {
+  reach,
+  setCurrent,
+  setLit,
+  showResult,
+  showStart,
+  showWaiting,
+} from './journey-states';
 import { textLinkClassName } from './text-link';
 
 // How long each part of the way takes, in milliseconds. Together they come
@@ -32,8 +40,6 @@ const searchRounds = 30;
 const half = 2;
 const cubic = 3;
 
-type Lit = 'off' | 'on' | 'bad';
-
 type Stage = Readonly<{
   root: HTMLElement;
   route: SVGPathElement;
@@ -41,57 +47,6 @@ type Stage = Readonly<{
   token: SVGRectElement;
   signal: AbortSignal;
 }>;
-
-const all = (root: ParentNode, selector: string): ReadonlyArray<Element> => [
-  ...root.querySelectorAll(selector),
-];
-
-const setLit = (root: ParentNode, selector: string, lit: Lit): void => {
-  for (const element of all(root, selector)) {
-    element.setAttribute('data-lit', lit);
-  }
-};
-
-const setCurrent = (root: ParentNode, name: string): void => {
-  for (const step of all(root, '[data-step]')) {
-    step.setAttribute(
-      'data-current',
-      String(step.getAttribute('data-step') === name),
-    );
-  }
-};
-
-/** Marks a station as passed and its step as the one the change is at. */
-const reach = (root: ParentNode, name: string): void => {
-  setLit(root, `[data-node="${name}"], [data-tick="${name}"]`, 'on');
-  setCurrent(root, name);
-};
-
-const litParts =
-  '[data-node], [data-tick], [data-loop-part], [data-flag], [data-token]';
-
-/** Back to the picture as it is drawn: every station passed. */
-const showResult = (root: HTMLElement): void => {
-  root.removeAttribute('data-run');
-  for (const element of all(root, litParts)) {
-    element.removeAttribute('data-lit');
-  }
-  for (const step of all(root, '[data-step]')) {
-    step.removeAttribute('data-current');
-  }
-  for (const loop of all(root, '[data-path="loop"]')) {
-    loop.removeAttribute('stroke-dashoffset');
-  }
-};
-
-/** The start of the way: nothing passed yet, the loop not yet drawn. */
-const showStart = (root: HTMLElement): void => {
-  root.setAttribute('data-run', 'playing');
-  setLit(root, litParts, 'off');
-  for (const loop of all(root, '[data-path="loop"]')) {
-    loop.setAttribute('stroke-dashoffset', '1');
-  }
-};
 
 const sleep = (duration: number, signal: AbortSignal): Promise<void> =>
   new Promise((resolve) => {
@@ -346,8 +301,8 @@ const stopPlayback = ({
 /**
  * Plays one change's way through the diagram it wraps: once when the diagram
  * comes into view, and again whenever the visitor asks. The diagram is drawn
- * in its final state, so without scripts, and for a visitor who prefers
- * reduced motion, it simply stands there.
+ * in its final state, so without scripts, on paper, and for a visitor who
+ * prefers reduced motion, it simply stands there.
  */
 export const JourneyPlayer = ({
   children,
@@ -368,6 +323,10 @@ export const JourneyPlayer = ({
       return;
     }
     setReady(true);
+    showWaiting(root);
+    const finish = (): void =>
+      stopPlayback({ rootRef, controllerRef, setPlaying });
+    globalThis.addEventListener('beforeprint', finish);
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
@@ -380,6 +339,7 @@ export const JourneyPlayer = ({
     observer.observe(root.querySelector('[data-stage]') ?? root);
     return () => {
       observer.disconnect();
+      globalThis.removeEventListener('beforeprint', finish);
       controllerRef.current?.abort();
     };
   }, []);

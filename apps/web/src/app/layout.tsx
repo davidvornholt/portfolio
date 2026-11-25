@@ -7,6 +7,7 @@ import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
 import { Footer } from '@/shared/page/presentation/components/footer';
 import { Header } from '@/shared/page/presentation/components/header';
+import { HistoryScroll } from '@/shared/page/presentation/components/history-scroll';
 
 // Sofia Sans follows the proportions of DIN 1451, the lettering of German
 // standards. It sets everything but code.
@@ -119,7 +120,14 @@ const RootLayout = ({
 }: Readonly<{
   children: ReactNode;
 }>): ReactNode => (
-  <html lang="en" className="motion-safe:scroll-smooth">
+  // A link to a section of the page scrolls there smoothly. The attribute
+  // tells Next.js to switch that off while it opens another page, so a new
+  // page starts at its top instead of scrolling there from somewhere else.
+  <html
+    lang="en"
+    className="motion-safe:scroll-smooth"
+    data-scroll-behavior="smooth"
+  >
     <head>
       <script
         type="application/ld+json"
@@ -138,6 +146,7 @@ const RootLayout = ({
       <Header />
       <main>{children}</main>
       <Footer />
+      <HistoryScroll />
       <AnalyticsScript />
     </body>
   </html>

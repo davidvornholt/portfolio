@@ -15,6 +15,7 @@ import { PortfolioScreen } from '@/features/portfolio/presentation/screens/portf
 import { postsNewestFirst } from '@/features/posts/content/posts-registry';
 import { works } from '@/features/works/content/works-registry';
 import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 // The legend describes the chart, for sighted visitors and as the chart's
 // description for assistive technology.
@@ -42,29 +43,31 @@ const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst
   .map((post) => ({
     title: post.meta.title,
     readTime: post.meta.readTime,
-    href: `/posts/${post.meta.slug}`,
+    slug: post.meta.slug,
     date: post.meta.date,
     picture: post.meta.picture.src,
   }));
 
 const HomePage = (): ReactNode => (
-  <PortfolioScreen
-    field={<ChangeField model={model} describedBy={legendId} />}
-    legend={
-      <>
-        <ChangeLegend id={legendId} model={model} />
-        <ChangesTable
-          weeks={weeklyTable(snapshot.days)}
-          total={totalCounts(snapshot.days)}
-        />
-      </>
-    }
-    record={<SiteRecord record={snapshot.site} />}
-    accepted={snapshot.elsewhere}
-    activity={repositoryActivity(snapshot.days)}
-    works={workSummaries}
-    posts={postSummaries}
-  />
+  <PageTransition>
+    <PortfolioScreen
+      field={<ChangeField model={model} describedBy={legendId} />}
+      legend={
+        <>
+          <ChangeLegend id={legendId} model={model} />
+          <ChangesTable
+            weeks={weeklyTable(snapshot.days)}
+            total={totalCounts(snapshot.days)}
+          />
+        </>
+      }
+      record={<SiteRecord record={snapshot.site} />}
+      accepted={snapshot.elsewhere}
+      activity={repositoryActivity(snapshot.days)}
+      works={workSummaries}
+      posts={postSummaries}
+    />
+  </PageTransition>
 );
 
 export default HomePage;

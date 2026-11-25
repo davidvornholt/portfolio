@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { siteUrl } from '@/config/site';
 import { LabScreen } from '@/features/lab/presentation/screens/lab-screen';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 const labTitle = 'The creative lab';
 const labDescription =
@@ -35,6 +36,10 @@ export const metadata: Metadata = {
   },
 };
 
-const LabPage = () => <LabScreen />;
+const LabPage = () => (
+  <PageTransition>
+    <LabScreen />
+  </PageTransition>
+);
 
 export default LabPage;

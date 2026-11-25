@@ -5,6 +5,7 @@ import { siteUrl } from '@/config/site';
 import { postsNewestFirst } from '@/features/posts/content/posts-registry';
 import { PostsScreen } from '@/features/posts/presentation/screens/posts-screen';
 import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 const postsDescription =
   'Engineering decisions, measured results, and failed experiments from the products and systems I build.';
@@ -33,12 +34,16 @@ const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst.map(
     title: post.meta.title,
     excerpt: post.meta.excerpt,
     readTime: post.meta.readTime,
-    href: `/posts/${post.meta.slug}`,
+    slug: post.meta.slug,
     date: post.meta.date,
     picture: post.meta.picture.src,
   }),
 );
 
-const PostsPage = (): ReactNode => <PostsScreen posts={postSummaries} />;
+const PostsPage = (): ReactNode => (
+  <PageTransition>
+    <PostsScreen posts={postSummaries} />
+  </PageTransition>
+);
 
 export default PostsPage;

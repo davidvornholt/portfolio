@@ -1,8 +1,10 @@
 import type { StaticImageData } from 'next/image';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
+import { TravellingPicture } from '@/shared/page/presentation/components/page-transitions';
 
 type CaseStudyLayoutProps = Readonly<{
+  slug: string;
   title: string;
   subtitle: string;
   since: string;
@@ -15,6 +17,7 @@ type CaseStudyLayoutProps = Readonly<{
 }>;
 
 export const CaseStudyLayout = ({
+  slug,
   title,
   subtitle,
   since,
@@ -62,14 +65,16 @@ export const CaseStudyLayout = ({
       )}
 
       <figure className="mt-12">
-        <Image
-          src={image.src}
-          alt={image.alt}
-          priority={true}
-          placeholder="blur"
-          sizes="(min-width: 102.5rem) 102.5rem, 100vw"
-          className="w-full border border-border"
-        />
+        <TravellingPicture kind="work" slug={slug}>
+          <Image
+            src={image.src}
+            alt={image.alt}
+            priority={true}
+            placeholder="blur"
+            sizes="(min-width: 102.5rem) 102.5rem, 100vw"
+            className="w-full border border-border"
+          />
+        </TravellingPicture>
         {image.caption === undefined ? null : (
           <figcaption className="mt-2 text-muted-foreground text-sm">
             {image.caption}

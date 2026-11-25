@@ -12,6 +12,10 @@ import {
 } from '@/features/posts/content/posts-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
+import {
+  PageTransition,
+  TravellingPicture,
+} from '@/shared/page/presentation/components/page-transitions';
 
 type PostPageProps = Readonly<{
   params: Promise<{ slug: string }>;
@@ -89,7 +93,7 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
   const Body = post.body;
 
   return (
-    <>
+    <PageTransition>
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
@@ -116,17 +120,19 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
           </div>
           {/* Multiplied with the page, the picture's white takes the page's
               colour, so the object and its shadow lie on the page. */}
-          <Image
-            src={post.meta.picture.src}
-            alt={post.meta.picture.alt}
-            priority={true}
-            sizes="(min-width: 64rem) 36vw, 100vw"
-            className="order-first aspect-[3/2] w-full object-contain object-left mix-blend-multiply lg:order-none lg:col-span-5"
-          />
+          <TravellingPicture kind="post" slug={post.meta.slug}>
+            <Image
+              src={post.meta.picture.src}
+              alt={post.meta.picture.alt}
+              priority={true}
+              sizes="(min-width: 64rem) 36vw, 100vw"
+              className="order-first aspect-[3/2] w-full object-contain object-left mix-blend-multiply lg:order-none lg:col-span-5"
+            />
+          </TravellingPicture>
         </header>
         <Body />
       </article>
-    </>
+    </PageTransition>
   );
 };
 

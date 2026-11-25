@@ -1,0 +1,67 @@
+/* From one page to the next. The old page fades out quickly and the new one
+   fades in after it, rising a little. A picture that both pages show, an
+   article's object or a product's screenshot, travels from its place on the
+   old page to its place on the new one.
+
+   The names in brackets are view transition classes. `PageTransition` and
+   `TravellingPicture` set them through React, not through a class attribute,
+   which is the only place the unused-class rule looks. */
+@layer components {
+  ::view-transition {
+    /* The page under a running transition stays clickable. */
+    pointer-events: none;
+  }
+
+  /* biome-ignore-start lint/nursery/noUnusedClasses: View transition classes, set by PageTransition and TravellingPicture. */
+  ::view-transition-old(.page-leaves) {
+    animation: 140ms ease-in both page-fades reverse;
+  }
+
+  ::view-transition-new(.page-arrives) {
+    animation:
+      260ms var(--ease-out) 120ms both page-fades,
+      420ms var(--ease-out) 120ms both page-rises;
+  }
+
+  ::view-transition-group(.picture-travels),
+  ::view-transition-group(.object-travels) {
+    /* Above both pages. The arriving page would otherwise cover the picture,
+       because the browser stacks what is new on top. */
+    z-index: 1;
+    animation-duration: 460ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  /* An object's picture has a white background that takes the page's colour
+     where it lies. It keeps doing so on the way. */
+  ::view-transition-group(.object-travels) {
+    mix-blend-mode: multiply;
+  }
+  /* biome-ignore-end lint/nursery/noUnusedClasses: View transition classes, set by PageTransition and TravellingPicture. */
+
+  @keyframes page-fades {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-rises {
+    from {
+      translate: 0 0.75rem;
+    }
+  }
+}
+
+/* A visitor who asked for less motion gets the new page at once. */
+@media (prefers-reduced-motion: reduce) {
+  @layer overrides {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      /* biome-ignore lint/complexity/noImportantStyles: Reduced motion has to win over every transition's own timing. */
+      animation-duration: 0s !important;
+      /* biome-ignore lint/complexity/noImportantStyles: Reduced motion has to win over every transition's own timing. */
+      animation-delay: 0s !important;
+    }
+  }
+}

@@ -7,6 +7,7 @@ import type { WorkMeta } from '@/features/works/content/work-meta';
 import { getWorkBySlug, works } from '@/features/works/content/works-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { CaseStudyLayout } from '@/shared/content/presentation/components/case-study-layout';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 type WorkPageProps = Readonly<{
   params: Promise<{ slug: string }>;
@@ -76,7 +77,7 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
   const Body = work.body;
 
   return (
-    <>
+    <PageTransition>
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
@@ -84,6 +85,7 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
       />
       <BackNavigation href="/#work" label="Home" />
       <CaseStudyLayout
+        slug={work.meta.slug}
         title={work.meta.title}
         subtitle={work.meta.subtitle}
         since={work.meta.since}
@@ -95,7 +97,7 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
       >
         <Body />
       </CaseStudyLayout>
-    </>
+    </PageTransition>
   );
 };
 

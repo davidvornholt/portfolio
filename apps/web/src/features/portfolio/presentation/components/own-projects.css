@@ -60,6 +60,8 @@
     max-inline-size: 100%;
     block-size: auto;
     margin-block-start: 0.5rem;
+    /* A square that hops leaves the chart's box for a moment. */
+    overflow: visible;
     fill: currentcolor;
     stroke: none;
     transition: fill 160ms var(--ease-out);
@@ -85,15 +87,15 @@
     fill: var(--failed);
   }
 
-  /* The newest change hops once when the row is pointed at, as the square
-     of the logo does. */
-  .project-weeks [data-newest] {
+  /* One square hops each time the row is pointed at, as the square of the
+     logo does. `ProjectRow` picks another one every time and marks it. */
+  .project-weeks [data-free] {
     transform-box: fill-box;
     transform-origin: center;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .project-row:is(:hover, :focus-visible) [data-newest] {
+    .project-weeks [data-hop] {
       animation: project-hop 520ms var(--ease-out);
     }
   }

@@ -2,6 +2,7 @@ import type { StaticImageData } from 'next/image';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { TravellingPicture } from '@/shared/page/presentation/components/page-transitions';
 import { Section } from './section';
 import { textLinkClassName } from './text-link';
 
@@ -63,13 +64,15 @@ const Picture = ({
   sizes,
 }: Readonly<{ work: WorkSummary; sizes: string }>): ReactNode => (
   <figure>
-    <Image
-      src={work.image.src}
-      alt={work.image.alt}
-      placeholder="blur"
-      sizes={sizes}
-      className="aspect-[16/10] w-full border border-border object-cover object-top"
-    />
+    <TravellingPicture kind="work" slug={work.slug}>
+      <Image
+        src={work.image.src}
+        alt={work.image.alt}
+        placeholder="blur"
+        sizes={sizes}
+        className="aspect-[16/10] w-full border border-border object-cover object-top"
+      />
+    </TravellingPicture>
     {work.image.caption === undefined ? null : (
       <figcaption className="mt-2 text-muted-foreground text-sm">
         {work.image.caption}

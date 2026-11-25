@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import './own-projects.css';
+import { ProjectRow } from './project-row';
 import { textLinkClassName } from './text-link';
 
 type Verdict = 'passed' | 'failed' | 'unchecked';
@@ -77,25 +78,24 @@ type Mark = Readonly<{
   x: number;
   y: number;
   verdict: Verdict;
-  newest: boolean;
+  /** Nothing stands on this square, so it has room to hop. */
+  free: boolean;
 }>;
 
 /** Where each change of a project stands: weeks side by side, filled from the bar up. */
 const marksOf = (
   weeks: ReadonlyArray<ReadonlyArray<Verdict>>,
   ground: number,
-): ReadonlyArray<Mark> => {
-  const newestWeek = weeks.findLastIndex((week) => week.length > 0);
-  return weeks.flatMap((week, weekIndex) =>
+): ReadonlyArray<Mark> =>
+  weeks.flatMap((week, weekIndex) =>
     week.map((verdict, place) => ({
       key: `${weekIndex}-${place}`,
       x: weekIndex * weekPitch + (place % squaresAcross) * pitch,
       y: ground - (Math.floor(place / squaresAcross) + 1) * pitch,
       verdict,
-      newest: weekIndex === newestWeek && place === week.length - 1,
+      free: place + squaresAcross >= week.length,
     })),
   );
-};
 
 /** The weeks from the project's first change on, so a young project has a short bar. */
 const sinceFirstChange = (
@@ -126,7 +126,7 @@ const Weeks = ({
           <rect
             key={mark.key}
             data-v={verdictMark[mark.verdict]}
-            data-newest={mark.newest ? '' : undefined}
+            data-free={mark.free ? '' : undefined}
             x={mark.x + outlineInset}
             y={mark.y + outlineInset}
             width={square - outlineInset * 2}
@@ -136,7 +136,7 @@ const Weeks = ({
           <rect
             key={mark.key}
             data-v={verdictMark[mark.verdict]}
-            data-newest={mark.newest ? '' : undefined}
+            data-free={mark.free ? '' : undefined}
             x={mark.x}
             y={mark.y}
             width={square}
@@ -189,13 +189,9 @@ export const OwnProjects = ({
       <ul className="keeps-colors mt-5 border-foreground border-t-2">
         {charted.map((row) => (
           <li key={row.name} className="border-border border-b">
-            <a
+            <ProjectRow
               href={`https://github.com/${owner}/${row.name}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-umami-event="open-source-open"
-              data-umami-event-project={row.name}
-              className="project-row"
+              project={row.name}
             >
               <strong className="project-name font-bold text-xl tracking-tight">
                 {row.name}
@@ -209,7 +205,7 @@ export const OwnProjects = ({
                   changes merged in the last {weekCount} weeks
                 </span>
               </span>
-            </a>
+            </ProjectRow>
           </li>
         ))}
       </ul>

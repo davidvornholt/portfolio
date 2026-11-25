@@ -83,11 +83,77 @@
     animation: terminal-caret-leaves 0.01s linear 1.7s both;
   }
 
+  /* Once a visitor has typed a command, the terminal keeps its height and
+     scrolls, with the newest line at the bottom. */
+  .terminal-body[data-scrolls] {
+    overflow-y: auto;
+    scrollbar-color: var(--bar-muted-foreground) transparent;
+    scrollbar-width: thin;
+  }
+
+  /* The prompt under the run. It looks like the resting cursor until someone
+     clicks into the terminal, and then takes a few commands. */
+  .terminal-prompt {
+    display: flex;
+    gap: 1ch;
+    margin-block-start: 0.25rem;
+  }
+
+  .terminal-prompt:focus-within > .terminal-dim {
+    color: var(--bar-foreground);
+  }
+
+  .terminal-field {
+    position: relative;
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .terminal-field input {
+    display: none;
+    inline-size: 100%;
+    background: none;
+    color: inherit;
+    font: inherit;
+    caret-color: var(--bar-foreground);
+    outline: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .terminal-field input {
+      display: block;
+    }
+  }
+
+  /* The word that says what to type shows only while the prompt has focus. */
+  .terminal-field input::placeholder {
+    color: transparent;
+  }
+
+  .terminal-field input:focus::placeholder {
+    color: var(--bar-muted-foreground);
+    opacity: 1;
+  }
+
+  /* The square stands at the prompt while nothing is typed and the browser's
+     own cursor isn't there. */
+  .terminal-prompt .terminal-field > .terminal-caret {
+    position: absolute;
+    inset-block-start: 0.2em;
+    inset-inline-start: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .terminal-field input:is(:focus, :not(:placeholder-shown)) + .terminal-caret {
+    display: none;
+  }
+
   [data-run="waiting"] .terminal-typed {
     inline-size: 0;
   }
 
-  [data-run="waiting"] .terminal-output > * {
+  [data-run="waiting"] :is(.terminal-output > *, .terminal-prompt) {
     opacity: 0;
   }
 
@@ -95,7 +161,7 @@
     animation: terminal-type 0.9s steps(19) 0.4s both;
   }
 
-  [data-run="playing"] .terminal-output > * {
+  [data-run="playing"] :is(.terminal-output > *, .terminal-prompt) {
     animation: terminal-line 0.2s var(--ease-out) both;
   }
 
@@ -124,11 +190,15 @@
   }
 
   [data-run="playing"] .terminal-output > :nth-child(7) {
-    animation-delay: 2.5s;
+    animation-delay: 2.35s;
   }
 
   [data-run="playing"] .terminal-output > :nth-child(8) {
-    animation-delay: 2.9s;
+    animation-delay: 2.6s;
+  }
+
+  [data-run="playing"] .terminal-prompt {
+    animation-delay: 3s;
   }
 
   /* The command is 19 characters long. */

@@ -5,13 +5,14 @@ import {
 } from '@/shared/content/services/loosened-rule';
 import { PlayOnView } from '@/shared/ui/presentation/components/play-on-view';
 import './terminal.css';
+import { TerminalShell } from './terminal-shell';
 
 const command = 'bun standards check';
 
 const Lines = (): ReactNode => (
   <>
     <p className="terminal-title">~/dev/portfolio</p>
-    <div className="terminal-body">
+    <TerminalShell>
       <p className="terminal-dim">
         # An agent "loosens" a rule in {loosenedRule.file}:
       </p>
@@ -32,19 +33,16 @@ const Lines = (): ReactNode => (
             {line.text}
           </p>
         ))}
-        <p aria-hidden="true">
-          <span className="terminal-dim">$</span>{' '}
-          <span className="terminal-caret" />
-        </p>
       </div>
-    </div>
+    </TerminalShell>
   </>
 );
 
 /**
  * The terminal in which an agent loosens a rule and the check notices. With
  * `plays` the command is typed and the output arrives once the terminal comes
- * into view. Without it the terminal shows the finished run.
+ * into view. Without it the terminal shows the finished run. Either way the
+ * prompt under the run takes a few commands from a visitor who tries it.
  */
 export const LoosenedRuleTerminal = ({
   plays = false,

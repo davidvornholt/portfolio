@@ -19,6 +19,14 @@ export type JourneyGeometry = Readonly<{
   label: number;
 }>;
 
+export type Point = Readonly<{ x: number; y: number }>;
+
+/** The point this share of the straight way from one point to another. */
+export const between = (from: Point, to: Point, share: number): Point => ({
+  x: from.x + (to.x - from.x) * share,
+  y: from.y + (to.y - from.y) * share,
+});
+
 /** The stations in the order of the way, as the player addresses them. */
 export const stationNames = [
   'problem',

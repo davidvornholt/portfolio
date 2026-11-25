@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { between, type Point } from './journey-geometry';
 import { textLinkClassName } from './text-link';
 
 // How long each part of the way takes, in milliseconds. Together they come
@@ -126,14 +127,20 @@ const easeInOut = (progress: number): number =>
     : 1 - (half - half * progress) ** cubic / half;
 
 type Leg = Readonly<{
-  path: SVGPathElement;
+  /** Where the change is after this much of the way. */
+  pointAt: (length: number) => Point;
   from: number;
   to: number;
   duration: number;
   onLength?: (length: number) => void;
 }>;
 
-/** Moves the change along one stretch of a path. */
+const along =
+  (path: SVGPathElement) =>
+  (length: number): Point =>
+    path.getPointAtLength(length);
+
+/** Moves the change along one stretch of a way. */
 const travel = (stage: Stage, leg: Leg): Promise<void> =>
   new Promise((resolve) => {
     const size = stage.token.width.baseVal.value;
@@ -145,7 +152,7 @@ const travel = (stage: Stage, leg: Leg): Promise<void> =>
       }
       const progress = Math.min(1, (now - started) / leg.duration);
       const length = leg.from + (leg.to - leg.from) * easeInOut(progress);
-      const point = leg.path.getPointAtLength(length);
+      const point = leg.pointAt(length);
       stage.token.setAttribute('x', String(point.x - size / half));
       stage.token.setAttribute('y', String(point.y - size / half));
       leg.onLength?.(length);
@@ -171,7 +178,7 @@ const firstRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
   reach(root, 'problem');
   await sleep(pace.settle, stage.signal);
   await travel(stage, {
-    path: route,
+    pointAt: along(route),
     from: 0,
     to: lengths.checks,
     duration: pace.toChecks,
@@ -184,7 +191,7 @@ const firstRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
   });
   reach(root, 'checks');
   await travel(stage, {
-    path: route,
+    pointAt: along(route),
     from: lengths.checks,
     to: lengths.review,
     duration: pace.toReview,
@@ -199,20 +206,41 @@ const firstRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
 const secondRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
   const { root, route, loop } = stage;
   setLit(root, '[data-loop-part]', 'on');
+  // The loop is drawn from above one square to above the other. The change
+  // starts and ends in the middle of a square, so it also rises out of the
+  // review and sinks into the agent, all in one movement.
   const loopLength = loop.getTotalLength();
+  const review = route.getPointAtLength(lengths.review);
+  const agent = route.getPointAtLength(lengths.agent);
+  const loopStart = loop.getPointAtLength(0);
+  const loopEnd = loop.getPointAtLength(loopLength);
+  const rise = Math.hypot(loopStart.x - review.x, loopStart.y - review.y);
+  const sink = Math.hypot(agent.x - loopEnd.x, agent.y - loopEnd.y);
+  const onLoop = (length: number): number =>
+    Math.min(loopLength, Math.max(0, length - rise));
   await travel(stage, {
-    path: loop,
+    pointAt: (length) => {
+      if (length < rise) {
+        return between(review, loopStart, length / rise);
+      }
+      return length <= rise + loopLength
+        ? loop.getPointAtLength(onLoop(length))
+        : between(loopEnd, agent, (length - rise - loopLength) / sink);
+    },
     from: 0,
-    to: loopLength,
+    to: rise + loopLength + sink,
     duration: pace.loop,
     onLength: (length) =>
-      loop.setAttribute('stroke-dashoffset', String(1 - length / loopLength)),
+      loop.setAttribute(
+        'stroke-dashoffset',
+        String(1 - onLoop(length) / loopLength),
+      ),
   });
   setLit(root, '[data-node="review"]', 'off');
   setCurrent(root, 'agent');
   await sleep(pace.breath, stage.signal);
   await travel(stage, {
-    path: route,
+    pointAt: along(route),
     from: lengths.agent,
     to: lengths.review,
     duration: pace.again,
@@ -227,7 +255,7 @@ const secondRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
   setLit(root, '[data-flag="ok"]', 'on');
   await sleep(pace.second, stage.signal);
   await travel(stage, {
-    path: route,
+    pointAt: along(route),
     from: lengths.review,
     to: route.getTotalLength(),
     duration: pace.land,

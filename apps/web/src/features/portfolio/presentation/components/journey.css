@@ -94,6 +94,7 @@
     fill: var(--foreground);
     stroke: var(--background);
     opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
   }
 
   .journey-token[data-lit="on"] {

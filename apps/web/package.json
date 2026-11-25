@@ -15,7 +15,7 @@
     "@icons-pack/react-simple-icons": "^13.15.1",
     "@portfolio/ui": "workspace:*",
     "effect": "^4.1.5",
-    "lucide-react": "^1.73.0",
+    "lucide-react": "^1.77.0",
     "motion": "^14.14.0",
     "next": "16.4.6",
     "react": "19.3.1",

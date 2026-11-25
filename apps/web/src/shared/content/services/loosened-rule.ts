@@ -47,6 +47,36 @@ export const passedCheckOutput: ReadonlyArray<OutputLine> = [
   ...untouchedChecks,
 ];
 
+const gateCommand = passed(
+  '$ standards check && turbo run lint check-types test build test:a11y --output-logs=errors-only',
+);
+
+/** `bun run check`, the whole gate. It stops at the first part that fails. */
+export const gateOutput = {
+  failed: [
+    gateCommand,
+    ...checkOutput.slice(0, -1),
+    failed('error: script "check" exited with code 1'),
+  ],
+  passed: [
+    gateCommand,
+    ...passedCheckOutput,
+    passed(''),
+    passed('   • turbo 2.11.11'),
+    passed(
+      '   • Packages in scope: //, @davidvornholt/a11y-testing, @davidvornholt/typescript-config, @portfolio/ui, @portfolio/web',
+    ),
+    passed(
+      '   • Running lint, check-types, test, build, test:a11y in 5 packages',
+    ),
+    passed('   • Remote caching disabled, using shared worktree cache'),
+    passed(''),
+    passed(' Tasks:    11 successful, 11 total'),
+    passed('Cached:    6 cached, 11 total'),
+    passed('  Time:    11.368s'),
+  ],
+} as const;
+
 const syncComplete = passed(
   'sync complete: 64 managed path(s) at cfd203728421d7e6be710c523b27c97791a9c489',
 );
@@ -72,3 +102,62 @@ export const diffOutput: ReadonlyArray<OutputLine> = [
   passed(`-${loosenedRule.before}${restOfLine}`),
   passed(`+${loosenedRule.after}${restOfLine}`),
 ];
+
+/** `git status`, on the branch the site is published from. */
+export const statusOutput = {
+  loosened: [
+    'On branch main',
+    "Your branch is up to date with 'origin/main'.",
+    '',
+    'Changes not staged for commit:',
+    '  (use "git add <file>..." to update what will be committed)',
+    '  (use "git restore <file>..." to discard changes in working directory)',
+    '\tmodified:   AGENTS.md',
+    '',
+    'no changes added to commit (use "git add" and/or "git commit -a")',
+  ].map(passed),
+  clean: [
+    'On branch main',
+    "Your branch is up to date with 'origin/main'.",
+    '',
+    'nothing to commit, working tree clean',
+  ].map(passed),
+} as const;
+
+/** `git log --oneline`: the newest changes on `main` that day. */
+export const logOutput: ReadonlyArray<OutputLine> = [
+  '39c3c10 chore: sync standards from upstream (#147)',
+  'd356c99 chore: ignore direnv cache (#143)',
+  '11cb216 fix(runtime): upgrade Bun to 1.4.5 (#141)',
+  '37cb339 chore(deps): bump the minor-and-patch group with 2 updates (#140)',
+  '9fb0804 chore: sync standards from upstream (#139)',
+].map(passed);
+
+/** What `ls` lists in the repository's folder. */
+export const rootEntries = [
+  'AGENTS.local.md',
+  'AGENTS.md',
+  'apps',
+  'biome.base.jsonc',
+  'biome.jsonc',
+  'bun.lock',
+  'compose.yaml',
+  'config',
+  'Dockerfile',
+  'docs',
+  'flake.lock',
+  'flake.nix',
+  'justfile',
+  'LICENSE',
+  'nix',
+  'node_modules',
+  'package.json',
+  'packages',
+  'README.md',
+  'secrets',
+  'secrets.just',
+  'skills-lock.json',
+  'sync-standards.json',
+  'sync-standards.lock',
+  'turbo.json',
+] as const;

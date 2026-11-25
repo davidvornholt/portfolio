@@ -3,6 +3,7 @@
 import {
   type KeyboardEvent,
   type ReactNode,
+  type RefObject,
   type SubmitEvent,
   useEffect,
   useId,
@@ -19,7 +20,7 @@ import {
 type Entry = Readonly<{
   id: number;
   command: string;
-  lines: ReadonlyArray<OutputLine>;
+  lines: ReadonlyArray<OutputLine & { readonly id: number }>;
 }>;
 
 type Screen = Readonly<{
@@ -28,6 +29,10 @@ type Screen = Readonly<{
   /** `clear` was typed, so the run the page showed at first is gone too. */
   cleared: boolean;
 }>;
+
+// An empty paragraph has no height, so a blank line holds a space that
+// doesn't collapse.
+const blankLine = '\u00a0';
 
 const firstScreen: Screen = {
   shell: initialShellState,
@@ -46,6 +51,73 @@ const stepThrough = (
 };
 
 /**
+ * Puts the block cursor where the browser's own, hidden one is. In a
+ * monospaced font that is as many characters from the left as the caret's
+ * index, less what a long line has scrolled.
+ */
+const placeCaret = (
+  input: HTMLInputElement | null,
+  caret: HTMLElement | null,
+): void => {
+  if (input === null || caret === null) {
+    return;
+  }
+  const index =
+    input.selectionDirection === 'backward'
+      ? input.selectionStart
+      : input.selectionEnd;
+  caret.style.translate = `calc(${index ?? 0}ch - ${input.scrollLeft}px)`;
+};
+
+/**
+ * A click anywhere in the terminal goes to the prompt, as in a real one,
+ * unless the visitor is selecting text.
+ */
+const useClickToPrompt = (
+  bodyRef: RefObject<HTMLElement | null>,
+  inputRef: RefObject<HTMLInputElement | null>,
+): void => {
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (body === null) {
+      return;
+    }
+    const focusPrompt = (): void => {
+      if (globalThis.getSelection()?.isCollapsed !== false) {
+        inputRef.current?.focus({ preventScroll: true });
+      }
+    };
+    body.addEventListener('click', focusPrompt);
+    return () => body.removeEventListener('click', focusPrompt);
+  }, [bodyRef, inputRef]);
+};
+
+const Entries = ({
+  entries,
+}: {
+  readonly entries: ReadonlyArray<Entry>;
+}): ReactNode => (
+  <div role="log" className="grid gap-1">
+    {entries.map((entry) => (
+      <div key={entry.id} className="grid gap-1">
+        <p>
+          <span className="terminal-dim">$</span> {entry.command}
+        </p>
+        {entry.lines.map((line) => (
+          <p
+            key={line.id}
+            className="terminal-line"
+            data-failed={line.failed ? '' : undefined}
+          >
+            {line.text === '' ? blankLine : line.text}
+          </p>
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
+/**
  * The body of the terminal, with a prompt a visitor can type into. `children`
  * is the run the page shows at first. The terminal keeps the height it has
  * when the first command is typed, and scrolls like a real one from then on,
@@ -61,31 +133,25 @@ export const TerminalShell = ({
 }): ReactNode => {
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const caretRef = useRef<HTMLSpanElement>(null);
   const nextIdRef = useRef(0);
   const inputId = useId();
   const [screen, setScreen] = useState(firstScreen);
   const [typed, setTyped] = useState('');
   const [commands, setCommands] = useState<ReadonlyArray<string>>([]);
   const [recalled, setRecalled] = useState(0);
+  useClickToPrompt(bodyRef, inputRef);
 
-  // A click anywhere in the terminal goes to the prompt, as in a real one,
-  // unless the visitor is selecting text.
+  // After a command was sent or recalled, the caret is at the end of what
+  // the field holds now. `typed` is named so that this runs then.
   useEffect(() => {
-    const body = bodyRef.current;
-    if (body === null) {
-      return;
+    if (typed !== undefined) {
+      placeCaret(inputRef.current, caretRef.current);
     }
-    const focusPrompt = (): void => {
-      if (globalThis.getSelection()?.isCollapsed !== false) {
-        inputRef.current?.focus({ preventScroll: true });
-      }
-    };
-    body.addEventListener('click', focusPrompt);
-    return () => body.removeEventListener('click', focusPrompt);
-  }, []);
+  }, [typed]);
 
-  // The newest line stays in view. The effect has to run again whenever the
-  // screen's content changes, which is all `screen` is named for here.
+  // The newest line stays in view. `screen` is named so that this runs
+  // whenever what the terminal shows has changed.
   useEffect(() => {
     const body = bodyRef.current;
     if (body !== null && screen !== firstScreen) {
@@ -103,7 +169,7 @@ export const TerminalShell = ({
     const entry: Entry = {
       id: nextIdRef.current,
       command: typed.trim(),
-      lines: answer.lines,
+      lines: answer.lines.map((line, place) => ({ ...line, id: place })),
     };
     nextIdRef.current += 1;
     setScreen({
@@ -128,10 +194,10 @@ export const TerminalShell = ({
     setTyped(commands[at] ?? '');
   };
 
+  const follow = (): void => placeCaret(inputRef.current, caretRef.current);
   const firstRun = screen.cleared ? null : children;
-  // The word that says what to type is there until the first command. The
-  // space after that keeps the field counting as empty for the stylesheet.
-  const hint = commands.length === 0 ? 'help' : ' ';
+  // The word that says what to type is there until the first command.
+  const hint = commands.length === 0 ? 'help' : undefined;
   return (
     <div
       ref={bodyRef}
@@ -139,24 +205,7 @@ export const TerminalShell = ({
       data-scrolls={screen === firstScreen ? undefined : ''}
     >
       {firstRun}
-      <div role="log" className="grid gap-1">
-        {screen.entries.map((entry) => (
-          <div key={entry.id} className="grid gap-1">
-            <p>
-              <span className="terminal-dim">$</span> {entry.command}
-            </p>
-            {entry.lines.map((line) => (
-              <p
-                key={line.text}
-                className="terminal-line"
-                data-failed={line.failed ? '' : undefined}
-              >
-                {line.text}
-              </p>
-            ))}
-          </div>
-        ))}
-      </div>
+      <Entries entries={screen.entries} />
       <form className="terminal-prompt" onSubmit={submit}>
         <span aria-hidden="true" className="terminal-dim">
           $
@@ -171,6 +220,8 @@ export const TerminalShell = ({
             value={typed}
             onChange={(event) => setTyped(event.target.value)}
             onKeyDown={recall}
+            onSelect={follow}
+            onScroll={follow}
             placeholder={hint}
             autoCapitalize="none"
             autoComplete="off"
@@ -178,7 +229,7 @@ export const TerminalShell = ({
             spellCheck={false}
             enterKeyHint="go"
           />
-          <span aria-hidden="true" className="terminal-caret" />
+          <span ref={caretRef} aria-hidden="true" className="terminal-caret" />
         </span>
       </form>
     </div>

@@ -2,7 +2,9 @@ import { describe, expect, it } from 'bun:test';
 import {
   checkOutput,
   diffOutput,
+  gateOutput,
   passedCheckOutput,
+  statusOutput,
   syncOutput,
 } from './loosened-rule';
 import { initialShellState, runCommand } from './terminal-shell';
@@ -12,6 +14,9 @@ const typing = (...commands: ReadonlyArray<string>) =>
     (answer, command) => runCommand(answer.state, command),
     runCommand(initialShellState, ''),
   );
+
+const textOf = (...commands: ReadonlyArray<string>): ReadonlyArray<string> =>
+  typing(...commands).lines.map((line) => line.text);
 
 describe("the terminal's commands", () => {
   it('fails the check while the rule is loosened', () => {
@@ -70,7 +75,7 @@ describe("the terminal's commands", () => {
     expect(listed.some((line) => line.startsWith('bun standards check'))).toBe(
       true,
     );
-    expect(typing('ls').lines[0]?.text).toContain('Type help');
+    expect(typing('vim').lines[0]?.text).toContain('Type help');
     expect(typing('').lines).toEqual([]);
   });
 
@@ -79,5 +84,41 @@ describe("the terminal's commands", () => {
 
     expect(skipped.lines[0]?.text).toContain('pull request');
     expect(skipped.state.rule).toBe('loosened');
+  });
+
+  it('runs the whole gate, which stops at the loosened rule', () => {
+    expect(typing('bun run check').lines).toEqual(gateOutput.failed);
+    expect(typing('git restore .', 'bun run check').lines).toEqual(
+      gateOutput.passed,
+    );
+  });
+
+  it('reports the state of the working tree', () => {
+    expect(typing('git status').lines).toEqual(statusOutput.loosened);
+    expect(typing('bun standards sync', 'git status').lines).toEqual(
+      statusOutput.clean,
+    );
+  });
+
+  it('lists the folder in columns, down each column first', () => {
+    const rows = textOf('ls');
+
+    expect(rows[0]?.startsWith('AGENTS.local.md')).toBe(true);
+    expect(rows[1]?.startsWith('AGENTS.md')).toBe(true);
+    expect(rows.join(' ')).toContain('turbo.json');
+  });
+
+  it('answers the small commands a visitor tries first', () => {
+    expect(textOf('pwd')).toEqual(['/home/david/dev/portfolio']);
+    expect(textOf('echo  hello   there')).toEqual(['hello there']);
+    expect(textOf('git branch')).toEqual(['* main']);
+    expect(textOf('git log --oneline')).toHaveLength(5);
+  });
+
+  it('says where it ends, tool by tool', () => {
+    expect(textOf('git push')[0]).toContain('git: this terminal knows');
+    expect(textOf('bun install')[0]).toContain('bun: this terminal knows');
+    expect(textOf('cat AGENTS.md')[0]).toContain('holds no files');
+    expect(textOf('cd apps')[0]).toContain('stays in');
   });
 });

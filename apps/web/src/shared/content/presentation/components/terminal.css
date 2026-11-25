@@ -115,7 +115,8 @@
     background: none;
     color: inherit;
     font: inherit;
-    caret-color: var(--bar-foreground);
+    /* The browser's own cursor is hidden. The square stands in its place. */
+    caret-color: transparent;
     outline: none;
   }
 
@@ -135,18 +136,16 @@
     opacity: 1;
   }
 
-  /* The square stands at the prompt while nothing is typed and the browser's
-     own cursor isn't there. */
+  /* The cursor of the prompt is the square too, as a block: it stands on
+     the character the next keystroke goes before, and that character shows
+     through it inverted. `TerminalShell` moves it with the browser's cursor. */
   .terminal-prompt .terminal-field > .terminal-caret {
     position: absolute;
     inset-block-start: 0.2em;
     inset-inline-start: 0;
     margin: 0;
+    mix-blend-mode: difference;
     pointer-events: none;
-  }
-
-  .terminal-field input:is(:focus, :not(:placeholder-shown)) + .terminal-caret {
-    display: none;
   }
 
   [data-run="waiting"] .terminal-typed {

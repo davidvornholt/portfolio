@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -96,21 +97,32 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
       />
       <BackNavigation href="/posts" label="All articles" />
       <article className="page-column pt-8 pb-24 md:pt-12">
-        <header className="max-w-4xl">
-          <h1 className="font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
-            {post.meta.title}
-          </h1>
-          {post.meta.subtitle === undefined ? null : (
-            <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
-              {post.meta.subtitle}
+        <header className="grid gap-x-14 gap-y-8 lg:grid-cols-13 lg:items-start">
+          <div className="lg:col-span-8">
+            <h1 className="font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
+              {post.meta.title}
+            </h1>
+            {post.meta.subtitle === undefined ? null : (
+              <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
+                {post.meta.subtitle}
+              </p>
+            )}
+            <p className="mt-6 text-muted-foreground">
+              <time dateTime={post.meta.date}>
+                {formatPostDate(post.meta.date)}
+              </time>
+              , {post.meta.readTime}
             </p>
-          )}
-          <p className="mt-6 text-muted-foreground">
-            <time dateTime={post.meta.date}>
-              {formatPostDate(post.meta.date)}
-            </time>
-            , {post.meta.readTime}
-          </p>
+          </div>
+          {/* Multiplied with the page, the picture's white takes the page's
+              colour, so the object and its shadow lie on the page. */}
+          <Image
+            src={post.meta.picture.src}
+            alt={post.meta.picture.alt}
+            priority={true}
+            sizes="(min-width: 64rem) 36vw, 100vw"
+            className="order-first aspect-[3/2] w-full object-contain object-left mix-blend-multiply lg:order-none lg:col-span-5"
+          />
         </header>
         <Body />
       </article>

@@ -14,6 +14,7 @@ import {
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { LoopGrowthChart } from './figures/loop-growth-chart';
 import { FigureNumbers, PostFigure } from './figures/post-figure';
+import paperRollPicture from './images/review-loop-ran-for-46-hours-object.jpg';
 import type { Post } from './post-meta';
 
 const standards = 'https://github.com/davidvornholt/standards';
@@ -233,6 +234,10 @@ export const reviewLoopRanFor46HoursPost: Post = {
     readTime: '5 min read',
     excerpt:
       'An experimental review workflow reviewed its own repairs for 39 rounds, changed live repository settings, and never finished. The mistake was in the rule I had given it.',
+    picture: {
+      src: paperRollPicture,
+      alt: 'A roll of paper tape that has unrolled into long loops.',
+    },
   },
   body: ReviewLoopRanFor46HoursBody,
 };

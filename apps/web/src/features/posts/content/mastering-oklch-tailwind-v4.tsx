@@ -14,6 +14,7 @@ import {
 import { LightnessRow, SiteContrasts } from './figures/lightness-comparison';
 import { contrastRange, themeExcerpt } from './figures/lightness-data';
 import { PostFigure } from './figures/post-figure';
+import greyScalePicture from './images/mastering-oklch-tailwind-v4-object.jpg';
 import type { Post } from './post-meta';
 
 const [hslLowest, hslHighest] = contrastRange('hsl');
@@ -151,6 +152,10 @@ export const masteringOklchPost: Post = {
     readTime: '3 min read',
     excerpt:
       'In HSL, a yellow and a blue at 50% lightness differ in their contrast against white by a factor of eight. What OKLCH does better, what it doesn’t do, and how this site uses it with Tailwind v4.',
+    picture: {
+      src: greyScalePicture,
+      alt: 'A strip of ten grey patches that step from white to black.',
+    },
   },
   body: MasteringOklchBody,
 };

@@ -11,6 +11,7 @@ import {
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { FigureNumbers, PostFigure } from './figures/post-figure';
 import { ReviewCostChart } from './figures/review-cost-chart';
+import sievePicture from './images/cheap-ai-code-reviews-object.jpg';
 import type { Post } from './post-meta';
 
 const setups = [
@@ -212,6 +213,10 @@ export const cheapAiCodeReviewsPost: Post = {
     readTime: '4 min read',
     excerpt:
       'I tested four model setups for reviewing and fixing code. The cheap ones missed three real bugs, one cheap fix brought an old failure back, and letting the strong model supervise cheap ones cost more than using it for everything.',
+    picture: {
+      src: sievePicture,
+      alt: 'A kitchen sieve with a coarse wire mesh.',
+    },
   },
   body: CheapAiCodeReviewsBody,
 };

@@ -14,6 +14,7 @@ import {
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { PostFigure } from './figures/post-figure';
 import oldHomePage from './images/portfolio-before.jpg';
+import crumpledPaperPicture from './images/this-site-looked-ai-made-object.jpg';
 import type { Post } from './post-meta';
 
 const repository = 'https://github.com/davidvornholt/portfolio';
@@ -179,6 +180,10 @@ export const thisSiteLookedAiMadePost: Post = {
     readTime: '3 min read',
     excerpt:
       'The first version was cream paper, a serif, and forest green, the look AI design tools produce by default. The new one is a black bar with every change I merged standing on it.',
+    picture: {
+      src: crumpledPaperPicture,
+      alt: 'A sheet of paper crumpled into a ball.',
+    },
   },
   body: ThisSiteLookedAiMadeBody,
 };

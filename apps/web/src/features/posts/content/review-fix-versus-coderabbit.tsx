@@ -12,6 +12,7 @@ import {
   MDXUnorderedList,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { FigureNumbers, PostFigure } from './figures/post-figure';
+import combPicture from './images/review-fix-versus-coderabbit-object.jpg';
 import type { Post } from './post-meta';
 
 const standards = 'https://github.com/davidvornholt/standards';
@@ -227,6 +228,7 @@ export const reviewFixVersusCodeRabbitPost: Post = {
     readTime: '4 min read',
     excerpt:
       'I ran my own review workflow and CodeRabbit Pro over the same two changes. Mine found 15 problems, and more than half of them were in its own fixes. CodeRabbit left one comment, and it was wrong.',
+    picture: { src: combPicture, alt: 'A fine-toothed black comb.' },
   },
   body: ReviewFixVersusCodeRabbitBody,
 };

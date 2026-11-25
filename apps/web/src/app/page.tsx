@@ -44,6 +44,7 @@ const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst
     readTime: post.meta.readTime,
     href: `/posts/${post.meta.slug}`,
     date: post.meta.date,
+    picture: post.meta.picture.src,
   }));
 
 const HomePage = (): ReactNode => (

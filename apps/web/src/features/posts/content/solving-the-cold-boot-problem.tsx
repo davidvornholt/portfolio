@@ -11,6 +11,7 @@ import {
   MDXStrong,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { PostFigure } from './figures/post-figure';
+import stopwatchPicture from './images/solving-the-cold-boot-problem-object.jpg';
 import type { Post } from './post-meta';
 
 // Milliseconds until the first byte of a page arrived.
@@ -157,6 +158,10 @@ export const solvingTheColdBootProblemPost: Post = {
     readTime: '2 min read',
     excerpt:
       'The old website of a school built every page for every visitor, on a server that fell asleep in between. The new one builds a page when its content changes, and costs 60 percent less to run.',
+    picture: {
+      src: stopwatchPicture,
+      alt: 'A mechanical stopwatch with its one hand at zero.',
+    },
   },
   body: SolvingTheColdBootProblemBody,
 };

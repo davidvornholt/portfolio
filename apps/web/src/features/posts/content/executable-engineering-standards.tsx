@@ -13,6 +13,7 @@ import {
   MDXUnorderedList,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import { PostFigure } from './figures/post-figure';
+import stampPicture from './images/executable-engineering-standards-object.jpg';
 import type { Post } from './post-meta';
 
 const standards = 'https://github.com/davidvornholt/standards';
@@ -234,6 +235,10 @@ export const executableEngineeringStandardsPost: Post = {
     readTime: '4 min read',
     excerpt:
       'An agent saying it is done is not evidence. What every change of mine has to pass before it merges, how one rulebook reaches all my projects, and what happens when an agent rewrites a rule.',
+    picture: {
+      src: stampPicture,
+      alt: 'A rubber stamp with a wooden handle beside the tin of its ink pad.',
+    },
   },
   body: ExecutableEngineeringStandardsBody,
 };

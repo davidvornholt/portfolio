@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
+import { HoppingLink } from './hopping-link';
 import './own-projects.css';
-import { ProjectRow } from './project-row';
 import { textLinkClassName } from './text-link';
 
 type Verdict = 'passed' | 'failed' | 'unchecked';
@@ -78,8 +78,6 @@ type Mark = Readonly<{
   x: number;
   y: number;
   verdict: Verdict;
-  /** Nothing stands on this square, so it has room to hop. */
-  free: boolean;
 }>;
 
 /** Where each change of a project stands: weeks side by side, filled from the bar up. */
@@ -93,7 +91,6 @@ const marksOf = (
       x: weekIndex * weekPitch + (place % squaresAcross) * pitch,
       y: ground - (Math.floor(place / squaresAcross) + 1) * pitch,
       verdict,
-      free: place + squaresAcross >= week.length,
     })),
   );
 
@@ -126,7 +123,7 @@ const Weeks = ({
           <rect
             key={mark.key}
             data-v={verdictMark[mark.verdict]}
-            data-free={mark.free ? '' : undefined}
+            data-square=""
             x={mark.x + outlineInset}
             y={mark.y + outlineInset}
             width={square - outlineInset * 2}
@@ -136,7 +133,7 @@ const Weeks = ({
           <rect
             key={mark.key}
             data-v={verdictMark[mark.verdict]}
-            data-free={mark.free ? '' : undefined}
+            data-square=""
             x={mark.x}
             y={mark.y}
             width={square}
@@ -189,9 +186,13 @@ export const OwnProjects = ({
       <ul className="keeps-colors mt-5 border-foreground border-t-2">
         {charted.map((row) => (
           <li key={row.name} className="border-border border-b">
-            <ProjectRow
+            <HoppingLink
               href={`https://github.com/${owner}/${row.name}`}
-              project={row.name}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-umami-event="open-source-open"
+              data-umami-event-project={row.name}
+              className="project-row"
             >
               <strong className="project-name font-bold text-xl tracking-tight">
                 {row.name}
@@ -205,7 +206,7 @@ export const OwnProjects = ({
                   changes merged in the last {weekCount} weeks
                 </span>
               </span>
-            </ProjectRow>
+            </HoppingLink>
           </li>
         ))}
       </ul>

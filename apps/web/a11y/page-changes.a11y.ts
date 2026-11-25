@@ -31,25 +31,32 @@ test('an article opens at its top and the back button returns to the list at onc
   await expect.poll(() => page.evaluate(scrollTop)).toBe(leftAt);
 });
 
-// Pointing at a project's row makes one square of its chart hop, and another
-// one the next time.
-test('another square of a project hops each time its row is pointed at', async ({
-  page,
-}) => {
-  await page.goto('/');
-  const row = page.locator('.project-row').first();
-  const hopping = row.locator('[data-hop]');
-  const placeOfHop = (): Promise<string> =>
-    hopping.evaluate(
-      (square) => `${square.getAttribute('x')} ${square.getAttribute('y')}`,
-    );
+// Pointing at a link around a group of squares makes one of them hop, and
+// another one the next time: a project's row in the ledger, and the changes
+// Super Productivity accepted.
+for (const [name, link] of [
+  ['a project in the ledger', '.project-row'],
+  ['Super Productivity', 'a[data-umami-event-project="super-productivity"]'],
+] as const) {
+  test(`another square of ${name} hops each time it is pointed at`, async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const squares = page.locator(link).first();
+    const hopping = squares.locator('[data-hop]');
+    const placeOfHop = (): Promise<string> =>
+      hopping.evaluate((square) => {
+        const box = square.getBoundingClientRect();
+        return `${Math.round(box.left)} ${Math.round(box.top + globalThis.scrollY)}`;
+      });
 
-  await row.hover();
-  await expect(hopping).toHaveCount(1);
-  const first = await placeOfHop();
+    await squares.hover();
+    await expect(hopping).toHaveCount(1);
+    const first = await placeOfHop();
 
-  await page.getByRole('heading', { name: 'My own projects' }).hover();
-  await row.hover();
-  await expect(hopping).toHaveCount(1);
-  expect(await placeOfHop()).not.toBe(first);
-});
+    await page.getByRole('heading', { name: 'My own projects' }).hover();
+    await squares.hover();
+    await expect(hopping).toHaveCount(1);
+    expect(await placeOfHop()).not.toBe(first);
+  });
+}

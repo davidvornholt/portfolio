@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { HoppingLink } from './hopping-link';
 import { OwnProjects, type ProjectActivity } from './own-projects';
 import { Section } from './section';
 
@@ -41,11 +42,15 @@ const mergedBy = (repository: string): string =>
 const Squares = ({ count }: { readonly count: number }): ReactNode => (
   <span
     aria-hidden="true"
-    className="keeps-colors flex max-w-88 flex-wrap gap-0.75"
+    className="keeps-colors flex max-w-88 flex-wrap gap-0.75 [--hop-height:1rem]"
   >
     {Array.from({ length: count }, (_, ordinal) => ordinal + 1).map(
       (ordinal) => (
-        <span key={ordinal} className="size-2.75 bg-foreground" />
+        <span
+          key={ordinal}
+          data-square=""
+          className="size-2.75 bg-foreground"
+        />
       ),
     )}
   </span>
@@ -55,7 +60,7 @@ const Featured = ({
   changes,
   packaged,
 }: Readonly<{ changes: number; packaged: number }>): ReactNode => (
-  <a
+  <HoppingLink
     href={mergedBy(featured.repository)}
     target="_blank"
     rel="noopener noreferrer"
@@ -80,7 +85,7 @@ const Featured = ({
         {packaged === 0 ? null : `, ${packaged} of them in its Flathub package`}
       </span>
     </span>
-  </a>
+  </HoppingLink>
 );
 
 /**

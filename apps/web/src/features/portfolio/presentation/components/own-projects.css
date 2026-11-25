@@ -86,40 +86,4 @@
   .project-weeks [data-v="f"] {
     fill: var(--failed);
   }
-
-  /* One square hops each time the row is pointed at, as the square of the
-     logo does. `ProjectRow` picks another one every time and marks it. */
-  .project-weeks [data-free] {
-    transform-box: fill-box;
-    transform-origin: center;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .project-weeks [data-hop] {
-      animation: project-hop 520ms var(--ease-out);
-    }
-  }
-
-  @keyframes project-hop {
-    0% {
-      translate: 0 0;
-    }
-
-    45% {
-      translate: 0 -9px;
-      rotate: 90deg;
-    }
-
-    80% {
-      translate: 0 0;
-      rotate: 180deg;
-      scale: 1.25 0.75;
-    }
-
-    100% {
-      translate: 0 0;
-      rotate: 180deg;
-      scale: 1 1;
-    }
-  }
 }

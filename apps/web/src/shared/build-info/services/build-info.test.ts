@@ -22,10 +22,18 @@ describe('build info', () => {
     ['a word in place of the hash', { sha: 'unknown' }],
     ['a date that is none', { committedOn: 'unknown' }],
     ['a date with its time', { committedOn: '2026-11-23T10:00:00Z' }],
+    ['a day its month does not have', { committedOn: '2026-02-29' }],
+    ['a month the year does not have', { committedOn: '2026-13-01' }],
   ])('rejects %s', (_what, wrong) => {
     expect(() =>
       decodeBuildInfo({ commit: { ...commit, ...wrong } }),
     ).toThrow();
+  });
+
+  it('accepts a leap day', () => {
+    const leapDay = { ...commit, committedOn: '2024-02-29' };
+
+    expect(decodeBuildInfo({ commit: leapDay })).toEqual(leapDay);
   });
 
   it('rejects a file that names only part of a commit', () => {

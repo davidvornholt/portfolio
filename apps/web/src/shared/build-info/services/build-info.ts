@@ -26,8 +26,27 @@ const decodeFile = Schema.decodeUnknownSync(
   Schema.Struct({ commit: Schema.NullOr(BuildInfo) }),
 );
 
-export const decodeBuildInfo = (file: unknown): BuildInfo | null =>
-  decodeFile(file).commit;
+const dayLength = 'YYYY-MM-DD'.length;
+
+// A day such as February 29 of a year without one has the right shape, and
+// a date made from it silently becomes March 1.
+const isRealDay = (day: string): boolean => {
+  const date = new Date(`${day}T00:00:00Z`);
+  return (
+    !Number.isNaN(date.getTime()) &&
+    date.toISOString().slice(0, dayLength) === day
+  );
+};
+
+export const decodeBuildInfo = (file: unknown): BuildInfo | null => {
+  const { commit } = decodeFile(file);
+  if (commit !== null && !isRealDay(commit.committedOn)) {
+    throw new Error(
+      `The build-info file names the day ${commit.committedOn}, which doesn't exist.`,
+    );
+  }
+  return commit;
+};
 
 /** Checked when the module loads, so a malformed file fails the build. */
 export const buildInfo: BuildInfo | null = decodeBuildInfo(buildInfoData);

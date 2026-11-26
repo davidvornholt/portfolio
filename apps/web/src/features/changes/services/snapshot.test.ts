@@ -4,26 +4,32 @@ import { decodeSnapshot, encodeSnapshot } from './snapshot';
 
 type Entries = 'changes' | 'sentBack';
 
-// The committed file with `extra` added to its first change, or sent-back
-// attempt, that has no source, which is one from a private repository. The
-// file has both, and without one a test here fails because nothing throws.
-const withExtra = (
+// A change and a sent-back attempt as a private repository leaves them.
+const privateEntry = {
+  changes: { verdict: 'passed', linesChanged: 1, source: null },
+  sentBack: { source: null },
+} as const;
+
+// The committed file with one more private entry on its first day, which
+// carries `extra`. The entry is added here, so the tests don't depend on the
+// committed weeks holding a private change or attempt.
+const withPrivateEntry = (
   entries: Entries,
-  extra: Readonly<Record<string, unknown>>,
+  extra: Readonly<Record<string, unknown>> = {},
 ): unknown => {
-  let added = false;
+  const [firstDay, ...laterDays] = rawSnapshot.days;
   return {
     ...rawSnapshot,
-    days: rawSnapshot.days.map((day) => ({
-      ...day,
-      [entries]: day[entries].map((entry) => {
-        if (added || entry.source !== null) {
-          return entry;
-        }
-        added = true;
-        return { ...entry, ...extra };
-      }),
-    })),
+    days: [
+      {
+        ...firstDay,
+        [entries]: [
+          ...(firstDay?.[entries] ?? []),
+          { ...privateEntry[entries], ...extra },
+        ],
+      },
+      ...laterDays,
+    ],
   };
 };
 
@@ -34,6 +40,15 @@ describe('decodeSnapshot', () => {
     }).not.toThrow();
   });
 
+  it.each(['changes', 'sentBack'] as const)(
+    'accepts a private entry among the %s',
+    (entries) => {
+      expect(() => {
+        decodeSnapshot(withPrivateEntry(entries));
+      }).not.toThrow();
+    },
+  );
+
   it.each([
     ['title', 'fix(billing): refund twice'],
     ['repository', 'private-owner/secret-repository'],
@@ -41,13 +56,15 @@ describe('decodeSnapshot', () => {
     ['url', 'https://github.com/private-owner/secret-repository/pull/7'],
   ])('rejects a private change that carries a %s', (property, value) => {
     expect(() => {
-      decodeSnapshot(withExtra('changes', { [property]: value }));
+      decodeSnapshot(withPrivateEntry('changes', { [property]: value }));
     }).toThrow('Expected no excess property');
   });
 
   it('rejects a private sent-back attempt that carries a title', () => {
     expect(() => {
-      decodeSnapshot(withExtra('sentBack', { title: 'fix(billing): refund' }));
+      decodeSnapshot(
+        withPrivateEntry('sentBack', { title: 'fix(billing): refund' }),
+      );
     }).toThrow('Expected no excess property');
   });
 });

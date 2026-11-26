@@ -24,9 +24,13 @@ const change = (
       : { repository, number: 7, title: 'change 7', url: 'https://example' },
 });
 
+let lastRunId = 0;
+
 // A run as GitHub's REST API returns it, with the fields a private
-// repository's response also carries.
+// repository's response also carries. Each one gets an id of its own.
 const wireRun = (headSha: string, startedAt: string, updatedAt: string) => ({
+  // biome-ignore lint/suspicious/noAssignInExpressions: counting up is the whole point of this fixture.
+  id: (lastRunId += 1),
   head_sha: headSha,
   run_started_at: `2026-11-07T${startedAt}Z`,
   updated_at: `2026-11-07T${updatedAt}Z`,
@@ -134,17 +138,15 @@ describe('fetchFailedAttempts', () => {
   });
 
   it('reads every page of a long list', async () => {
-    const fullPage = Array.from({ length: 100 }, () =>
-      wireRun('earlier-commit', '16:00:00', '16:05:00'),
-    );
+    const earlier = (count: number): ReadonlyArray<WireRun> =>
+      Array.from({ length: count }, () =>
+        wireRun('earlier-commit', '16:00:00', '16:05:00'),
+      );
+    const fullPage = earlier(100);
+    const rest = earlier(3);
     const { exit, requested } = await run(
       (url) =>
-        wirePage(
-          url.searchParams.get('page') === '1'
-            ? fullPage
-            : fullPage.slice(0, 3),
-          103,
-        ),
+        wirePage(url.searchParams.get('page') === '1' ? fullPage : rest, 103),
       [change(2, undefined)],
     );
 
@@ -217,6 +219,34 @@ describe('fetchFailedAttempts when GitHub leaves something out', () => {
     );
 
     expect(Exit.isSuccess(exit) && exit.value).toHaveLength(102);
+    expect(requested.map((url) => url.searchParams.get('page'))).toEqual([
+      '1',
+      '2',
+      '1',
+      '2',
+    ]);
+  });
+
+  // One run left the list and another joined it between the two pages. The
+  // count is right, but the last run of the first page arrived again on the
+  // second and the run it pushed out is missing.
+  it('reads a list again when a run arrives twice', async () => {
+    const firstPage = runs(100);
+    const repeated = firstPage.slice(-1);
+    const whole = runs(1);
+    let asked = 0;
+    const { exit, requested } = await run(
+      (url) => {
+        asked += 1;
+        if (url.searchParams.get('page') === '1') {
+          return wirePage(firstPage, 101);
+        }
+        return wirePage(asked > 2 ? whole : repeated, 101);
+      },
+      [change(2, undefined)],
+    );
+
+    expect(Exit.isSuccess(exit) && exit.value).toHaveLength(101);
     expect(requested.map((url) => url.searchParams.get('page'))).toEqual([
       '1',
       '2',

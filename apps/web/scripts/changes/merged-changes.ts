@@ -85,12 +85,21 @@ const incomplete = (subject: string, problem: string): IncompleteDataError =>
     message: `GitHub did not return all of ${subject}: ${problem}.`,
   });
 
+/**
+ * What tells two entries of a list apart, where the entries have such a
+ * thing. With it a reading in which one entry arrived twice is not whole: the
+ * list moved between two pages, and the entry it pushed out is missing even
+ * though the count is right.
+ */
+type Identity<Node> = (node: Node) => string | number;
+
 // The entries of a list whose pages have all arrived. Fails unless they make
 // up the whole list: every page reports the same length, no entry is empty,
-// and there are as many entries as the list is long.
+// there are as many entries as the list is long, and none arrived twice.
 const wholeList = <Node>(
   subject: string,
   pages: Arr.NonEmptyReadonlyArray<ListPage<Node>>,
+  identity?: Identity<Node>,
 ): Effect.Effect<ReadonlyArray<Node>, IncompleteDataError> => {
   const { total } = Arr.headNonEmpty(pages);
   if (pages.some((page) => page.total !== total)) {
@@ -119,6 +128,12 @@ const wholeList = <Node>(
       ),
     );
   }
+  if (
+    identity !== undefined &&
+    new Set(records.map(identity)).size !== records.length
+  ) {
+    return Effect.fail(incomplete(subject, 'one of its entries arrived twice'));
+  }
   return Effect.succeed(records);
 };
 
@@ -128,12 +143,14 @@ const oneReading = Effect.fnUntraced(function* <Node, E, R>(
   page: (
     after: string | null,
   ) => Effect.Effect<ListPage<Node> | undefined, E, R>,
+  identity?: Identity<Node>,
 ) {
   const first = yield* page(null);
   if (first === undefined) {
     return yield* incomplete(subject, 'its first page is missing');
   }
   const pages: Arr.NonEmptyArray<ListPage<Node>> = [first];
+  const starts = new Set<string>();
   while (Arr.lastNonEmpty(pages).pageInfo.hasNextPage) {
     const after = Arr.lastNonEmpty(pages).pageInfo.endCursor;
     if (after === null) {
@@ -142,13 +159,21 @@ const oneReading = Effect.fnUntraced(function* <Node, E, R>(
         'a page does not say where the next one starts',
       );
     }
+    if (starts.has(after)) {
+      // Following it would read the same pages without end.
+      return yield* incomplete(
+        subject,
+        'a page points back to one that was already read',
+      );
+    }
+    starts.add(after);
     const next: ListPage<Node> | undefined = yield* page(after);
     if (next === undefined) {
       return yield* incomplete(subject, 'a page after the first is missing');
     }
     pages.push(next);
   }
-  return yield* wholeList(subject, pages);
+  return yield* wholeList(subject, pages, identity);
 });
 
 /**
@@ -156,17 +181,19 @@ const oneReading = Effect.fnUntraced(function* <Node, E, R>(
  * in messages and has to be safe to print in a public log.
  *
  * A list can change between two pages, for example when a change merges, and
- * then a reading has a gap or reports two lengths. Such a reading is thrown
- * away and the list is read again from its first page. Only a whole reading
- * is returned, and the run fails when none of `readings` is whole.
+ * then a reading has a gap, reports two lengths, or holds an entry twice.
+ * Such a reading is thrown away and the list is read again from its first
+ * page. Only a whole reading is returned, and the run fails when none of
+ * `readings` is whole.
  */
 export const allPages = <Node, E, R>(
   subject: string,
   page: (
     after: string | null,
   ) => Effect.Effect<ListPage<Node> | undefined, E, R>,
+  identity?: Identity<Node>,
 ) =>
-  Effect.retry(oneReading(subject, page), {
+  Effect.retry(oneReading(subject, page, identity), {
     while: (error) => error instanceof IncompleteDataError,
     times: readings - 1,
   });
@@ -198,13 +225,8 @@ const checkContexts = Effect.fnUntraced(function* (commit: FinalCommit) {
   if (firstPage === undefined) {
     return [];
   }
-  if (!firstPage.pageInfo.hasNextPage) {
-    // The search brought the whole list along in one response, so there is
-    // nothing to read again when it is not whole.
-    return yield* wholeList(checksOfCommit, [checksPage(firstPage)]);
-  }
   const github = yield* GitHubGraphQL;
-  return yield* allPages(checksOfCommit, (after) =>
+  const readByPage = allPages(checksOfCommit, (after) =>
     request(
       'read the checks of a commit',
       github.commitChecks({ commit: commit.id, after }),
@@ -216,6 +238,14 @@ const checkContexts = Effect.fnUntraced(function* (commit: FinalCommit) {
         return contexts === undefined ? undefined : checksPage(contexts);
       }),
     ),
+  );
+  if (firstPage.pageInfo.hasNextPage) {
+    return yield* readByPage;
+  }
+  // The search brought the list along in one response. When that response
+  // left part of it out, the list is read by itself, which may be whole.
+  return yield* wholeList(checksOfCommit, [checksPage(firstPage)]).pipe(
+    Effect.catch(() => readByPage),
   );
 });
 

@@ -22,6 +22,10 @@ const incomplete = 'IncompleteDataError';
 const outcome = (exit: Exit.Exit<unknown, unknown>): string =>
   Exit.isFailure(exit) ? JSON.stringify(exit) : 'The fetch succeeded.';
 
+const readingsOfAList = 3;
+// The first page, and the page it points to, which points back.
+const requestsUntilAPageRepeats = 2;
+
 const twoChanges: Handlers['countMergedChanges'] = () =>
   Effect.succeed({ search: { issueCount: 2 } });
 
@@ -71,6 +75,24 @@ describe('fetchMergedChanges when a search leaves something out', () => {
     );
 
     expect(outcome(exit)).toContain(incomplete);
+  });
+
+  it('gives up after three readings when a page points back to itself', async () => {
+    let requests = 0;
+    const exit = await run(
+      {
+        countMergedChanges: twoChanges,
+        publicMergedChanges: () => {
+          requests += 1;
+          return Effect.succeed(found([publicNode(1)], moreAfter('same'), 2));
+        },
+        privateMergedChanges: noPrivateChanges,
+      },
+      ['2026-11-07'],
+    );
+
+    expect(outcome(exit)).toContain(incomplete);
+    expect(requests).toBe(readingsOfAList * requestsUntilAPageRepeats);
   });
 
   it('reads a search again when a change merges between two pages', async () => {
@@ -128,20 +150,54 @@ describe('fetchMergedChanges when a check list leaves something out', () => {
   });
 
   it('fails when a commit has one passed check and one empty entry', async () => {
-    const exit = await run(privateChangeWith(checks([passedCheck, null])), [
-      '2026-11-07',
-    ]);
+    const withEmptyEntry = checks([passedCheck, null]);
+    const exit = await run(
+      privateChangeWith(withEmptyEntry, () =>
+        Effect.succeed({
+          node: { statusCheckRollup: { contexts: withEmptyEntry } },
+        }),
+      ),
+      ['2026-11-07'],
+    );
 
     expect(outcome(exit)).toContain(incomplete);
   });
 
   it('fails when a commit lists fewer checks than it counts', async () => {
     const exit = await run(
-      privateChangeWith(checks([passedCheck], lastPage, 2)),
+      privateChangeWith(checks([passedCheck], lastPage, 2), () =>
+        Effect.succeed({
+          node: {
+            statusCheckRollup: { contexts: checks([passedCheck], lastPage, 2) },
+          },
+        }),
+      ),
       ['2026-11-07'],
     );
 
     expect(outcome(exit)).toContain(incomplete);
+  });
+
+  // The search brought a check list along with one of its two checks. Read
+  // by itself the list is whole, and its second check is the one that failed.
+  it('reads a check list by itself when the search brought only part of it', async () => {
+    const failedCheck = { ...passedCheck, name: 'slow', conclusion: 'FAILURE' };
+    const exit = await run(
+      privateChangeWith(checks([passedCheck], lastPage, 2), () =>
+        Effect.succeed({
+          node: {
+            statusCheckRollup: {
+              contexts: checks([passedCheck, failedCheck]),
+            },
+          },
+        }),
+      ),
+      ['2026-11-07'],
+    );
+
+    expect(
+      Exit.isSuccess(exit) && exit.value.map((change) => change.verdict),
+    ).toEqual(['failed']);
   });
 
   it.each([

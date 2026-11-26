@@ -181,12 +181,17 @@ export type PublicPullRequestNode = typeof PublicPullRequest.Type;
 export type PrivatePullRequestNode = typeof PrivatePullRequest.Type;
 
 const runKeys = {
+  id: 'id',
   headSha: 'head_sha',
   startedAt: 'run_started_at',
   updatedAt: 'updated_at',
 } as const;
 
+// The id tells two runs of a list apart while its pages are read. It is not
+// passed on: a sent-back attempt keeps the time, and for a public repository
+// what describes the run.
 const runTimes = {
+  id: Schema.Int,
   headSha: Schema.String,
   startedAt: Instant,
   updatedAt: Instant,
@@ -213,7 +218,8 @@ export const PublicRunsPage = runsPage(
   ),
 );
 
-// Decoding a private repository's runs keeps only the commit and the times.
+// Decoding a private repository's runs keeps only the id, the commit and the
+// times.
 export const PrivateRunsPage = runsPage(
   Schema.Struct(runTimes).pipe(Schema.encodeKeys(runKeys)),
 );

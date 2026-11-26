@@ -44,7 +44,7 @@ const reasonOf = (error: unknown): string => {
 // `label` is how a message names the repository. The caller passes the name
 // of a public repository and nothing that identifies a private one, not even
 // its id.
-const failedRuns = Effect.fnUntraced(function* <Run>(
+const failedRuns = Effect.fnUntraced(function* <Run extends { id: number }>(
   decodePage: DecodePage<Run>,
   repositoryId: number,
   label: string,
@@ -93,6 +93,7 @@ const failedRuns = Effect.fnUntraced(function* <Run>(
           ),
         );
     },
+    (run) => run.id,
   );
 });
 

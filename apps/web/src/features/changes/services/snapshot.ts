@@ -74,12 +74,33 @@ const AcceptedProject = Schema.Struct({
  * calendar day in Germany, oldest first, ending with the day the data was
  * fetched. `site` and `elsewhere` reach back to the first change.
  */
-export const Snapshot = Schema.Struct({
+const Snapshot = Schema.Struct({
   updatedOn: IsoDay,
   days: Schema.NonEmptyArray(Day),
   site: SiteRecord,
   elsewhere: Schema.Array(AcceptedProject),
 });
+
+// A property the schema does not name fails the check. By default it would
+// only be left out of the decoded value, and the browser reads the file
+// itself (`field-explorer.tsx`), where the property would still be there.
+const exact = { onExcessProperty: 'error' } as const;
+const decode = Schema.decodeUnknownSync(Snapshot);
+const encode = Schema.encodeSync(Snapshot);
+
+/**
+ * The snapshot in `raw`, the parsed content of the snapshot file. Throws
+ * unless `raw` holds what the schema names and nothing else.
+ */
+export const decodeSnapshot = (raw: unknown): Snapshot => decode(raw, exact);
+
+/**
+ * What the snapshot file holds for `snapshot`. Throws on anything
+ * `decodeSnapshot` would not accept, so a file that cannot be read back is
+ * never written.
+ */
+export const encodeSnapshot = (snapshot: Snapshot): typeof Snapshot.Encoded =>
+  encode(snapshot, exact);
 
 export type Snapshot = typeof Snapshot.Type;
 export type SnapshotDay = typeof Day.Type;

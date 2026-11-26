@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test';
-import { DateTime, Schema } from 'effect';
+import { DateTime } from 'effect';
 import {
   assembleSnapshot,
   type FailedAttempt,
   type MergedChange,
 } from './assemble-snapshot';
-import { Snapshot } from './snapshot';
+import { decodeSnapshot } from './snapshot';
 
 const at = (instant: string): DateTime.Utc => DateTime.makeUnsafe(instant);
 
@@ -149,6 +149,6 @@ describe('assembleSnapshot', () => {
       privateChange('2026-11-22T10:00:00Z', 'passed'),
     ]);
 
-    expect(Schema.decodeUnknownSync(Snapshot)(snapshot)).toEqual(snapshot);
+    expect(decodeSnapshot(snapshot)).toEqual(snapshot);
   });
 });

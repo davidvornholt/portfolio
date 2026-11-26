@@ -1,20 +1,15 @@
 import process from 'node:process';
-import {
-  Config,
-  DateTime,
-  Effect,
-  Exit,
-  Layer,
-  Redacted,
-  Schema,
-} from 'effect';
+import { Config, DateTime, Effect, Exit, Layer, Redacted } from 'effect';
 import { SnapshotWriteError } from '@/features/changes/errors/changes-errors';
 import { assembleSnapshot } from '@/features/changes/services/assemble-snapshot';
 import {
   berlinDay,
   daysEndingOn,
 } from '@/features/changes/services/berlin-day';
-import { Snapshot } from '@/features/changes/services/snapshot';
+import {
+  encodeSnapshot,
+  type Snapshot,
+} from '@/features/changes/services/snapshot';
 import { fetchFailedAttempts } from './failed-attempts';
 import { GitHubGraphQL } from './github-graphql';
 import { GitHubRest } from './github-rest';
@@ -59,7 +54,7 @@ const writeSnapshot = (snapshot: Snapshot) =>
     try: () =>
       globalThis.Bun.write(
         snapshotUrl,
-        `${JSON.stringify(Schema.encodeSync(Snapshot)(snapshot))}\n`,
+        `${JSON.stringify(encodeSnapshot(snapshot))}\n`,
       ),
     catch: (cause) =>
       new SnapshotWriteError({

@@ -1,7 +1,8 @@
 import type { StaticImageData } from 'next/image';
-import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { TravellingPicture } from '@/shared/page/presentation/components/page-transitions';
+import { SharpeningImage } from '@/shared/page/presentation/components/sharpening-image';
+import { workPictureSizes } from '@/shared/page/services/work-picture-sizes';
 
 type CaseStudyLayoutProps = Readonly<{
   slug: string;
@@ -66,13 +67,14 @@ export const CaseStudyLayout = ({
 
       <figure className="mt-12">
         <TravellingPicture kind="work" slug={slug}>
-          <Image
+          <SharpeningImage
             src={image.src}
             alt={image.alt}
-            priority={true}
-            placeholder="blur"
+            seenSizes={workPictureSizes}
             sizes="(min-width: 102.5rem) 102.5rem, 100vw"
-            className="w-full border border-border"
+            blurs={true}
+            className="border border-border"
+            imageClassName="h-auto w-full"
           />
         </TravellingPicture>
         {image.caption === undefined ? null : (

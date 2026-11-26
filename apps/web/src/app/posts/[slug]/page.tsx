@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -11,11 +10,9 @@ import {
   posts,
 } from '@/features/posts/content/posts-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
+import { ObjectPicture } from '@/shared/content/presentation/components/object-picture';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
-import {
-  PageTransition,
-  TravellingPicture,
-} from '@/shared/page/presentation/components/page-transitions';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 type PostPageProps = Readonly<{
   params: Promise<{ slug: string }>;
@@ -118,17 +115,13 @@ const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
               , {post.meta.readTime}
             </p>
           </div>
-          {/* Multiplied with the page, the picture's white takes the page's
-              colour, so the object and its shadow lie on the page. */}
-          <TravellingPicture kind="post" slug={post.meta.slug}>
-            <Image
-              src={post.meta.picture.src}
-              alt={post.meta.picture.alt}
-              priority={true}
-              sizes="(min-width: 64rem) 36vw, 100vw"
-              className="order-first aspect-[3/2] w-full object-contain object-left mix-blend-multiply lg:order-none lg:col-span-5"
-            />
-          </TravellingPicture>
+          <ObjectPicture
+            slug={post.meta.slug}
+            picture={post.meta.picture.src}
+            alt={post.meta.picture.alt}
+            sharpSizes="(min-width: 64rem) 36vw, 100vw"
+            className="order-first w-full lg:order-none lg:col-span-5"
+          />
         </header>
         <Body />
       </article>

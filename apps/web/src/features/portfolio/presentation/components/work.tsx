@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { TravellingPicture } from '@/shared/page/presentation/components/page-transitions';
+import { workPictureSizes } from '@/shared/page/services/work-picture-sizes';
 import { Section } from './section';
 import { textLinkClassName } from './text-link';
 
@@ -59,17 +60,14 @@ const Links = ({ work }: { readonly work: WorkSummary }): ReactNode => (
   </p>
 );
 
-const Picture = ({
-  work,
-  sizes,
-}: Readonly<{ work: WorkSummary; sizes: string }>): ReactNode => (
+const Picture = ({ work }: { readonly work: WorkSummary }): ReactNode => (
   <figure>
     <TravellingPicture kind="work" slug={work.slug}>
       <Image
         src={work.image.src}
         alt={work.image.alt}
         placeholder="blur"
-        sizes={sizes}
+        sizes={workPictureSizes}
         className="aspect-[16/10] w-full border border-border object-cover object-top"
       />
     </TravellingPicture>
@@ -107,7 +105,7 @@ export const Work = ({
       {first === undefined ? null : (
         <article className="mt-10 grid gap-x-14 gap-y-6 md:mt-13 lg:grid-cols-13">
           <div className="lg:col-span-8">
-            <Picture work={first} sizes="(min-width: 64rem) 58vw, 100vw" />
+            <Picture work={first} />
           </div>
           <div className="lg:col-span-5">
             <Description work={first} />
@@ -120,7 +118,7 @@ export const Work = ({
             key={work.slug}
             className="md:row-span-2 md:grid md:grid-rows-subgrid md:gap-y-0"
           >
-            <Picture work={work} sizes="(min-width: 48rem) 46vw, 100vw" />
+            <Picture work={work} />
             <div className="mt-6">
               <Description work={work} />
             </div>

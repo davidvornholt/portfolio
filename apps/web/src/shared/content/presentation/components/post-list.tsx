@@ -1,9 +1,8 @@
 import type { StaticImageData } from 'next/image';
-import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { ObjectPicture } from '@/shared/content/presentation/components/object-picture';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
-import { TravellingPicture } from '@/shared/page/presentation/components/page-transitions';
 
 export type PostListEntry = Readonly<{
   title: string;
@@ -32,14 +31,12 @@ export const PostList = ({
           data-excerpt={post.excerpt === undefined ? undefined : ''}
           className="group grid grid-cols-[minmax(0,1fr)_4.5rem] gap-x-6 gap-y-2 py-6 lg:grid-cols-[7rem_minmax(0,1fr)_auto] lg:items-baseline lg:gap-x-12 lg:py-7 data-excerpt:lg:grid-cols-[7rem_minmax(0,7fr)_minmax(0,5fr)_auto]"
         >
-          <TravellingPicture kind="post" slug={post.slug}>
-            <Image
-              src={post.picture}
-              alt=""
-              sizes="7rem"
-              className="col-start-2 row-span-3 row-start-1 aspect-[3/2] w-full self-start object-contain mix-blend-multiply lg:col-start-1 lg:row-span-1 lg:self-center"
-            />
-          </TravellingPicture>
+          <ObjectPicture
+            slug={post.slug}
+            picture={post.picture}
+            alt=""
+            className="col-start-2 row-span-3 row-start-1 w-full justify-end self-start lg:col-start-1 lg:row-span-1 lg:justify-start lg:self-center"
+          />
           <strong className="col-start-1 max-w-4xl font-bold text-xl leading-snug tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current md:text-2xl lg:col-start-auto">
             {post.title}
           </strong>

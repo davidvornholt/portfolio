@@ -21,9 +21,9 @@ The chart on the home page is drawn from `apps/web/src/features/changes/data/cha
 
 [personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release.
 
-Once a day the schedule starts Publish container again on `main`, and every run fetches the chart data again with read-only tokens it mints from the App in `ci.changes_app`, described in `secrets/ci.example.yaml`. A failed fetch fails the run, and production keeps the release it has.
+A production publish fetches the chart data again. That happens on a push to `main` and once a day, when the schedule starts Publish container on `main` again. It reads the data with read-only tokens it mints from the App in `ci.changes_app`, described in `secrets/ci.example.yaml`. A failed fetch fails the run, and production keeps the release it has. Pull request builds use the committed snapshot.
 
-Label a same-repository, non-draft PR `pr-preview` to request `https://<number>.pr.david.vornholt.online`; removing the label tears it down.
+Label a same-repository, non-draft PR `pr-preview` to request `https://<number>.pr.david.vornholt.online`; removing the label tears it down. After a change to `publish-container.yml`, `standards.yml` or a `pr-preview-*.yml` workflow lands on `main`, an open PR has to bring its workflow files up to date with `main` before its preview can update.
 
 ## License
 

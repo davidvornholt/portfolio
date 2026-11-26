@@ -43,9 +43,9 @@ export const Rulebook = ({
           A rule alone is only a request
         </h2>
         <p className="mt-4 text-lg md:text-xl md:leading-snug">
-          So every rule of mine comes with a check that fails when the rule is
-          broken, or quietly rewritten. Here an agent tries that in this site’s
-          project.
+          So my rules come with checks. Where a machine can test a rule,
+          breaking it fails a check, and so does quietly rewriting the shared
+          rulebook. Here an agent tries that in this site’s project.
         </p>
         <p className="mt-8 font-semibold">The same check runs</p>
         <ol className="mt-2 border-foreground border-t-2">

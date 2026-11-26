@@ -47,12 +47,12 @@ const ThisSiteLookedAiMadeBody = (): ReactNode => (
         <MDXAnchor href="/">home page</MDXAnchor> shows it.
       </MDXParagraph>
       <MDXParagraph>
-        It opens with a thick black bar. Every change I merged in the last
-        thirteen weeks stands on that bar as one small square: black when its
-        automated checks passed, red with a slot when one of them failed, and an
-        outline when none had finished. The attempts that the checks sent back
-        before they could merge sit inside the bar as gray marks. On November
-        23, 2026 that was 2,390 squares and 357 gray marks.
+        It opens with a thick black bar. Each small square on that bar is a
+        change I merged in the last thirteen weeks: black when its automated
+        checks passed, red with a slot when one of them failed, and an outline
+        when none had finished. The attempts that the checks sent back before
+        they could merge sit inside the bar as gray marks. On November 23, 2026
+        that was 2,390 squares and 357 gray marks.
       </MDXParagraph>
       <MDXParagraph>
         The rest of the design follows from that picture. White, black, and one
@@ -137,8 +137,9 @@ const ThisSiteLookedAiMadeBody = (): ReactNode => (
         </MDXListItem>
         <MDXListItem>
           <MDXStrong>Every change passes the same checks</MDXStrong> as in all
-          my projects: lint, types, tests, the build, and a scan of every page
-          for accessibility problems.{' '}
+          my projects, which are lint, types, and tests, and two more that a
+          site needs: the build, and a scan of every page for accessibility
+          problems.{' '}
           <MDXAnchor href="/posts/executable-engineering-standards">
             How those work
           </MDXAnchor>{' '}
@@ -179,7 +180,7 @@ export const thisSiteLookedAiMadePost: Post = {
     category: 'Engineering',
     readTime: '3 min read',
     excerpt:
-      'The first version was cream paper, a serif, and forest green, the look AI design tools produce by default. The new one is a black bar with every change I merged standing on it.',
+      'The first version was cream paper, a serif, and forest green, the look AI design tools produce by default. The new one is a black bar with the changes I merged standing on it.',
     picture: {
       src: crumpledPaperPicture,
       alt: 'A sheet of paper crumpled into a ball.',

@@ -32,7 +32,7 @@ const steps = [
   },
   {
     title: 'The checks',
-    text: 'Style, types, tests, build, and accessibility. One failure stops it.',
+    text: 'Style, types, and tests, plus the build and accessibility on a site. One failure stops it.',
     proof: 'the checks that ran on it',
     href: `${exampleUrl}/checks`,
   },

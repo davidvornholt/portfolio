@@ -15,7 +15,7 @@ type PortfolioScreenProps = Readonly<{
   /** The chart of merged changes and the text that explains it. */
   field: ReactNode;
   legend: ReactNode;
-  /** What the checks said about every change to this site's repository. */
+  /** What the checks said about David's changes to this site's repository. */
   record: ReactNode;
   accepted: ReadonlyArray<AcceptedProject>;
   /** What each public repository merged, week by week. */

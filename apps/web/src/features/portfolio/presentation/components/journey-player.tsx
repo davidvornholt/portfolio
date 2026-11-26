@@ -127,40 +127,64 @@ const stationX = (root: ParentNode, name: string): number => {
     : node.x.baseVal.value + node.width.baseVal.value / half;
 };
 
+/**
+ * Runs the steps of a round one after the other and stops before the first
+ * one that follows a skip. A movement or a wait ends at once when the
+ * visitor skips, and without this the steps after it would still light
+ * their parts, on top of the finished picture the skip has just drawn.
+ */
+const inOrder = async (
+  signal: AbortSignal,
+  steps: ReadonlyArray<() => Promise<void> | void>,
+): Promise<void> => {
+  for (const step of steps) {
+    if (signal.aborted) {
+      return;
+    }
+    // biome-ignore lint/performance/noAwaitInLoops: each step starts where the one before it ended.
+    await step();
+  }
+};
+
 /** The way up to the review, where the reviewers find something. */
-const firstRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
-  const { root, route } = stage;
-  reach(root, 'problem');
-  await sleep(pace.settle, stage.signal);
-  await travel(stage, {
-    pointAt: along(route),
-    from: 0,
-    to: lengths.checks,
-    duration: pace.toChecks,
-    onLength: (length) => {
-      if (length >= lengths.agent) {
-        reach(root, length >= lengths.proposal ? 'proposal' : 'agent');
-        setLit(root, '[data-node="agent"]', 'on');
-      }
+const firstRound = (stage: Stage, lengths: Lengths): Promise<void> => {
+  const { root, route, signal } = stage;
+  return inOrder(signal, [
+    () => reach(root, 'problem'),
+    () => sleep(pace.settle, signal),
+    () =>
+      travel(stage, {
+        pointAt: along(route),
+        from: 0,
+        to: lengths.checks,
+        duration: pace.toChecks,
+        onLength: (length) => {
+          if (length >= lengths.agent) {
+            reach(root, length >= lengths.proposal ? 'proposal' : 'agent');
+            setLit(root, '[data-node="agent"]', 'on');
+          }
+        },
+      }),
+    () => reach(root, 'checks'),
+    () =>
+      travel(stage, {
+        pointAt: along(route),
+        from: lengths.checks,
+        to: lengths.review,
+        duration: pace.toReview,
+      }),
+    () => {
+      setLit(root, '[data-node="review"]', 'bad');
+      setLit(root, '[data-flag="bad"]', 'on');
+      setCurrent(root, 'review');
     },
-  });
-  reach(root, 'checks');
-  await travel(stage, {
-    pointAt: along(route),
-    from: lengths.checks,
-    to: lengths.review,
-    duration: pace.toReview,
-  });
-  setLit(root, '[data-node="review"]', 'bad');
-  setLit(root, '[data-flag="bad"]', 'on');
-  setCurrent(root, 'review');
-  await sleep(pace.verdict, stage.signal);
+    () => sleep(pace.verdict, signal),
+  ]);
 };
 
 /** Back to the agent over the loop, and through the stations once more. */
-const secondRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
-  const { root, route, loop } = stage;
-  setLit(root, '[data-loop-part]', 'on');
+const secondRound = (stage: Stage, lengths: Lengths): Promise<void> => {
+  const { root, route, loop, signal } = stage;
   // The loop is drawn from above one square to above the other. The change
   // starts and ends in the middle of a square, so it also rises out of the
   // review and sinks into the agent, all in one movement.
@@ -173,49 +197,59 @@ const secondRound = async (stage: Stage, lengths: Lengths): Promise<void> => {
   const sink = Math.hypot(agent.x - loopEnd.x, agent.y - loopEnd.y);
   const onLoop = (length: number): number =>
     Math.min(loopLength, Math.max(0, length - rise));
-  await travel(stage, {
-    pointAt: (length) => {
-      if (length < rise) {
-        return between(review, loopStart, length / rise);
-      }
-      return length <= rise + loopLength
-        ? loop.getPointAtLength(onLoop(length))
-        : between(loopEnd, agent, (length - rise - loopLength) / sink);
+  return inOrder(signal, [
+    () => setLit(root, '[data-loop-part]', 'on'),
+    () =>
+      travel(stage, {
+        pointAt: (length) => {
+          if (length < rise) {
+            return between(review, loopStart, length / rise);
+          }
+          return length <= rise + loopLength
+            ? loop.getPointAtLength(onLoop(length))
+            : between(loopEnd, agent, (length - rise - loopLength) / sink);
+        },
+        from: 0,
+        to: rise + loopLength + sink,
+        duration: pace.loop,
+        onLength: (length) =>
+          loop.setAttribute(
+            'stroke-dashoffset',
+            String(1 - onLoop(length) / loopLength),
+          ),
+      }),
+    () => {
+      setLit(root, '[data-node="review"]', 'off');
+      setCurrent(root, 'agent');
     },
-    from: 0,
-    to: rise + loopLength + sink,
-    duration: pace.loop,
-    onLength: (length) =>
-      loop.setAttribute(
-        'stroke-dashoffset',
-        String(1 - onLoop(length) / loopLength),
-      ),
-  });
-  setLit(root, '[data-node="review"]', 'off');
-  setCurrent(root, 'agent');
-  await sleep(pace.breath, stage.signal);
-  await travel(stage, {
-    pointAt: along(route),
-    from: lengths.agent,
-    to: lengths.review,
-    duration: pace.again,
-    onLength: (length) => {
-      if (length >= lengths.proposal) {
-        setCurrent(root, length >= lengths.checks ? 'checks' : 'proposal');
-      }
+    () => sleep(pace.breath, signal),
+    () =>
+      travel(stage, {
+        pointAt: along(route),
+        from: lengths.agent,
+        to: lengths.review,
+        duration: pace.again,
+        onLength: (length) => {
+          if (length >= lengths.proposal) {
+            setCurrent(root, length >= lengths.checks ? 'checks' : 'proposal');
+          }
+        },
+      }),
+    () => {
+      reach(root, 'review');
+      setLit(root, '[data-flag="bad"]', 'off');
+      setLit(root, '[data-flag="ok"]', 'on');
     },
-  });
-  reach(root, 'review');
-  setLit(root, '[data-flag="bad"]', 'off');
-  setLit(root, '[data-flag="ok"]', 'on');
-  await sleep(pace.second, stage.signal);
-  await travel(stage, {
-    pointAt: along(route),
-    from: lengths.review,
-    to: route.getTotalLength(),
-    duration: pace.land,
-  });
-  reach(root, 'live');
+    () => sleep(pace.second, signal),
+    () =>
+      travel(stage, {
+        pointAt: along(route),
+        from: lengths.review,
+        to: route.getTotalLength(),
+        duration: pace.land,
+      }),
+    () => reach(root, 'live'),
+  ]);
 };
 
 type Lengths = Readonly<{

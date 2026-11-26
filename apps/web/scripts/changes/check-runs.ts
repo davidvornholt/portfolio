@@ -26,10 +26,13 @@ export type CheckContext =
       createdAt: DateTime.Utc;
     }>;
 
+// A check that asks for action has finished without passing, and GitHub
+// holds a merge back for it as it does for a failure.
 const failedConclusions: ReadonlySet<string> = new Set([
   'FAILURE',
   'TIMED_OUT',
   'STARTUP_FAILURE',
+  'ACTION_REQUIRED',
 ]);
 const failedStates: ReadonlySet<string> = new Set(['FAILURE', 'ERROR']);
 const unfinishedStates: ReadonlySet<string> = new Set(['PENDING', 'EXPECTED']);

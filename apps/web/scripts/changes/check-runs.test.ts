@@ -52,6 +52,7 @@ describe('toCheckRuns', () => {
     ['FAILURE', 'failed'],
     ['TIMED_OUT', 'failed'],
     ['STARTUP_FAILURE', 'failed'],
+    ['ACTION_REQUIRED', 'failed'],
     ['CANCELLED', 'neutral'],
     ['SKIPPED', 'neutral'],
     ['NEUTRAL', 'neutral'],

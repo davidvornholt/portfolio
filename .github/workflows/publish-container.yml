@@ -88,7 +88,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      # The preview's footer names its commit and says that it is a preview.
       - name: Write the build line of the preview
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -288,8 +287,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # Only a released image says that its commit's checks passed, and the
-      # release job below releases this image only once they have.
       - name: Write the build line of the release
         env:
           SHA: ${{ github.sha }}

@@ -16,7 +16,7 @@ const BuildInfo = Schema.Struct({
   title: Schema.NonEmptyString,
   /** The day the commit was made in Berlin, as `YYYY-MM-DD`. */
   committedOn: Schema.String.check(Schema.isPattern(isoDay)),
-  /** False for a preview, which is built before its checks have finished. */
+  /** False for a preview. */
   released: Schema.Boolean,
 });
 
@@ -26,7 +26,6 @@ const decodeFile = Schema.decodeUnknownSync(
   Schema.Struct({ commit: Schema.NullOr(BuildInfo) }),
 );
 
-/** The commit a build-info file names, or null when it names none. */
 export const decodeBuildInfo = (file: unknown): BuildInfo | null =>
   decodeFile(file).commit;
 

@@ -4,6 +4,4 @@ export const siteUrl = 'https://david.vornholt.online';
 // operator's email address.
 export const contactEmail = 'david@vornholt.online';
 
-// The public repository this site is built from. The footer links a
-// published page to the checks of its commit there.
 export const repositoryUrl = 'https://github.com/davidvornholt/portfolio';

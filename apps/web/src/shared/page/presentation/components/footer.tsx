@@ -18,8 +18,8 @@ export const Footer = (): ReactNode => {
 
   return (
     <footer className="page-column pb-10">
-      {/* The page itself, as one change standing on the bar. It drops onto
-          it when the footer comes into view. */}
+      {/* One change standing on the bar. It drops onto it when the footer
+          comes into view. */}
       <div aria-hidden="true">
         <PlayOnView className="keeps-colors" margin="0px 0px -24px 0px">
           <div className="landing-square mb-0.5 size-3 bg-foreground" />

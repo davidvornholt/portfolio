@@ -16,9 +16,10 @@ const Commit = ({ build }: { readonly build: BuildInfo }): ReactNode => (
 );
 
 /**
- * Says which commit the page was built from. Only a released build claims
- * that the commit's checks passed, because the publishing workflow releases
- * nothing else. A preview is built before its checks have finished.
+ * Says which commit the page was built from, in words that are true wherever
+ * the build runs. The release image exists before its commit's checks have
+ * finished, and only production waits for them, so the line says what
+ * production does and not that the checks have passed.
  *
  * The date is the day the commit was made, which for a change on `main` is
  * the day it merged. The page can go live a day later, so the line doesn't
@@ -30,11 +31,7 @@ export const BuildLine = ({
   readonly build: BuildInfo | null;
 }): ReactNode => {
   if (build === null) {
-    return (
-      <p>
-        This page was built from a working copy, not from a released change.
-      </p>
-    );
+    return <p>This page was built from a working copy.</p>;
   }
   if (!build.released) {
     return (
@@ -46,12 +43,11 @@ export const BuildLine = ({
   }
   return (
     <p>
-      This page is one of the squares. It was built from{' '}
-      <Commit build={build} />, which merged on{' '}
+      This page was built from <Commit build={build} />, which merged on{' '}
       <time dateTime={build.committedOn}>
         {formatPostDate(build.committedOn)}
-      </time>{' '}
-      and went live after its checks passed.{' '}
+      </time>
+      . A change goes live here only after its checks have passed.{' '}
       <a
         href={`${repositoryUrl}/commit/${build.sha}/checks`}
         target="_blank"

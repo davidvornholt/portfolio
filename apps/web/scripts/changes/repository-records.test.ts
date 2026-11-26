@@ -51,4 +51,34 @@ describe('fetchAcceptedElsewhere', () => {
       ]),
     );
   });
+
+  // The search has no date range to split, so past the limit GitHub would
+  // return a part of the list and the record would be built on it.
+  it('fails before it reads a list longer than one search returns', async () => {
+    let listsRead = 0;
+    const exit = await Effect.runPromiseExit(
+      fetchAcceptedElsewhere('davidvornholt', ['davidvornholt']).pipe(
+        Effect.provide(
+          GitHubGraphQL.layerTest({
+            countMergedChanges: () =>
+              Effect.succeed({ search: { issueCount: 1001 } }),
+            mergedRepositories: () => {
+              listsRead += 1;
+              return Effect.succeed({
+                search: {
+                  issueCount: 1,
+                  pageInfo: lastPage,
+                  nodes: [merged('serokell/deploy-rs')],
+                },
+              });
+            },
+          }),
+        ),
+      ),
+    );
+
+    expect(Exit.isFailure(exit)).toBe(true);
+    expect(JSON.stringify(exit)).toContain('SearchWindowTooLargeError');
+    expect(listsRead).toBe(0);
+  });
 });

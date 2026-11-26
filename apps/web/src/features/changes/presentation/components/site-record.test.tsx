@@ -13,7 +13,7 @@ const record = {
 const text = (shown: typeof record): string =>
   renderToStaticMarkup(<SiteRecord record={shown} />);
 
-describe('the record of this site\'s own repository', () => {
+describe("the record of this site's own repository", () => {
   it('says whose changes it counts, because others merge changes here too', () => {
     expect(text(record)).toContain(
       'None of my 71 changes merged into this site’s project since December 2025 had a failed check. 66 passed, and 5 merged before a check had finished.',

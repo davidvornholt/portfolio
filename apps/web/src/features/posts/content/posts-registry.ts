@@ -29,9 +29,9 @@ export const postsNewestFirst: ReadonlyArray<Post> = [...posts].sort(
  * article that replaced it. They were shared on LinkedIn and X, so they keep
  * working as redirects.
  */
-export const movedPosts: Readonly<Record<string, string>> = {
-  'building-the-architects-portfolio': 'this-site-looked-ai-made',
-};
+export const movedPosts: ReadonlyMap<string, string> = new Map([
+  ['building-the-architects-portfolio', 'this-site-looked-ai-made'],
+]);
 
 export const getPostBySlug = (slug: string): Post | undefined =>
   posts.find((post) => post.meta.slug === slug);

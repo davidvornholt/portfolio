@@ -22,12 +22,12 @@ const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/u;
 describe('posts registry', () => {
   it('keeps every published slug resolvable, as a post or as a redirect to one', () => {
     for (const slug of publishedSlugs) {
-      expect(getPostBySlug(movedPosts[slug] ?? slug)).toBeDefined();
+      expect(getPostBySlug(movedPosts.get(slug) ?? slug)).toBeDefined();
     }
   });
 
   it('redirects no address that still has a post', () => {
-    for (const slug of Object.keys(movedPosts)) {
+    for (const slug of movedPosts.keys()) {
       expect(getPostBySlug(slug)).toBeUndefined();
     }
   });

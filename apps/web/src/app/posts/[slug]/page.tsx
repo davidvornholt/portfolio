@@ -76,7 +76,7 @@ const createArticleJsonLd = (meta: PostMeta): Record<string, unknown> => ({
 
 const PostPage = async ({ params }: PostPageProps): Promise<ReactNode> => {
   const { slug } = await params;
-  const movedTo = movedPosts[slug];
+  const movedTo = movedPosts.get(slug);
   if (movedTo !== undefined) {
     permanentRedirect(`/posts/${movedTo}`);
   }

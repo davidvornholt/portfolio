@@ -6,13 +6,20 @@ const consumer = await readWorkflow('pr-preview-deploy.yml');
 const rollBack = await readWorkflow('roll-back.yml');
 const githubExpression = (expression: string): string =>
   `\${{ ${expression} }}`;
+const pullRequestJob = producer.slice(
+  producer.indexOf('  container-smoke:'),
+  producer.indexOf('  daily-dispatch:'),
+);
+const buildJob = producer.slice(
+  producer.indexOf('  build:'),
+  producer.indexOf('  release:'),
+);
+const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
+const mainRef = "github.ref == 'refs/heads/main'";
+const pushOrDispatch =
+  "(github.event_name == 'push' || github.event_name == 'workflow_dispatch')";
 
 describe('preview producer trust boundary', () => {
-  const pullRequestJob = producer.slice(
-    producer.indexOf('  container-smoke:'),
-    producer.indexOf('  gate:'),
-  );
-
   it('grants untrusted pull request code only repository read access', () => {
     expect(pullRequestJob).toContain('    permissions:\n      contents: read');
     expect(pullRequestJob).not.toContain('      actions: read');
@@ -185,15 +192,6 @@ const appTokenStepPattern = /uses: actions\/create-github-app-token@/gu;
 const changesTokenStepPattern = /id: changes-token-/gu;
 
 describe('chart data on publish', () => {
-  const buildJob = producer.slice(
-    producer.indexOf('  build:'),
-    producer.indexOf('  release:'),
-  );
-  const pullRequestJob = producer.slice(
-    producer.indexOf('  container-smoke:'),
-    producer.indexOf('  gate:'),
-  );
-
   it('fetches the day’s changes with read-only tokens before anything is built', () => {
     const clientId = buildJob.indexOf('secret-key: changes_app.client_id');
     const privateKey = buildJob.indexOf('secret-key: changes_app.private_key');
@@ -245,11 +243,48 @@ describe('chart data on publish', () => {
   });
 });
 
-describe('production release boundary', () => {
-  const buildJob = producer.slice(
+describe('daily publish', () => {
+  const gateJob = producer.slice(
+    producer.indexOf('  gate:'),
     producer.indexOf('  build:'),
-    producer.indexOf('  release:'),
   );
+  const dailyJob = producer.slice(
+    producer.indexOf('  daily-dispatch:'),
+    producer.indexOf('  gate:'),
+  );
+
+  // The production host accepts a release only from a push or a dispatch, so
+  // a scheduled run that built and released would always be turned away.
+  it('lets the schedule only dispatch the workflow on main', () => {
+    expect(producer).toContain('  schedule:\n    - cron: "17 4 * * *"\n');
+    expect(producer).toContain('\n  workflow_dispatch:\n');
+    expect(dailyJob).toContain(
+      [
+        '    if: >-',
+        "      github.event_name == 'schedule' &&",
+        `      ${canonicalRepository}\n`,
+      ].join('\n'),
+    );
+    expect(dailyJob).toContain('    permissions:\n      actions: write\n');
+    expect(dailyJob).toContain(
+      '        run: gh workflow run publish-container.yml --repo "$REPOSITORY" --ref main\n',
+    );
+    expect(dailyJob).not.toContain('secrets.');
+    expect(dailyJob).not.toContain('uses:');
+    for (const job of [gateJob, buildJob]) {
+      expect(job).toContain(
+        ['    if: >-', `      ${pushOrDispatch} &&`, `      ${mainRef}\n`].join(
+          '\n',
+        ),
+      );
+    }
+    expect(producer.match(/github\.event_name == 'schedule'/gu)).toHaveLength(
+      1,
+    );
+  });
+});
+
+describe('production release boundary', () => {
   const releaseJob = producer.slice(producer.indexOf('  release:'));
   const releaseQueue = [
     '    concurrency:',
@@ -265,22 +300,23 @@ describe('production release boundary', () => {
   ].join('\n');
   const knownHost =
     'known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5';
-  const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
-  const mainRef = "github.ref == 'refs/heads/main'";
 
   it('builds the pushed commit beside the gate with its revision bound', () => {
-    expect(buildJob).toContain(
-      "    if: github.event_name == 'push' || github.event_name == 'schedule'",
-    );
     expect(buildJob).not.toContain('needs:');
     expect(buildJob).toContain(
       `org.opencontainers.image.revision=${githubExpression('github.sha')}`,
     );
     expect(buildJob).toContain('provenance: false');
-    expect(buildJob).toContain(
-      'cache-to: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true',
-    );
     expect(buildJob).not.toContain('id-token');
+  });
+
+  it('writes the layer cache only from the build a push starts', () => {
+    expect(buildJob).toContain(
+      'cache-from: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache\n',
+    );
+    expect(buildJob).toContain(
+      `cache-to: ${githubExpression("github.event_name == 'push' && 'type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true' || ''")}\n`,
+    );
   });
 
   it('releases only the gated exact commit digest through the queued host action', () => {
@@ -288,6 +324,7 @@ describe('production release boundary', () => {
     expect(releaseJob).toContain(
       [
         '    if: >-',
+        `      ${pushOrDispatch} &&`,
         `      ${canonicalRepository} &&`,
         `      ${mainRef} &&`,
         '      needs.gate.outputs.gated-sha == github.sha\n',

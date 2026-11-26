@@ -4,8 +4,11 @@ name: Publish container
 # trusted preview follow-up, which binds runs by workflow path and id. A push
 # to main builds the commit image while Standards runs, then releases that
 # exact digest once Standards has passed on the exact squash commit, instead
-# of relying on the pull request's checks. The daily run rebuilds the newest
-# commit of main the same way, with the day's data.
+# of relying on the pull request's checks. Once a day the schedule starts this
+# workflow again on main as a `workflow_dispatch`, which rebuilds and releases
+# the newest commit of main the same way, with the day's data. The scheduled
+# run itself builds nothing: the production host accepts a release only from a
+# `push` or a `workflow_dispatch`.
 on:
   pull_request:
     types:
@@ -22,6 +25,9 @@ on:
   # current without anyone touching the site.
   schedule:
     - cron: "17 4 * * *"
+  # What the schedule starts, and a publish by hand. Only a dispatch on main
+  # builds or releases.
+  workflow_dispatch:
 
 permissions: {}
 
@@ -220,11 +226,31 @@ jobs:
           compression-level: 0
           overwrite: false
 
+  # The scheduled run is only this job. It holds no secret, and its token can
+  # write nothing but Actions. A dispatch is one of the two events through
+  # which a workflow's own token can start a run.
+  daily-dispatch:
+    if: >-
+      github.event_name == 'schedule' &&
+      github.repository == 'davidvornholt/portfolio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Start the daily publish on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: gh workflow run publish-container.yml --repo "$REPOSITORY" --ref main
+
   # Fail-closed by construction: every path that is not an observed successful
   # `check` job for this exact commit — no run, an unfinished run, a run that
   # ended any other way, a missing job, an expired deadline — exits non-zero.
   gate:
-    if: github.event_name == 'push' || github.event_name == 'schedule'
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -244,8 +270,9 @@ jobs:
           deadline=$(($(date -u +%s) + 2400))
           while :; do
             # Newest first, so a re-run decides. A green run that was later
-            # re-run into a failure must not keep publishing. The daily run
-            # asks for the same run: the one the push of this commit started.
+            # re-run into a failure must not keep publishing. The daily
+            # publish runs on the newest commit of main and asks for the same
+            # run: the one the push of that commit started.
             run=$(gh api \
               "repos/$REPOSITORY/actions/workflows/$GATE_WORKFLOW/runs?head_sha=$SHA&event=push&per_page=1" \
               --jq '.workflow_runs[0] // empty')
@@ -280,7 +307,9 @@ jobs:
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
   build:
-    if: github.event_name == 'push' || github.event_name == 'schedule'
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -424,10 +453,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      # Only this push build writes the layer cache, to a GHCR tag rather than
-      # the shared Actions cache quota. The pull request build reads it
-      # anonymously but never writes it. Nothing deploys the cache tag; the
-      # host pulls the released digest.
+      # Only the build a push starts writes the layer cache, to a GHCR tag
+      # rather than the shared Actions cache quota. The daily build and the
+      # pull request build read it but never write it. Nothing deploys the
+      # cache tag; the host pulls the released digest.
       - name: Build and publish the commit image
         id: build
         uses: docker/build-push-action@v7
@@ -443,7 +472,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache
-          cache-to: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true
+          cache-to: ${{ github.event_name == 'push' && 'type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true' || '' }}
 
   # The host releases only an image whose revision label is the commit in the
   # job's OIDC token, and it ignores a release from an older run than the one
@@ -454,6 +483,7 @@ jobs:
       - build
     # The gate proves a commit passed; this proves it was this one.
     if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.repository == 'davidvornholt/portfolio' &&
       github.ref == 'refs/heads/main' &&
       needs.gate.outputs.gated-sha == github.sha

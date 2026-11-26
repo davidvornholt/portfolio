@@ -139,6 +139,18 @@ export const fetchFailedAttempts = Effect.fn('fetchFailedAttempts')(function* (
         repository,
         filters,
       );
+      // The runs are asked for by id, after the public search returned the
+      // name. A repository renamed in between, and perhaps made private,
+      // would put a name into the snapshot that no public search returned.
+      // The message quotes neither the name nor the address.
+      const address = `https://github.com/${repository}/`;
+      if (runs.some((run) => !run.url.startsWith(address))) {
+        return yield* new GitHubRequestError({
+          operation,
+          message:
+            'A run of a public repository has an address outside that repository, which may have been renamed or made private since it was found.',
+        });
+      }
       return sentBack(runs).map(
         (run): FailedAttempt => ({
           startedAt: run.startedAt,

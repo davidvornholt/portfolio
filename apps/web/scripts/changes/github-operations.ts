@@ -35,6 +35,7 @@ const PageInfo = Schema.Struct({
 });
 
 const CheckContexts = Schema.Struct({
+  totalCount: Schema.Int,
   pageInfo: PageInfo,
   nodes: Schema.NullOr(Schema.Array(Schema.NullOr(CheckContext))),
 });
@@ -88,6 +89,7 @@ const PrivatePullRequest = Schema.Struct({
 const searchResult = <Node extends Schema.Top>(node: Node) =>
   Schema.Struct({
     search: Schema.Struct({
+      issueCount: Schema.Int,
       pageInfo: PageInfo,
       nodes: Schema.NullOr(Schema.Array(Schema.NullOr(node))),
     }),
@@ -98,11 +100,13 @@ const pagedSearch = {
   after: Schema.optional(Schema.NullOr(Schema.String)),
 };
 
+// Every list is asked for its length (`totalCount`, and `issueCount` for a
+// search) together with each page, so a list that arrives short is noticed.
 const contextSelection =
-  'pageInfo{hasNextPage endCursor}nodes{__typename ...on CheckRun{name conclusion startedAt completedAt checkSuite{app{slug}workflowRun{workflow{name}}}}...on StatusContext{context state createdAt}}';
+  'totalCount pageInfo{hasNextPage endCursor}nodes{__typename ...on CheckRun{name conclusion startedAt completedAt checkSuite{app{slug}workflowRun{workflow{name}}}}...on StatusContext{context state createdAt}}';
 const sharedSelection = `mergedAt additions deletions commits(last:1){nodes{commit{id oid statusCheckRollup{contexts(first:100){${contextSelection}}}}}}`;
 const searchDocument = (name: string, selection: string): string =>
-  `query ${name}($query:String!,$after:String){search(query:$query,type:ISSUE,first:25,after:$after){pageInfo{hasNextPage endCursor}nodes{...on PullRequest{${selection}}}}}`;
+  `query ${name}($query:String!,$after:String){search(query:$query,type:ISSUE,first:25,after:$after){issueCount pageInfo{hasNextPage endCursor}nodes{...on PullRequest{${selection}}}}}`;
 
 export const countMergedChanges = GraphQL.query('countMergedChanges', {
   document:
@@ -135,7 +139,7 @@ export const privateMergedChanges = GraphQL.query('privateMergedChanges', {
 // there: `READ` on a public repository means it belongs to someone else.
 export const mergedRepositories = GraphQL.query('mergedRepositories', {
   document:
-    'query mergedRepositories($query:String!,$after:String){search(query:$query,type:ISSUE,first:100,after:$after){pageInfo{hasNextPage endCursor}nodes{...on PullRequest{repository{nameWithOwner viewerPermission}}}}}',
+    'query mergedRepositories($query:String!,$after:String){search(query:$query,type:ISSUE,first:100,after:$after){issueCount pageInfo{hasNextPage endCursor}nodes{...on PullRequest{repository{nameWithOwner viewerPermission}}}}}',
   variables: pagedSearch,
   result: searchResult(
     Schema.Struct({
@@ -189,8 +193,8 @@ const runTimes = {
 };
 
 const runsPage = <Run extends Schema.Top>(run: Run) =>
-  Schema.Struct({ runs: Schema.Array(run) }).pipe(
-    Schema.encodeKeys({ runs: 'workflow_runs' }),
+  Schema.Struct({ total: Schema.Int, runs: Schema.Array(run) }).pipe(
+    Schema.encodeKeys({ total: 'total_count', runs: 'workflow_runs' }),
   );
 
 export const PublicRunsPage = runsPage(

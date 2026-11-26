@@ -37,8 +37,17 @@ const wireRun = (headSha: string, startedAt: string, updatedAt: string) => ({
   repository: { full_name: 'owner/name' },
 });
 
+type WireRun = ReturnType<typeof wireRun>;
+
+// One page of a list as GitHub's REST API returns it. The list is as long as
+// the page unless `total` says otherwise.
+const wirePage = (
+  runs: ReadonlyArray<WireRun>,
+  total: number = runs.length,
+) => ({ total_count: total, workflow_runs: runs });
+
 const run = (
-  pages: (url: URL) => ReadonlyArray<ReturnType<typeof wireRun>>,
+  pages: (url: URL) => ReturnType<typeof wirePage>,
   changes: ReadonlyArray<FetchedChange>,
 ) => {
   const requested: Array<URL> = [];
@@ -47,10 +56,7 @@ const run = (
     HttpClient.make((request, url) => {
       requested.push(url);
       return Effect.succeed(
-        HttpClientResponse.fromWeb(
-          request,
-          Response.json({ workflow_runs: pages(url) }),
-        ),
+        HttpClientResponse.fromWeb(request, Response.json(pages(url))),
       );
     }).pipe(
       HttpClient.mapRequest(
@@ -68,7 +74,7 @@ const run = (
 describe('fetchFailedAttempts', () => {
   it('asks each repository by id for failed pull request runs of the author', async () => {
     const { requested } = await run(
-      () => [],
+      () => wirePage([]),
       [
         change(1, 'davidvornholt/standards'),
         change(1, 'davidvornholt/standards'),
@@ -92,7 +98,7 @@ describe('fetchFailedAttempts', () => {
 
   it('describes a public attempt and keeps only the start of a private one', async () => {
     const { exit } = await run(
-      () => [wireRun('earlier-commit', '16:00:00', '16:05:00')],
+      () => wirePage([wireRun('earlier-commit', '16:00:00', '16:05:00')]),
       [change(1, 'davidvornholt/standards'), change(2, undefined)],
     );
 
@@ -114,10 +120,11 @@ describe('fetchFailedAttempts', () => {
 
   it('leaves out a run that finished after its change had merged', async () => {
     const { exit } = await run(
-      () => [
-        wireRun('head-of-1', '17:48:05', '17:49:00'),
-        wireRun('head-of-1', '17:30:00', '17:35:00'),
-      ],
+      () =>
+        wirePage([
+          wireRun('head-of-1', '17:48:05', '17:49:00'),
+          wireRun('head-of-1', '17:30:00', '17:35:00'),
+        ]),
       [change(1, 'davidvornholt/standards')],
     );
 
@@ -132,7 +139,12 @@ describe('fetchFailedAttempts', () => {
     );
     const { exit, requested } = await run(
       (url) =>
-        url.searchParams.get('page') === '1' ? fullPage : fullPage.slice(0, 3),
+        wirePage(
+          url.searchParams.get('page') === '1'
+            ? fullPage
+            : fullPage.slice(0, 3),
+          103,
+        ),
       [change(2, undefined)],
     );
 
@@ -146,9 +158,12 @@ describe('fetchFailedAttempts', () => {
   it('fails without quoting the response when a run cannot be read', async () => {
     const { exit } = await run(
       () =>
-        [
-          { ...wireRun('earlier-commit', '16:00:00', '16:05:00'), head_sha: 7 },
-        ] as never,
+        wirePage([
+          {
+            ...wireRun('earlier-commit', '16:00:00', '16:05:00'),
+            head_sha: 7,
+          },
+        ] as never),
       [change(2, undefined)],
     );
 
@@ -156,5 +171,57 @@ describe('fetchFailedAttempts', () => {
     expect(JSON.stringify(exit)).toContain('GitHubRequestError');
     expect(JSON.stringify(exit)).not.toContain('owner/name');
     expect(JSON.stringify(exit)).not.toContain('keep-the-lock');
+  });
+});
+
+describe('fetchFailedAttempts when GitHub leaves something out', () => {
+  const runs = (count: number): ReadonlyArray<WireRun> =>
+    Array.from({ length: count }, () =>
+      wireRun('earlier-commit', '16:00:00', '16:05:00'),
+    );
+
+  it('fails when a list is shorter than the total GitHub reports', async () => {
+    const { exit, requested } = await run(
+      () => wirePage(runs(3), 5),
+      [change(2, undefined)],
+    );
+
+    expect(Exit.isFailure(exit)).toBe(true);
+    expect(JSON.stringify(exit)).toContain('IncompleteDataError');
+    expect(requested).toHaveLength(3);
+  });
+
+  it('fails without reading on when a list is longer than GitHub returns', async () => {
+    const { exit, requested } = await run(
+      () => wirePage(runs(100), 1000),
+      [change(2, undefined)],
+    );
+
+    expect(Exit.isFailure(exit)).toBe(true);
+    expect(JSON.stringify(exit)).toContain('GitHubRequestError');
+    expect(requested).toHaveLength(1);
+  });
+
+  it('reads a list again when a run fails between two pages', async () => {
+    let asked = 0;
+    const { exit, requested } = await run(
+      (url) => {
+        asked += 1;
+        const first = url.searchParams.get('page') === '1';
+        if (asked > 2) {
+          return wirePage(runs(first ? 100 : 2), 102);
+        }
+        return first ? wirePage(runs(100), 101) : wirePage(runs(1), 102);
+      },
+      [change(2, undefined)],
+    );
+
+    expect(Exit.isSuccess(exit) && exit.value).toHaveLength(102);
+    expect(requested.map((url) => url.searchParams.get('page'))).toEqual([
+      '1',
+      '2',
+      '1',
+      '2',
+    ]);
   });
 });

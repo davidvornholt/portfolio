@@ -12,6 +12,7 @@ import {
   publicChange,
   request,
   searchLimit,
+  searchPage,
 } from './merged-changes';
 
 // These searches have no date range to split, so more results than one search
@@ -40,11 +41,11 @@ export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
   const github = yield* GitHubGraphQL;
   const query = `is:pr is:merged is:public author:${login} repo:${repository}`;
   yield* withinOneSearch(query);
-  const nodes = yield* allPages((after) =>
+  const nodes = yield* allPages('the changes merged into this site', (after) =>
     request(
       'search the changes of this site',
       github.publicMergedChanges({ query, after }),
-    ).pipe(Effect.map((result) => result.search)),
+    ).pipe(Effect.map(searchPage)),
   );
   const changes = yield* Effect.forEach(nodes, publicChange);
   const tally = (verdict: (typeof changes)[number]['verdict']): number =>
@@ -82,11 +83,11 @@ export const fetchAcceptedElsewhere = Effect.fn('fetchAcceptedElsewhere')(
     const github = yield* GitHubGraphQL;
     const query = `is:pr is:merged is:public author:${login} -user:${login}`;
     yield* withinOneSearch(query);
-    const nodes = yield* allPages((after) =>
+    const nodes = yield* allPages('the changes merged elsewhere', (after) =>
       request(
         'search changes merged elsewhere',
         github.mergedRepositories({ query, after }),
-      ).pipe(Effect.map((result) => result.search)),
+      ).pipe(Effect.map(searchPage)),
     );
     const merged = new Map<string, number>();
     for (const { repository } of nodes) {

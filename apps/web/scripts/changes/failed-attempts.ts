@@ -9,12 +9,15 @@ import type { FailedAttempt } from '@/features/changes/services/assemble-snapsho
 import { wasSentBack } from '@/features/changes/services/sent-back';
 import { PrivateRunsPage, PublicRunsPage } from './github-operations';
 import { GitHubRest } from './github-rest';
-import type { FetchedChange } from './merged-changes';
+import { allPages, type FetchedChange, type ListPage } from './merged-changes';
 
 type Filters = ReadonlyArray<readonly [string, string]>;
 type DecodePage<Run> = (
   response: Response.HttpClientResponse,
-) => Effect.Effect<Readonly<{ runs: ReadonlyArray<Run> }>, unknown>;
+) => Effect.Effect<
+  Readonly<{ total: number; runs: ReadonlyArray<Run> }>,
+  unknown
+>;
 
 const pageSize = 100;
 // GitHub returns at most this many runs for one filtered list.
@@ -53,27 +56,43 @@ const failedRuns = Effect.fnUntraced(function* <Run>(
       operation,
       message: `The request to list the failed pull request runs of ${label} failed: ${reason}.`,
     });
-  const runs: Array<Run> = [];
-  for (let page = 1; runs.length < listLimit; page += 1) {
-    const next = yield* client
-      .get(`/repositories/${repositoryId}/actions/runs`, {
-        urlParams: [
-          ...filters,
-          ['per_page', String(pageSize)],
-          ['page', String(page)],
-        ],
-      })
-      .pipe(
-        Effect.flatMap(decodePage),
-        Effect.mapError((error) => failed(reasonOf(error))),
-      );
-    runs.push(...next.runs);
-    if (next.runs.length < pageSize) {
-      return runs;
-    }
-  }
-  return yield* failed(
-    `it has ${listLimit} or more of them, which is more than GitHub returns`,
+  return yield* allPages(
+    `the failed pull request runs of ${label}`,
+    (after) => {
+      // This list has page numbers where a search has cursors.
+      const page = after === null ? 1 : Number(after);
+      return client
+        .get(`/repositories/${repositoryId}/actions/runs`, {
+          urlParams: [
+            ...filters,
+            ['per_page', String(pageSize)],
+            ['page', String(page)],
+          ],
+        })
+        .pipe(
+          Effect.flatMap(decodePage),
+          Effect.mapError((error) => failed(reasonOf(error))),
+          Effect.flatMap(
+            (body): Effect.Effect<ListPage<Run>, GitHubRequestError> =>
+              body.total >= listLimit
+                ? Effect.fail(
+                    failed(
+                      `it has ${listLimit} or more of them, which is more than GitHub returns`,
+                    ),
+                  )
+                : Effect.succeed({
+                    total: body.total,
+                    nodes: body.runs,
+                    pageInfo: {
+                      // Another page follows while the pages so far hold
+                      // fewer runs than the list has.
+                      hasNextPage: page * pageSize < body.total,
+                      endCursor: String(page + 1),
+                    },
+                  }),
+          ),
+        );
+    },
   );
 });
 

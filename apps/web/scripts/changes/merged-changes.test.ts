@@ -1,82 +1,26 @@
 import { describe, expect, it } from 'bun:test';
-import { DateTime, Effect, Exit } from 'effect';
-import { GitHubGraphQL } from './github-graphql';
-import type {
-  PrivatePullRequestNode,
-  PublicPullRequestNode,
-} from './github-operations';
-import { fetchMergedChanges } from './merged-changes';
-
-type Handlers = Parameters<typeof GitHubGraphQL.layerTest>[0];
-type Commit = NonNullable<
-  NonNullable<PrivatePullRequestNode['commits']['nodes']>[number]
->['commit'];
-type Contexts = NonNullable<Commit['statusCheckRollup']>['contexts'];
-
-const mergedAt = DateTime.makeUnsafe('2026-11-07T17:48:00Z');
-const lastPage = { hasNextPage: false, endCursor: null };
-
-const passedCheck = {
-  __typename: 'CheckRun',
-  name: 'check',
-  conclusion: 'SUCCESS',
-  startedAt: DateTime.makeUnsafe('2026-11-07T17:30:00Z'),
-  completedAt: DateTime.makeUnsafe('2026-11-07T17:40:00Z'),
-  checkSuite: null,
-} as const;
-
-const commit = (contexts: Contexts): Commit => ({
-  id: 'commit-id',
-  oid: 'head-sha',
-  statusCheckRollup: { contexts },
-});
-
-const privateNode = (
-  contexts: Contexts = { pageInfo: lastPage, nodes: [passedCheck] },
-): PrivatePullRequestNode => ({
+import { Effect, Exit } from 'effect';
+import {
+  checks,
+  found,
+  lastPage,
   mergedAt,
-  additions: 30,
-  deletions: 10,
-  repository: { databaseId: 2 },
-  commits: { nodes: [{ commit: commit(contexts) }] },
-});
-
-const publicNode = (number: number): PublicPullRequestNode => ({
-  ...privateNode(),
-  number,
-  title: `change ${number}`,
-  url: `https://github.com/davidvornholt/standards/pull/${number}`,
-  repository: { databaseId: 1, nameWithOwner: 'davidvornholt/standards' },
-});
-
-// Both visibilities, public first, the way the fetch asks for them.
-const run = (handlers: Handlers, days: ReadonlyArray<string>) =>
-  Effect.runPromiseExit(
-    Effect.all([
-      fetchMergedChanges('davidvornholt', days, 'public'),
-      fetchMergedChanges('davidvornholt', days, 'private'),
-    ]).pipe(
-      Effect.map((changes) => changes.flat()),
-      Effect.provide(GitHubGraphQL.layerTest(handlers)),
-    ),
-  );
-
-const noPrivateChanges: Handlers['privateMergedChanges'] = () =>
-  Effect.succeed({ search: { pageInfo: lastPage, nodes: [] } });
+  moreAfter,
+  noPrivateChanges,
+  noPublicChanges,
+  passedCheck,
+  privateNode,
+  publicNode,
+  run,
+} from './merged-changes-fixtures';
 
 describe('fetchMergedChanges', () => {
   it('judges public and private changes and names only the public ones', async () => {
     const exit = await run(
       {
         countMergedChanges: () => Effect.succeed({ search: { issueCount: 1 } }),
-        publicMergedChanges: () =>
-          Effect.succeed({
-            search: { pageInfo: lastPage, nodes: [publicNode(7)] },
-          }),
-        privateMergedChanges: () =>
-          Effect.succeed({
-            search: { pageInfo: lastPage, nodes: [privateNode()] },
-          }),
+        publicMergedChanges: () => Effect.succeed(found([publicNode(7)])),
+        privateMergedChanges: () => Effect.succeed(found([privateNode()])),
       },
       ['2026-11-07'],
     );
@@ -118,8 +62,7 @@ describe('fetchMergedChanges', () => {
           queries.push(query);
           return Effect.succeed({ search: { issueCount: 0 } });
         },
-        publicMergedChanges: () =>
-          Effect.succeed({ search: { pageInfo: lastPage, nodes: [] } }),
+        publicMergedChanges: noPublicChanges,
         privateMergedChanges: noPrivateChanges,
       },
       ['2026-11-01', '2026-11-02'],
@@ -136,15 +79,11 @@ describe('fetchMergedChanges', () => {
       {
         countMergedChanges: () => Effect.succeed({ search: { issueCount: 2 } }),
         publicMergedChanges: ({ after }) =>
-          Effect.succeed({
-            search:
-              after === 'second'
-                ? { pageInfo: lastPage, nodes: [publicNode(2)] }
-                : {
-                    pageInfo: { hasNextPage: true, endCursor: 'second' },
-                    nodes: [publicNode(1), null],
-                  },
-          }),
+          Effect.succeed(
+            after === 'second'
+              ? found([publicNode(2)], lastPage, 2)
+              : found([publicNode(1)], moreAfter('second'), 2),
+          ),
         privateMergedChanges: noPrivateChanges,
       },
       ['2026-11-07'],
@@ -169,7 +108,7 @@ describe('fetchMergedChanges beyond the limits of one request', () => {
           }),
         publicMergedChanges: ({ query }) => {
           searched.push(query.slice(query.indexOf('merged:')));
-          return Effect.succeed({ search: { pageInfo: lastPage, nodes: [] } });
+          return Effect.succeed(found([]));
         },
         privateMergedChanges: noPrivateChanges,
       },
@@ -201,31 +140,19 @@ describe('fetchMergedChanges beyond the limits of one request', () => {
     const exit = await run(
       {
         countMergedChanges: () => Effect.succeed({ search: { issueCount: 1 } }),
-        publicMergedChanges: () =>
-          Effect.succeed({ search: { pageInfo: lastPage, nodes: [] } }),
+        publicMergedChanges: noPublicChanges,
         privateMergedChanges: () =>
-          Effect.succeed({
-            search: {
-              pageInfo: lastPage,
-              nodes: [
-                privateNode({
-                  pageInfo: { hasNextPage: true, endCursor: 'more' },
-                  nodes: [passedCheck],
-                }),
-              ],
-            },
-          }),
+          Effect.succeed(
+            found([privateNode(checks([passedCheck], moreAfter('more'), 2))]),
+          ),
         commitChecks: ({ after }) =>
           Effect.succeed({
             node: {
               statusCheckRollup: {
                 contexts:
                   after === 'more'
-                    ? { pageInfo: lastPage, nodes: [failedLater] }
-                    : {
-                        pageInfo: { hasNextPage: true, endCursor: 'more' },
-                        nodes: [passedCheck],
-                      },
+                    ? checks([failedLater], lastPage, 2)
+                    : checks([passedCheck], moreAfter('more'), 2),
               },
             },
           }),

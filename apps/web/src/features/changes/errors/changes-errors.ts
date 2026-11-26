@@ -27,6 +27,21 @@ export class SearchWindowTooLargeError extends Schema.TaggedError<SearchWindowTo
   },
 ) {}
 
+/**
+ * GitHub answered, but part of what was asked for is missing: an empty entry
+ * where a record belongs, a page that is gone, or a list that is not as long
+ * as GitHub says it is. The chart would be drawn with a part missing, so the
+ * run ends. `subject` names what is incomplete in fixed text, and the message
+ * adds nothing but counts, so it is safe to print in a public CI log.
+ */
+export class IncompleteDataError extends Schema.TaggedError<IncompleteDataError>()(
+  'IncompleteDataError',
+  {
+    subject: Schema.String,
+    message: Schema.String,
+  },
+) {}
+
 export class SnapshotWriteError extends Schema.TaggedError<SnapshotWriteError>()(
   'SnapshotWriteError',
   {

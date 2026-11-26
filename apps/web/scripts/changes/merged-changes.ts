@@ -1,7 +1,8 @@
 import { Array as Arr, Effect, Schedule } from 'effect';
-import type { GraphQLClient, GraphQLClientError } from 'effect/graphql';
+import type { GraphQLClientError } from 'effect/graphql';
 import {
   GitHubRequestError,
+  IncompleteDataError,
   SearchWindowTooLargeError,
 } from '@/features/changes/errors/changes-errors';
 import type { MergedChange } from '@/features/changes/services/assemble-snapshot';
@@ -65,59 +66,177 @@ export const request = <A, R>(
     ),
   );
 
-export const allPages = Effect.fnUntraced(function* <Node, E, R>(
+/**
+ * One page of a list, with how many entries GitHub says the whole list has.
+ * A page that is not the last says where the next one starts.
+ */
+export type ListPage<Node> = Readonly<{
+  total: number;
+  pageInfo: Readonly<{ hasNextPage: boolean; endCursor: string | null }>;
+  nodes: ReadonlyArray<Node | null> | null;
+}>;
+
+// How often a list is read before the run gives up on it.
+const readings = 3;
+
+const incomplete = (subject: string, problem: string): IncompleteDataError =>
+  new IncompleteDataError({
+    subject,
+    message: `GitHub did not return all of ${subject}: ${problem}.`,
+  });
+
+// The entries of a list whose pages have all arrived. Fails unless they make
+// up the whole list: every page reports the same length, no entry is empty,
+// and there are as many entries as the list is long.
+const wholeList = <Node>(
+  subject: string,
+  pages: Arr.NonEmptyReadonlyArray<ListPage<Node>>,
+): Effect.Effect<ReadonlyArray<Node>, IncompleteDataError> => {
+  const { total } = Arr.headNonEmpty(pages);
+  if (pages.some((page) => page.total !== total)) {
+    return Effect.fail(
+      incomplete(
+        subject,
+        `its pages report different lengths (${pages.map((page) => page.total).join(', ')})`,
+      ),
+    );
+  }
+  const entries = pages.flatMap((page) => page.nodes ?? []);
+  const records = entries.filter((entry) => entry !== null);
+  if (records.length !== entries.length) {
+    return Effect.fail(
+      incomplete(
+        subject,
+        `${entries.length - records.length} of its entries are empty`,
+      ),
+    );
+  }
+  if (records.length !== total) {
+    return Effect.fail(
+      incomplete(
+        subject,
+        `it has ${total} entries and ${records.length} arrived`,
+      ),
+    );
+  }
+  return Effect.succeed(records);
+};
+
+// Reads a list once, from its first page to its last.
+const oneReading = Effect.fnUntraced(function* <Node, E, R>(
+  subject: string,
   page: (
     after: string | null,
-  ) => Effect.Effect<GraphQLClient.NodesConnection<Node | null>, E, R>,
+  ) => Effect.Effect<ListPage<Node> | undefined, E, R>,
 ) {
-  const nodes: Array<Node> = [];
-  let after: string | null = null;
-  while (true) {
-    const connection: GraphQLClient.NodesConnection<Node | null> =
-      yield* page(after);
-    nodes.push(...(connection.nodes ?? []).filter((node) => node !== null));
-    if (!connection.pageInfo.hasNextPage) {
-      return nodes;
-    }
-    after = connection.pageInfo.endCursor;
+  const first = yield* page(null);
+  if (first === undefined) {
+    return yield* incomplete(subject, 'its first page is missing');
   }
+  const pages: Arr.NonEmptyArray<ListPage<Node>> = [first];
+  while (Arr.lastNonEmpty(pages).pageInfo.hasNextPage) {
+    const after = Arr.lastNonEmpty(pages).pageInfo.endCursor;
+    if (after === null) {
+      return yield* incomplete(
+        subject,
+        'a page does not say where the next one starts',
+      );
+    }
+    const next: ListPage<Node> | undefined = yield* page(after);
+    if (next === undefined) {
+      return yield* incomplete(subject, 'a page after the first is missing');
+    }
+    pages.push(next);
+  }
+  return yield* wholeList(subject, pages);
+});
+
+/**
+ * Every entry of a list that is read page by page. `subject` names the list
+ * in messages and has to be safe to print in a public log.
+ *
+ * A list can change between two pages, for example when a change merges, and
+ * then a reading has a gap or reports two lengths. Such a reading is thrown
+ * away and the list is read again from its first page. Only a whole reading
+ * is returned, and the run fails when none of `readings` is whole.
+ */
+export const allPages = <Node, E, R>(
+  subject: string,
+  page: (
+    after: string | null,
+  ) => Effect.Effect<ListPage<Node> | undefined, E, R>,
+) =>
+  Effect.retry(oneReading(subject, page), {
+    while: (error) => error instanceof IncompleteDataError,
+    times: readings - 1,
+  });
+
+/** The page of a search in `result`. */
+export const searchPage = <Node>(
+  result: Readonly<{
+    search: Readonly<{ issueCount: number }> & Omit<ListPage<Node>, 'total'>;
+  }>,
+): ListPage<Node> => ({
+  total: result.search.issueCount,
+  pageInfo: result.search.pageInfo,
+  nodes: result.search.nodes,
+});
+
+const checksOfCommit = 'the checks of a commit';
+
+const checksPage = (
+  contexts: NonNullable<FinalCommit['statusCheckRollup']>['contexts'],
+): ListPage<CheckContext> => ({
+  total: contexts.totalCount,
+  pageInfo: contexts.pageInfo,
+  nodes: contexts.nodes,
 });
 
 const checkContexts = Effect.fnUntraced(function* (commit: FinalCommit) {
+  // A commit that no check ran on has no check list, and that is not a gap.
   const firstPage = commit.statusCheckRollup?.contexts;
   if (firstPage === undefined) {
     return [];
   }
   if (!firstPage.pageInfo.hasNextPage) {
-    return (firstPage.nodes ?? []).filter((node) => node !== null);
+    // The search brought the whole list along in one response, so there is
+    // nothing to read again when it is not whole.
+    return yield* wholeList(checksOfCommit, [checksPage(firstPage)]);
   }
   const github = yield* GitHubGraphQL;
-  return yield* allPages((after) =>
+  return yield* allPages(checksOfCommit, (after) =>
     request(
       'read the checks of a commit',
       github.commitChecks({ commit: commit.id, after }),
     ).pipe(
-      Effect.map(
-        (result) =>
-          result.node?.statusCheckRollup?.contexts ?? {
-            pageInfo: { hasNextPage: false, endCursor: null },
-            nodes: [],
-          },
-      ),
+      Effect.map((result) => {
+        // The commit had a check list when the search read it, so a commit
+        // or a list that is gone now is a missing page.
+        const contexts = result.node?.statusCheckRollup?.contexts;
+        return contexts === undefined ? undefined : checksPage(contexts);
+      }),
     ),
   );
 });
 
 const judged = Effect.fnUntraced(function* (node: PrivatePullRequestNode) {
   const commit = node.commits.nodes?.[0]?.commit;
-  const contexts: ReadonlyArray<CheckContext> =
-    commit === undefined ? [] : yield* checkContexts(commit);
+  if (commit === undefined) {
+    // Without its last commit a change would count as unchecked, and a
+    // private change that is unchecked is left out of the chart.
+    return yield* new IncompleteDataError({
+      subject: 'the last commit of a merged change',
+      message:
+        'GitHub returned a merged change without its last commit, so its checks cannot be read.',
+    });
+  }
+  const contexts: ReadonlyArray<CheckContext> = yield* checkContexts(commit);
   return {
     mergedAt: node.mergedAt,
     linesChanged: node.additions + node.deletions,
     ...judgeAtMerge(node.mergedAt, toCheckRuns(contexts)),
     repositoryId: node.repository.databaseId,
-    headSha: commit?.oid ?? '',
+    headSha: commit.oid,
   };
 });
 
@@ -156,19 +275,23 @@ const changesWithin = Effect.fnUntraced(function* (
 ) {
   const github = yield* GitHubGraphQL;
   if (visibility === 'public') {
-    const nodes = yield* allPages((after) =>
-      request(
-        'search public merged changes',
-        github.publicMergedChanges({ query, after }),
-      ).pipe(Effect.map((result) => result.search)),
+    const nodes = yield* allPages(
+      'the public merged changes of a search',
+      (after) =>
+        request(
+          'search public merged changes',
+          github.publicMergedChanges({ query, after }),
+        ).pipe(Effect.map(searchPage)),
     );
     return yield* Effect.forEach(nodes, publicChange);
   }
-  const nodes = yield* allPages((after) =>
-    request(
-      'search private merged changes',
-      github.privateMergedChanges({ query, after }),
-    ).pipe(Effect.map((result) => result.search)),
+  const nodes = yield* allPages(
+    'the private merged changes of a search',
+    (after) =>
+      request(
+        'search private merged changes',
+        github.privateMergedChanges({ query, after }),
+      ).pipe(Effect.map(searchPage)),
   );
   return yield* Effect.forEach(nodes, privateChange);
 });

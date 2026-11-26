@@ -1,26 +1,37 @@
 import { describe, expect, it } from 'bun:test';
 import { buildInfo, decodeBuildInfo } from './build-info';
 
+const commit = {
+  sha: 'd356c99c0ffee0d356c99c0ffee0d356c99c0ffe',
+  title: 'docs: say "checks" in $PLAIN words (#143)',
+  committedOn: '2026-11-23',
+  released: true,
+};
+
 describe('build info', () => {
   it('makes no claim for the file that is checked in', () => {
     expect(buildInfo).toBeNull();
   });
 
   it('reads the commit the publishing workflow wrote', () => {
-    const commit = {
-      sha: 'd356c99c0ffee',
-      title: 'docs: say "checks" in $PLAIN words (#143)',
-      committedOn: '2026-11-23',
-      released: true,
-    };
-
     expect(decodeBuildInfo({ commit })).toEqual(commit);
+  });
+
+  it.each([
+    ['a shortened hash', { sha: 'd356c99' }],
+    ['a word in place of the hash', { sha: 'unknown' }],
+    ['a date that is none', { committedOn: 'unknown' }],
+    ['a date with its time', { committedOn: '2026-11-23T10:00:00Z' }],
+  ])('rejects %s', (_what, wrong) => {
+    expect(() =>
+      decodeBuildInfo({ commit: { ...commit, ...wrong } }),
+    ).toThrow();
   });
 
   it('rejects a file that names only part of a commit', () => {
     expect(() =>
       decodeBuildInfo({
-        commit: { sha: 'd356c99c0ffee', title: '', released: true },
+        commit: { sha: commit.sha, title: '', released: true },
       }),
     ).toThrow();
   });

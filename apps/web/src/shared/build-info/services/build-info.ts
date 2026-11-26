@@ -6,11 +6,16 @@ import buildInfoData from '../data/build-info.json' with { type: 'json' };
  * it to `data/build-info.json` before it builds the image. The file that is
  * checked in names no commit, so a local build makes no claim about its own.
  */
+// The footer links to the commit by its hash and shows its date, so a file
+// with anything else in these two fields fails the build.
+const fullSha = /^[0-9a-f]{40}$/u;
+const isoDay = /^\d{4}-\d{2}-\d{2}$/u;
+
 const BuildInfo = Schema.Struct({
-  sha: Schema.NonEmptyString,
+  sha: Schema.String.check(Schema.isPattern(fullSha)),
   title: Schema.NonEmptyString,
-  /** The commit's date as `YYYY-MM-DD`. */
-  committedOn: Schema.NonEmptyString,
+  /** The day the commit was made in Berlin, as `YYYY-MM-DD`. */
+  committedOn: Schema.String.check(Schema.isPattern(isoDay)),
   /** False for a preview, which is built before its checks have finished. */
   released: Schema.Boolean,
 });

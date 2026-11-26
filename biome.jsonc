@@ -170,9 +170,12 @@
       }
     },
     {
-      // GitHub's REST API answers in snake_case, and this test declares
+      // GitHub's REST API answers in snake_case, and these tests declare
       // responses the way the API sends them.
-      "includes": ["apps/web/scripts/changes/failed-attempts.test.ts"],
+      "includes": [
+        "apps/web/scripts/changes/failed-attempts.test.ts",
+        "apps/web/scripts/changes/token-coverage.test.ts"
+      ],
       "linter": {
         "rules": {
           "style": {

@@ -1,6 +1,5 @@
 import { Effect } from 'effect';
 import {
-  HttpClientError,
   HttpClientResponse,
   type HttpClientResponse as Response,
 } from 'effect/http';
@@ -8,7 +7,7 @@ import { GitHubRequestError } from '@/features/changes/errors/changes-errors';
 import type { FailedAttempt } from '@/features/changes/services/assemble-snapshot';
 import { wasSentBack } from '@/features/changes/services/sent-back';
 import { PrivateRunsPage, PublicRunsPage } from './github-operations';
-import { GitHubRest } from './github-rest';
+import { GitHubRest, restFailureReason } from './github-rest';
 import { allPages, type FetchedChange, type ListPage } from './merged-changes';
 
 type Filters = ReadonlyArray<readonly [string, string]>;
@@ -28,18 +27,6 @@ const decodePublicPage = HttpClientResponse.schemaBodyJson(PublicRunsPage);
 const decodePrivatePage = HttpClientResponse.schemaBodyJson(PrivateRunsPage);
 
 const operation = 'list failed pull request runs';
-
-// Says how reading a page failed, in words that are safe in a public log. The
-// error itself is not passed on: its message holds the address of the
-// request, which names the repository by its id, and a decoding error can
-// quote the response.
-const reasonOf = (error: unknown): string => {
-  if (!HttpClientError.isHttpClientError(error)) {
-    return 'the response did not have the expected shape';
-  }
-  const status = error.response?.status;
-  return `${error.reason._tag}, ${status === undefined ? 'no HTTP status' : `HTTP status ${status}`}`;
-};
 
 // `label` is how a message names the repository. The caller passes the name
 // of a public repository and nothing that identifies a private one, not even
@@ -71,7 +58,7 @@ const failedRuns = Effect.fnUntraced(function* <Run extends { id: number }>(
         })
         .pipe(
           Effect.flatMap(decodePage),
-          Effect.mapError((error) => failed(reasonOf(error))),
+          Effect.mapError((error) => failed(restFailureReason(error))),
           Effect.flatMap(
             (body): Effect.Effect<ListPage<Run>, GitHubRequestError> =>
               body.total >= listLimit

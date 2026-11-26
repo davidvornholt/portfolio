@@ -1,5 +1,5 @@
 import process from 'node:process';
-import { Config, DateTime, Effect, Exit, Layer, Redacted } from 'effect';
+import { Config, DateTime, Effect, Exit, Layer, type Redacted } from 'effect';
 import { SnapshotWriteError } from '@/features/changes/errors/changes-errors';
 import { assembleSnapshot } from '@/features/changes/services/assemble-snapshot';
 import {
@@ -21,6 +21,7 @@ import {
   type Visibility,
 } from './merged-changes';
 import { fetchAcceptedElsewhere, fetchSiteRecord } from './repository-records';
+import { checkedTokensAndOwners } from './token-coverage';
 
 const login = 'davidvornholt';
 const siteRepository = 'davidvornholt/portfolio';
@@ -30,28 +31,16 @@ const snapshotUrl = new URL(
   '../../src/features/changes/data/changes.json',
   import.meta.url,
 );
-const tokenSeparator = /[\s,]+/u;
 
-// One or more read-only tokens, separated by commas or whitespace. Public
-// data is read with the first. Private data is read once with each, because
-// each token sees the private repositories of one owner.
-const tokens = Config.Redacted('CHANGES_GITHUB_TOKENS').pipe(
-  Config.map((value) =>
-    Redacted.value(value)
-      .split(tokenSeparator)
-      .filter((token) => token !== '')
-      .map((token) => Redacted.make(token)),
-  ),
-);
+// One or more read-only tokens, separated by commas. Public data is read with
+// the first. Private data is read once with each, because each token sees
+// the private repositories of one owner.
+const rawTokens = Config.Redacted('CHANGES_GITHUB_TOKENS');
 
 // The accounts and organisations whose repositories are David's own,
 // separated like the tokens. A public repository of any other owner counts
 // as someone else's project that accepted a change.
-const ownOwners = Config.String('CHANGES_OWNERS').pipe(
-  Config.map((value) =>
-    value.split(tokenSeparator).filter((owner) => owner !== ''),
-  ),
-);
+const rawOwners = Config.String('CHANGES_OWNERS');
 
 const gitHub = (token: Redacted.Redacted) =>
   Layer.mergeAll(GitHubGraphQL.layer, GitHubRest.layer).pipe(
@@ -101,18 +90,14 @@ const fetchChanges = Effect.gen(function* () {
   // A German day starts up to two hours before the UTC day of the same date,
   // so the search reaches one UTC day further back than the window.
   const searchDays = daysEndingOn(berlinDay(fetchedAt), dayCount + 1);
-  const [firstToken, ...otherTokens] = yield* tokens;
-  if (firstToken === undefined) {
-    return yield* Effect.fail(
-      new Error('CHANGES_GITHUB_TOKENS holds no token.'),
-    );
-  }
-  const owners = yield* ownOwners;
-  if (!owners.includes(login)) {
-    return yield* Effect.fail(
-      new Error(`CHANGES_OWNERS has to name ${login} among the own owners.`),
-    );
-  }
+  // Nothing is fetched before the tokens are known to read all they have to.
+  const { tokens, owners } = yield* checkedTokensAndOwners(
+    yield* rawTokens,
+    yield* rawOwners,
+    login,
+    gitHub,
+  );
+  const [firstToken] = tokens;
 
   const open = yield* Effect.gen(function* () {
     const visible = yield* changesAndAttempts(searchDays, 'public', new Set());
@@ -124,7 +109,7 @@ const fetchChanges = Effect.gen(function* () {
   const changes: Array<FetchedChange> = [...open.changes];
   const attempts = [...open.attempts];
   const known = new Set<number>();
-  yield* Effect.forEach([firstToken, ...otherTokens], (token) =>
+  yield* Effect.forEach(tokens, (token) =>
     Effect.gen(function* () {
       const hidden = yield* changesAndAttempts(searchDays, 'private', known);
       changes.push(...hidden.changes);

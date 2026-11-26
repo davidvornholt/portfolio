@@ -68,16 +68,26 @@ const dailyDispatchJob = {
   ],
 };
 
+/**
+ * The first step of each job that builds or releases. An `if` compares
+ * strings without regard to case, so it also holds on a branch named `Main`.
+ * The shell compares exactly.
+ */
+export const mainBranchCheck = {
+  name: 'Require the main branch exactly',
+  run: 'test "$GITHUB_REF" = refs/heads/main',
+};
+
 const releaseJobs = [
   {
     name: 'gate',
-    if: `${pushOrDispatch} && ${mainRef}`,
+    if: `${pushOrDispatch} && ${canonicalRepository} && ${mainRef}`,
     needs: undefined,
     permissions: { actions: 'read' },
   },
   {
     name: 'build',
-    if: `${pushOrDispatch} && ${mainRef}`,
+    if: `${pushOrDispatch} && ${canonicalRepository} && ${mainRef}`,
     needs: undefined,
     permissions: { contents: 'read', packages: 'write' },
   },
@@ -137,6 +147,11 @@ const jobViolations = (workflow: unknown): ReadonlyArray<string> => {
     ...releaseJobs.flatMap((job) => [
       ...same(`jobs.${job.name}.if`, at(jobs, job.name, 'if'), job.if),
       ...same(`jobs.${job.name}.needs`, at(jobs, job.name, 'needs'), job.needs),
+      ...same(
+        `jobs.${job.name}.steps[0]`,
+        at(jobs, job.name, 'steps', 0),
+        mainBranchCheck,
+      ),
       ...same(
         `jobs.${job.name}.permissions`,
         at(jobs, job.name, 'permissions'),

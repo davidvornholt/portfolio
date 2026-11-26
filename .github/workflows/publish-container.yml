@@ -250,6 +250,7 @@ jobs:
   gate:
     if: >-
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.repository == 'davidvornholt/portfolio' &&
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -257,6 +258,13 @@ jobs:
     outputs:
       gated-sha: ${{ steps.gate.outputs.sha }}
     steps:
+      # An `if` compares strings without regard to case, so the conditions of
+      # the gate, the build and the release also hold on a branch named
+      # `Main`. Each of the three starts with this step, which compares
+      # exactly, before it polls, checks out or reads a secret.
+      - name: Require the main branch exactly
+        run: test "$GITHUB_REF" = refs/heads/main
+
       - name: Require the standards gate for this exact commit
         id: gate
         env:
@@ -309,6 +317,7 @@ jobs:
   build:
     if: >-
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.repository == 'davidvornholt/portfolio' &&
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -317,6 +326,9 @@ jobs:
     outputs:
       digest: ${{ steps.build.outputs.digest }}
     steps:
+      - name: Require the main branch exactly
+        run: test "$GITHUB_REF" = refs/heads/main
+
       - name: Checkout the commit being published
         uses: actions/checkout@v7
         with:
@@ -498,6 +510,9 @@ jobs:
       cancel-in-progress: false
       queue: max
     steps:
+      - name: Require the main branch exactly
+        run: test "$GITHUB_REF" = refs/heads/main
+
       - name: Checkout the commit being released
         uses: actions/checkout@v7
         with:

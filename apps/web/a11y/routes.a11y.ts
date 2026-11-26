@@ -131,6 +131,23 @@ test('code snippet headers fit a 320 CSS pixel viewport', async ({ page }) => {
   ).toBeLessThanOrEqual(320);
 });
 
+const permanentRedirect = 308;
+const notFound = 404;
+
+// A moved article answers with a permanent redirect, which a browser test
+// can't tell from a temporary one. Nothing else redirects: a name every
+// object inherits, such as "toString", is not a moved article.
+test('only a moved article redirects, and permanently', async ({ request }) => {
+  const moved = await request.get('/posts/building-the-architects-portfolio', {
+    maxRedirects: 0,
+  });
+  const inherited = await request.get('/posts/toString', { maxRedirects: 0 });
+
+  expect(moved.status()).toBe(permanentRedirect);
+  expect(moved.headers().location).toMatch(movedArticleAddress);
+  expect(inherited.status()).toBe(notFound);
+});
+
 // The address was shared on LinkedIn and X before the article was replaced.
 test('the old address of the article on this site leads to the new one', async ({
   page,
@@ -277,7 +294,10 @@ test('the keyboard steps through the chart and each change is described', {
   ).toBeHidden();
 });
 
+const movedArticleAddress = /\/posts\/this-site-looked-ai-made$/u;
 const stepCount = 6;
+// Long enough, in milliseconds, for a skipped movement to light what follows it.
+const afterSkip = 400;
 const exampleRepositoryPattern =
   /^https:\/\/github\.com\/davidvornholt\/standards\//u;
 
@@ -307,6 +327,16 @@ test('the path of every change plays in view and can be skipped', {
     section.locator('.journey-steps').getByRole('listitem'),
   ).toHaveCount(stepCount);
   expect(await scanWcag22AaViolations(page)).toEqual([]);
+
+  // The skip came during the first movement. What that movement would have
+  // lit next, the review's red square and its "3 blockers", must not appear
+  // on the finished picture afterwards.
+  await page.evaluate(
+    (wait) => new Promise((resolve) => globalThis.setTimeout(resolve, wait)),
+    afterSkip,
+  );
+  await expect(figure.locator('[data-lit]')).toHaveCount(0);
+  await expect(figure.locator('[data-flag="bad"]')).toHaveCSS('opacity', '0');
 });
 
 // Each station on the bar leads to what the example change left there, on a

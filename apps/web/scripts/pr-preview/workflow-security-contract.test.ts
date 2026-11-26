@@ -16,8 +16,10 @@ const buildJob = producer.slice(
 );
 const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
 const mainRef = "github.ref == 'refs/heads/main'";
-const pushOrDispatch =
-  "(github.event_name == 'push' || github.event_name == 'workflow_dispatch')";
+
+// These tests read the workflows as text. Which job and step may hold a
+// secret or a token, and when the release jobs run, is checked on the parsed
+// workflow in publish-workflow-contract.test.ts.
 
 describe('preview producer trust boundary', () => {
   it('grants untrusted pull request code only repository read access', () => {
@@ -178,19 +180,6 @@ describe('trusted preview consumer boundary', () => {
   });
 });
 
-// Actions, checks, metadata, pull requests and statuses.
-const readPermissionsPerToken = 5;
-const mintedOwnerPattern = /^ {10}owner: (?<owner>\S+)$/gmu;
-const namedOwnersPattern = /^ {10}CHANGES_OWNERS: (?<owners>\S+)$/mu;
-const usedTokenPattern =
-  /steps\.changes-token-(?<owner>[\w-]+)\.outputs\.token/gu;
-const clientIdUsePattern = /steps\.changes-app-client-id\.outputs\.value/gu;
-const privateKeyUsePattern = /steps\.changes-app-private-key\.outputs\.value/gu;
-const readPermissionPattern = /permission-[a-z-]+: read/gu;
-const writePermissionPattern = /permission-[a-z-]+: write/u;
-const appTokenStepPattern = /uses: actions\/create-github-app-token@/gu;
-const changesTokenStepPattern = /id: changes-token-/gu;
-
 describe('chart data on publish', () => {
   it('fetches the day’s changes with read-only tokens before anything is built', () => {
     const clientId = buildJob.indexOf('secret-key: changes_app.client_id');
@@ -206,81 +195,11 @@ describe('chart data on publish', () => {
     expect(build).toBeGreaterThan(fetch);
   });
 
-  it('mints one read-only token for each of the owners it names', () => {
-    const minted = [...buildJob.matchAll(mintedOwnerPattern)].map(
-      (match) => match.groups?.owner ?? '',
-    );
-    const named = namedOwnersPattern.exec(buildJob)?.groups?.owners?.split(',');
-    const used = [...buildJob.matchAll(usedTokenPattern)].map(
-      (match) => match.groups?.owner ?? '',
-    );
-
-    expect(minted.length).toBeGreaterThan(0);
-    expect(named).toEqual(minted);
-    // Each token is named once, in the step that fetches the data.
-    expect(used).toEqual(minted);
-    // The App's credentials reach the mint steps and nothing else.
-    expect(buildJob.match(clientIdUsePattern)).toHaveLength(minted.length);
-    expect(buildJob.match(privateKeyUsePattern)).toHaveLength(minted.length);
-    expect(buildJob.match(readPermissionPattern)).toHaveLength(
-      minted.length * readPermissionsPerToken,
-    );
-    expect(buildJob).not.toMatch(writePermissionPattern);
-  });
-
-  it('never gives the tokens to a pull request build', () => {
-    expect(pullRequestJob).not.toContain('sops-secret');
-    expect(pullRequestJob).not.toContain('secrets.');
-    expect(pullRequestJob).not.toContain('changes:fetch');
-    expect(pullRequestJob).not.toContain('create-github-app-token');
-  });
-
   it('says that a build is released only in the release build', () => {
     expect(pullRequestJob).toContain('released: false}');
     expect(pullRequestJob).not.toContain('released: true}');
     expect(buildJob).toContain('released: true}');
     expect(buildJob).not.toContain('released: false}');
-  });
-});
-
-describe('daily publish', () => {
-  const gateJob = producer.slice(
-    producer.indexOf('  gate:'),
-    producer.indexOf('  build:'),
-  );
-  const dailyJob = producer.slice(
-    producer.indexOf('  daily-dispatch:'),
-    producer.indexOf('  gate:'),
-  );
-
-  // The production host accepts a release only from a push or a dispatch, so
-  // a scheduled run that built and released would always be turned away.
-  it('lets the schedule only dispatch the workflow on main', () => {
-    expect(producer).toContain('  schedule:\n    - cron: "17 4 * * *"\n');
-    expect(producer).toContain('\n  workflow_dispatch:\n');
-    expect(dailyJob).toContain(
-      [
-        '    if: >-',
-        "      github.event_name == 'schedule' &&",
-        `      ${canonicalRepository}\n`,
-      ].join('\n'),
-    );
-    expect(dailyJob).toContain('    permissions:\n      actions: write\n');
-    expect(dailyJob).toContain(
-      '        run: gh workflow run publish-container.yml --repo "$REPOSITORY" --ref main\n',
-    );
-    expect(dailyJob).not.toContain('secrets.');
-    expect(dailyJob).not.toContain('uses:');
-    for (const job of [gateJob, buildJob]) {
-      expect(job).toContain(
-        ['    if: >-', `      ${pushOrDispatch} &&`, `      ${mainRef}\n`].join(
-          '\n',
-        ),
-      );
-    }
-    expect(producer.match(/github\.event_name == 'schedule'/gu)).toHaveLength(
-      1,
-    );
   });
 });
 
@@ -302,12 +221,10 @@ describe('production release boundary', () => {
     'known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5';
 
   it('builds the pushed commit beside the gate with its revision bound', () => {
-    expect(buildJob).not.toContain('needs:');
     expect(buildJob).toContain(
       `org.opencontainers.image.revision=${githubExpression('github.sha')}`,
     );
     expect(buildJob).toContain('provenance: false');
-    expect(buildJob).not.toContain('id-token');
   });
 
   it('writes the layer cache only from the build a push starts', () => {
@@ -320,26 +237,9 @@ describe('production release boundary', () => {
   });
 
   it('releases only the gated exact commit digest through the queued host action', () => {
-    expect(releaseJob).toContain('    needs:\n      - gate\n      - build');
-    expect(releaseJob).toContain(
-      [
-        '    if: >-',
-        `      ${pushOrDispatch} &&`,
-        `      ${canonicalRepository} &&`,
-        `      ${mainRef} &&`,
-        '      needs.gate.outputs.gated-sha == github.sha\n',
-      ].join('\n'),
-    );
-    expect(releaseJob).toContain(releasePermissions);
     expect(releaseJob).toContain(releaseQueue);
     expect(releaseJob).toContain('          persist-credentials: false');
     expect(releaseJob).toContain(`ref: ${githubExpression('github.sha')}`);
-    expect(releaseJob).toContain('uses: ./.github/actions/app-release');
-    expect(releaseJob).toContain('          unit: portfolio');
-    expect(releaseJob).toContain(knownHost);
-    expect(releaseJob).toContain(
-      `images: portfolio@${githubExpression('needs.build.outputs.digest')}`,
-    );
     expect(releaseJob).not.toContain('buildcache');
   });
 
@@ -361,13 +261,6 @@ describe('production release boundary', () => {
   it('no longer announces images to an infrastructure repository', () => {
     expect(producer).not.toContain('IMAGE_PROMOTION');
     expect(producer).not.toContain('image-bump');
-    // The only App tokens left in this workflow are the read-only ones that
-    // fetch the chart's data. The broker App, which can write, stays out.
-    expect(producer).not.toContain('broker_app');
-    expect(releaseJob).not.toContain('create-github-app-token');
-    expect(producer.match(appTokenStepPattern)).toHaveLength(
-      producer.match(changesTokenStepPattern)?.length ?? 0,
-    );
   });
 
   it('rolls back from main of this repository in the same queue as releases', () => {

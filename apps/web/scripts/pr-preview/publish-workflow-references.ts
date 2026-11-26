@@ -6,14 +6,16 @@ import {
 } from './publish-workflow-parts';
 import { at, type Leaf, leavesOf, type Step, unless } from './workflow-tree';
 
+// The runner looks up `steps`, `secrets`, `outputs` and the id of a step
+// without regard to case, so the patterns and the ids ignore case too.
 const expressionPattern = /\$\{\{(?<body>.*?)\}\}/gsu;
 const stepReference =
-  /\bsteps\.(?<id>[\w-]+)\.(?:outputs\.[\w-]+|outcome|conclusion)\b/gu;
+  /\bsteps\.(?<id>[\w-]+)\.(?:outputs\.[\w-]+|outcome|conclusion)\b/giu;
 // `steps` read in any other way, such as `toJSON(steps)` or `steps.*`, which
 // would reach a token without naming its step.
 const otherUseOfSteps =
-  /\bsteps\b(?!\.[\w-]+\.(?:outputs\.[\w-]+|outcome|conclusion)\b)/u;
-const useOfSecrets = /\bsecrets\s*(?:\.|\[|\))/u;
+  /\bsteps\b(?!\.[\w-]+\.(?:outputs\.[\w-]+|outcome|conclusion)\b)/iu;
+const useOfSecrets = /\bsecrets\s*(?:\.|\[|\))/iu;
 const jobOfPath = /^jobs\.(?<job>[\w-]+)\./u;
 
 // The expressions a string holds. An `if` is an expression as a whole.
@@ -27,8 +29,8 @@ const expressionsOf = (leaf: Leaf): ReadonlyArray<string> =>
 // Where each guarded value may stand: in the steps of the one job that may
 // hold it. Anywhere else is a violation.
 const placesOf = (parts: Parts) => {
-  const ids = (steps: ReadonlyArray<Step>): ReadonlyArray<unknown> =>
-    steps.map((step) => at(step.step, 'id'));
+  const ids = (steps: ReadonlyArray<Step>): ReadonlyArray<string> =>
+    steps.map((step) => String(at(step.step, 'id') ?? '').toLowerCase());
   const paths = (steps: ReadonlyArray<Step>, job: string, suffix: string) =>
     steps
       .filter((step) => step.job === job)
@@ -65,7 +67,7 @@ const stepReferenceViolations = (
       `${leaf.path} reads the steps other than by one named output`,
     ),
     ...[...body.matchAll(stepReference)].flatMap((match) => {
-      const id = match.groups?.id ?? '';
+      const id = (match.groups?.id ?? '').toLowerCase();
       const isCredential = credentialSteps.some((step) => step.id === id);
       return [
         ...unless(

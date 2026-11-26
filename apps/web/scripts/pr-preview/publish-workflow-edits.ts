@@ -38,6 +38,11 @@ export const stepOf = (workflow: Tree, job: string, name: string): Tree => {
   return step;
 };
 
+export const alsoOn = (workflow: Tree, job: string, event: string): void => {
+  const body = tree(workflow, 'jobs', job);
+  body.if = `${String(body.if)} || github.event_name == '${event}'`;
+};
+
 /** One edit of the workflow and a part of the violation it has to produce. */
 export type Edit = Readonly<{
   name: string;

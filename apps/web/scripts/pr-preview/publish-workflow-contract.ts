@@ -78,7 +78,28 @@ export const mainBranchCheck = {
   run: 'test "$GITHUB_REF" = refs/heads/main',
 };
 
-const releaseJobs = [
+// The pull request job runs code from a pull request, so it runs only for a
+// labelled pull request of this repository into main and may only read.
+const pullRequestCondition = [
+  "github.event_name == 'pull_request'",
+  "github.event.pull_request.state == 'open'",
+  '!github.event.pull_request.draft',
+  'github.event.pull_request.base.repo.full_name == github.repository',
+  "github.event.pull_request.base.ref == 'main'",
+  'github.event.pull_request.head.repo.full_name == github.repository',
+  "contains(github.event.pull_request.labels.*.name, 'pr-preview')",
+  "(github.event.action != 'labeled' || github.event.label.name == 'pr-preview')",
+].join(' && ');
+
+const guardedJobs = ['gate', 'build', 'release'];
+
+const jobRules = [
+  {
+    name: 'container-smoke',
+    if: pullRequestCondition,
+    needs: undefined,
+    permissions: { contents: 'read' },
+  },
   {
     name: 'gate',
     if: `${pushOrDispatch} && ${canonicalRepository} && ${mainRef}`,
@@ -144,14 +165,12 @@ const jobViolations = (workflow: unknown): ReadonlyArray<string> => {
       at(jobs, 'daily-dispatch'),
       dailyDispatchJob,
     ),
-    ...releaseJobs.flatMap((job) => [
+    ...guardedJobs.flatMap((job) =>
+      same(`jobs.${job}.steps[0]`, at(jobs, job, 'steps', 0), mainBranchCheck),
+    ),
+    ...jobRules.flatMap((job) => [
       ...same(`jobs.${job.name}.if`, at(jobs, job.name, 'if'), job.if),
       ...same(`jobs.${job.name}.needs`, at(jobs, job.name, 'needs'), job.needs),
-      ...same(
-        `jobs.${job.name}.steps[0]`,
-        at(jobs, job.name, 'steps', 0),
-        mainBranchCheck,
-      ),
       ...same(
         `jobs.${job.name}.permissions`,
         at(jobs, job.name, 'permissions'),
@@ -170,6 +189,59 @@ const jobViolations = (workflow: unknown): ReadonlyArray<string> => {
 };
 
 const stepKeys = ['id', 'name', 'uses', 'with'];
+
+const releasedOrUnchanged =
+  "steps.release.outputs.result == 'released' || steps.release.outputs.result == 'unchanged'";
+
+// Every step of the release job, with the keys it may have. A condition or
+// `continue-on-error` on a step before the last two would let the job end
+// green without a release.
+const releaseSteps = [
+  { name: mainBranchCheck.name, keys: ['name', 'run'], if: undefined },
+  {
+    name: 'Checkout the commit being released',
+    keys: ['name', 'uses', 'with'],
+    if: undefined,
+  },
+  {
+    name: 'Release the gated image to production',
+    keys: stepKeys,
+    if: undefined,
+  },
+  {
+    name: 'Log in to the GitHub Container Registry',
+    keys: ['if', 'name', 'uses', 'with'],
+    if: releasedOrUnchanged,
+  },
+  {
+    name: 'Point the main tag at the released image',
+    keys: ['env', 'if', 'name', 'run'],
+    if: releasedOrUnchanged,
+  },
+];
+
+const releaseStepViolations = (workflow: unknown): ReadonlyArray<string> => {
+  const found = at(workflow, 'jobs', 'release', 'steps');
+  const steps: ReadonlyArray<unknown> = Array.isArray(found) ? found : [];
+  return [
+    ...same(
+      'the steps of jobs.release',
+      steps.map((step) => at(step, 'name')),
+      releaseSteps.map((step) => step.name),
+    ),
+    ...releaseSteps.flatMap((expected, index) => {
+      const path = `jobs.release.steps[${index}]`;
+      return [
+        ...same(
+          `the keys of ${path}`,
+          keysOf(steps[index]),
+          sorted(expected.keys),
+        ),
+        ...same(`${path}.if`, at(steps[index], 'if'), expected.if),
+      ];
+    }),
+  ];
+};
 
 const credentialViolations = (parts: Parts): ReadonlyArray<string> => [
   ...same(
@@ -283,6 +355,7 @@ export const publishWorkflowViolations = (
   const violations = [
     ...triggerViolations(workflow),
     ...jobViolations(workflow),
+    ...releaseStepViolations(workflow),
     ...credentialViolations(parts),
     ...mintViolations(parts),
     ...fetchViolations(parts),

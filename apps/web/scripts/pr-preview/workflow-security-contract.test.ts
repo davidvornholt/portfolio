@@ -17,15 +17,12 @@ const buildJob = producer.slice(
 const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
 const mainRef = "github.ref == 'refs/heads/main'";
 
-// These tests read the workflows as text. Which job and step may hold a
-// secret or a token, and when the release jobs run, is checked on the parsed
-// workflow in publish-workflow-contract.test.ts.
+// These tests read the workflows as text. When each job of the publish
+// workflow runs, what it may do, and which step may hold a secret or a token
+// is checked on the parsed workflow by publish-workflow-contract.ts.
 
 describe('preview producer trust boundary', () => {
-  it('grants untrusted pull request code only repository read access', () => {
-    expect(pullRequestJob).toContain('    permissions:\n      contents: read');
-    expect(pullRequestJob).not.toContain('      actions: read');
-    expect(pullRequestJob).not.toContain('      pull-requests: read');
+  it('gives untrusted pull request code no token to call GitHub with', () => {
     expect(pullRequestJob).not.toContain('GH_TOKEN:');
     expect(pullRequestJob).not.toContain('gh api');
   });
@@ -55,18 +52,6 @@ describe('preview producer trust boundary', () => {
     expect(producer).toContain('      - edited');
     expect(pullRequestJob).not.toContain('github.event.changes.base');
     expect(pullRequestJob).not.toContain("github.event.action != 'edited'");
-    expect(pullRequestJob).toContain(
-      'github.event.pull_request.head.repo.full_name == github.repository',
-    );
-  });
-
-  it('does not let an unrelated label start a new producer run', () => {
-    expect(pullRequestJob).toContain(
-      "contains(github.event.pull_request.labels.*.name, 'pr-preview')",
-    );
-    expect(pullRequestJob).toContain(
-      "github.event.action != 'labeled' || github.event.label.name == 'pr-preview'",
-    );
   });
 
   it('keeps producer and consumer runs in the FIFO queue without cancellation', () => {

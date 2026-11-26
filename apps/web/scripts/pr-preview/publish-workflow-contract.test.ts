@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { publishWorkflowViolations } from './publish-workflow-contract';
 import {
+  alsoOn,
   type Edit,
   parsedPublishWorkflow,
   stepOf,
@@ -21,11 +22,6 @@ const mintOf = (workflow: Tree, owner: string): Tree =>
 
 const fetchOf = (workflow: Tree): Tree =>
   stepOf(workflow, 'build', "Fetch the day's merged changes");
-
-const alsoOn = (workflow: Tree, job: string, event: string): void => {
-  const body = tree(workflow, 'jobs', job);
-  body.if = `${String(body.if)} || github.event_name == '${event}'`;
-};
 
 // The edits the reviewers of the text checks found to pass unnoticed.
 const reviewedEdits: ReadonlyArray<Edit> = [

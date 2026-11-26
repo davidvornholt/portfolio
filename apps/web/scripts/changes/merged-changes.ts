@@ -28,6 +28,24 @@ const daysPerSearch = 7;
 const concurrentSearches = 3;
 const retries = 4;
 
+// Says how a request failed without GitHub's own words. An error from a
+// search over private repositories can quote their names and titles, and so
+// can a response that does not decode, and the message ends up in a public
+// log. `operation` is fixed text, and the rest are facts about the exchange.
+const failureMessage = (
+  operation: string,
+  error: GraphQLClientError.GraphQLClientError,
+): string => {
+  const status =
+    error.status === undefined
+      ? 'no HTTP status'
+      : `HTTP status ${error.status}`;
+  const retried = error.isRetryable
+    ? `retried ${retries} times`
+    : 'not retryable';
+  return `The request to ${operation} failed: ${error.reason._tag}, ${status}, ${retried}.`;
+};
+
 export const request = <A, R>(
   operation: string,
   effect: Effect.Effect<A, GraphQLClientError.GraphQLClientError, R>,
@@ -39,7 +57,11 @@ export const request = <A, R>(
       times: retries,
     }),
     Effect.mapError(
-      (error) => new GitHubRequestError({ operation, message: error.message }),
+      (error) =>
+        new GitHubRequestError({
+          operation,
+          message: failureMessage(operation, error),
+        }),
     ),
   );
 

@@ -19,6 +19,7 @@ import { fetchFailedAttempts } from './failed-attempts';
 import { GitHubGraphQL } from './github-graphql';
 import { GitHubRest } from './github-rest';
 import { GitHubToken } from './github-token';
+import { logFailure } from './log-failure';
 import {
   type FetchedChange,
   fetchMergedChanges,
@@ -136,7 +137,7 @@ const fetchChanges = Effect.gen(function* () {
   yield* Effect.logInfo(
     `Wrote ${snapshot.days.flatMap((day) => day.changes).length} changes and ${snapshot.days.flatMap((day) => day.sentBack).length} sent-back attempts for the ${dayCount} days up to ${snapshot.updatedOn}.`,
   );
-}).pipe(Effect.tapError((error) => Effect.logError(error.message)));
+}).pipe(logFailure);
 
 const exit = await Effect.runPromiseExit(fetchChanges);
 if (Exit.isFailure(exit)) {

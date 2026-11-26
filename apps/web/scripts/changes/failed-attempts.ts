@@ -1,5 +1,6 @@
 import { Effect } from 'effect';
 import {
+  HttpClientError,
   HttpClientResponse,
   type HttpClientResponse as Response,
 } from 'effect/http';
@@ -23,46 +24,58 @@ const concurrentRepositories = 3;
 const decodePublicPage = HttpClientResponse.schemaBodyJson(PublicRunsPage);
 const decodePrivatePage = HttpClientResponse.schemaBodyJson(PrivateRunsPage);
 
-// The repository is named by its numeric id only, and the cause of a failure
-// is not passed on, because a decoding error can quote the response. That
-// keeps a private repository's name and titles out of the log.
-const failedRuns = Effect.fnUntraced(
-  function* <Run>(
-    decodePage: DecodePage<Run>,
-    repositoryId: number,
-    filters: Filters,
-  ) {
-    const client = yield* GitHubRest;
-    const runs: Array<Run> = [];
-    for (let page = 1; runs.length < listLimit; page += 1) {
-      const response = yield* client.get(
-        `/repositories/${repositoryId}/actions/runs`,
-        {
-          urlParams: [
-            ...filters,
-            ['per_page', String(pageSize)],
-            ['page', String(page)],
-          ],
-        },
+const operation = 'list failed pull request runs';
+
+// Says how reading a page failed, in words that are safe in a public log. The
+// error itself is not passed on: its message holds the address of the
+// request, which names the repository by its id, and a decoding error can
+// quote the response.
+const reasonOf = (error: unknown): string => {
+  if (!HttpClientError.isHttpClientError(error)) {
+    return 'the response did not have the expected shape';
+  }
+  const status = error.response?.status;
+  return `${error.reason._tag}, ${status === undefined ? 'no HTTP status' : `HTTP status ${status}`}`;
+};
+
+// `label` is how a message names the repository. The caller passes the name
+// of a public repository and nothing that identifies a private one, not even
+// its id.
+const failedRuns = Effect.fnUntraced(function* <Run>(
+  decodePage: DecodePage<Run>,
+  repositoryId: number,
+  label: string,
+  filters: Filters,
+) {
+  const client = yield* GitHubRest;
+  const failed = (reason: string): GitHubRequestError =>
+    new GitHubRequestError({
+      operation,
+      message: `The request to list the failed pull request runs of ${label} failed: ${reason}.`,
+    });
+  const runs: Array<Run> = [];
+  for (let page = 1; runs.length < listLimit; page += 1) {
+    const next = yield* client
+      .get(`/repositories/${repositoryId}/actions/runs`, {
+        urlParams: [
+          ...filters,
+          ['per_page', String(pageSize)],
+          ['page', String(page)],
+        ],
+      })
+      .pipe(
+        Effect.flatMap(decodePage),
+        Effect.mapError((error) => failed(reasonOf(error))),
       );
-      const next = (yield* decodePage(response)).runs;
-      runs.push(...next);
-      if (next.length < pageSize) {
-        return runs;
-      }
+    runs.push(...next.runs);
+    if (next.runs.length < pageSize) {
+      return runs;
     }
-    return yield* Effect.fail('The list is longer than GitHub returns.');
-  },
-  (effect, _decodePage, repositoryId) =>
-    Effect.mapError(
-      effect,
-      () =>
-        new GitHubRequestError({
-          operation: 'list failed pull request runs',
-          message: `Listing the failed pull request runs of repository ${repositoryId} failed, or it has ${listLimit} or more of them.`,
-        }),
-    ),
-);
+  }
+  return yield* failed(
+    `it has ${listLimit} or more of them, which is more than GitHub returns`,
+  );
+});
 
 /**
  * The check runs that failed on `login`'s pull requests since `sinceDay` and
@@ -103,6 +116,7 @@ export const fetchFailedAttempts = Effect.fn('fetchFailedAttempts')(function* (
         const runs = yield* failedRuns(
           decodePrivatePage,
           repositoryId,
+          'a private repository',
           filters,
         );
         return sentBack(runs).map(
@@ -112,7 +126,12 @@ export const fetchFailedAttempts = Effect.fn('fetchFailedAttempts')(function* (
           }),
         );
       }
-      const runs = yield* failedRuns(decodePublicPage, repositoryId, filters);
+      const runs = yield* failedRuns(
+        decodePublicPage,
+        repositoryId,
+        repository,
+        filters,
+      );
       return sentBack(runs).map(
         (run): FailedAttempt => ({
           startedAt: run.startedAt,

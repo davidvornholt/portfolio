@@ -1,9 +1,10 @@
 import { Schema } from 'effect';
 
 /**
- * A request to GitHub failed or its response had an unexpected shape.
- * `operation` names the request without repository names, so the message is
- * safe to print in a public CI log.
+ * A request to GitHub failed or its response had an unexpected shape. The
+ * message is printed in a public CI log, so it is built from `operation`,
+ * which is fixed text, and from facts such as the HTTP status. It never holds
+ * text GitHub sent or anything that identifies a private repository.
  */
 export class GitHubRequestError extends Schema.TaggedError<GitHubRequestError>()(
   'GitHubRequestError',

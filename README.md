@@ -19,7 +19,7 @@ The chart on the home page is drawn from `apps/web/src/features/changes/data/cha
 
 ## Deployment
 
-[personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release.
+[personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release. After a daily publish that release is the same commit with the data of the day before, so to undo a change, revert it on `main`.
 
 A production publish fetches the chart data again. That happens on a push to `main` and once a day, when the schedule starts Publish container on `main` again. It reads the data with read-only tokens it mints from the App in `ci.changes_app`, described in `secrets/ci.example.yaml`. A failed fetch fails the run, and production keeps the release it has. Pull request builds use the committed snapshot.
 

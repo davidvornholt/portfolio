@@ -124,7 +124,6 @@ export const privateMergedChanges = GraphQL.query('privateMergedChanges', {
   result: searchResult(PrivatePullRequest),
 });
 
-// The repository each found change merged into.
 export const mergedRepositories = GraphQL.query('mergedRepositories', {
   document:
     'query mergedRepositories($query:String!,$after:String){search(query:$query,type:ISSUE,first:100,after:$after){issueCount pageInfo{hasNextPage endCursor}nodes{...on PullRequest{repository{nameWithOwner}}}}}',

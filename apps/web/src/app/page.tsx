@@ -35,7 +35,6 @@ const workSummaries: ReadonlyArray<WorkSummary> = works.map((work) => ({
   image: work.meta.image,
 }));
 
-// The home page shows the newest articles, and the archive has all of them.
 const homePostCount = 5;
 
 const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst

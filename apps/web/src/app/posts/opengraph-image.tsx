@@ -10,7 +10,6 @@ export const alt = 'Articles by David Vornholt, the word over the bar';
 export const size = ogImageSize;
 export const contentType = 'image/png';
 
-// The archive has a card of its own, so a shared link says what it leads to.
 const PostsOpengraphImage = (): Promise<ImageResponse> =>
   Effect.runPromise(
     createOgImageResponse({

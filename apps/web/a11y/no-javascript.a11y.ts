@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-// The site is server-rendered and its one animation is CSS, so a visitor
-// without JavaScript must get the whole page, the chart included.
 test.use({ javaScriptEnabled: false });
 
 const routes = ['/', '/posts', '/lab', '/works/atrium'] as const;

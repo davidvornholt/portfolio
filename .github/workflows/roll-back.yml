@@ -2,17 +2,11 @@ name: Roll back
 
 # Swap production back to the release before the current one. A second run
 # returns to the newer release. Shares the release queue of Publish container.
-#
-# The daily publish releases the newest commit of main again with that day's
-# data, so the release before the current one is often the same code. A
-# rollback to it would undo nothing but a day of chart data, so the run
-# refuses it unless `same-commit` is set. To undo a code change after a daily
-# publish, revert it on main.
 on:
   workflow_dispatch:
     inputs:
       same-commit:
-        description: Roll back also when the previous release is the same commit, which returns only to the chart data of the day it was built
+        description: Roll back also when the previous release is the same commit, or its commit can't be read, which may return only to the chart data of the day it was built
         type: boolean
         default: false
 
@@ -50,16 +44,20 @@ jobs:
           known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5
           age-key: ${{ secrets.SOPS_AGE_KEY }}
 
+      # The image is public, so the check below can read it without a login,
+      # and a failed login must not stop a rollback.
       - name: Log in to the GitHub Container Registry
+        continue-on-error: true
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      # When the registry no longer has an image, the commit can't be read
-      # from it, and the rollback goes ahead: the host still has or pulls the
-      # previous image, and an incident is no time to block on the check.
+      # After a daily publish, the release before the current one is usually
+      # the same commit built a day earlier, and a rollback to it undoes no
+      # code. Fail closed: when the registry can't tell the commit of either
+      # image, refuse as well, unless `same-commit` is set.
       - name: Refuse a rollback to the same commit
         env:
           APPS_JSON: ${{ steps.live.outputs.apps-json }}
@@ -67,29 +65,38 @@ jobs:
           SAME_COMMIT: ${{ inputs.same-commit }}
         run: |
           set -euo pipefail
-          live=$(jq -er .portfolio.digest <<<"$APPS_JSON")
           previous=$(jq -r '.portfolio.previousDigest // empty' <<<"$APPS_JSON")
           if [ -z "$previous" ]; then
             echo "::notice::The host reports no release before the current one"
             exit 0
           fi
+          live=$(jq -er .portfolio.digest <<<"$APPS_JSON")
 
-          # Prints the commit and the build date of an image, or nothing.
+          # Prints the commit and the build date of an image, or nothing when
+          # the registry doesn't have the image or it lacks either.
           describe() {
             docker buildx imagetools inspect "$IMAGE@$1" --format '{{json .Image}}' 2>/dev/null |
-              jq -er '[.config.Labels["org.opencontainers.image.revision"], (.created[0:10])] | join(" ")' ||
+              jq -er '
+                [.config.Labels["org.opencontainers.image.revision"], (.created // "" | .[0:10])]
+                | select(all(type == "string" and length > 0))
+                | join(" ")' ||
               true
           }
+          live_commit="" live_built="" previous_commit="" previous_built=""
           read -r live_commit live_built <<<"$(describe "$live")" || true
           read -r previous_commit previous_built <<<"$(describe "$previous")" || true
-          if [ -z "${live_commit:-}" ] || [ -z "${previous_commit:-}" ]; then
-            echo "::warning::The registry did not report the commit of $live or $previous, so the rollback goes ahead without comparing them"
-            exit 0
-          fi
 
-          if [ "$live_commit" != "$previous_commit" ]; then
+          if [ -n "$live_commit" ] && [ -n "$previous_commit" ] && [ "$live_commit" != "$previous_commit" ]; then
             echo "::notice::Rolling back from commit $live_commit, built $live_built, to commit $previous_commit, built $previous_built"
             exit 0
+          fi
+          if [ -z "$live_commit" ] || [ -z "$previous_commit" ]; then
+            if [ "$SAME_COMMIT" = true ]; then
+              echo "::warning::The registry did not report the commit of $live or $previous; rolling back without comparing them, because same-commit is set"
+              exit 0
+            fi
+            echo "::error::The registry did not report the commit of $live or $previous, so this run can't tell whether the release before the current one is an earlier commit or a daily build of the same one, which would undo no code. To undo a code change, revert it on main. To roll back anyway, run Roll back again with same-commit set."
+            exit 1
           fi
           if [ "$SAME_COMMIT" = true ]; then
             echo "::notice::Rolling back to the same commit $live_commit, from the build of $live_built to the build of $previous_built, which changes only the chart data"

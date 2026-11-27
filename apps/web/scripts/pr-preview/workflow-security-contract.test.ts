@@ -250,18 +250,26 @@ describe('production release boundary', () => {
 
   it('rolls back from main of this repository in the same queue as releases', () => {
     expect(rollBack).toContain('name: Roll back');
-    expect(rollBack).toContain('\non:\n  workflow_dispatch:\n    inputs:\n');
-    expect(rollBack).toContain('\n\npermissions: {}\n');
+    const triggers = rollBack.slice(
+      rollBack.indexOf('\non:\n'),
+      rollBack.indexOf('\npermissions: {}\n'),
+    );
+    expect(triggers).toStartWith('\non:\n  workflow_dispatch:\n    inputs:\n');
+    expect(triggers.match(/^ {2}\S/gmu)).toEqual(['  w']);
     expect(rollBack).toContain(
       `\njobs:\n  roll-back:\n    if: ${canonicalRepository} && ${mainRef}\n`,
     );
     expect(rollBack).toContain(releasePermissions);
     expect(rollBack).toContain(releaseQueue);
     expect(rollBack).toContain('          ref: main');
-    expect(rollBack).toContain('          command: rollback');
-    expect(rollBack.indexOf('          command: status')).toBeLessThan(
-      rollBack.indexOf('          command: rollback'),
-    );
+    const steps = [
+      '          command: status',
+      '        continue-on-error: true\n        uses: docker/login-action@v4',
+      '      - name: Refuse a rollback to the same commit',
+      '          command: rollback',
+    ].map((step) => rollBack.indexOf(step));
+    expect(steps).not.toContain(-1);
+    expect(steps).toEqual(steps.toSorted((left, right) => left - right));
     expect(rollBack).toContain(knownHost);
   });
 });

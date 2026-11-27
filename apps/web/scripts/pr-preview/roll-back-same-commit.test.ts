@@ -10,16 +10,19 @@ const previousDigest = `sha256:${'b'.repeat(64)}`;
 const newCommit = '1'.repeat(40);
 const oldCommit = '2'.repeat(40);
 
-const imageConfig = (revision: string, created: string): string =>
+const imageConfig = (revision: string | null, created: string): string =>
   JSON.stringify({
     created,
     // The OCI image config names its labels field `Labels`.
-    config: Object.fromEntries([
-      ['Labels', { 'org.opencontainers.image.revision': revision }],
-    ]),
+    config: Object.fromEntries(
+      revision === null
+        ? []
+        : [['Labels', { 'org.opencontainers.image.revision': revision }]],
+    ),
   });
 
 type Scenario = {
+  readonly appsJson?: string;
   readonly live?: string;
   readonly previous?: string | null;
   readonly previousImage?: string;
@@ -29,6 +32,7 @@ type Scenario = {
 // `docker` stands in for the registry: it answers for the two digests the
 // host reports and fails for any other image, as a deleted one would.
 const runCheck = ({
+  appsJson,
   live = imageConfig(newCommit, '2026-11-24T04:20:00Z'),
   previous = previousDigest,
   previousImage = imageConfig(newCommit, '2026-11-23T04:20:00Z'),
@@ -55,14 +59,15 @@ ${script}
         ...Object.fromEntries([
           [
             'APPS_JSON',
-            JSON.stringify({
-              portfolio: {
-                repository: 'ghcr.io/davidvornholt/portfolio',
-                digest: liveDigest,
-                previousDigest: previous,
-                slot: 'blue',
-              },
-            }),
+            appsJson ??
+              JSON.stringify({
+                portfolio: {
+                  repository: 'ghcr.io/davidvornholt/portfolio',
+                  digest: liveDigest,
+                  previousDigest: previous,
+                  slot: 'blue',
+                },
+              }),
           ],
           ['IMAGE', 'ghcr.io/davidvornholt/portfolio'],
           ['SAME_COMMIT', sameCommit],
@@ -102,14 +107,34 @@ describe('roll back to the same commit', () => {
     );
   });
 
-  it('goes ahead with a warning when the registry no longer has an image', () => {
-    const result = runCheck({ previousImage: '' });
+  it.each([
+    ['the registry no longer has an image', ''],
+    [
+      'an image has no revision label',
+      imageConfig(null, '2026-11-24T04:20:00Z'),
+    ],
+  ])('refuses when %s', (_case, previousImage) => {
+    const result = runCheck({
+      live: imageConfig(null, '2026-11-24T04:20:00Z'),
+      previousImage,
+    });
+    const stdout = result.stdout.toString();
+    expect(result.exitCode).toBe(1);
+    expect(stdout).toContain('::error::The registry did not report the commit');
+    expect(stdout).toContain('revert it on main');
+  });
+
+  it('goes ahead with a warning for an unknown commit when same-commit is set', () => {
+    const result = runCheck({ previousImage: '', sameCommit: 'true' });
     expect(result.exitCode).toBe(0);
     expect(result.stdout.toString()).toContain('::warning::');
   });
 
-  it('leaves the host to report that there is no previous release', () => {
-    const result = runCheck({ previous: null });
+  it.each([
+    ['a live app without a previous release', undefined],
+    ['no app', '{}'],
+  ])('leaves the host to report %s', (_case, appsJson) => {
+    const result = runCheck({ appsJson, previous: null });
     expect(result.exitCode).toBe(0);
     expect(result.stdout.toString()).toContain(
       '::notice::The host reports no release before the current one',

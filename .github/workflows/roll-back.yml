@@ -65,6 +65,7 @@ jobs:
           SAME_COMMIT: ${{ inputs.same-commit }}
         run: |
           set -euo pipefail
+          jq -e 'type == "object"' <<<"$APPS_JSON" >/dev/null
           previous=$(jq -r '.portfolio.previousDigest // empty' <<<"$APPS_JSON")
           if [ -z "$previous" ]; then
             echo "::notice::The host reports no release before the current one"
@@ -73,13 +74,13 @@ jobs:
           live=$(jq -er .portfolio.digest <<<"$APPS_JSON")
 
           # Prints the commit and the build date of an image, or nothing when
-          # the registry doesn't have the image or it lacks either.
+          # the registry doesn't have the image or it has no revision label.
           describe() {
             docker buildx imagetools inspect "$IMAGE@$1" --format '{{json .Image}}' 2>/dev/null |
               jq -er '
-                [.config.Labels["org.opencontainers.image.revision"], (.created // "" | .[0:10])]
-                | select(all(type == "string" and length > 0))
-                | join(" ")' ||
+                .config.Labels["org.opencontainers.image.revision"] as $commit
+                | select($commit | type == "string" and length > 0)
+                | "\($commit) \((.created | strings | .[0:10]) // "on an unknown date")"' ||
               true
           }
           live_commit="" live_built="" previous_commit="" previous_built=""

@@ -107,21 +107,40 @@ describe('roll back to the same commit', () => {
     );
   });
 
+  const known = imageConfig(newCommit, '2026-11-24T04:20:00Z');
+  const unlabeled = imageConfig(null, '2026-11-24T04:20:00Z');
   it.each([
-    ['the registry no longer has an image', ''],
-    [
-      'an image has no revision label',
-      imageConfig(null, '2026-11-24T04:20:00Z'),
-    ],
-  ])('refuses when %s', (_case, previousImage) => {
-    const result = runCheck({
-      live: imageConfig(null, '2026-11-24T04:20:00Z'),
-      previousImage,
-    });
+    ['the registry no longer has the previous image', known, ''],
+    ['the registry no longer has the live image', '', known],
+    ['the previous image has no revision label', known, unlabeled],
+    ['the live image has no revision label', unlabeled, known],
+    ['neither image has a revision label', unlabeled, unlabeled],
+  ])('refuses when %s', (_case, live, previousImage) => {
+    const result = runCheck({ live, previousImage });
     const stdout = result.stdout.toString();
     expect(result.exitCode).toBe(1);
     expect(stdout).toContain('::error::The registry did not report the commit');
     expect(stdout).toContain('revert it on main');
+  });
+
+  it('compares the commits when an image has no build date', () => {
+    const result = runCheck({
+      live: JSON.stringify(
+        JSON.parse(imageConfig(newCommit, '')),
+        (key, value) => (key === 'created' ? undefined : value),
+      ),
+      previousImage: imageConfig(oldCommit, '2026-11-20T09:00:00Z'),
+    });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout.toString()).toContain(
+      `from commit ${newCommit}, built on an unknown date, to commit ${oldCommit}`,
+    );
+  });
+
+  it('stops when the host status is missing', () => {
+    const result = runCheck({ appsJson: '' });
+    expect(result.exitCode).not.toBe(0);
+    expect(result.stdout.toString()).not.toContain('::notice::');
   });
 
   it('goes ahead with a warning for an unknown commit when same-commit is set', () => {

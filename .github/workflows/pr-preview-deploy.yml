@@ -1,9 +1,12 @@
 name: Deploy Portfolio pull request preview
 
 on:
+  # A preview deploys once both its image build and its Standards run have
+  # passed, so whichever of the two finishes last starts the deployment.
   workflow_run:
     workflows:
       - Publish container
+      - Standards
     types:
       - completed
   pull_request_target:
@@ -176,8 +179,56 @@ jobs:
 
           test "$TRIGGER" = workflow_run
           if [ "$EVENT_TYPE" != pull_request ]; then
-            echo "::notice::Ignoring non-pull-request Publish container run $EVENT_RUN_ID"
+            echo "::notice::Ignoring non-pull-request $EVENT_NAME run $EVENT_RUN_ID"
             exit 0
+          fi
+          # A finished Standards run stands in for the newest image build of
+          # its commit, which is then checked like the run of a build event.
+          # It does so only for a passed build that ended while this
+          # Standards run was going: the end of that build found the run
+          # unfinished and left the preview to it. Any other build decided the
+          # preview when it ended, and taking it up again would deploy it
+          # twice, or fail on its expired artifact after a late rerun.
+          if [ "$EVENT_PATH" = .github/workflows/standards.yml ]; then
+            test "$EVENT_NAME" = Standards
+            [[ "$EVENT_RUN_ID" =~ ^[1-9][0-9]*$ && "$EVENT_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+            standards=$(gh api "repos/$REPOSITORY/actions/runs/$EVENT_RUN_ID")
+            test "$(jq -er .path <<<"$standards")" = .github/workflows/standards.yml
+            test "$(jq -er .event <<<"$standards")" = pull_request
+            test "$(jq -er .status <<<"$standards")" = completed
+            test "$(jq -er .head_sha <<<"$standards")" = "$EVENT_HEAD_SHA"
+            if [ "$(jq -er .head_repository.full_name <<<"$standards")" != "$REPOSITORY" ]; then
+              echo "::notice::Standards run $EVENT_RUN_ID is outside the same-repository preview boundary"
+              exit 0
+            fi
+            standards_started=$(jq -er .run_started_at <<<"$standards")
+            standards_ended=$(jq -er .updated_at <<<"$standards")
+            builds=$(gh api "repos/$REPOSITORY/actions/workflows/316903523/runs?head_sha=$EVENT_HEAD_SHA&event=pull_request&per_page=100")
+            test "$(jq -er .total_count <<<"$builds")" -le 100
+            build=$(jq -cr \
+              '[.workflow_runs[] | select(
+                .path == ".github/workflows/publish-container.yml"
+                and .event == "pull_request"
+                and .head_repository.full_name == "davidvornholt/portfolio"
+              )] | sort_by(.run_number, .run_attempt, .id) | last // empty' <<<"$builds")
+            if [ -z "$build" ] || [ "$(jq -er .status <<<"$build")" != completed ]; then
+              echo "::notice::The image build for $EVENT_HEAD_SHA has not finished; its end decides the preview"
+              exit 0
+            fi
+            if [ "$(jq -er .conclusion <<<"$build")" != success ]; then
+              echo "::notice::The newest image build for $EVENT_HEAD_SHA did not succeed; its end already decided the preview"
+              exit 0
+            fi
+            build_ended=$(jq -er .updated_at <<<"$build")
+            if [[ "$build_ended" < "$standards_started" || "$build_ended" > "$standards_ended" ]]; then
+              echo "::notice::The newest image build for $EVENT_HEAD_SHA did not end while Standards run $EVENT_RUN_ID was going; its end already decided the preview"
+              exit 0
+            fi
+            EVENT_CONCLUSION=success
+            EVENT_NAME='Publish container'
+            EVENT_PATH=.github/workflows/publish-container.yml
+            EVENT_RUN_ID=$(jq -er '.id | select(. >= 1 and floor == .)' <<<"$build")
+            EVENT_WORKFLOW_ID=316903523
           fi
           test "$EVENT_NAME" = 'Publish container'
           test "$EVENT_PATH" = .github/workflows/publish-container.yml
@@ -293,6 +344,23 @@ jobs:
             test "$(jq -er length <<<"$exact_head_gates")" = 1
             test "$(jq -er '.[0].status' <<<"$exact_head_gates")" = completed
             test "$(jq -er '.[0].conclusion' <<<"$exact_head_gates")" = success
+
+            # The image build often ends before the Standards run of its
+            # commit. The end of that run starts this workflow again, so the
+            # live preview stays until then.
+            standards_runs=$(gh api "repos/$REPOSITORY/actions/workflows/standards.yml/runs?head_sha=$EVENT_HEAD_SHA&event=pull_request&per_page=100")
+            test "$(jq -er .total_count <<<"$standards_runs")" -le 100
+            standards_status=$(jq -r \
+              '[.workflow_runs[] | select(
+                .path == ".github/workflows/standards.yml"
+                and .event == "pull_request"
+                and .head_repository.full_name == "davidvornholt/portfolio"
+              )] | sort_by(.run_number, .run_attempt, .id) | last | .status // "missing"' \
+              <<<"$standards_runs")
+            if [ "$standards_status" != completed ]; then
+              echo "::notice::The Standards run for $EVENT_HEAD_SHA is $standards_status; its end decides the preview"
+              exit 0
+            fi
           fi
           pr=$(gh api "repos/$REPOSITORY/pulls/$pr_number")
           test "$(jq -er .head.sha <<<"$pr")" = "$EVENT_HEAD_SHA"

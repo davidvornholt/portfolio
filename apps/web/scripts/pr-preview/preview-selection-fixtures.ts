@@ -46,5 +46,6 @@ export const producerRun = (
     ['head_repository', apiRecord([['full_name', 'davidvornholt/portfolio']])],
     ['run_attempt', 1],
     ['run_number', producerRunNumber],
+    ['updated_at', '2026-11-23T20:45:00Z'],
     ['pull_requests', pullRequests],
   ]);

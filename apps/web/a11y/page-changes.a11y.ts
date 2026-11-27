@@ -60,3 +60,31 @@ for (const [name, link] of [
     expect(await placeOfHop()).not.toBe(first);
   });
 }
+
+// The chart shows 13, 8 or 4 weeks depending on its width, so turning a
+// phone or resizing the window lays out other squares. A change pinned in a
+// week that stays visible keeps its panel.
+test('a pinned change keeps its panel when the chart changes its width', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  const stepper = page.getByRole('slider', {
+    name: 'Step through the changes one by one',
+  });
+  const panel = page.locator('.field-panel');
+  await stepper.focus();
+  for (let step = 0; step < 3; step += 1) {
+    await stepper.press('ArrowLeft');
+  }
+  await expect(panel).toBeVisible();
+  // The title arrives with the details, which load once a square is chosen.
+  await expect(stepper).toHaveAttribute('aria-valuetext', /, .+, /u);
+  const pinned = await stepper.getAttribute('aria-valuetext');
+
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(panel).toBeVisible();
+    await expect(stepper).toHaveAttribute('aria-valuetext', pinned ?? '');
+  }
+});

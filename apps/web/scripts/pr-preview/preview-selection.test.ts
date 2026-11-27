@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import {
   apiRecord,
   eligiblePullRequest,
-  headSha,
+  producerRun,
 } from './preview-selection-fixtures';
 import { runSelection } from './workflow-test-helpers';
 
@@ -98,41 +98,47 @@ describe('trusted preview workflow-run selection', () => {
   });
 });
 
-describe('waiting for the Standards run of the preview head', () => {
-  it('waits for an unfinished Standards run before it deploys', () => {
-    const result = runSelection({
-      standardsStatuses: ['queued', 'in_progress', 'completed'],
-    });
+describe('a preview whose Standards run ends after its image build', () => {
+  it('leaves the live preview alone while the Standards run is unfinished', () => {
+    for (const standardsStatus of ['queued', 'in_progress']) {
+      const result = runSelection({ standardsStatus });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.outputs.mode).toBe('none');
+    }
+  });
+
+  it('deploys when the Standards run ends after a passed build', () => {
+    const result = runSelection({ standardsEvent: true });
 
     expect(result.exitCode).toBe(0);
     expect(result.outputs.mode).toBe('deploy');
-    expect(result.log.match(/^sleep 20$/gmu)).toHaveLength(2);
+    expect(result.outputs['run-id']).toBe('100');
   });
 
-  it('does not wait for Standards when the build failed', () => {
+  it('leaves the preview to the build when the build has not finished', () => {
     const result = runSelection({
-      conclusion: 'failure',
-      standardsStatuses: ['in_progress'],
-    });
-
-    expect(result.exitCode).toBe(0);
-    expect(result.outputs.mode).toBe('destroy-failed-build');
-    expect(result.log).not.toContain('standards.yml/runs');
-  });
-
-  it('stops waiting without a change when the pull request moves on', () => {
-    const result = runSelection({
-      pullRequestAfterWait: eligiblePullRequest({
-        head: apiRecord([
-          ['repo', apiRecord([['full_name', 'davidvornholt/portfolio']])],
-          ['sha', '2'.repeat(headSha.length)],
+      candidates: [
+        apiRecord([
+          ...Object.entries(producerRun([{ number: 35 }])),
+          ['status', 'in_progress'],
         ]),
-      }),
-      standardsStatuses: ['in_progress'],
+      ],
+      standardsEvent: true,
     });
 
     expect(result.exitCode).toBe(0);
     expect(result.outputs.mode).toBe('none');
-    expect(result.log).not.toContain('sleep');
+    expect(result.log).not.toContain('/actions/runs/100');
+  });
+
+  it('leaves the preview alone after a failed build', () => {
+    const result = runSelection({
+      conclusion: 'failure',
+      standardsEvent: true,
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('none');
   });
 });

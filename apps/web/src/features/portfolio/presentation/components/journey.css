@@ -1,0 +1,282 @@
+/* The path of every change, drawn the way a branch leaves the main line and
+   comes back to it: the line leaves the bar, runs through four stations and
+   returns, with a loop from the review back to the agent.
+
+   What is drawn is the final state. `JourneyPlayer` plays the way through it
+   by setting `data-lit` on the parts, and takes those away again at the end. */
+@layer components {
+  .journey {
+    padding-block-start: 7rem;
+  }
+
+  @media (min-width: 48rem) {
+    .journey {
+      padding-block-start: 9rem;
+    }
+  }
+
+  .journey-stage {
+    position: relative;
+    margin-block-start: 2.5rem;
+  }
+
+  .journey-diagram {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    overflow: visible;
+  }
+
+  .journey-diagram[data-diagram="wide"] {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .journey-diagram[data-diagram="wide"] {
+      display: block;
+    }
+
+    .journey-diagram[data-diagram="narrow"] {
+      display: none;
+    }
+  }
+
+  .journey-line {
+    fill: none;
+    stroke: var(--foreground);
+  }
+
+  /* The loop is drawn while the change walks it. */
+  .journey-line[data-path="loop"] {
+    stroke-dasharray: 1;
+  }
+
+  /* The loop's word and arrow come in softly while the loop is drawn. */
+  .journey-arrow,
+  .journey-loop-label {
+    fill: var(--foreground);
+    transition:
+      opacity 0.6s var(--ease-out),
+      translate 0.6s var(--ease-out);
+  }
+
+  .journey-loop-label {
+    font-weight: 600;
+  }
+
+  /* A station that the change has passed is solid. */
+  .journey-node {
+    fill: var(--foreground);
+    stroke: var(--foreground);
+    transition:
+      fill 0.3s var(--ease-out),
+      stroke 0.3s var(--ease-out);
+  }
+
+  .journey-node[data-lit="off"] {
+    fill: var(--background);
+  }
+
+  /* The review that found something. */
+  .journey-node[data-lit="bad"] {
+    fill: var(--failed);
+    stroke: var(--failed);
+  }
+
+  .journey-tick {
+    fill: none;
+    stroke: var(--background);
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  /* The change itself, on its way. */
+  .journey-token {
+    fill: var(--foreground);
+    stroke: var(--background);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  .journey-token[data-lit="on"] {
+    opacity: 1;
+  }
+
+  .journey-tick[data-lit="off"],
+  .journey-arrow[data-lit="off"],
+  .journey-loop-label[data-lit="off"] {
+    opacity: 0;
+  }
+
+  .journey-loop-label[data-lit="off"] {
+    translate: 0 0.4rem;
+  }
+
+  /* What the review said, beside its station. */
+  .journey-flag {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    padding: 0.3rem 0.55rem;
+    border: 2px solid var(--foreground);
+    background-color: var(--background);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition:
+      opacity 0.5s var(--ease-out),
+      translate 0.5s var(--ease-out);
+  }
+
+  @media (min-width: 48rem) {
+    .journey-flag {
+      inset-block-start: 22%;
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* Beside the review's station, where the column is wide enough for it. */
+  @media (min-width: 64rem) {
+    .journey-flag {
+      inset-inline: 77% auto;
+    }
+  }
+
+  /* Two verdicts share the place. Drawn is the second one, and while the
+     way plays, one fades out as the other fades in. */
+  .journey-flag[data-flag="bad"] {
+    border-color: var(--failed);
+    color: var(--failed);
+  }
+
+  .journey-flag[data-flag="bad"]:not([data-lit="on"]),
+  .journey-flag[data-flag="ok"][data-lit="off"] {
+    opacity: 0;
+    translate: 0 0.4rem;
+  }
+
+  /* The first verdict leaves before the second arrives, so the two are
+     never read on top of each other. */
+  .journey-flag[data-flag="bad"][data-lit="off"] {
+    transition-duration: 0.2s;
+  }
+
+  .journey-flag[data-flag="ok"][data-lit="on"] {
+    transition-delay: 0.15s;
+  }
+
+  /* The bar: what is live. The line leaves it and comes back to it. */
+  .journey-bar {
+    background-color: var(--bar);
+    color: var(--bar-foreground);
+  }
+
+  .journey-stations {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* A station's name leads to what the example change left there. */
+  .journey-station {
+    display: block;
+    padding-block: 0.7rem;
+    text-decoration: underline 2px transparent;
+    text-underline-offset: 4px;
+  }
+
+  .journey-station:hover {
+    text-decoration-color: currentcolor;
+  }
+
+  /* On the bar the page's dark focus ring would not show. */
+  .journey-station:focus-visible {
+    outline-color: var(--bar-foreground);
+    outline-offset: -4px;
+  }
+
+  .journey-steps {
+    display: grid;
+    gap: 1rem;
+    margin-block-start: 1.5rem;
+  }
+
+  .journey-step {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    transition: color 0.3s var(--ease-out);
+  }
+
+  /* Six columns of text need a wide screen. Below it the stations carry
+     their numbers and the steps are a list. */
+  @media (min-width: 64rem) {
+    .journey-stations {
+      font-size: 0.9375rem;
+    }
+
+    /* Each step stands under its station. */
+    .journey-steps {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0;
+      margin-block-start: 1rem;
+    }
+
+    .journey-step {
+      display: block;
+      padding-inline: 0.75rem;
+      text-align: center;
+    }
+
+    .journey-step-number {
+      display: none;
+    }
+  }
+
+  /* While it plays, the step the change is at stands out. */
+  .journey-figure[data-run="playing"] .journey-step {
+    color: var(--muted-foreground);
+  }
+
+  .journey-figure[data-run="playing"] .journey-step[data-current="true"] {
+    color: var(--foreground);
+  }
+
+  /* While the start is set up off screen, nothing fades. */
+  .journey-figure[data-still]
+  :is(
+    .journey-node,
+    .journey-tick,
+    .journey-arrow,
+    .journey-loop-label,
+    .journey-flag,
+    .journey-token
+  ) {
+    transition: none;
+  }
+
+  /* The real change the picture follows. */
+  .journey-example {
+    display: grid;
+    gap: 1.5rem;
+    margin-block-start: 1.25rem;
+  }
+
+  @media (min-width: 64rem) {
+    .journey-example {
+      grid-template-columns: 1fr 2.1fr 1fr;
+      gap: 0;
+    }
+
+    .journey-example > * {
+      padding-inline: 2.5rem;
+      border-inline-start: 1px solid var(--border);
+    }
+
+    .journey-example > :first-child {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
+  }
+}

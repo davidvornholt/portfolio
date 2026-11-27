@@ -2,11 +2,13 @@ import { Effect } from 'effect';
 import { notFound } from 'next/navigation';
 import type { ImageResponse } from 'next/og';
 import { siteUrl } from '@/config/site';
+import { cardSkyline } from '@/features/changes/services/card-skyline';
+import { snapshot } from '@/features/changes/services/load-snapshot';
 import { getWorkBySlug, works } from '@/features/works/content/works-registry';
 import { ogImageSize } from '@/shared/og/services/og-image-size';
 import { createOgImageResponse } from '@/shared/og/services/og-response';
 
-export const alt = 'Case study by David Vornholt';
+export const alt = 'A case study by David Vornholt, its title over the bar';
 export const size = ogImageSize;
 export const contentType = 'image/png';
 
@@ -29,10 +31,11 @@ const OpengraphImage = async ({
 
   return Effect.runPromise(
     createOgImageResponse({
-      eyebrow: 'Case study',
       title: work.meta.title,
+      subtitle: work.meta.subtitle,
       footerLeft: 'David Vornholt',
       footerRight: new URL(siteUrl).host,
+      skyline: cardSkyline(snapshot.days),
     }),
   );
 };

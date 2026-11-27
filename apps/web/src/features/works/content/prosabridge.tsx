@@ -5,93 +5,75 @@ import {
 } from '@/shared/content/presentation/components/mdx-layout-components';
 import {
   MDXHeadingOne,
-  MDXHeadingTwo,
   MDXParagraph,
-  MDXStrong,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import {
   MDXFeatureCard,
   MDXFeatureGrid,
 } from '@/shared/content/presentation/components/mdx-metric-components';
+import prosabridgeImage from './images/prosabridge.png';
 import type { Work } from './work-meta';
 
 const ProsaBridgeBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 Where translation tools give up</MDXHeadingOne>
-      <MDXHeadingTwo>
-        A book is one long argument. Most tools translate it one sentence at a
-        time.
-      </MDXHeadingTwo>
+      <MDXHeadingOne>Where translation tools give up</MDXHeadingOne>
       <MDXParagraph>
-        Machine translation is good at sentences and bad at books. Across four
-        hundred pages, terminology drifts, tone wanders, and recurring phrases
-        return in new disguises. The working format of publishing is Microsoft
-        Word, and a careless pipeline shreds it: headings, footnotes, emphasis,
-        the typography a book is set in.
+        Machine translation is good at sentences and bad at books. Over four
+        hundred pages a term gets translated three different ways, the tone
+        drifts, and a phrase that recurs comes back in new wording each time.
+        Publishers also work in Microsoft Word, and a careless tool destroys the
+        document on the way: its headings, its footnotes, its italics.
       </MDXParagraph>
       <MDXParagraph>
-        ProsaBridge is built for exactly this case: very large manuscripts,
-        strong terminology control, and theological and academic content, where
-        a wrong term is not a blemish but an error.
+        ProsaBridge is built for this case: very long manuscripts, strict
+        control of terms, and theological and academic texts, where a wrong term
+        is an error and not a blemish.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 How it holds a book together</MDXHeadingOne>
+      <MDXHeadingOne>How it holds a book together</MDXHeadingOne>
       <MDXFeatureGrid>
         <MDXFeatureCard
-          icon="code"
           title="The layout survives"
-          description="Manuscripts are extracted to XLIFF, translated, and reinjected. The Word document keeps its structure, down to footnotes and emphasis."
-          delay={0}
+          description="The manuscript is extracted to XLIFF, translated, and put back. The Word document keeps its structure, down to footnotes and emphasis."
         />
         <MDXFeatureCard
-          icon="search"
-          title="Terminology holds"
-          description="A map-reduce pass over the whole manuscript builds the glossary before translation begins, so every term is rendered one way, everywhere."
-          delay={0.1}
+          title="The terms hold"
+          description="Before translation begins, one pass over the whole manuscript builds the glossary, so every term is translated one way, everywhere."
         />
         <MDXFeatureCard
-          icon="lineChart"
-          title="Continuity carries"
-          description="Every passage is translated with overlapping context from its neighbors, and domain lookups ground theological references in the source text."
-          delay={0.2}
+          title="The thread carries"
+          description="Every passage is translated together with the text around it, and theological references are looked up in the source they come from."
         />
       </MDXFeatureGrid>
       <MDXParagraph>
-        ProsaBridge is built for European publishers, and compliance is part of
-        the engineering: the pipeline is{' '}
-        <MDXStrong>fully EU AI Act compliant</MDXStrong>.
+        ProsaBridge is built for European publishers, and the pipeline complies
+        with the EU AI Act.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 It lives in Word</MDXHeadingOne>
-      <MDXHeadingTwo>Editors keep their instrument.</MDXHeadingTwo>
+      <MDXHeadingOne>It works inside Word</MDXHeadingOne>
       <MDXParagraph>
-        The ProsaBridge add-in uploads the active manuscript, reports progress
-        while the pipeline works, and delivers the translated document back into
+        The ProsaBridge add-in uploads the open manuscript, shows the progress
+        while the translation runs, and puts the translated document back into
         Word. When a passage reads wrong, the editor flags it without leaving
         the page.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 The company</MDXHeadingOne>
-      <MDXHeadingTwo>
-        Built by two people who take books seriously.
-      </MDXHeadingTwo>
+      <MDXHeadingOne>The company</MDXHeadingOne>
       <MDXParagraph>
         I founded ProsaBridge with André Vornholt, who leads the company as CEO.
-        As co-founder and CTO I own the architecture and the engineering. Our
-        first publishing customer is testing the engine on real manuscripts, and
-        in October 2026 we will be at the Frankfurt Book Fair.
+        As co-founder and CTO I own the architecture and the engineering.
+        Publishers pay for it today.
       </MDXParagraph>
       <MDXParagraph>
-        I live in four languages, so translation is not an abstract problem to
-        me. I know what a careless one loses. ProsaBridge exists so a publisher
-        never has to accept that loss.
+        I speak German and English at a native level and get by in French and
+        Spanish, so I know what a careless translation loses.
       </MDXParagraph>
     </MDXSection>
 
@@ -107,17 +89,21 @@ const ProsaBridgeBody = (): ReactNode => (
 export const prosabridgeWork: Work = {
   meta: {
     title: 'ProsaBridge',
-    subtitle: 'An enterprise AI translation engine for book publishers',
+    subtitle: 'Whole books, translated for publishers',
     slug: 'prosabridge',
     date: '2026-08-17',
-    timeline: 'March 2026 – present',
-    role: 'Co-founder & CTO',
+    since: 'March 2026',
+    role: 'Co-founder and CTO',
+    stage: 'Paying customers',
     techStack: ['TypeScript', 'LLM pipelines', 'XLIFF', 'PostgreSQL'],
     liveUrl: 'https://prosabridge.com',
     summary:
-      'Whole manuscripts move through context-aware LLM pipelines and come back as Word documents with every heading, footnote, and italic in place.',
-    outcome:
-      'In testing with the first publishing customer. At the Frankfurt Book Fair in October 2026.',
+      'A publisher sends a manuscript in Word and gets it back in another language, with every heading, footnote, and italic where it was.',
+    image: {
+      src: prosabridgeImage,
+      alt: 'ProsaBridge while it translates a book from German into English: 23 of 35 sections are done, and it expects to finish within the hour.',
+      caption: 'The app with invented demo data.',
+    },
   },
   body: ProsaBridgeBody,
 };

@@ -1,346 +1,216 @@
 import type { ReactNode } from 'react';
 import {
-  MDXCallout,
   MDXCallToAction,
   MDXSection,
 } from '@/shared/content/presentation/components/mdx-layout-components';
 import {
   MDXAnchor,
   MDXHeadingOne,
-  MDXHeadingTwo,
   MDXListItem,
   MDXParagraph,
   MDXStrong,
   MDXUnorderedList,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
+import { FigureNumbers, PostFigure } from './figures/post-figure';
+import combPicture from './images/review-fix-versus-coderabbit-object.jpg';
 import type { Post } from './post-meta';
 
-const resultRows = [
-  {
-    change: 'GitHub permissions',
-    reviewFix: '6 total',
-    codeRabbit: '0 across 2 runs',
-  },
-  {
-    change: 'Policy checker',
-    reviewFix: '9 total',
-    codeRabbit: '0 across 2 runs',
-  },
+const standards = 'https://github.com/davidvornholt/standards';
+
+const score = [
+  { value: '15', label: 'problems my workflow found' },
+  { value: '14', label: 'of them fixed, 1 accepted as a risk' },
+  { value: '0', label: 'correct findings from CodeRabbit' },
 ] as const;
 
-const workflowStages = [
-  {
-    number: '01',
-    title: 'Review the change',
-    detail: 'The initial review found seven issues across the two changes.',
-  },
-  {
-    number: '02',
-    title: 'Make the repairs',
-    detail: 'Six issues were fixed. One documented risk was accepted.',
-  },
-  {
-    number: '03',
-    title: 'Check the repairs',
-    detail: 'The first repairs introduced or exposed four more issues.',
-  },
-  {
-    number: '04',
-    title: 'Check once more',
-    detail: 'The next repairs exposed the final four issues.',
-  },
-  {
-    number: '05',
-    title: 'Test and hand off',
-    detail: 'The last repairs passed the gates. The workflow stopped.',
-  },
+const stages = [
+  { value: '7', label: 'in the changes as they were first proposed' },
+  { value: '4', label: 'while checking the first fixes' },
+  { value: '4', label: 'while checking the fixes of those fixes' },
 ] as const;
-
-const BenchmarkScorecard = (): ReactNode => (
-  <figure className="my-10 border-border border-y py-8">
-    <div className="grid gap-8 sm:grid-cols-2 sm:gap-0">
-      <div className="sm:border-border sm:border-r sm:pr-8">
-        <p className="font-mono text-6xl text-primary tabular-nums">15</p>
-        <p className="mt-2 font-medium text-foreground">
-          material review-fix findings
-        </p>
-        <p className="mt-1 text-muted-foreground text-sm">
-          14 repaired, one risk accepted
-        </p>
-      </div>
-      <div className="border-border border-t pt-8 sm:border-t-0 sm:pt-0 sm:pl-8">
-        <p className="font-mono text-6xl text-foreground tabular-nums">0</p>
-        <p className="mt-2 font-medium text-foreground">
-          valid CodeRabbit findings
-        </p>
-        <p className="mt-1 text-muted-foreground text-sm">One false positive</p>
-      </div>
-    </div>
-    <figcaption className="mt-8 border-border border-t pt-4 text-muted-foreground text-sm">
-      Two real change sets, four reviewed snapshots, and public receipts for
-      every finding.
-    </figcaption>
-  </figure>
-);
-
-const ExperimentLedger = (): ReactNode => (
-  <div className="my-10 border-border border-y">
-    <table className="w-full table-fixed border-collapse text-sm">
-      <caption className="sr-only">
-        Valid findings from review-fix and CodeRabbit on two changes
-      </caption>
-      <thead>
-        <tr className="border-border border-b text-muted-foreground">
-          <th
-            className="w-[46%] py-3 pr-3 text-left font-medium sm:pr-6"
-            scope="col"
-          >
-            Change
-          </th>
-          <th className="px-2 py-3 text-center font-medium sm:px-6" scope="col">
-            review-fix workflow
-          </th>
-          <th className="py-3 pl-2 text-center font-medium sm:pl-6" scope="col">
-            CodeRabbit
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {resultRows.map((row) => (
-          <tr
-            className="border-border border-b last:border-b-0"
-            key={row.change}
-          >
-            <th
-              className="py-4 pr-3 text-left font-medium text-foreground sm:pr-6"
-              scope="row"
-            >
-              {row.change}
-            </th>
-            <td className="px-2 py-4 text-center font-mono text-primary text-xs tabular-nums sm:px-6 sm:text-sm">
-              {row.reviewFix}
-            </td>
-            <td className="py-4 pl-2 text-center font-mono text-foreground text-xs tabular-nums sm:pl-6 sm:text-sm">
-              {row.codeRabbit}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
-const ReviewFixWorkflow = (): ReactNode => (
-  <figure className="my-10 border-border border-y py-8">
-    <ol className="grid gap-0 md:grid-cols-5">
-      {workflowStages.map((stage) => (
-        <li
-          className="relative border-border border-l pb-8 pl-6 last:pb-0 md:border-t md:border-l-0 md:pt-6 md:pr-5 md:pb-0 md:pl-0"
-          key={stage.number}
-        >
-          <span
-            aria-hidden="true"
-            className="absolute top-0 -left-[5px] size-2 bg-primary md:-top-[5px] md:left-0"
-          />
-          <p className="font-medium font-mono text-primary text-xs">
-            {stage.number}
-          </p>
-          <p className="mt-2 font-medium text-foreground text-sm">
-            {stage.title}
-          </p>
-          <p className="mt-2 text-muted-foreground text-xs leading-relaxed">
-            {stage.detail}
-          </p>
-        </li>
-      ))}
-    </ol>
-    <figcaption className="mt-8 border-border border-t pt-4 text-muted-foreground text-sm">
-      The path only moves forward. Stage five ends with a human merge decision.
-    </figcaption>
-  </figure>
-);
 
 const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 The result</MDXHeadingOne>
-      <MDXHeadingTwo>
-        Fifteen material findings to zero valid findings.
-      </MDXHeadingTwo>
       <MDXParagraph>
-        In July 2026, I ran my repository-aware{' '}
-        <MDXStrong>review-fix</MDXStrong> workflow over two real changes in my
-        engineering standards repository. I cloned the original and repaired
-        heads into four pull requests and asked CodeRabbit Pro, on its Assertive
-        profile, for full reviews.
+        On July 19, 2026 I merged two changes to my standards repository. Two
+        reviewers read them. One was <MDXStrong>review-fix</MDXStrong>, a
+        workflow I wrote myself, in which AI agents review a change, fix what
+        they find, and check the fixes. The other was CodeRabbit Pro, a
+        commercial AI reviewer, on its Assertive profile.
       </MDXParagraph>
-      <BenchmarkScorecard />
       <MDXParagraph>
-        review-fix found fifteen distinct problems across its review, repair,
-        and verification stages. Fourteen changed the product, its tests, or the
-        instructions people follow when adopting it. The fifteenth was a real
-        credential risk that I accepted after a live probe showed there was no
-        lower-privilege route. CodeRabbit left one comment. That comment was a
-        false positive.
+        review-fix worked on the two changes before they merged. For CodeRabbit
+        I opened four copies as pull requests the same day: each change as it
+        was before review-fix touched it, and each change as it was afterwards.
       </MDXParagraph>
-      <MDXCallout title="Scope">
-        This experiment covers two pull requests in one repository. The change
-        sets, review reports, repair history, CodeRabbit runs, and final gates
-        are public.
-      </MDXCallout>
+      <PostFigure
+        caption={
+          <>
+            Two changes in one repository. The full reports:{' '}
+            <MDXAnchor href={`${standards}/pull/93#issuecomment-5015507517`}>
+              nine findings in the first change
+            </MDXAnchor>
+            ,{' '}
+            <MDXAnchor href={`${standards}/pull/94#issuecomment-5015370540`}>
+              six in the second
+            </MDXAnchor>
+            .
+          </>
+        }
+      >
+        <FigureNumbers numbers={score} />
+      </PostFigure>
+      <MDXParagraph>
+        CodeRabbit wrote one comment in four reviews. It was wrong, and I
+        explain why below.
+      </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 What the findings would have broken</MDXHeadingOne>
-      <MDXHeadingTwo>
-        The findings changed whether the work was safe to ship.
-      </MDXHeadingTwo>
+      <MDXHeadingOne>What my workflow found</MDXHeadingOne>
       <MDXParagraph>
-        The complete reports list every finding and its disposition: the{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/pull/93#issuecomment-5015507517">
-          nine findings in the policy-checking change
-        </MDXAnchor>{' '}
-        and the{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/pull/94#issuecomment-5015370540">
-          six findings in the GitHub permissions change
-        </MDXAnchor>
-        . Every finding remained valid on re-audit. Fourteen were fixed. I
-        accepted the remaining security risk and recorded why.
+        The first change replaced a test that kept timing out with a simple
+        check: the files I share with all my projects may not contain a comment
+        that switches a lint rule off. The second fixed a missing permission in
+        the tool that compares a repository’s settings on GitHub with the
+        settings I have declared for it. These are the findings that mattered
+        most.
       </MDXParagraph>
       <MDXUnorderedList>
         <MDXListItem>
-          <MDXStrong>A quality check that gave the wrong answer.</MDXStrong> It
-          skipped files that should have been checked and sometimes mistook
-          ordinary text for a violation. A broken change could pass. A clean
-          change could fail.
+          <MDXStrong>A check that was wrong in both directions.</MDXStrong> It
+          skipped some kinds of files it should have read, and it raised the
+          alarm on harmless text. A broken change could have passed and a clean
+          one could have failed.
         </MDXListItem>
         <MDXListItem>
-          <MDXStrong>Results that went stale or reran every time.</MDXStrong>{' '}
-          The check could reuse an old result after its inputs changed. The
-          first repair swung too far and forced a rerun every time. The final
-          repair made the result change only when its real inputs changed.
+          <MDXStrong>A result that went stale.</MDXStrong> The check kept its
+          last result and reused it, even after one of the things it depends on
+          had changed. The fix for that overdid it and made the check run again
+          every single time. The fix after that got it right.
         </MDXListItem>
         <MDXListItem>
-          <MDXStrong>Adoption instructions that led to a dead end.</MDXStrong>
-          The change required a release that nobody could install yet. Its
-          instructions also described behavior that had been removed. Both had
-          to be corrected before another repository could adopt the change.
+          <MDXStrong>A change that nobody could have installed.</MDXStrong> It
+          required a version of my tool that had not been released, and its
+          description still explained behavior that had since been deleted.
         </MDXListItem>
         <MDXListItem>
-          <MDXStrong>
-            Error messages that sent people in the wrong direction.
-          </MDXStrong>
-          The permissions checker called an access problem a network outage. It
-          also blamed permissions for failures with other causes. Someone
-          following those messages would troubleshoot the wrong system.
+          <MDXStrong>Error messages that pointed the wrong way.</MDXStrong> When
+          the tool lacked a permission, it reported a network outage. The first
+          fix then blamed a missing permission for every refusal, including the
+          ones that mean “too many requests”.
         </MDXListItem>
         <MDXListItem>
-          <MDXStrong>
-            A credential that could read more than intended.
-          </MDXStrong>
-          The narrower permission failed a test against a private repository. I
-          accepted the extra read access and documented the controls around the
-          credential.
+          <MDXStrong>An access token that can read too much.</MDXStrong> To read
+          a repository’s labels, the token needs a permission that also lets it
+          read the issues of a private repository. I tested a narrower
+          permission against a private repository and it failed, so I accepted
+          the risk and wrote down what limits it.
         </MDXListItem>
       </MDXUnorderedList>
-      <ExperimentLedger />
-      <MDXParagraph>
-        CodeRabbit reported no actionable comments on either original snapshot,
-        including the{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/pull/96#issuecomment-5015558506">
-          permissions change
-        </MDXAnchor>{' '}
-        and the{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/pull/98#issuecomment-5015559016">
-          policy checker
-        </MDXAnchor>
-        . It also found nothing on the{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/pull/99#issuecomment-5015558701">
-          fully repaired policy checker
-        </MDXAnchor>
-        . Those original snapshots contained the first-pass defects. CodeRabbit
-        had a clean chance to catch them and missed all of them.
-      </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 CodeRabbit's false positive</MDXHeadingOne>
-      <MDXHeadingTwo>
-        The whole package already followed one consistent design.
-      </MDXHeadingTwo>
+      <MDXHeadingOne>
+        Eight of the fifteen turned up while checking fixes
+      </MDXHeadingOne>
+      <PostFigure caption="Where the 15 problems were found.">
+        <FigureNumbers numbers={stages} />
+      </PostFigure>
       <MDXParagraph>
-        On the repaired permissions change, CodeRabbit objected to a plain error
-        class, <MDXStrong>throw</MDXStrong>, async/await, and try/catch. It
-        cited a general repository rule and asked two files to adopt Effect, a
-        different way to manage async work and errors.{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/pull/97#discussion_r3610537339">
-          The comment is still public
+        More than half of the problems were not found in the changes as I had
+        proposed them. They were found in the fixes. A sensible fix can remove
+        one fault and plant the next, or uncover one that was there all along,
+        and either is easy to see only when somebody reads the fix on its own.
+      </MDXParagraph>
+      <MDXParagraph>
+        That explains part of the gap, and it is the part I hold against nobody:
+        CodeRabbit never saw the versions in between. But it did read the two
+        changes as they were first proposed, with the seven original problems in
+        them, and reported nothing. It reported nothing on the{' '}
+        <MDXAnchor href={`${standards}/pull/99#issuecomment-5015558701`}>
+          finished version of the first change
+        </MDXAnchor>{' '}
+        either. Its reviews of the two original versions are public too:{' '}
+        <MDXAnchor href={`${standards}/pull/98#issuecomment-5015559016`}>
+          the check
+        </MDXAnchor>{' '}
+        and{' '}
+        <MDXAnchor href={`${standards}/pull/96#issuecomment-5015558506`}>
+          the settings tool
         </MDXAnchor>
         .
       </MDXParagraph>
+    </MDXSection>
+
+    <MDXSection>
+      <MDXHeadingOne>CodeRabbit’s one comment</MDXHeadingOne>
       <MDXParagraph>
-        The package already used plain TypeScript async and error handling
-        throughout. It is a small bootstrap tool that runs before the rest of a
-        project is installed. Adding Effect to the two changed files would have
-        given one package two competing ways to handle the same errors and added
-        another dependency to a tool designed to start with very few. That
-        design was later written into{' '}
-        <MDXAnchor href="https://github.com/davidvornholt/standards/blob/main/AGENTS.local.md#standards-cli-bootstrap-architecture">
-          its local instructions
-        </MDXAnchor>
-        . The same pattern already appeared throughout the code CodeRabbit
-        reviewed.
+        On the finished version of the second change, CodeRabbit{' '}
+        <MDXAnchor href={`${standards}/pull/97#discussion_r3610537339`}>
+          objected to how two files handle errors
+        </MDXAnchor>{' '}
+        and rated it “major”. My rulebook says that code should handle errors
+        with a library called Effect. The two files use plain TypeScript:{' '}
+        <MDXStrong>throw</MDXStrong> and <MDXStrong>try/catch</MDXStrong>.
+        CodeRabbit asked me to rewrite them.
       </MDXParagraph>
       <MDXParagraph>
-        CodeRabbit applied the broad rule without checking how the package was
-        built. review-fix kept the package consistent. Following CodeRabbit's
-        comment would have left two files handling errors differently from the
-        rest.
+        The files belong to the small tool that sets a project up before
+        anything else is installed. For that reason it has almost no
+        dependencies, and every file in it handles errors the plain way.
+        Following the comment would have left two files working differently from
+        all the others and added a dependency to a tool built to have few.
+      </MDXParagraph>
+      <MDXParagraph>
+        To be fair, that exception was not written down at the time. I{' '}
+        <MDXAnchor
+          href={`${standards}/blob/main/AGENTS.md#standards-cli-bootstrap-architecture`}
+        >
+          added it to the instructions
+        </MDXAnchor>{' '}
+        afterwards. But a reviewer that had read the package, and not only the
+        rulebook, would have seen that all of it is built this way. review-fix
+        did, and kept the two files consistent with the rest.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 How review-fix moves through a change</MDXHeadingOne>
-      <MDXHeadingTwo>
-        It is a bounded workflow with a hard stop and a human handoff.
-      </MDXHeadingTwo>
-      <ReviewFixWorkflow />
+      <MDXHeadingOne>How review-fix works</MDXHeadingOne>
       <MDXParagraph>
-        The first review checks the change against its intended behavior and the
-        repository's own decisions. The repair stages then treat every fix as
-        new code. That second look matters because a sensible repair can solve
-        one problem and create another.
+        It reviews the change once. It fixes what matters. Then a reviewer reads
+        only the fixes, because a fix is new code and deserves the same
+        suspicion. What that turns up is fixed and read once more. The last fix
+        is confirmed by tests alone, and then the workflow stops and hands me a
+        report with the risk that remains.
       </MDXParagraph>
       <MDXParagraph>
-        Eight of the fifteen findings appeared while checking repairs. One fix
-        made the quality check reject clean code. Another made the check rerun
-        on every build. A third corrected one error message while leaving
-        related messages wrong. Each problem was easier to see in the small set
-        of new repairs than in the full change.
-      </MDXParagraph>
-      <MDXParagraph>
-        CodeRabbit reviewed the original and final snapshots. The originals
-        exposed every initial defect; CodeRabbit missed them. The temporary
-        repair defects were gone by the final heads. The comparison measures
-        that workflow advantage directly: review-fix inspects its own repairs.
-      </MDXParagraph>
-      <MDXParagraph>
-        The hard stop came from a{' '}
+        The hard stop is not a detail. Four days before this comparison I had
+        ended the workflow’s predecessor by hand. It had no stop, and it had{' '}
         <MDXAnchor href="/posts/review-loop-ran-for-46-hours">
-          46-hour review-loop experiment
+          run for 46 hours
         </MDXAnchor>
-        . The predecessor turned a 179-line change into 37,451 added lines and
-        changed live repository settings before I stopped it. review-fix
-        replaced that open-ended behavior with the forward path in the diagram.
-        On these two changes, the workflow found fifteen material problems. The
-        snapshot reviewer found none.
+        .
+      </MDXParagraph>
+    </MDXSection>
+
+    <MDXSection>
+      <MDXHeadingOne>What this does not show</MDXHeadingOne>
+      <MDXParagraph>
+        These are two changes in one repository, compared by the person who
+        wrote one of the two tools. That says nothing about CodeRabbit on other
+        code. What I can say is narrower: on these two changes, a reviewer that
+        knows the repository and checks its own fixes found 15 problems, and a
+        general one found none. Every review, fix, and comment is public, so you
+        can check my counting.
       </MDXParagraph>
     </MDXSection>
 
     <MDXCallToAction
-      title="Audit the audit"
-      description="Every finding, repair, accepted tradeoff, and CodeRabbit review is public in the standards repository."
-      href="https://github.com/davidvornholt/standards"
+      title="Check the counting"
+      description="Every finding, fix, accepted risk, and CodeRabbit review is in the standards repository."
+      href={standards}
       linkText="Open the repository"
     />
   </>
@@ -349,15 +219,16 @@ const ReviewFixVersusCodeRabbitBody = (): ReactNode => (
 export const reviewFixVersusCodeRabbitPost: Post = {
   meta: {
     title:
-      'My review-fix workflow found 15 material issues. CodeRabbit found none.',
+      'My review workflow found 15 problems in two changes. CodeRabbit found none.',
     subtitle:
-      'Four public reruns show what repository context and repair verification catch.',
+      'The same two changes, the same repository, and every finding public.',
     slug: 'review-fix-versus-coderabbit',
     date: '2026-08-26',
     category: 'Engineering',
-    readTime: '6 min read',
+    readTime: '4 min read',
     excerpt:
-      "I ran review-fix and CodeRabbit over the same two changes. Fourteen defects were repaired, one real risk was accepted, and CodeRabbit's only comment was a false positive.",
+      'I ran my own review workflow and CodeRabbit Pro over the same two changes. Mine found 15 problems, and more than half of them were in its own fixes. CodeRabbit left one comment, and it was wrong.',
+    picture: { src: combPicture, alt: 'A fine-toothed black comb.' },
   },
   body: ReviewFixVersusCodeRabbitBody,
 };

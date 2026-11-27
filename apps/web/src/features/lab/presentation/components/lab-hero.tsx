@@ -1,81 +1,17 @@
-import { easing } from '@portfolio/ui/easing';
-import { ArrowLeft } from 'lucide-react';
-import {
-  div as MotionDiv,
-  h1 as MotionH1,
-  p as MotionP,
-} from 'motion/react-client';
-import Link from 'next/link';
 import type { ReactNode } from 'react';
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-} as const;
-
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-} as const;
+import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 
 export const LabHero = (): ReactNode => (
-  <section className="relative flex min-h-[60dvh] items-center justify-center px-4 py-20 sm:px-6 md:px-8">
-    <MotionDiv
-      variants={staggerContainer}
-      initial="initial"
-      animate="animate"
-      className="mx-auto w-full max-w-4xl text-center"
-    >
-      <MotionDiv
-        variants={fadeInUp}
-        transition={{ duration: 0.5, ease: easing }}
-        className="mb-12"
-      >
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          Back to studio
-        </Link>
-      </MotionDiv>
-
-      <MotionP
-        variants={fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mb-3 font-medium text-primary text-sm uppercase tracking-widest sm:mb-4"
-      >
-        Private archive
-      </MotionP>
-
-      <MotionH1
-        variants={fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mb-4 font-semibold font-serif text-5xl text-foreground leading-tight tracking-tight sm:mb-5 md:mb-6 md:text-6xl lg:text-7xl"
-      >
+  <>
+    <BackNavigation href="/" label="Home" />
+    <section className="page-column pt-8 pb-12 md:pt-12">
+      <h1 className="font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
         The creative lab
-      </MotionH1>
-
-      <MotionP
-        variants={fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mx-auto mb-8 max-w-2xl font-serif text-foreground text-xl italic md:text-2xl"
-      >
-        A private archive of early experiments in visual storytelling and media.
-      </MotionP>
-
-      <MotionP
-        variants={fadeInUp}
-        transition={{ duration: 0.6, ease: easing }}
-        className="mx-auto max-w-2xl text-base text-foreground leading-relaxed md:text-lg"
-      >
-        Before focusing on digital architecture, I explored the world through a
-        lens. These projects represent my early journey into narrative
-        structure, editing, and cross-cultural communication.
-      </MotionP>
-    </MotionDiv>
-  </section>
+      </h1>
+      <p className="mt-4 max-w-2xl font-semibold text-xl leading-snug md:text-2xl">
+        Films I have made: short films, a documentary, and an ad, in French and
+        German.
+      </p>
+    </section>
+  </>
 );

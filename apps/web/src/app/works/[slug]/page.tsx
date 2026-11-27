@@ -7,6 +7,7 @@ import type { WorkMeta } from '@/features/works/content/work-meta';
 import { getWorkBySlug, works } from '@/features/works/content/works-registry';
 import { BackNavigation } from '@/shared/content/presentation/components/back-navigation';
 import { CaseStudyLayout } from '@/shared/content/presentation/components/case-study-layout';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 type WorkPageProps = Readonly<{
   params: Promise<{ slug: string }>;
@@ -29,7 +30,7 @@ export const generateMetadata = async ({
 
   return {
     title: work.meta.title,
-    description: work.meta.subtitle,
+    description: work.meta.summary,
     alternates: {
       canonical: url,
     },
@@ -37,14 +38,14 @@ export const generateMetadata = async ({
       type: 'article',
       url,
       title: work.meta.title,
-      description: work.meta.subtitle,
+      description: work.meta.summary,
       publishedTime: work.meta.date,
       authors: ['David Vornholt'],
     },
     twitter: {
       card: 'summary_large_image',
       title: work.meta.title,
-      description: work.meta.subtitle,
+      description: work.meta.summary,
     },
   };
 };
@@ -53,7 +54,7 @@ const createCreativeWorkJsonLd = (meta: WorkMeta): Record<string, unknown> => ({
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   name: meta.title,
-  description: meta.subtitle,
+  description: meta.summary,
   url: `${siteUrl}/works/${meta.slug}`,
   dateCreated: meta.date,
   author: {
@@ -76,24 +77,27 @@ const WorkPage = async ({ params }: WorkPageProps): Promise<ReactNode> => {
   const Body = work.body;
 
   return (
-    <>
+    <PageTransition>
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: correct way of injecting JSON-LD
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackNavigation href="/#works" label="Back to works" />
+      <BackNavigation href="/#work" label="Home" />
       <CaseStudyLayout
+        slug={work.meta.slug}
         title={work.meta.title}
         subtitle={work.meta.subtitle}
-        timeline={work.meta.timeline}
+        since={work.meta.since}
         role={work.meta.role}
+        stage={work.meta.stage}
         techStack={work.meta.techStack}
         liveUrl={work.meta.liveUrl}
+        image={work.meta.image}
       >
         <Body />
       </CaseStudyLayout>
-    </>
+    </PageTransition>
   );
 };
 

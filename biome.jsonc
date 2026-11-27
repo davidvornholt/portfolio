@@ -12,7 +12,15 @@
     // biome.jsonc; nested biome.json(c) files are scanner-priority special
     // files, so only force-ignore (`!!`) guarantees they are never discovered
     // as nested roots.
-    "includes": ["**", "!.claude/workflows", "!!.claude/worktrees"]
+    // The changes snapshot is data that `changes:fetch` writes on one line.
+    // Formatting it would turn every refresh into a diff of tens of thousands
+    // of lines.
+    "includes": [
+      "**",
+      "!.claude/workflows",
+      "!!.claude/worktrees",
+      "!apps/web/src/features/changes/data/changes.json"
+    ]
   },
   "overrides": [
     {
@@ -36,25 +44,6 @@
         "rules": {
           "nursery": {
             "noUndeclaredCustomProperties": "off"
-          }
-        }
-      }
-    },
-    {
-      // These illustrations and content layouts require exact viewport,
-      // position, grid, transition, and data-display values with no named utility.
-      "includes": [
-        "apps/web/src/features/lab/presentation/components/lab-hero.tsx",
-        "apps/web/src/features/portfolio/presentation/components/certification-item.tsx",
-        "apps/web/src/features/posts/content/executable-engineering-standards.tsx",
-        "apps/web/src/features/posts/content/review-fix-versus-coderabbit.tsx",
-        "apps/web/src/features/posts/content/review-loop-ran-for-46-hours.tsx",
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "nursery": {
-            "noTailwindArbitraryValue": "off"
           }
         }
       }
@@ -135,12 +124,14 @@
       // These stable IDs are deliberate public fragment targets referenced by
       // the site navigation; generated IDs would break incoming hash links.
       "includes": [
-        "apps/web/src/features/portfolio/presentation/components/blog-teaser.tsx",
-        "apps/web/src/features/portfolio/presentation/components/cta.tsx",
-        "apps/web/src/features/portfolio/presentation/components/expertise.tsx",
-        "apps/web/src/features/portfolio/presentation/components/how-i-work.tsx",
-        "apps/web/src/features/portfolio/presentation/components/open-source.tsx",
-        "apps/web/src/features/portfolio/presentation/components/selected-works.tsx"
+        "apps/web/src/features/portfolio/presentation/components/about.tsx",
+        "apps/web/src/features/portfolio/presentation/components/accepted.tsx",
+        "apps/web/src/features/portfolio/presentation/components/contact.tsx",
+        "apps/web/src/features/portfolio/presentation/components/journey.tsx",
+        "apps/web/src/features/portfolio/presentation/components/rulebook.tsx",
+        "apps/web/src/features/portfolio/presentation/components/servers.tsx",
+        "apps/web/src/features/portfolio/presentation/components/work.tsx",
+        "apps/web/src/features/portfolio/presentation/components/writing.tsx"
       ],
       "linter": {
         "rules": {
@@ -151,15 +142,16 @@
       }
     },
     {
-      // The keys in this map are reader-facing swatch labels, so their casing
-      // is part of the data contract rather than an identifier naming choice.
+      // The chart gives each day its width, its row count, and its place in
+      // the load sequence as custom properties. They are numbers worked out
+      // from the data, so no class can carry them.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx"
+        "apps/web/src/features/changes/presentation/components/change-field.tsx"
       ],
       "linter": {
         "rules": {
-          "style": {
-            "useNamingConvention": "off"
+          "nursery": {
+            "noInlineStyles": "off"
           }
         }
       }
@@ -168,10 +160,7 @@
       // Biome's import resolver does not follow the generated next/font
       // declarations or React's conditional export map. TypeScript and the
       // production build remain the authoritative module-resolution gates.
-      "includes": [
-        "apps/web/src/app/layout.tsx",
-        "apps/web/src/shared/content/presentation/components/mdx-markdown-elements.tsx"
-      ],
+      "includes": ["apps/web/src/app/layout.tsx"],
       "linter": {
         "rules": {
           "correctness": {
@@ -181,10 +170,21 @@
       }
     },
     {
+      // GitHub's REST API answers in snake_case, and this test declares
+      // responses the way the API sends them.
+      "includes": ["apps/web/scripts/changes/failed-attempts.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
       // Cohesive framework/generated-style component boundaries that are
       // clearer as single files. Each exception is documented under docs/.
       "includes": [
-        "apps/web/src/shared/content/presentation/components/color-swatch-comparison.tsx",
         "apps/web/src/features/works/content/*.tsx",
         "apps/web/src/features/posts/content/*.tsx"
       ],

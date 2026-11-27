@@ -2,15 +2,16 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { siteUrl } from '@/config/site';
-import { posts } from '@/features/posts/content/posts-registry';
+import { postsNewestFirst } from '@/features/posts/content/posts-registry';
 import { PostsScreen } from '@/features/posts/presentation/screens/posts-screen';
 import type { PostListEntry } from '@/shared/content/presentation/components/post-list';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 const postsDescription =
   'Engineering decisions, measured results, and failed experiments from the products and systems I build.';
 
 export const metadata: Metadata = {
-  title: 'Programming blog',
+  title: 'Articles',
   description: postsDescription,
   alternates: {
     canonical: `${siteUrl}/posts`,
@@ -18,29 +19,31 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: `${siteUrl}/posts`,
-    title: 'Programming blog',
+    title: 'Articles',
     description: postsDescription,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Programming blog',
+    title: 'Articles',
     description: postsDescription,
   },
 };
 
-const postSummaries: ReadonlyArray<PostListEntry> = [...posts]
-  .sort(
-    (a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime(),
-  )
-  .map((post) => ({
+const postSummaries: ReadonlyArray<PostListEntry> = postsNewestFirst.map(
+  (post) => ({
     title: post.meta.title,
     excerpt: post.meta.excerpt,
-    category: post.meta.category,
     readTime: post.meta.readTime,
-    href: `/posts/${post.meta.slug}`,
+    slug: post.meta.slug,
     date: post.meta.date,
-  }));
+    picture: post.meta.picture.src,
+  }),
+);
 
-const PostsPage = (): ReactNode => <PostsScreen posts={postSummaries} />;
+const PostsPage = (): ReactNode => (
+  <PageTransition>
+    <PostsScreen posts={postSummaries} />
+  </PageTransition>
+);
 
 export default PostsPage;

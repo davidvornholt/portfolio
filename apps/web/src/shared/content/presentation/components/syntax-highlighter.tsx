@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { ReactNode } from 'react';
 import { highlightCode } from '@/shared/content/services/syntax-highlighting';
-import { warmPrintCodeTheme } from './code-theme';
+import { inkCodeTheme } from './code-theme';
 
 type SyntaxHighlighterProps = Readonly<{
   code: string;
@@ -9,7 +9,7 @@ type SyntaxHighlighterProps = Readonly<{
 }>;
 
 /**
- * Server-side syntax highlighter using Shiki with the warm-print theme.
+ * Server-side syntax highlighter using Shiki with the ink theme.
  * Highlighting happens at build time, so code blocks ship as static,
  * crawlable HTML with no client-side JavaScript.
  */
@@ -18,7 +18,7 @@ export const SyntaxHighlighter = async ({
   language,
 }: SyntaxHighlighterProps): Promise<ReactNode> => {
   const html = await Effect.runPromise(
-    highlightCode({ code, language, theme: warmPrintCodeTheme }),
+    highlightCode({ code, language, theme: inkCodeTheme }),
   );
 
   return (

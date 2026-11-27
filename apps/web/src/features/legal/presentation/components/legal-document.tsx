@@ -16,17 +16,14 @@ export const LegalDocument = ({
   children,
 }: LegalDocumentProps): ReactNode => (
   <>
-    <BackNavigation href="/" label="Back to home" />
-    <article className="mx-auto max-w-4xl px-6 pt-12 pb-24">
-      <header className="mb-12 border-border border-b pb-8">
-        <p className="mb-2 font-medium text-primary text-sm uppercase tracking-widest">
-          {eyebrow}
-        </p>
-        <h1 className="font-semibold font-serif text-4xl text-foreground md:text-5xl">
+    <BackNavigation href="/" label="Home" />
+    <article className="page-column pt-8 pb-24 md:pt-12">
+      <header className="mb-12">
+        <h1 className="font-bold text-4xl leading-[1.05] tracking-tight md:text-6xl">
           {title}
         </h1>
-        <p className="mt-4 text-muted-foreground text-sm">
-          Last updated: {lastUpdated}
+        <p className="mt-4 text-muted-foreground">
+          {eyebrow}, last updated {lastUpdated}
         </p>
       </header>
       <div className="max-w-3xl">{children}</div>
@@ -42,9 +39,7 @@ export const LegalSection = ({
   children: ReactNode;
 }>): ReactNode => (
   <section className="mb-12">
-    <h2 className="mb-4 font-semibold font-serif text-2xl text-foreground">
-      {title}
-    </h2>
+    <h2 className="mb-4 font-bold text-2xl tracking-tight">{title}</h2>
     {children}
   </section>
 );
@@ -54,7 +49,7 @@ export const LegalAddress = ({
 }: Readonly<{
   children: ReactNode;
 }>): ReactNode => (
-  <address className="mb-6 text-foreground/80 not-italic leading-relaxed">
+  <address className="mb-6 text-lg not-italic leading-relaxed">
     {children}
   </address>
 );

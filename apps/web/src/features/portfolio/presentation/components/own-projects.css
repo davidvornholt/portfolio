@@ -1,0 +1,89 @@
+/* The ledger of David's own projects: one row per project, with its piece of
+   the bar and the changes of thirteen weeks standing on it. */
+@layer components {
+  .project-row {
+    display: grid;
+    grid-template:
+      "name total"
+      "about about"
+      "weeks weeks" / minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    margin-inline: -0.75rem;
+    padding: 1.125rem 0.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    .project-row {
+      grid-template:
+        "name weeks total"
+        "about weeks total" / minmax(0, 1fr) auto 3.5rem;
+      align-items: center;
+      column-gap: 2.5rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .project-row {
+      grid-template: "name about weeks total" / 10rem minmax(0, 1fr) auto 3.5rem;
+    }
+  }
+
+  /* The whole row is the link, and pointing at it turns it into a bar. */
+  .project-row:is(:hover, :focus-visible) {
+    background-color: var(--bar);
+    color: var(--bar-foreground);
+  }
+
+  .project-name {
+    grid-area: name;
+  }
+
+  .project-about {
+    grid-area: about;
+    color: var(--muted-foreground);
+    transition: color 160ms var(--ease-out);
+  }
+
+  .project-row:is(:hover, :focus-visible) .project-about {
+    color: var(--bar-muted-foreground);
+  }
+
+  .project-total {
+    grid-area: total;
+    text-align: end;
+  }
+
+  .project-weeks {
+    grid-area: weeks;
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    margin-block-start: 0.5rem;
+    /* A square that hops leaves the chart's box for a moment. */
+    overflow: visible;
+    fill: currentcolor;
+    stroke: none;
+    transition: fill 160ms var(--ease-out);
+  }
+
+  /* Beside the text, every bar ends at the same edge, which is today. */
+  @media (min-width: 48rem) {
+    .project-weeks {
+      justify-self: end;
+      margin-block-start: 0;
+    }
+  }
+
+  /* The marks of the large chart: a change whose checks passed is solid, one
+     that merged before a check had finished is an outline, and one with a
+     failed check is red. */
+  .project-weeks [data-v="u"] {
+    fill: none;
+    stroke: currentcolor;
+  }
+
+  .project-weeks [data-v="f"] {
+    fill: var(--failed);
+  }
+}

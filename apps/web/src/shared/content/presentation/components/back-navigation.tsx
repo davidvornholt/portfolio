@@ -1,8 +1,6 @@
-import { easing } from '@portfolio/ui/easing';
-import { ArrowLeft } from 'lucide-react';
-import { div as MotionDiv } from 'motion/react-client';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { Arrow } from '@/shared/ui/presentation/components/arrow';
 
 type BackNavigationProps = Readonly<{
   href: string;
@@ -13,18 +11,12 @@ export const BackNavigation = ({
   href,
   label,
 }: BackNavigationProps): ReactNode => (
-  <MotionDiv
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5, ease: easing }}
-    className="mx-auto max-w-4xl px-6 pt-32"
-  >
+  <p className="page-column pt-6 md:pt-10">
     <Link
       href={href}
-      className="inline-flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+      className="font-semibold underline decoration-2 underline-offset-4 hover:decoration-4"
     >
-      <ArrowLeft className="size-4" />
-      {label}
+      <Arrow to="left" /> {label}
     </Link>
-  </MotionDiv>
+  </p>
 );

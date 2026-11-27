@@ -1,93 +1,60 @@
-import { easing } from '@portfolio/ui/easing';
-import { ArrowRight, Calendar, Clock } from 'lucide-react';
-import { article as MotionArticle } from 'motion/react-client';
+import type { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { ObjectPicture } from '@/shared/content/presentation/components/object-picture';
 import { formatPostDate } from '@/shared/content/services/format-post-date';
-import { Badge } from '@/shared/ui/presentation/components/badge';
 
 export type PostListEntry = Readonly<{
   title: string;
-  excerpt: string;
-  category: string;
+  /** What the post found. Left out where the title has to do alone. */
+  excerpt?: string;
   readTime: string;
-  href: string;
+  slug: string;
   date?: string;
+  /** The object that stands for the post. The title says what it is about, so the picture needs no words. */
+  picture: StaticImageData;
 }>;
 
-type PostListProps = Readonly<{
-  posts: ReadonlyArray<PostListEntry>;
-}>;
-
-const postStaggerSeconds = 0.1;
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-100px' },
-};
-
-const PostListItem = ({
-  post,
-  index,
-}: Readonly<{
-  post: PostListEntry;
-  index: number;
-}>): ReactNode => (
-  <MotionArticle
-    {...fadeInUp}
-    transition={{
-      duration: 0.6,
-      ease: easing,
-      delay: index * postStaggerSeconds,
-    }}
-    className="group border-border border-b pb-8 last:border-b-0"
-  >
-    <Link
-      href={post.href}
-      data-umami-event="post-open"
-      data-umami-event-post={post.title}
-      className="flex cursor-pointer flex-col md:flex-row md:items-start md:gap-8"
-    >
-      <div className="mb-4 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 md:mb-0 md:w-48">
-        <Badge variant="outline" className="text-xs">
-          {post.category}
-        </Badge>
-        <span className="inline-flex items-center gap-1 text-muted-foreground text-xs">
-          <Clock className="size-3" />
-          {post.readTime}
-        </span>
-        {post.date === undefined ? null : (
-          <time
-            className="inline-flex w-full items-center gap-1 text-muted-foreground text-xs"
-            dateTime={post.date}
-          >
-            <Calendar className="size-3" />
-            {formatPostDate(post.date)}
-          </time>
-        )}
-      </div>
-
-      <div className="flex-1">
-        <h3 className="mb-2 font-semibold font-serif text-foreground text-xl transition-colors group-hover:text-primary">
-          {post.title}
-        </h3>
-        <p className="mb-4 hyphens-auto text-muted-foreground text-sm leading-relaxed">
-          {post.excerpt}
-        </p>
-        <span className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors group-hover:text-primary/80">
-          Read article
-          <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-        </span>
-      </div>
-    </Link>
-  </MotionArticle>
-);
-
-export const PostList = ({ posts }: PostListProps): ReactNode => (
-  <div className="space-y-8">
-    {posts.map((post, index) => (
-      <PostListItem key={post.href} post={post} index={index} />
+/** Posts as rows: the title, what the post found, and how long it reads. */
+export const PostList = ({
+  posts,
+}: {
+  readonly posts: ReadonlyArray<PostListEntry>;
+}): ReactNode => (
+  <ul className="border-foreground border-t-2">
+    {posts.map((post) => (
+      <li key={post.slug} className="border-border border-b">
+        <Link
+          href={`/posts/${post.slug}`}
+          data-umami-event="post-open"
+          data-umami-event-post={post.title}
+          data-excerpt={post.excerpt === undefined ? undefined : ''}
+          className="group grid grid-cols-[minmax(0,1fr)_4.5rem] gap-x-6 gap-y-2 py-6 lg:grid-cols-[7rem_minmax(0,1fr)_auto] lg:items-baseline lg:gap-x-12 lg:py-7 data-excerpt:lg:grid-cols-[7rem_minmax(0,7fr)_minmax(0,5fr)_auto]"
+        >
+          <ObjectPicture
+            slug={post.slug}
+            picture={post.picture}
+            alt=""
+            className="col-start-2 row-span-3 row-start-1 w-full justify-end self-start lg:col-start-1 lg:row-span-1 lg:justify-start lg:self-center"
+          />
+          <strong className="col-start-1 max-w-4xl font-bold text-xl leading-snug tracking-tight underline decoration-2 decoration-transparent underline-offset-4 group-hover:decoration-current md:text-2xl lg:col-start-auto">
+            {post.title}
+          </strong>
+          {post.excerpt === undefined ? null : (
+            <span className="col-start-1 max-w-2xl text-muted-foreground leading-relaxed lg:col-start-auto">
+              {post.excerpt}
+            </span>
+          )}
+          <span className="col-start-1 whitespace-nowrap text-muted-foreground text-sm lg:col-start-auto lg:text-right">
+            {post.date === undefined ? null : (
+              <time dateTime={post.date} className="block">
+                {formatPostDate(post.date)}
+              </time>
+            )}
+            {post.readTime}
+          </span>
+        </Link>
+      </li>
     ))}
-  </div>
+  </ul>
 );

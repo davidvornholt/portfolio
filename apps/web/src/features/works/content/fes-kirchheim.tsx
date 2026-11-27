@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 import {
-  MDXAttributedBlockquote,
-  MDXCallout,
   MDXCallToAction,
   MDXCheckItem,
   MDXCheckList,
@@ -10,140 +8,123 @@ import {
 import {
   MDXAnchor,
   MDXHeadingOne,
-  MDXHeadingTwo,
   MDXParagraph,
 } from '@/shared/content/presentation/components/mdx-markdown-elements';
 import {
   MDXStatCard,
   MDXStatGrid,
 } from '@/shared/content/presentation/components/mdx-metric-components';
+import fesKirchheimImage from './images/fes-kirchheim.png';
 import type { Work } from './work-meta';
 
 const FesKirchheimBody = (): ReactNode => (
   <>
     <MDXSection>
-      <MDXHeadingOne>01 The starting point</MDXHeadingOne>
-      <MDXHeadingTwo>A good school behind a slow website.</MDXHeadingTwo>
+      <MDXHeadingOne>A good school behind a slow website</MDXHeadingOne>
       <MDXParagraph>
-        The Freie Evangelische Schule Kirchheim is a strong school that looked
-        weak online. Its legacy platform cost too much, loaded too slowly, and
-        hid content edits behind an admin interface the staff dreaded. The worst
-        of it was a five-second cold start: parents arrived, waited, and left.
+        The Freie Evangelische Schule Kirchheim is a good school that looked
+        weak online. Its old website cost too much, took five seconds to appear
+        when nobody had visited for a while, and its content could only be
+        changed through an admin interface the staff dreaded.
       </MDXParagraph>
-      <MDXCallout title="The brief">
-        A fast, affordable, accessible web presence the school office can run
-        without a developer.
-      </MDXCallout>
+      <MDXParagraph>
+        The school asked for a website that is fast, affordable, and accessible,
+        and that the school office can run without a developer.
+      </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>02 The results</MDXHeadingOne>
-      <MDXHeadingTwo>Measured, not estimated.</MDXHeadingTwo>
+      <MDXHeadingOne>What changed</MDXHeadingOne>
       <MDXStatGrid>
         <MDXStatCard
-          label="Cold boot time"
-          value="0s"
-          subtext="Down from 5 seconds"
-          trend="down"
-          icon="zap"
+          label="Until a page starts to arrive"
+          value="50 ms"
+          subtext="Down from 5.2 seconds after a quiet spell"
         />
         <MDXStatCard
-          label="Lighthouse score"
-          value="100"
-          subtext="SEO and best practices"
-          trend="up"
-          icon="gauge"
-        />
-        <MDXStatCard
-          label="Time to interactive"
-          value="3x"
-          subtext="Faster than the legacy site"
-          trend="up"
-          icon="lineChart"
+          label="Cost of running the site"
+          value="−60%"
+          subtext="Per year"
         />
         <MDXStatCard
           label="Search impressions"
           value="+300%"
           subtext="Year over year"
-          trend="up"
-          icon="search"
         />
         <MDXStatCard
           label="Click-through rate"
-          value="2.5x"
+          value="2.5×"
           subtext="In search results"
-          trend="up"
-          icon="trendingUp"
         />
         <MDXStatCard
-          label="Infrastructure cost"
-          value="-60%"
-          subtext="Per year"
-          trend="down"
-          icon="server"
+          label="Faster to interactive"
+          value="3×"
+          subtext="Than the old site"
+        />
+        <MDXStatCard
+          label="Lighthouse score"
+          value="100"
+          subtext="Accessibility and best practices"
         />
       </MDXStatGrid>
+      <MDXParagraph>
+        How the wait disappeared is{' '}
+        <MDXAnchor href="/posts/solving-the-cold-boot-problem">
+          an article of its own
+        </MDXAnchor>
+        .
+      </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>03 The build</MDXHeadingOne>
-      <MDXHeadingTwo>Boring architecture, chosen deliberately.</MDXHeadingTwo>
+      <MDXHeadingOne>How it is built</MDXHeadingOne>
       <MDXParagraph>
-        The site moved to Next.js with server rendering and incremental static
-        regeneration, which removed the cold start entirely. The registration
-        for new students became a short guided form that validates as parents
-        type.
+        The site runs on Next.js. The server keeps a finished copy of every page
+        and builds a new one when the content changes, which is what removed the
+        wait. The registration for new students is a short guided form that
+        checks the entries while parents type.
       </MDXParagraph>
       <MDXCheckList>
         <MDXCheckItem
           title="Strict typing"
-          description="TypeScript in strict mode, so mistakes surface at compile time instead of in a parent's browser."
+          description="TypeScript in strict mode, so mistakes surface when the site is built and not in a parent’s browser."
         />
         <MDXCheckItem
-          title="Accessible by default"
-          description="Semantic HTML and tested accessibility, because a school website serves grandparents on old tablets as much as students on new phones."
+          title="Accessible"
+          description="Semantic HTML and tested accessibility, because a school’s website serves grandparents on old tablets as much as students on new phones."
         />
         <MDXCheckItem
           title="Run by the school office"
-          description="Staff update content and events themselves. No developer is needed for the daily work."
+          description="The staff update content and events themselves. The daily work needs no developer."
         />
       </MDXCheckList>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>04 The second chapter: infrastructure</MDXHeadingOne>
-      <MDXHeadingTwo>
-        The school now owns its platform, declaratively.
-      </MDXHeadingTwo>
+      <MDXHeadingOne>Then the servers</MDXHeadingOne>
       <MDXParagraph>
-        The engagement did not stop at the website. FESK’s services now run on
-        declarative infrastructure: the host is described in code, changes
-        arrive as reviewed pull requests, and the running system is converged to
-        match what the repository says. Nothing on the server is
-        hand-configured.
+        The work did not stop at the website. The school’s services now run on
+        servers that are described in code. A change arrives as a reviewed
+        proposal, and the running system is brought to what the repository says.
+        Nothing on a server is configured by hand.
       </MDXParagraph>
     </MDXSection>
 
     <MDXSection>
-      <MDXHeadingOne>05 The third chapter: Atrium</MDXHeadingOne>
-      <MDXHeadingTwo>From client to pilot school.</MDXHeadingTwo>
+      <MDXHeadingOne>Then Atrium</MDXHeadingOne>
       <MDXParagraph>
-        Working inside the school’s daily operations showed how much of the
-        school day still ran on paper and patience. That observation became{' '}
-        <MDXAnchor href="/works/atrium">Atrium</MDXAnchor>, a platform for the
-        operative day of a school, and FESK became its first pilot. What began
-        as a website now covers the school’s public face, its infrastructure,
-        and the pilot of its operations platform.
+        Working inside the school’s routine showed how much of the school day
+        still ran on paper. That became{' '}
+        <MDXAnchor href="/works/atrium">Atrium</MDXAnchor>, which puts a
+        school’s daily records in one place, and the school became its first
+        pilot. What began as a website now covers the school’s public face, its
+        servers, and the pilot of Atrium.
       </MDXParagraph>
-      <MDXAttributedBlockquote author="Feedback from the administration">
-        The new platform didn’t just save us money; it gave us a voice that is
-        finally heard clearly online.
-      </MDXAttributedBlockquote>
     </MDXSection>
 
     <MDXCallToAction
       title="See it live"
-      description="The website is in daily use by the school community."
+      description="The school community uses the website every day."
       href="https://fes-kirchheim.de"
       linkText="Visit fes-kirchheim.de"
     />
@@ -153,18 +134,20 @@ const FesKirchheimBody = (): ReactNode => (
 export const fesKirchheimWork: Work = {
   meta: {
     title: 'Freie Evangelische Schule Kirchheim',
-    subtitle:
-      'A website engagement that grew into infrastructure, then into a product pilot',
+    subtitle: 'A school website that appears at once',
     slug: 'fes-kirchheim',
     date: '2024-08-01',
-    timeline: 'August 2024 – present',
-    role: 'Lead full stack developer',
+    since: 'August 2024',
+    role: 'Lead developer',
+    stage: 'In daily use',
     techStack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'NixOS'],
     liveUrl: 'https://fes-kirchheim.de',
     summary:
-      'The digital home of a school: a fast, accessible website, the declarative infrastructure under it, and the groundwork that made FESK the first Atrium pilot school.',
-    outcome:
-      'Cold boots eliminated, search impressions tripled, infrastructure cost down 60 percent. Now the first Atrium pilot school.',
+      'The new site appears at once instead of after five seconds, costs 60 percent less to run, and search shows it four times as often.',
+    image: {
+      src: fesKirchheimImage,
+      alt: 'The home page of the Freie Evangelische Schule Kirchheim, with the headline “Schule, die Freude bereitet.”',
+    },
   },
   body: FesKirchheimBody,
 };

@@ -35,8 +35,8 @@ export const PrivacyScreen = (): ReactNode => (
         access log. The entry contains your IP address, the date and time, the
         requested address, the response status and size, and the headers your
         browser sent with the request, including the referring page and your
-        browser&apos;s user agent. Requests to umami.vornholt.online are logged
-        the same way.
+        browser’s user agent. Requests to umami.vornholt.online are logged the
+        same way.
       </MDXParagraph>
       <MDXParagraph>
         I use these logs to deliver the site, keep it secure, and find errors.
@@ -71,9 +71,8 @@ export const PrivacyScreen = (): ReactNode => (
       </MDXParagraph>
       <MDXParagraph>
         Umami sets no cookies and stores nothing on your device. Besides your
-        screen size and language, the script reads one value from your
-        browser&apos;s local storage: a flag that lets the site owner exclude
-        their own visits.
+        screen size and language, the script reads one value from your browser’s
+        local storage: a flag that lets the site owner exclude their own visits.
       </MDXParagraph>
       <MDXParagraph>
         I use these statistics to see which pages people read, how they find the
@@ -112,8 +111,8 @@ export const PrivacyScreen = (): ReactNode => (
 
     <LegalSection title="No other third parties">
       <MDXParagraph>
-        Fonts, images, and scripts load from this site&apos;s own server, except
-        for the analytics script described above. There are no embedded videos,
+        Fonts, images, and scripts load from this site’s own server, except for
+        the analytics script described above. There are no embedded videos,
         maps, social media plugins, comments, newsletter, or contact forms.
         Links to other websites, such as GitHub, LinkedIn, X, YouTube, and
         Coursera, are ordinary links: those sites receive data from your browser
@@ -146,12 +145,11 @@ export const PrivacyScreen = (): ReactNode => (
         to establish, exercise, or defend legal claims.
       </MDXCallout>
       <MDXParagraph>
-        Umami&apos;s records contain no names or IP addresses, so I usually
-        cannot tell which of them are yours. If you ask to access, correct,
-        erase, restrict, or receive your Umami records (Art. 15 to 20), I can
-        only act on that request if you give me additional information that
-        identifies them (Art. 11(2) GDPR). This does not limit your right to
-        object.
+        Umami’s records contain no names or IP addresses, so I usually cannot
+        tell which of them are yours. If you ask to access, correct, erase,
+        restrict, or receive your Umami records (Art. 15 to 20), I can only act
+        on that request if you give me additional information that identifies
+        them (Art. 11(2) GDPR). This does not limit your right to object.
       </MDXParagraph>
       <MDXParagraph>
         You also have the right to lodge a complaint with a data protection

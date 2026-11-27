@@ -1,15 +1,17 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
+import { IBM_Plex_Mono, Sofia_Sans } from 'next/font/google';
 import './globals.css';
+import { themeAnchorColors } from '@portfolio/ui/theme-anchor-colors';
 import type { ReactNode } from 'react';
 import { siteUrl } from '@/config/site';
 import { AnalyticsScript } from '@/shared/analytics/presentation/components/analytics-script';
 import { Footer } from '@/shared/page/presentation/components/footer';
-import { MotionProvider } from '@/shared/ui/presentation/components/motion-provider';
-import { themeAnchorColors } from '@/shared/ui/services/theme-anchor-colors';
-import { Header } from '../shared/page/presentation/components/header';
+import { Header } from '@/shared/page/presentation/components/header';
+import { HistoryScroll } from '@/shared/page/presentation/components/history-scroll';
 
-const ibmPlexSans = IBM_Plex_Sans({
+// Sofia Sans follows the proportions of DIN 1451, the lettering of German
+// standards. It sets everything but code.
+const sofiaSans = Sofia_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
 });
@@ -17,22 +19,19 @@ const ibmPlexSans = IBM_Plex_Sans({
 const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '500'],
 });
 
-const sourceSerif4 = Source_Serif_4({
-  variable: '--font-serif',
-  subsets: ['latin'],
-});
+const siteDescription =
+  'Co-founder and CTO of ProsaBridge and founder of Atrium. AI writes most of my code, and every change has to pass the same automated checks before it goes live.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'David Vornholt | Founder & CTO',
+    default: 'David Vornholt | Co-founder and CTO of ProsaBridge',
     template: '%s | David Vornholt',
   },
-  description:
-    'Founder of Atrium and co-founder & CTO of ProsaBridge. Agents write most of my code, and strict quality gates decide what ships.',
+  description: siteDescription,
   keywords: [
     'Founder',
     'CTO',
@@ -66,15 +65,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName: 'David Vornholt',
-    title: 'David Vornholt | Founder & CTO',
-    description:
-      'Speaking the languages of humans and machines with equal precision.',
+    title: 'David Vornholt | Co-founder and CTO of ProsaBridge',
+    description: siteDescription,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'David Vornholt | Founder & CTO',
-    description:
-      'Speaking the languages of humans and machines with equal precision.',
+    title: 'David Vornholt | Co-founder and CTO of ProsaBridge',
+    description: siteDescription,
     creator: '@davidvornholt',
   },
 };
@@ -87,7 +84,7 @@ const personJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'David Vornholt',
-  jobTitle: 'Founder & CTO',
+  jobTitle: 'Co-founder and CTO',
   url: siteUrl,
   image: `${siteUrl}/portrait.png`,
   sameAs: [
@@ -123,7 +120,14 @@ const RootLayout = ({
 }: Readonly<{
   children: ReactNode;
 }>): ReactNode => (
-  <html lang="en" className="motion-safe:scroll-smooth">
+  // A link to a section of the page scrolls there smoothly. The attribute
+  // tells Next.js to switch that off while it opens another page, so a new
+  // page starts at its top instead of scrolling there from somewhere else.
+  <html
+    lang="en"
+    className="motion-safe:scroll-smooth"
+    data-scroll-behavior="smooth"
+  >
     <head>
       <script
         type="application/ld+json"
@@ -135,26 +139,14 @@ const RootLayout = ({
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Next.js JSON-LD requires a serialized script payload from this static object.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
-      {/* Motion renders each entrance animation's hidden starting frame as an
-      inline style, and only its client script plays the animation. Without
-      JavaScript that frame would stay and hide most of the page. Chart bars
-      start collapsed the same way. */}
-      <noscript>
-        <style>
-          {
-            '[style*="opacity:0;"],[style$="opacity:0"]{opacity:1!important;transform:none!important}[style*="transform:scaleX(0)"]{transform:none!important}'
-          }
-        </style>
-      </noscript>
     </head>
     <body
-      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${sourceSerif4.variable} antialiased`}
+      className={`${sofiaSans.variable} ${ibmPlexMono.variable} antialiased`}
     >
-      <MotionProvider>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-      </MotionProvider>
+      <Header />
+      <main>{children}</main>
+      <Footer />
+      <HistoryScroll />
       <AnalyticsScript />
     </body>
   </html>

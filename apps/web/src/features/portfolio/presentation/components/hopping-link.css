@@ -1,0 +1,38 @@
+/* The hop of one square inside a `HoppingLink`, the way the square of the
+   logo leaps: up, half a turn, and a small squash on landing. A group of
+   larger squares sets `--hop-height` to hop higher. */
+@layer components {
+  [data-square] {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-hop] {
+      animation: square-hop 520ms var(--ease-out);
+    }
+  }
+
+  @keyframes square-hop {
+    0% {
+      translate: 0 0;
+    }
+
+    45% {
+      translate: 0 calc(var(--hop-height, 9px) * -1);
+      rotate: 90deg;
+    }
+
+    80% {
+      translate: 0 0;
+      rotate: 180deg;
+      scale: 1.25 0.75;
+    }
+
+    100% {
+      translate: 0 0;
+      rotate: 180deg;
+      scale: 1 1;
+    }
+  }
+}

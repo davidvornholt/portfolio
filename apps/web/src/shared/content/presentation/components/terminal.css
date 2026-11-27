@@ -1,0 +1,235 @@
+/* The terminal in which an agent loosens a rule and the check notices. It is
+   drawn finished. Inside a `PlayOnView` that is waiting, the command and the
+   output are hidden, and once it plays, the command is typed and the output
+   arrives line by line. */
+@layer components {
+  .terminal {
+    background-color: var(--bar);
+    color: var(--bar-foreground);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 48rem) {
+    .terminal {
+      font-size: 0.9375rem;
+    }
+  }
+
+  @media print {
+    .terminal {
+      break-inside: avoid;
+    }
+  }
+
+  .terminal-title {
+    padding: 0.6rem 1.25rem;
+    border-block-end: 1px solid var(--bar-muted-foreground);
+    color: var(--bar-muted-foreground);
+  }
+
+  .terminal-body {
+    padding: 1rem 1.25rem 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  .terminal-dim {
+    color: var(--bar-muted-foreground);
+  }
+
+  /* The output keeps the indents the command printed. */
+  .terminal-line {
+    color: var(--bar-muted-foreground);
+    white-space: pre-wrap;
+  }
+
+  /* A line of a failed check: the one red on the page, as a mark beside it. */
+  .terminal-line[data-failed] {
+    padding-inline-start: 0.75rem;
+    border-inline-start: 0.25rem solid var(--failed);
+    color: var(--bar-foreground);
+    font-weight: 500;
+  }
+
+  .terminal-typed {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    white-space: nowrap;
+  }
+
+  /* The cursor is the site's square. It stands after the prompt while the
+     command is typed, leaves when the output begins, and rests after a new
+     prompt at the end. It does not blink. */
+  .terminal-caret {
+    display: inline-block;
+    inline-size: 1ch;
+    block-size: 1.15em;
+    margin-inline-start: 1px;
+    background-color: var(--bar-foreground);
+    vertical-align: text-bottom;
+  }
+
+  .terminal-caret[data-at="command"] {
+    opacity: 0;
+  }
+
+  [data-run="waiting"] .terminal-caret[data-at="command"] {
+    opacity: 1;
+  }
+
+  [data-run="playing"] .terminal-caret[data-at="command"] {
+    animation: terminal-caret-leaves 0.01s linear 1.7s both;
+  }
+
+  /* Once a visitor has typed a command, the terminal keeps its height and
+     scrolls, with the newest line at the bottom. */
+  .terminal-body[data-scrolls] {
+    overflow-y: auto;
+    scrollbar-color: var(--bar-muted-foreground) transparent;
+    scrollbar-width: thin;
+  }
+
+  /* The prompt under the run. It looks like the resting cursor until someone
+     clicks into the terminal, and then takes a few commands. */
+  .terminal-prompt {
+    display: flex;
+    gap: 1ch;
+    margin-block-start: 0.25rem;
+  }
+
+  .terminal-prompt:focus-within > .terminal-dim {
+    color: var(--bar-foreground);
+  }
+
+  .terminal-field {
+    position: relative;
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .terminal-field input {
+    display: none;
+    inline-size: 100%;
+    background: none;
+    color: inherit;
+    font: inherit;
+    /* The browser's own cursor is hidden. The square stands in its place. */
+    caret-color: transparent;
+    outline: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .terminal-field input {
+      display: block;
+    }
+  }
+
+  /* The word that says what to type shows only while the prompt has focus. */
+  .terminal-field input::placeholder {
+    color: transparent;
+  }
+
+  .terminal-field input:focus::placeholder {
+    color: var(--bar-muted-foreground);
+    opacity: 1;
+  }
+
+  /* The cursor of the prompt is the square too, as a block: it stands on
+     the character the next keystroke goes before, and that character shows
+     through it inverted. `TerminalShell` moves it with the browser's cursor. */
+  .terminal-prompt .terminal-field > .terminal-caret {
+    position: absolute;
+    inset-block-start: 0.2em;
+    inset-inline-start: 0;
+    margin: 0;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+
+  [data-run="waiting"] .terminal-typed {
+    inline-size: 0;
+  }
+
+  [data-run="waiting"] :is(.terminal-output > *, .terminal-prompt) {
+    opacity: 0;
+  }
+
+  [data-run="playing"] .terminal-typed {
+    animation: terminal-type 0.9s steps(19) 0.4s both;
+  }
+
+  [data-run="playing"] :is(.terminal-output > *, .terminal-prompt) {
+    animation: terminal-line 0.2s var(--ease-out) both;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(1) {
+    animation-delay: 1.7s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(2) {
+    animation-delay: 1.8s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(3) {
+    animation-delay: 1.9s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(4) {
+    animation-delay: 2.05s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(5) {
+    animation-delay: 2.15s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(6) {
+    animation-delay: 2.25s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(7) {
+    animation-delay: 2.35s;
+  }
+
+  [data-run="playing"] .terminal-output > :nth-child(8) {
+    animation-delay: 2.6s;
+  }
+
+  [data-run="playing"] .terminal-prompt {
+    animation-delay: 3s;
+  }
+
+  /* The command is 19 characters long. */
+  @keyframes terminal-type {
+    from {
+      inline-size: 0;
+    }
+
+    to {
+      inline-size: 19ch;
+    }
+  }
+
+  @keyframes terminal-caret-leaves {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes terminal-line {
+    from {
+      opacity: 0;
+      translate: 0 0.25rem;
+    }
+
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+}

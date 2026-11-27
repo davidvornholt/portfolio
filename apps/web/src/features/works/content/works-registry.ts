@@ -3,9 +3,11 @@ import { fesKirchheimWork } from './fes-kirchheim';
 import { prosabridgeWork } from './prosabridge';
 import type { Work } from './work-meta';
 
+// ProsaBridge leads: it is David's company and the first thing the home page
+// says about him.
 export const works: ReadonlyArray<Work> = [
-  atriumWork,
   prosabridgeWork,
+  atriumWork,
   fesKirchheimWork,
 ];
 

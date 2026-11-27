@@ -3,79 +3,111 @@
 /* biome-ignore lint/nursery/useLayeredStyles: The imported stylesheet declares its own cascade layers. */
 @import "@portfolio/ui/theme.css";
 
-@theme inline {
-  /* Content visualizations (color-space comparison post), app-local by design */
-  --color-comparison-hsl-yellow: var(--comparison-hsl-yellow);
-  --color-comparison-hsl-green: var(--comparison-hsl-green);
-  --color-comparison-hsl-red: var(--comparison-hsl-red);
-  --color-comparison-hsl-cyan: var(--comparison-hsl-cyan);
-  --color-comparison-hsl-blue: var(--comparison-hsl-blue);
-  --color-comparison-oklch-yellow: var(--comparison-oklch-yellow);
-  --color-comparison-oklch-green: var(--comparison-oklch-green);
-  --color-comparison-oklch-red: var(--comparison-oklch-red);
-  --color-comparison-oklch-cyan: var(--comparison-oklch-cyan);
-  --color-comparison-oklch-blue: var(--comparison-oklch-blue);
-}
-
 @layer overrides {
   :root {
-    --comparison-hsl-yellow: oklch(0.96798272 0.21100591 109.769232);
-    --comparison-hsl-green: oklch(0.86643961 0.29482724 142.495339);
-    --comparison-hsl-red: oklch(0.62795536 0.25768331 29.233885);
-    --comparison-hsl-cyan: oklch(0.90539923 0.15455001 194.768948);
-    --comparison-hsl-blue: oklch(0.45201372 0.31321437 264.052021);
-    --comparison-oklch-yellow: oklch(0.6 0.15 100);
-    --comparison-oklch-green: oklch(0.6 0.15 145);
-    --comparison-oklch-red: oklch(0.6 0.15 25);
-    --comparison-oklch-cyan: oklch(0.6 0.15 195);
-    --comparison-oklch-blue: oklch(0.6 0.15 265);
+    /* The space between the page's content and the edge of the screen. */
+    --gutter: 1rem;
+  }
+
+  @media (min-width: 40rem) {
+    :root {
+      --gutter: 2rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    :root {
+      --gutter: 5rem;
+    }
   }
 }
 
 @layer base {
   * {
-    @apply border-border outline-primary/50;
+    @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground font-sans;
-    position: relative;
-    isolation: isolate;
+    overflow-x: clip;
   }
 
-  body > * {
-    position: relative;
-    z-index: 1;
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
   }
 
-  body::before {
-    content: "";
-    position: fixed;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    inline-size: 100%;
-    block-size: 100%;
-    /* Paper grain: two noise layers read more like film grain than one */
-    background-image:
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n1)'/%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n2)'/%3E%3C/svg%3E");
-    background-size:
-      220px 220px,
-      520px 520px;
-    background-repeat: repeat;
-    z-index: 0;
-    opacity: 0.035;
-    mix-blend-mode: soft-light;
-    filter: blur(0.25px) contrast(115%);
+  /* Links and buttons change their look over a moment instead of at once. */
+  a,
+  button {
+    transition-property:
+      color, background-color, border-color, text-decoration-color,
+      text-decoration-thickness;
+    transition-duration: 160ms;
+    transition-timing-function: var(--ease-out);
   }
 
+  /* A heading shares its words evenly over its lines, and running text does
+     not end on a single word. */
   h1,
   h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-serif font-semibold;
+  h3 {
+    text-wrap: balance;
+  }
+
+  @supports (text-wrap: pretty) {
+    p,
+    li,
+    dd,
+    figcaption {
+      text-wrap: pretty;
+    }
+  }
+
+  ::selection {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+}
+
+/* The column every page's content shares. The bar alone runs past it, from
+   one edge of the screen to the other. */
+@utility page-column {
+  inline-size: min(100% - 2 * var(--gutter), 102.5rem);
+  margin-inline: auto;
+}
+
+@utility bleed {
+  margin-inline: calc(50% - 50vw);
+  padding-inline: calc(50vw - 50%);
+}
+
+/* For the pictures that are drawn with background colors: the bar, the
+   squares and the marks. On paper and in a forced color theme a browser
+   drops backgrounds, which would leave nothing of them. */
+@utility keeps-colors {
+  print-color-adjust: exact;
+  forced-color-adjust: none;
+}
+
+/* On paper a heading stays with what follows it, and a picture, a terminal
+   or a row is not cut in two. */
+@media print {
+  @layer overrides {
+    h1,
+    h2,
+    h3,
+    h4 {
+      break-after: avoid;
+    }
+
+    figure,
+    article,
+    li,
+    table,
+    pre {
+      break-inside: avoid;
+    }
   }
 }
 
@@ -91,6 +123,79 @@
       animation-iteration-count: 1 !important;
       /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override transition utility declarations. */
       transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* The mark's square and bar turn and move about their own middles. */
+  .mark-hops rect {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Pointing at the home link lifts the square a little, as the wind-up
+     before the hop that a click starts. */
+  .mark-hops [data-mark="square"] {
+    transition: translate 160ms var(--ease-out);
+  }
+
+  .mark-lifts:hover [data-mark="square"] {
+    translate: 0 -2px;
+  }
+
+  /* The footer's square drops onto its bar when the footer comes into view,
+     and lands as the logo's does: it squashes a little and the bar gives. */
+  .landing-square {
+    transform-origin: 50% 100%;
+  }
+
+  [data-run="waiting"] .landing-square {
+    translate: 0 -5rem;
+  }
+
+  [data-run="playing"] .landing-square {
+    animation: landing-square 560ms cubic-bezier(0.5, 0, 0.9, 0.6) both;
+  }
+
+  [data-run="playing"] .landing-bar {
+    animation: landing-bar 560ms linear both;
+  }
+
+  @keyframes landing-square {
+    0% {
+      translate: 0 -5rem;
+    }
+
+    76% {
+      translate: 0 0;
+      scale: 1 1;
+      animation-timing-function: ease-out;
+    }
+
+    88% {
+      translate: 0 1px;
+      scale: 1.12 0.78;
+    }
+
+    100% {
+      translate: 0 0;
+      scale: 1 1;
+    }
+  }
+
+  @keyframes landing-bar {
+    0%,
+    76% {
+      translate: 0 0;
+    }
+
+    88% {
+      translate: 0 1px;
+    }
+
+    100% {
+      translate: 0 0;
     }
   }
 }

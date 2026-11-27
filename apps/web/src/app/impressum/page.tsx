@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { siteUrl } from '@/config/site';
 import { ImpressumScreen } from '@/features/legal/presentation/screens/impressum-screen';
+import { PageTransition } from '@/shared/page/presentation/components/page-transitions';
 
 const impressumDescription =
   'Legal notice (Impressum) for david.vornholt.online under § 5 DDG and § 18 MStV.';
@@ -26,6 +27,10 @@ export const metadata: Metadata = {
   },
 };
 
-const ImpressumPage = (): ReactNode => <ImpressumScreen />;
+const ImpressumPage = (): ReactNode => (
+  <PageTransition>
+    <ImpressumScreen />
+  </PageTransition>
+);
 
 export default ImpressumPage;

@@ -46,3 +46,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# next dev writes its own notes for agents next to the app. The rules of this
+# repository are in the root AGENTS.md.
+/apps/web/AGENTS.md

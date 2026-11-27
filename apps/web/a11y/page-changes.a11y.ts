@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 
 const scrollTop = (): number => Math.round(globalThis.scrollY);
 const articleAddress = /\/posts\/[\w-]+$/u;
+// A date, a project and a title: the description has loaded.
+const describedMark = /, .+, /u;
 
 // The site scrolls smoothly to a section when its link is clicked. A new
 // page must not inherit that: it starts at its top, and the back button
@@ -79,7 +81,7 @@ test('a pinned change keeps its panel when the chart changes its width', async (
   }
   await expect(panel).toBeVisible();
   // The title arrives with the details, which load once a square is chosen.
-  await expect(stepper).toHaveAttribute('aria-valuetext', /, .+, /u);
+  await expect(stepper).toHaveAttribute('aria-valuetext', describedMark);
   const pinned = await stepper.getAttribute('aria-valuetext');
 
   for (const width of [390, 1280]) {

@@ -19,9 +19,6 @@ export type FetchedChange = MergedChange &
   Readonly<{ repositoryId: number; headSha: string }>;
 
 export type Visibility = 'public' | 'private';
-type FinalCommit = NonNullable<
-  NonNullable<PrivatePullRequestNode['commits']['nodes']>[number]
->['commit'];
 
 // GitHub returns at most this many results for one search.
 export const searchLimit = 1000;
@@ -209,30 +206,34 @@ export const searchPage = <Node>(
   nodes: result.search.nodes,
 });
 
-const checksOfCommit = 'the checks of a commit';
+const checksOfChange = 'the checks of a change';
 
 const checksPage = (
-  contexts: NonNullable<FinalCommit['statusCheckRollup']>['contexts'],
+  contexts: NonNullable<
+    PrivatePullRequestNode['statusCheckRollup']
+  >['contexts'],
 ): ListPage<CheckContext> => ({
   total: contexts.totalCount,
   pageInfo: contexts.pageInfo,
   nodes: contexts.nodes,
 });
 
-const checkContexts = Effect.fnUntraced(function* (commit: FinalCommit) {
-  // A commit that no check ran on has no check list, and that is not a gap.
-  const firstPage = commit.statusCheckRollup?.contexts;
+const checkContexts = Effect.fnUntraced(function* (
+  change: PrivatePullRequestNode,
+) {
+  // A change that no check ran on has no check list, and that is not a gap.
+  const firstPage = change.statusCheckRollup?.contexts;
   if (firstPage === undefined) {
     return [];
   }
   const github = yield* GitHubGraphQL;
-  const readByPage = allPages(checksOfCommit, (after) =>
+  const readByPage = allPages(checksOfChange, (after) =>
     request(
-      'read the checks of a commit',
-      github.commitChecks({ commit: commit.id, after }),
+      'read the checks of a change',
+      github.pullRequestChecks({ pullRequest: change.id, after }),
     ).pipe(
       Effect.map((result) => {
-        // The commit had a check list when the search read it, so a commit
+        // The change had a check list when the search read it, so a change
         // or a list that is gone now is a missing page.
         const contexts = result.node?.statusCheckRollup?.contexts;
         return contexts === undefined ? undefined : checksPage(contexts);
@@ -244,29 +245,19 @@ const checkContexts = Effect.fnUntraced(function* (commit: FinalCommit) {
   }
   // The search brought the list along in one response. When that response
   // left part of it out, the list is read by itself, which may be whole.
-  return yield* wholeList(checksOfCommit, [checksPage(firstPage)]).pipe(
+  return yield* wholeList(checksOfChange, [checksPage(firstPage)]).pipe(
     Effect.catch(() => readByPage),
   );
 });
 
 const judged = Effect.fnUntraced(function* (node: PrivatePullRequestNode) {
-  const commit = node.commits.nodes?.[0]?.commit;
-  if (commit === undefined) {
-    // Without its last commit a change would count as unchecked, and a
-    // private change that is unchecked is left out of the chart.
-    return yield* new IncompleteDataError({
-      subject: 'the last commit of a merged change',
-      message:
-        'GitHub returned a merged change without its last commit, so its checks cannot be read.',
-    });
-  }
-  const contexts: ReadonlyArray<CheckContext> = yield* checkContexts(commit);
+  const contexts: ReadonlyArray<CheckContext> = yield* checkContexts(node);
   return {
     mergedAt: node.mergedAt,
     linesChanged: node.additions + node.deletions,
     ...judgeAtMerge(node.mergedAt, toCheckRuns(contexts)),
     repositoryId: node.repository.databaseId,
-    headSha: commit.oid,
+    headSha: node.headRefOid,
   };
 });
 

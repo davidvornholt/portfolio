@@ -103,7 +103,7 @@ describe('fetchFailedAttempts', () => {
   it('describes a public attempt and keeps only the start of a private one', async () => {
     const { exit } = await run(
       () => wirePage([wireRun('earlier-commit', '16:00:00', '16:05:00')]),
-      [change(1, 'davidvornholt/standards'), change(2, undefined)],
+      [change(1, 'owner/name'), change(2, undefined)],
     );
 
     expect(exit).toEqual(
@@ -111,7 +111,7 @@ describe('fetchFailedAttempts', () => {
         {
           startedAt: at('16:00:00'),
           source: {
-            repository: 'davidvornholt/standards',
+            repository: 'owner/name',
             workflow: 'Standards',
             title: 'fix(sync): keep the lock',
             url: 'https://github.com/owner/name/actions/runs/1',
@@ -129,7 +129,7 @@ describe('fetchFailedAttempts', () => {
           wireRun('head-of-1', '17:48:05', '17:49:00'),
           wireRun('head-of-1', '17:30:00', '17:35:00'),
         ]),
-      [change(1, 'davidvornholt/standards')],
+      [change(1, 'owner/name')],
     );
 
     expect(
@@ -173,6 +173,54 @@ describe('fetchFailedAttempts', () => {
     expect(JSON.stringify(exit)).toContain('GitHubRequestError');
     expect(JSON.stringify(exit)).not.toContain('owner/name');
     expect(JSON.stringify(exit)).not.toContain('keep-the-lock');
+  });
+});
+
+describe('fetchFailedAttempts and the address of a run', () => {
+  // The repository was public when the search found it. If it has since been
+  // renamed, and perhaps made private, the address of its run carries a name
+  // the public search never returned.
+  it('fails without quoting anything when a public run has another repository’s address', async () => {
+    for (const url of [
+      'https://github.com/owner/renamed-and-private/actions/runs/1',
+      'https://github.com/owner/name-and-more/actions/runs/1',
+      'https://example.test/owner/name/actions/runs/1',
+    ]) {
+      // biome-ignore lint/performance/noAwaitInLoops: three cases of one check, run one after the other.
+      const { exit } = await run(
+        () =>
+          wirePage([
+            {
+              ...wireRun('earlier-commit', '16:00:00', '16:05:00'),
+              html_url: url,
+            },
+          ]),
+        [change(1, 'owner/name')],
+      );
+
+      expect(Exit.isFailure(exit)).toBe(true);
+      expect(JSON.stringify(exit)).toContain('GitHubRequestError');
+      expect(JSON.stringify(exit)).not.toContain('renamed-and-private');
+      expect(JSON.stringify(exit)).not.toContain('owner/name');
+      expect(JSON.stringify(exit)).not.toContain(url);
+    }
+  });
+
+  it('does not look at the address of a private run', async () => {
+    const { exit } = await run(
+      () =>
+        wirePage([
+          {
+            ...wireRun('earlier-commit', '16:00:00', '16:05:00'),
+            html_url: 'https://github.com/owner/renamed-and-private/x',
+          },
+        ]),
+      [change(2, undefined)],
+    );
+
+    expect(exit).toEqual(
+      Exit.succeed([{ startedAt: at('16:00:00'), source: undefined }]),
+    );
   });
 });
 

@@ -122,34 +122,20 @@ describe('fetchMergedChanges when a search leaves something out', () => {
       Exit.isSuccess(exit) && exit.value.map((change) => change.source?.number),
     ).toEqual([1, 2, 3]);
   });
-
-  it('fails when a change has no last commit', async () => {
-    const exit = await run(
-      {
-        countMergedChanges: twoChanges,
-        publicMergedChanges: noPublicChanges,
-        privateMergedChanges: () =>
-          Effect.succeed(found([{ ...privateNode(), commits: { nodes: [] } }])),
-      },
-      ['2026-11-07'],
-    );
-
-    expect(outcome(exit)).toContain(incomplete);
-  });
 });
 
 describe('fetchMergedChanges when a check list leaves something out', () => {
   const privateChangeWith = (
     contexts: Contexts,
-    commitChecks?: Handlers['commitChecks'],
+    pullRequestChecks?: Handlers['pullRequestChecks'],
   ): Handlers => ({
     countMergedChanges: twoChanges,
     publicMergedChanges: noPublicChanges,
     privateMergedChanges: () => Effect.succeed(found([privateNode(contexts)])),
-    ...(commitChecks === undefined ? {} : { commitChecks }),
+    ...(pullRequestChecks === undefined ? {} : { pullRequestChecks }),
   });
 
-  it('fails when a commit has one passed check and one empty entry', async () => {
+  it('fails when a change has one passed check and one empty entry', async () => {
     const withEmptyEntry = checks([passedCheck, null]);
     const exit = await run(
       privateChangeWith(withEmptyEntry, () =>
@@ -163,7 +149,7 @@ describe('fetchMergedChanges when a check list leaves something out', () => {
     expect(outcome(exit)).toContain(incomplete);
   });
 
-  it('fails when a commit lists fewer checks than it counts', async () => {
+  it('fails when a change lists fewer checks than it counts', async () => {
     const exit = await run(
       privateChangeWith(checks([passedCheck], lastPage, 2), () =>
         Effect.succeed({
@@ -201,7 +187,7 @@ describe('fetchMergedChanges when a check list leaves something out', () => {
   });
 
   it.each([
-    ['the commit', { node: null }],
+    ['the change', { node: null }],
     ['the check list', { node: {} }],
     ['the check list', { node: { statusCheckRollup: null } }],
   ])(
@@ -218,29 +204,14 @@ describe('fetchMergedChanges when a check list leaves something out', () => {
     },
   );
 
-  it('judges a commit that no check ran on as before', async () => {
+  it('judges a change that no check ran on as before', async () => {
     const exit = await run(
       {
         countMergedChanges: twoChanges,
         publicMergedChanges: noPublicChanges,
         privateMergedChanges: () =>
           Effect.succeed(
-            found([
-              {
-                ...privateNode(),
-                commits: {
-                  nodes: [
-                    {
-                      commit: {
-                        id: 'commit-id',
-                        oid: 'head-sha',
-                        statusCheckRollup: null,
-                      },
-                    },
-                  ],
-                },
-              },
-            ]),
+            found([{ ...privateNode(), statusCheckRollup: null }]),
           ),
       },
       ['2026-11-07'],

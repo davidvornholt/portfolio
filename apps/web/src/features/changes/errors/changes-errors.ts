@@ -42,6 +42,22 @@ export class IncompleteDataError extends Schema.TaggedError<IncompleteDataError>
   },
 ) {}
 
+/**
+ * The tokens and owners the run was given don't cover what it has to read: a
+ * list has an empty or repeated entry, the tokens don't match the owners, or
+ * a token doesn't read every repository of its owner. Each of these would
+ * leave an owner's private changes out of a chart that looks whole, so the
+ * run ends before it fetches anything. The message can name an owner, which
+ * the public workflow names too. It never holds a token, the name of a
+ * repository or text GitHub sent.
+ */
+export class TokenCoverageError extends Schema.TaggedError<TokenCoverageError>()(
+  'TokenCoverageError',
+  {
+    message: Schema.String,
+  },
+) {}
+
 export class SnapshotWriteError extends Schema.TaggedError<SnapshotWriteError>()(
   'SnapshotWriteError',
   {

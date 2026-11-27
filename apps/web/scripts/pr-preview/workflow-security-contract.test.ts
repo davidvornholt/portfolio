@@ -6,17 +6,23 @@ const consumer = await readWorkflow('pr-preview-deploy.yml');
 const rollBack = await readWorkflow('roll-back.yml');
 const githubExpression = (expression: string): string =>
   `\${{ ${expression} }}`;
+const pullRequestJob = producer.slice(
+  producer.indexOf('  container-smoke:'),
+  producer.indexOf('  daily-dispatch:'),
+);
+const buildJob = producer.slice(
+  producer.indexOf('  build:'),
+  producer.indexOf('  release:'),
+);
+const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
+const mainRef = "github.ref == 'refs/heads/main'";
+
+// These tests read the workflows as text. When each job of the publish
+// workflow runs, what it may do, and which step may hold a secret or a token
+// is checked on the parsed workflow by publish-workflow-contract.ts.
 
 describe('preview producer trust boundary', () => {
-  const pullRequestJob = producer.slice(
-    producer.indexOf('  container-smoke:'),
-    producer.indexOf('  gate:'),
-  );
-
-  it('grants untrusted pull request code only repository read access', () => {
-    expect(pullRequestJob).toContain('    permissions:\n      contents: read');
-    expect(pullRequestJob).not.toContain('      actions: read');
-    expect(pullRequestJob).not.toContain('      pull-requests: read');
+  it('gives untrusted pull request code no token to call GitHub with', () => {
     expect(pullRequestJob).not.toContain('GH_TOKEN:');
     expect(pullRequestJob).not.toContain('gh api');
   });
@@ -46,18 +52,6 @@ describe('preview producer trust boundary', () => {
     expect(producer).toContain('      - edited');
     expect(pullRequestJob).not.toContain('github.event.changes.base');
     expect(pullRequestJob).not.toContain("github.event.action != 'edited'");
-    expect(pullRequestJob).toContain(
-      'github.event.pull_request.head.repo.full_name == github.repository',
-    );
-  });
-
-  it('does not let an unrelated label start a new producer run', () => {
-    expect(pullRequestJob).toContain(
-      "contains(github.event.pull_request.labels.*.name, 'pr-preview')",
-    );
-    expect(pullRequestJob).toContain(
-      "github.event.action != 'labeled' || github.event.label.name == 'pr-preview'",
-    );
   });
 
   it('keeps producer and consumer runs in the FIFO queue without cancellation', () => {
@@ -171,11 +165,30 @@ describe('trusted preview consumer boundary', () => {
   });
 });
 
+describe('chart data on publish', () => {
+  it('fetches the day’s changes with read-only tokens before anything is built', () => {
+    const clientId = buildJob.indexOf('secret-key: changes_app.client_id');
+    const privateKey = buildJob.indexOf('secret-key: changes_app.private_key');
+    const install = buildJob.indexOf('bun install --frozen-lockfile');
+    const fetch = buildJob.indexOf('bun run --cwd apps/web changes:fetch');
+    const build = buildJob.indexOf('name: Build and publish the commit image');
+
+    expect(clientId).toBeGreaterThan(0);
+    expect(privateKey).toBeGreaterThan(clientId);
+    expect(install).toBeGreaterThan(privateKey);
+    expect(fetch).toBeGreaterThan(install);
+    expect(build).toBeGreaterThan(fetch);
+  });
+
+  it('says that a build is released only in the release build', () => {
+    expect(pullRequestJob).toContain('released: false}');
+    expect(pullRequestJob).not.toContain('released: true}');
+    expect(buildJob).toContain('released: true}');
+    expect(buildJob).not.toContain('released: false}');
+  });
+});
+
 describe('production release boundary', () => {
-  const buildJob = producer.slice(
-    producer.indexOf('  build:'),
-    producer.indexOf('  release:'),
-  );
   const releaseJob = producer.slice(producer.indexOf('  release:'));
   const releaseQueue = [
     '    concurrency:',
@@ -191,54 +204,27 @@ describe('production release boundary', () => {
   ].join('\n');
   const knownHost =
     'known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5';
-  const canonicalRepository = "github.repository == 'davidvornholt/portfolio'";
-  const mainRef = "github.ref == 'refs/heads/main'";
 
   it('builds the pushed commit beside the gate with its revision bound', () => {
-    expect(buildJob).toContain("    if: github.event_name == 'push'");
-    expect(buildJob).not.toContain('needs:');
     expect(buildJob).toContain(
       `org.opencontainers.image.revision=${githubExpression('github.sha')}`,
     );
     expect(buildJob).toContain('provenance: false');
-    expect(buildJob).toContain(
-      'cache-to: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true',
-    );
-    expect(buildJob).not.toContain('id-token');
   });
 
-  it('says that a build is released only in the release build', () => {
-    const pullRequestJob = producer.slice(
-      producer.indexOf('  container-smoke:'),
-      producer.indexOf('  gate:'),
+  it('writes the layer cache only from the build a push starts', () => {
+    expect(buildJob).toContain(
+      'cache-from: type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache\n',
     );
-
-    expect(pullRequestJob).toContain('released: false}');
-    expect(pullRequestJob).not.toContain('released: true}');
-    expect(buildJob).toContain('released: true}');
-    expect(buildJob).not.toContain('released: false}');
+    expect(buildJob).toContain(
+      `cache-to: ${githubExpression("github.event_name == 'push' && 'type=registry,ref=ghcr.io/davidvornholt/portfolio:buildcache,mode=max,image-manifest=true,oci-mediatypes=true' || ''")}\n`,
+    );
   });
 
   it('releases only the gated exact commit digest through the queued host action', () => {
-    expect(releaseJob).toContain('    needs:\n      - gate\n      - build');
-    expect(releaseJob).toContain(
-      [
-        '    if: >-',
-        `      ${canonicalRepository} &&`,
-        `      ${mainRef} &&`,
-        '      needs.gate.outputs.gated-sha == github.sha\n',
-      ].join('\n'),
-    );
-    expect(releaseJob).toContain(releasePermissions);
     expect(releaseJob).toContain(releaseQueue);
     expect(releaseJob).toContain('          persist-credentials: false');
     expect(releaseJob).toContain(`ref: ${githubExpression('github.sha')}`);
-    expect(releaseJob).toContain('uses: ./.github/actions/app-release');
-    expect(releaseJob).toContain('          unit: portfolio');
-    expect(releaseJob).toContain(knownHost);
-    expect(releaseJob).toContain(
-      `images: portfolio@${githubExpression('needs.build.outputs.digest')}`,
-    );
     expect(releaseJob).not.toContain('buildcache');
   });
 
@@ -260,7 +246,6 @@ describe('production release boundary', () => {
   it('no longer announces images to an infrastructure repository', () => {
     expect(producer).not.toContain('IMAGE_PROMOTION');
     expect(producer).not.toContain('image-bump');
-    expect(producer).not.toContain('create-github-app-token');
   });
 
   it('rolls back from main of this repository in the same queue as releases', () => {

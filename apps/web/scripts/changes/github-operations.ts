@@ -40,24 +40,13 @@ const CheckContexts = Schema.Struct({
   nodes: Schema.NullOr(Schema.Array(Schema.NullOr(CheckContext))),
 });
 
-const finalCommit = {
-  commits: Schema.Struct({
-    nodes: Schema.NullOr(
-      Schema.Array(
-        Schema.NullOr(
-          Schema.Struct({
-            commit: Schema.Struct({
-              id: Schema.String,
-              oid: Schema.String,
-              statusCheckRollup: Schema.NullOr(
-                Schema.Struct({ contexts: CheckContexts }),
-              ),
-            }),
-          }),
-        ),
-      ),
-    ),
-  }),
+// The checks of the change's last commit, read from the pull request. Asking
+// the commit itself needs read access to the repository's code, which the
+// App that reads private repositories doesn't have.
+const lastChecks = {
+  id: Schema.String,
+  headRefOid: Schema.String,
+  statusCheckRollup: Schema.NullOr(Schema.Struct({ contexts: CheckContexts })),
 };
 
 const size = {
@@ -68,7 +57,7 @@ const size = {
 
 const PublicPullRequest = Schema.Struct({
   ...size,
-  ...finalCommit,
+  ...lastChecks,
   number: Schema.Int,
   title: Schema.String,
   url: Schema.String,
@@ -82,7 +71,7 @@ const PublicPullRequest = Schema.Struct({
 // repository, so a private name or title never leaves GitHub.
 const PrivatePullRequest = Schema.Struct({
   ...size,
-  ...finalCommit,
+  ...lastChecks,
   repository: Schema.Struct({ databaseId: Schema.Int }),
 });
 
@@ -104,7 +93,7 @@ const pagedSearch = {
 // search) together with each page, so a list that arrives short is noticed.
 const contextSelection =
   'totalCount pageInfo{hasNextPage endCursor}nodes{__typename ...on CheckRun{name conclusion startedAt completedAt checkSuite{app{slug}workflowRun{workflow{name}}}}...on StatusContext{context state createdAt}}';
-const sharedSelection = `mergedAt additions deletions commits(last:1){nodes{commit{id oid statusCheckRollup{contexts(first:100){${contextSelection}}}}}}`;
+const sharedSelection = `mergedAt additions deletions id headRefOid statusCheckRollup{contexts(first:100){${contextSelection}}}`;
 const searchDocument = (name: string, selection: string): string =>
   `query ${name}($query:String!,$after:String){search(query:$query,type:ISSUE,first:25,after:$after){issueCount pageInfo{hasNextPage endCursor}nodes{...on PullRequest{${selection}}}}}`;
 
@@ -135,27 +124,24 @@ export const privateMergedChanges = GraphQL.query('privateMergedChanges', {
   result: searchResult(PrivatePullRequest),
 });
 
-// Every repository a change merged into, with what the token's owner may do
-// there: `READ` on a public repository means it belongs to someone else.
 export const mergedRepositories = GraphQL.query('mergedRepositories', {
   document:
-    'query mergedRepositories($query:String!,$after:String){search(query:$query,type:ISSUE,first:100,after:$after){issueCount pageInfo{hasNextPage endCursor}nodes{...on PullRequest{repository{nameWithOwner viewerPermission}}}}}',
+    'query mergedRepositories($query:String!,$after:String){search(query:$query,type:ISSUE,first:100,after:$after){issueCount pageInfo{hasNextPage endCursor}nodes{...on PullRequest{repository{nameWithOwner}}}}}',
   variables: pagedSearch,
   result: searchResult(
     Schema.Struct({
       repository: Schema.Struct({
         nameWithOwner: Schema.String,
-        viewerPermission: Schema.NullOr(Schema.String),
       }),
     }),
   ),
 });
 
-/** The rest of a commit's check list when it has more than one page. */
-export const commitChecks = GraphQL.query('commitChecks', {
-  document: `query commitChecks($commit:ID!,$after:String){node(id:$commit){...on Commit{statusCheckRollup{contexts(first:100,after:$after){${contextSelection}}}}}}`,
+/** A change's check list by itself, page by page. */
+export const pullRequestChecks = GraphQL.query('pullRequestChecks', {
+  document: `query pullRequestChecks($pullRequest:ID!,$after:String){node(id:$pullRequest){...on PullRequest{statusCheckRollup{contexts(first:100,after:$after){${contextSelection}}}}}}`,
   variables: {
-    commit: Schema.String,
+    pullRequest: Schema.String,
     after: Schema.optional(Schema.NullOr(Schema.String)),
   },
   result: Schema.Struct({
@@ -174,7 +160,7 @@ export const operations = GraphQLGroup.make(
   publicMergedChanges,
   privateMergedChanges,
   mergedRepositories,
-  commitChecks,
+  pullRequestChecks,
 );
 
 export type PublicPullRequestNode = typeof PublicPullRequest.Type;

@@ -7,10 +7,9 @@ import type {
 import { fetchMergedChanges } from './merged-changes';
 
 export type Handlers = Parameters<typeof GitHubGraphQL.layerTest>[0];
-type Commit = NonNullable<
-  NonNullable<PrivatePullRequestNode['commits']['nodes']>[number]
->['commit'];
-export type Contexts = NonNullable<Commit['statusCheckRollup']>['contexts'];
+export type Contexts = NonNullable<
+  PrivatePullRequestNode['statusCheckRollup']
+>['contexts'];
 
 type PageInfo = Contexts['pageInfo'];
 
@@ -30,7 +29,7 @@ export const passedCheck = {
   checkSuite: null,
 } as const;
 
-// One page of a commit's check list. The list is as long as the page unless
+// One page of a change's check list. The list is as long as the page unless
 // `totalCount` says otherwise.
 export const checks = (
   nodes: NonNullable<Contexts['nodes']>,
@@ -46,12 +45,6 @@ export const found = <Node>(
   issueCount: number = nodes.length,
 ) => ({ search: { issueCount, pageInfo, nodes } });
 
-const commit = (contexts: Contexts): Commit => ({
-  id: 'commit-id',
-  oid: 'head-sha',
-  statusCheckRollup: { contexts },
-});
-
 export const privateNode = (
   contexts: Contexts = checks([passedCheck]),
 ): PrivatePullRequestNode => ({
@@ -59,7 +52,9 @@ export const privateNode = (
   additions: 30,
   deletions: 10,
   repository: { databaseId: 2 },
-  commits: { nodes: [{ commit: commit(contexts) }] },
+  id: 'pull-request-id',
+  headRefOid: 'head-sha',
+  statusCheckRollup: { contexts },
 });
 
 export const publicNode = (number: number): PublicPullRequestNode => ({

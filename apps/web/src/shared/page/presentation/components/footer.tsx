@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { buildInfo } from '@/shared/build-info/services/build-info';
 import { PlayOnView } from '@/shared/ui/presentation/components/play-on-view';
+import { BuildLine } from './build-line';
 import { contactItem, navItems } from './nav-items';
 
 const legalLinks = [
@@ -23,6 +25,10 @@ export const Footer = (): ReactNode => {
           <div className="landing-square mb-0.5 size-3 bg-foreground" />
           <div className="landing-bar bleed h-4 bg-bar" />
         </PlayOnView>
+      </div>
+
+      <div className="mt-6 max-w-3xl">
+        <BuildLine build={buildInfo} />
       </div>
 
       <div className="mt-12 flex flex-col gap-4 text-muted-foreground text-sm md:flex-row md:items-center md:justify-between">

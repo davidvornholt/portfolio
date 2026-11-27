@@ -1,0 +1,52 @@
+import { Schema } from 'effect';
+import buildInfoData from '../data/build-info.json' with { type: 'json' };
+
+/**
+ * The commit a published page was built from. The publishing workflow writes
+ * it to `data/build-info.json` before it builds the image. The file that is
+ * checked in names no commit, so a local build makes no claim about its own.
+ */
+// The footer links to the commit by its hash and shows its date, so a file
+// with anything else in these two fields fails the build.
+const fullSha = /^[0-9a-f]{40}$/u;
+const isoDay = /^\d{4}-\d{2}-\d{2}$/u;
+
+const BuildInfo = Schema.Struct({
+  sha: Schema.String.check(Schema.isPattern(fullSha)),
+  title: Schema.NonEmptyString,
+  /** The day the commit was made in Berlin, as `YYYY-MM-DD`. */
+  committedOn: Schema.String.check(Schema.isPattern(isoDay)),
+  /** False for a preview. */
+  released: Schema.Boolean,
+});
+
+export type BuildInfo = typeof BuildInfo.Type;
+
+const decodeFile = Schema.decodeUnknownSync(
+  Schema.Struct({ commit: Schema.NullOr(BuildInfo) }),
+);
+
+const dayLength = 'YYYY-MM-DD'.length;
+
+// A day such as February 29 of a year without one has the right shape, and
+// a date made from it silently becomes March 1.
+const isRealDay = (day: string): boolean => {
+  const date = new Date(`${day}T00:00:00Z`);
+  return (
+    !Number.isNaN(date.getTime()) &&
+    date.toISOString().slice(0, dayLength) === day
+  );
+};
+
+export const decodeBuildInfo = (file: unknown): BuildInfo | null => {
+  const { commit } = decodeFile(file);
+  if (commit !== null && !isRealDay(commit.committedOn)) {
+    throw new Error(
+      `The build-info file names the day ${commit.committedOn}, which doesn't exist.`,
+    );
+  }
+  return commit;
+};
+
+/** Checked when the module loads, so a malformed file fails the build. */
+export const buildInfo: BuildInfo | null = decodeBuildInfo(buildInfoData);

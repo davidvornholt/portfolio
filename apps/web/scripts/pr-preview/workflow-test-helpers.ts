@@ -48,6 +48,8 @@ type SelectionScenario = {
   readonly pullRequest?: Record<string, unknown>;
   readonly producerJobConclusion?: string;
   readonly previousBaseRef?: string;
+  readonly pullRequestAfterWait?: Record<string, unknown>;
+  readonly standardsStatuses?: ReadonlyArray<string>;
   readonly ref?: string;
   readonly trigger?:
     | 'pull_request_target'
@@ -70,6 +72,22 @@ const selectionEnvironment = (
   ...Object.fromEntries(entries),
 });
 
+// What the select step sees while it waits for the Standards run.
+const standardsWaitEnvironment = (
+  scenario: SelectionScenario,
+): ReadonlyArray<readonly [string, string]> => [
+  [
+    'SELECT_PR_AFTER_WAIT',
+    scenario.pullRequestAfterWait === undefined
+      ? ''
+      : json(scenario.pullRequestAfterWait),
+  ],
+  [
+    'SELECT_STANDARDS_STATUSES',
+    (scenario.standardsStatuses ?? ['completed']).join(' '),
+  ],
+];
+
 export const runSelection = (
   scenario: SelectionScenario = {},
 ): SelectionResult => {
@@ -81,16 +99,43 @@ export GITHUB_OUTPUT="$test_root/outputs"
 export SELECT_GH_LOG="$test_root/gh.log"
 : >"$GITHUB_OUTPUT"
 : >"$SELECT_GH_LOG"
+export SELECT_STANDARDS_POLLS="$test_root/standards-polls"
+: >"$SELECT_STANDARDS_POLLS"
+sleep() {
+printf 'sleep %s\n' "$1" >>"$SELECT_GH_LOG"
+}
+# Each poll of the Standards runs takes the next status of the list, and the
+# last one repeats. Once a poll saw an unfinished run, the pull request reads
+# as SELECT_PR_AFTER_WAIT when that is set.
+standards_runs() {
+read -r -a statuses <<<"$SELECT_STANDARDS_STATUSES"
+polls=$(wc -l <"$SELECT_STANDARDS_POLLS")
+index=$((polls < \${#statuses[@]} ? polls : \${#statuses[@]} - 1))
+printf 'poll\n' >>"$SELECT_STANDARDS_POLLS"
+jq -n --arg status "\${statuses[index]}" '{total_count: 1, workflow_runs: [{
+  id: 200, run_number: 20, run_attempt: 1, status: $status,
+  path: ".github/workflows/standards.yml", event: "pull_request",
+  head_repository: {full_name: "davidvornholt/portfolio"}
+}]}'
+}
+pull_request() {
+if [ -n "$SELECT_PR_AFTER_WAIT" ] && [ "$(wc -l <"$SELECT_STANDARDS_POLLS")" -gt 0 ]; then
+  printf '%s' "$SELECT_PR_AFTER_WAIT"
+else
+  printf '%s' "$SELECT_PR"
+fi
+}
 gh() {
 test "$1" = api
 endpoint="\${@: -1}"
 printf '%s\n' "$endpoint" >>"$SELECT_GH_LOG"
 case "$endpoint" in
+  */actions/workflows/standards.yml/runs*) standards_runs ;;
   */actions/runs/100) printf '%s' "$SELECT_RUN" ;;
   */actions/runs/100/attempts/1/jobs*) printf '%s' "$SELECT_JOBS" ;;
   */actions/workflows/316903523/runs*) printf '%s' "$SELECT_CANDIDATES" ;;
   */commits/*/pulls*) printf '%s' "$SELECT_ASSOCIATED" ;;
-  */pulls/35) printf '%s' "$SELECT_PR" ;;
+  */pulls/35) pull_request ;;
   */git/ref/heads/main) printf '%s' '{"object":{"sha":"2222222222222222222222222222222222222222"}}' ;;
   */contents/.github/workflows/publish-container.yml*) printf '%s' '{"type":"file","path":".github/workflows/publish-container.yml","sha":"producer-blob"}' ;;
   */contents/.github/workflows/pr-preview-deploy.yml*) printf '%s' '{"type":"file","path":".github/workflows/pr-preview-deploy.yml","sha":"consumer-blob"}' ;;
@@ -181,6 +226,7 @@ exit "$status"
         ),
       ],
       ['SELECT_PR', json(scenario.pullRequest ?? eligiblePullRequest())],
+      ...standardsWaitEnvironment(scenario),
       ['SELECT_RUN', json(run)],
       ['TRIGGER', scenario.trigger ?? 'workflow_run'],
     ]),

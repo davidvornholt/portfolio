@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'bun:test';
-import { apiRecord, eligiblePullRequest } from './preview-selection-fixtures';
+import {
+  apiRecord,
+  eligiblePullRequest,
+  headSha,
+} from './preview-selection-fixtures';
 import { runSelection } from './workflow-test-helpers';
 
 describe('trusted preview workflow-run selection', () => {
@@ -91,5 +95,44 @@ describe('trusted preview workflow-run selection', () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.outputs.mode).toBe('none');
+  });
+});
+
+describe('waiting for the Standards run of the preview head', () => {
+  it('waits for an unfinished Standards run before it deploys', () => {
+    const result = runSelection({
+      standardsStatuses: ['queued', 'in_progress', 'completed'],
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('deploy');
+    expect(result.log.match(/^sleep 20$/gmu)).toHaveLength(2);
+  });
+
+  it('does not wait for Standards when the build failed', () => {
+    const result = runSelection({
+      conclusion: 'failure',
+      standardsStatuses: ['in_progress'],
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('destroy-failed-build');
+    expect(result.log).not.toContain('standards.yml/runs');
+  });
+
+  it('stops waiting without a change when the pull request moves on', () => {
+    const result = runSelection({
+      pullRequestAfterWait: eligiblePullRequest({
+        head: apiRecord([
+          ['repo', apiRecord([['full_name', 'davidvornholt/portfolio']])],
+          ['sha', '2'.repeat(headSha.length)],
+        ]),
+      }),
+      standardsStatuses: ['in_progress'],
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('none');
+    expect(result.log).not.toContain('sleep');
   });
 });

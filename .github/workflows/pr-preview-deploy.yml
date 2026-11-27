@@ -26,7 +26,7 @@ concurrency:
 jobs:
   select:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 45
     permissions:
       actions: read
       contents: read
@@ -293,6 +293,37 @@ jobs:
             test "$(jq -er length <<<"$exact_head_gates")" = 1
             test "$(jq -er '.[0].status' <<<"$exact_head_gates")" = completed
             test "$(jq -er '.[0].conclusion' <<<"$exact_head_gates")" = success
+
+            # The image build often finishes before the Standards run of the
+            # same commit, and nothing starts this workflow again when that run
+            # ends. Wait for it here, so `publish` judges a finished run rather
+            # than failing on an unfinished one and removing the live preview.
+            # At the deadline `publish` fails closed as before.
+            deadline=$(($(date -u +%s) + 2400))
+            while :; do
+              standards_runs=$(gh api "repos/$REPOSITORY/actions/workflows/standards.yml/runs?head_sha=$EVENT_HEAD_SHA&event=pull_request&per_page=100")
+              standards_status=$(jq -r \
+                '[.workflow_runs[] | select(
+                  .path == ".github/workflows/standards.yml"
+                  and .event == "pull_request"
+                  and .head_repository.full_name == "davidvornholt/portfolio"
+                )] | sort_by(.run_number, .run_attempt, .id) | last | .status // "missing"' \
+                <<<"$standards_runs")
+              if [ "$standards_status" = completed ]; then
+                break
+              fi
+              pr=$(gh api "repos/$REPOSITORY/pulls/$pr_number")
+              if [ "$(jq -er .head.sha <<<"$pr")" != "$EVENT_HEAD_SHA" ]; then
+                echo "::notice::Pull request $pr_number moved past $EVENT_HEAD_SHA while its Standards run was $standards_status"
+                exit 0
+              fi
+              if [ "$(date -u +%s)" -ge "$deadline" ]; then
+                echo "::warning::The Standards run for $EVENT_HEAD_SHA is still $standards_status at the deadline"
+                break
+              fi
+              echo "::notice::Waiting for the Standards run for $EVENT_HEAD_SHA, which is $standards_status"
+              sleep 20
+            done
           fi
           pr=$(gh api "repos/$REPOSITORY/pulls/$pr_number")
           test "$(jq -er .head.sha <<<"$pr")" = "$EVENT_HEAD_SHA"

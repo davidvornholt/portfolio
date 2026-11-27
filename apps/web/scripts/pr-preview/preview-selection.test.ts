@@ -4,7 +4,7 @@ import {
   eligiblePullRequest,
   producerRun,
 } from './preview-selection-fixtures';
-import { runSelection } from './workflow-test-helpers';
+import { readWorkflow, runSelection } from './workflow-test-helpers';
 
 describe('trusted preview workflow-run selection', () => {
   it('deploys only after the trusted workflow and blob checks succeed', () => {
@@ -140,5 +140,44 @@ describe('a preview whose Standards run ends after its image build', () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.outputs.mode).toBe('none');
+  });
+
+  it.each([
+    ['ended before the Standards run started', '2026-11-23T20:41:00Z'],
+    ['ended after the Standards run', '2026-11-23T20:48:00Z'],
+  ])('leaves a build that %s to its own end', (_case, buildEnded) => {
+    const result = runSelection({
+      candidates: [
+        apiRecord([
+          ...Object.entries(producerRun([{ number: 35 }])),
+          ['updated_at', buildEnded],
+        ]),
+      ],
+      standardsEvent: true,
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('none');
+    expect(result.log).not.toContain('/actions/runs/100');
+  });
+
+  it('ignores a Standards run of a fork at the same commit', () => {
+    const result = runSelection({
+      standardsEvent: true,
+      standardsEventRun: apiRecord([
+        ['head_repository', apiRecord([['full_name', 'someone/portfolio']])],
+      ]),
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.outputs.mode).toBe('none');
+  });
+
+  it('subscribes to the end of both runs', async () => {
+    const workflow = await readWorkflow('pr-preview-deploy.yml');
+
+    expect(workflow).toContain(
+      '  workflow_run:\n    workflows:\n      - Publish container\n      - Standards\n    types:\n      - completed\n',
+    );
   });
 });

@@ -49,6 +49,7 @@ type SelectionScenario = {
   readonly producerJobConclusion?: string;
   readonly previousBaseRef?: string;
   readonly standardsEvent?: boolean;
+  readonly standardsEventRun?: Record<string, unknown>;
   readonly standardsStatus?: string;
   readonly ref?: string;
   readonly trigger?:
@@ -89,6 +90,25 @@ const standardsEnvironment = (
         ['EVENT_WORKFLOW_ID', '200200'],
       ] as const)
     : []),
+  [
+    'SELECT_STANDARDS_EVENT_RUN',
+    json(
+      apiRecord([
+        ['id', standardsRunId],
+        ['path', '.github/workflows/standards.yml'],
+        ['event', 'pull_request'],
+        ['status', 'completed'],
+        ['head_sha', headSha],
+        [
+          'head_repository',
+          apiRecord([['full_name', 'davidvornholt/portfolio']]),
+        ],
+        ['run_started_at', '2026-11-23T20:42:00Z'],
+        ['updated_at', '2026-11-23T20:47:00Z'],
+        ...Object.entries(scenario.standardsEventRun ?? {}),
+      ]),
+    ),
+  ],
   [
     'SELECT_STANDARDS_RUNS',
     json(
@@ -133,6 +153,7 @@ endpoint="\${@: -1}"
 printf '%s\n' "$endpoint" >>"$SELECT_GH_LOG"
 case "$endpoint" in
   */actions/workflows/standards.yml/runs*) printf '%s' "$SELECT_STANDARDS_RUNS" ;;
+  */actions/runs/200) printf '%s' "$SELECT_STANDARDS_EVENT_RUN" ;;
   */actions/runs/100) printf '%s' "$SELECT_RUN" ;;
   */actions/runs/100/attempts/1/jobs*) printf '%s' "$SELECT_JOBS" ;;
   */actions/workflows/316903523/runs*) printf '%s' "$SELECT_CANDIDATES" ;;

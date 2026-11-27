@@ -184,12 +184,25 @@ jobs:
           fi
           # A finished Standards run stands in for the newest image build of
           # its commit, which is then checked like the run of a build event.
-          # Only a finished, passing build is taken up: an unfinished one
-          # decides when it ends, and a failed one already tore the preview
-          # down.
+          # It does so only for a passed build that ended while this
+          # Standards run was going: the end of that build found the run
+          # unfinished and left the preview to it. Any other build decided the
+          # preview when it ended, and taking it up again would deploy it
+          # twice, or fail on its expired artifact after a late rerun.
           if [ "$EVENT_PATH" = .github/workflows/standards.yml ]; then
             test "$EVENT_NAME" = Standards
-            [[ "$EVENT_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+            [[ "$EVENT_RUN_ID" =~ ^[1-9][0-9]*$ && "$EVENT_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+            standards=$(gh api "repos/$REPOSITORY/actions/runs/$EVENT_RUN_ID")
+            test "$(jq -er .path <<<"$standards")" = .github/workflows/standards.yml
+            test "$(jq -er .event <<<"$standards")" = pull_request
+            test "$(jq -er .status <<<"$standards")" = completed
+            test "$(jq -er .head_sha <<<"$standards")" = "$EVENT_HEAD_SHA"
+            if [ "$(jq -er .head_repository.full_name <<<"$standards")" != "$REPOSITORY" ]; then
+              echo "::notice::Standards run $EVENT_RUN_ID is outside the same-repository preview boundary"
+              exit 0
+            fi
+            standards_started=$(jq -er .run_started_at <<<"$standards")
+            standards_ended=$(jq -er .updated_at <<<"$standards")
             builds=$(gh api "repos/$REPOSITORY/actions/workflows/316903523/runs?head_sha=$EVENT_HEAD_SHA&event=pull_request&per_page=100")
             test "$(jq -er .total_count <<<"$builds")" -le 100
             build=$(jq -cr \
@@ -204,6 +217,11 @@ jobs:
             fi
             if [ "$(jq -er .conclusion <<<"$build")" != success ]; then
               echo "::notice::The newest image build for $EVENT_HEAD_SHA did not succeed; its end already decided the preview"
+              exit 0
+            fi
+            build_ended=$(jq -er .updated_at <<<"$build")
+            if [[ "$build_ended" < "$standards_started" || "$build_ended" > "$standards_ended" ]]; then
+              echo "::notice::The newest image build for $EVENT_HEAD_SHA did not end while Standards run $EVENT_RUN_ID was going; its end already decided the preview"
               exit 0
             fi
             EVENT_CONCLUSION=success

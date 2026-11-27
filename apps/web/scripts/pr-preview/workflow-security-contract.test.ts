@@ -250,7 +250,8 @@ describe('production release boundary', () => {
 
   it('rolls back from main of this repository in the same queue as releases', () => {
     expect(rollBack).toContain('name: Roll back');
-    expect(rollBack).toContain('on:\n  workflow_dispatch:\n\npermissions: {}');
+    expect(rollBack).toContain('\non:\n  workflow_dispatch:\n    inputs:\n');
+    expect(rollBack).toContain('\n\npermissions: {}\n');
     expect(rollBack).toContain(
       `\njobs:\n  roll-back:\n    if: ${canonicalRepository} && ${mainRef}\n`,
     );
@@ -258,6 +259,9 @@ describe('production release boundary', () => {
     expect(rollBack).toContain(releaseQueue);
     expect(rollBack).toContain('          ref: main');
     expect(rollBack).toContain('          command: rollback');
+    expect(rollBack.indexOf('          command: status')).toBeLessThan(
+      rollBack.indexOf('          command: rollback'),
+    );
     expect(rollBack).toContain(knownHost);
   });
 });

@@ -2,8 +2,19 @@ name: Roll back
 
 # Swap production back to the release before the current one. A second run
 # returns to the newer release. Shares the release queue of Publish container.
+#
+# The daily publish releases the newest commit of main again with that day's
+# data, so the release before the current one is often the same code. A
+# rollback to it would undo nothing but a day of chart data, so the run
+# refuses it unless `same-commit` is set. To undo a code change after a daily
+# publish, revert it on main.
 on:
   workflow_dispatch:
+    inputs:
+      same-commit:
+        description: Roll back also when the previous release is the same commit, which returns only to the chart data of the day it was built
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -26,6 +37,66 @@ jobs:
         with:
           persist-credentials: false
           ref: main
+
+      # The job holds the release queue from here on, so no release can land
+      # between this report and the rollback.
+      - name: Read the live and the previous release
+        id: live
+        uses: ./.github/actions/app-release
+        with:
+          command: status
+          unit: portfolio
+          host: prod-1.vornholt.online
+          known-host: prod-1.vornholt.online ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkom7Y24gnBa9X+gUDBZvlCnXiuKTo87ROOtlMpgNH5
+          age-key: ${{ secrets.SOPS_AGE_KEY }}
+
+      - name: Log in to the GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      # When the registry no longer has an image, the commit can't be read
+      # from it, and the rollback goes ahead: the host still has or pulls the
+      # previous image, and an incident is no time to block on the check.
+      - name: Refuse a rollback to the same commit
+        env:
+          APPS_JSON: ${{ steps.live.outputs.apps-json }}
+          IMAGE: ghcr.io/davidvornholt/portfolio
+          SAME_COMMIT: ${{ inputs.same-commit }}
+        run: |
+          set -euo pipefail
+          live=$(jq -er .portfolio.digest <<<"$APPS_JSON")
+          previous=$(jq -r '.portfolio.previousDigest // empty' <<<"$APPS_JSON")
+          if [ -z "$previous" ]; then
+            echo "::notice::The host reports no release before the current one"
+            exit 0
+          fi
+
+          # Prints the commit and the build date of an image, or nothing.
+          describe() {
+            docker buildx imagetools inspect "$IMAGE@$1" --format '{{json .Image}}' 2>/dev/null |
+              jq -er '[.config.Labels["org.opencontainers.image.revision"], (.created[0:10])] | join(" ")' ||
+              true
+          }
+          read -r live_commit live_built <<<"$(describe "$live")" || true
+          read -r previous_commit previous_built <<<"$(describe "$previous")" || true
+          if [ -z "${live_commit:-}" ] || [ -z "${previous_commit:-}" ]; then
+            echo "::warning::The registry did not report the commit of $live or $previous, so the rollback goes ahead without comparing them"
+            exit 0
+          fi
+
+          if [ "$live_commit" != "$previous_commit" ]; then
+            echo "::notice::Rolling back from commit $live_commit, built $live_built, to commit $previous_commit, built $previous_built"
+            exit 0
+          fi
+          if [ "$SAME_COMMIT" = true ]; then
+            echo "::notice::Rolling back to the same commit $live_commit, from the build of $live_built to the build of $previous_built, which changes only the chart data"
+            exit 0
+          fi
+          echo "::error::The release before the current one is the same commit, $live_commit, built $previous_built with the chart data of that day, so a rollback would not undo any code. To undo a code change, revert it on main. To return to the older chart data, run Roll back again with same-commit set."
+          exit 1
 
       - name: Roll production back to the previous release
         uses: ./.github/actions/app-release

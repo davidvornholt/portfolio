@@ -48,6 +48,9 @@ type SelectionScenario = {
   readonly pullRequest?: Record<string, unknown>;
   readonly producerJobConclusion?: string;
   readonly previousBaseRef?: string;
+  readonly standardsEvent?: boolean;
+  readonly standardsEventRun?: Record<string, unknown>;
+  readonly standardsStatus?: string;
   readonly ref?: string;
   readonly trigger?:
     | 'pull_request_target'
@@ -70,6 +73,69 @@ const selectionEnvironment = (
   ...Object.fromEntries(entries),
 });
 
+const standardsRunId = 200;
+const standardsRunNumber = 20;
+
+// The workflow run that started the selection, and the newest Standards run
+// of the head that the selection reads.
+const standardsEnvironment = (
+  scenario: SelectionScenario,
+): ReadonlyArray<readonly [string, string]> => [
+  ...(scenario.standardsEvent === true
+    ? ([
+        ['EVENT_CONCLUSION', 'success'],
+        ['EVENT_NAME', 'Standards'],
+        ['EVENT_PATH', '.github/workflows/standards.yml'],
+        ['EVENT_RUN_ID', String(standardsRunId)],
+        ['EVENT_WORKFLOW_ID', '200200'],
+      ] as const)
+    : []),
+  [
+    'SELECT_STANDARDS_EVENT_RUN',
+    json(
+      apiRecord([
+        ['id', standardsRunId],
+        ['path', '.github/workflows/standards.yml'],
+        ['event', 'pull_request'],
+        ['status', 'completed'],
+        ['head_sha', headSha],
+        [
+          'head_repository',
+          apiRecord([['full_name', 'davidvornholt/portfolio']]),
+        ],
+        ['run_started_at', '2026-11-23T20:42:00Z'],
+        ['updated_at', '2026-11-23T20:47:00Z'],
+        ...Object.entries(scenario.standardsEventRun ?? {}),
+      ]),
+    ),
+  ],
+  [
+    'SELECT_STANDARDS_RUNS',
+    json(
+      apiRecord([
+        ['total_count', 1],
+        [
+          'workflow_runs',
+          [
+            apiRecord([
+              ['id', standardsRunId],
+              ['run_number', standardsRunNumber],
+              ['run_attempt', 1],
+              ['status', scenario.standardsStatus ?? 'completed'],
+              ['path', '.github/workflows/standards.yml'],
+              ['event', 'pull_request'],
+              [
+                'head_repository',
+                apiRecord([['full_name', 'davidvornholt/portfolio']]),
+              ],
+            ]),
+          ],
+        ],
+      ]),
+    ),
+  ],
+];
+
 export const runSelection = (
   scenario: SelectionScenario = {},
 ): SelectionResult => {
@@ -86,6 +152,8 @@ test "$1" = api
 endpoint="\${@: -1}"
 printf '%s\n' "$endpoint" >>"$SELECT_GH_LOG"
 case "$endpoint" in
+  */actions/workflows/standards.yml/runs*) printf '%s' "$SELECT_STANDARDS_RUNS" ;;
+  */actions/runs/200) printf '%s' "$SELECT_STANDARDS_EVENT_RUN" ;;
   */actions/runs/100) printf '%s' "$SELECT_RUN" ;;
   */actions/runs/100/attempts/1/jobs*) printf '%s' "$SELECT_JOBS" ;;
   */actions/workflows/316903523/runs*) printf '%s' "$SELECT_CANDIDATES" ;;
@@ -183,6 +251,7 @@ exit "$status"
       ['SELECT_PR', json(scenario.pullRequest ?? eligiblePullRequest())],
       ['SELECT_RUN', json(run)],
       ['TRIGGER', scenario.trigger ?? 'workflow_run'],
+      ...standardsEnvironment(scenario),
     ]),
   });
   const stdout = result.stdout.toString();

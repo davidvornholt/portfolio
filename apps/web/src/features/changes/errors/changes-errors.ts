@@ -65,3 +65,30 @@ export class SnapshotWriteError extends Schema.TaggedError<SnapshotWriteError>()
     message: Schema.String,
   },
 ) {}
+
+/**
+ * The record of verdicts on the site's own changes could not be read or
+ * written, or it doesn't hold what its schema names.
+ */
+export class SiteVerdictsFileError extends Schema.TaggedError<SiteVerdictsFileError>()(
+  'SiteVerdictsFileError',
+  {
+    path: Schema.String,
+    message: Schema.String,
+  },
+) {}
+
+/**
+ * A change of the site's own repository is old enough that GitHub will soon
+ * delete its checks, and the committed record has no verdict for it. Judged
+ * without its checks it would change the site's record, so the run ends
+ * until the local refresh records it. `numbers` are pull request numbers of
+ * the public repository.
+ */
+export class SiteVerdictMissingError extends Schema.TaggedError<SiteVerdictMissingError>()(
+  'SiteVerdictMissingError',
+  {
+    numbers: Schema.Array(Schema.Int),
+    message: Schema.String,
+  },
+) {}

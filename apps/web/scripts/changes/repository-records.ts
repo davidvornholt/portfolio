@@ -1,5 +1,6 @@
 import { DateTime, Effect, Order } from 'effect';
 import {
+  IncompleteDataError,
   SearchWindowTooLargeError,
   SiteVerdictMissingError,
 } from '@/features/changes/errors/changes-errors';
@@ -9,6 +10,7 @@ import type {
   SnapshotSiteRecord,
 } from '@/features/changes/services/snapshot';
 import { GitHubGraphQL } from './github-graphql';
+import type { PublicPullRequestNode } from './github-operations';
 import {
   allPages,
   countWithin,
@@ -37,21 +39,41 @@ const withinOneSearch = Effect.fnUntraced(function* (query: string) {
   return count;
 });
 
-// GitHub archives checks after 400 days and deletes them 10 days later. A
-// change this old has to be in the committed record, which leaves about 100
-// days to run the local refresh before its checks are gone.
+// GitHub archives checks after 400 days and deletes them 10 days later. The
+// production fetch needs a change older than `recordedWithinDays` to be in
+// the committed record, which leaves about 100 days to run the local refresh.
+// The refresh doesn't judge a change older than `checksKeptDays`, whose
+// checks may be gone, and would record it as unchecked.
 const recordedWithinDays = 300;
+const checksKeptDays = 400;
 
-const missingMessage = (numbers: ReadonlyArray<number>): string =>
-  `The committed verdicts of this site's changes have no entry for #${numbers.join(', #')}, which merged more than ${recordedWithinDays} days ago. GitHub deletes the checks of a change about 410 days after they ran, so judging it again would change the site's record. Run the local changes:fetch refresh with CHANGES_SITE_VERDICTS=record and commit site-verdicts.json.`;
+const refreshHint =
+  'Run the local changes:fetch refresh with CHANGES_SITE_VERDICTS=record and commit site-verdicts.json.';
+const byHandHint =
+  "GitHub may have deleted its checks, so look up each verdict in the pull request's history and add it to site-verdicts.json by hand.";
+
+const unrecordedBefore = (
+  nodes: ReadonlyArray<PublicPullRequestNode>,
+  known: ReadonlyMap<number, unknown>,
+  before: DateTime.Utc,
+): ReadonlyArray<number> =>
+  nodes
+    .filter(
+      (node) =>
+        !known.has(node.number) && DateTime.isLessThan(node.mergedAt, before),
+    )
+    .map((node) => node.number)
+    .toSorted((a, b) => a - b);
 
 /**
  * What the checks said about every change `login` merged into `repository`,
  * which has to be public, and the verdicts that go into the committed record.
  * A change with a verdict in `recorded` keeps it, so the record doesn't
  * change when GitHub deletes the checks behind it. A change that isn't
- * recorded is judged by its checks. In `read` mode a change older than
- * `recordedWithinDays` that isn't recorded ends the run instead.
+ * recorded is judged by its checks, unless it is too old for that: in `read`
+ * mode older than `recordedWithinDays`, and in `record` mode older than
+ * `checksKeptDays`. Such a change ends the run, and so does a recorded change
+ * the search didn't return, which would drop out of the totals.
  */
 export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
   login: string,
@@ -65,30 +87,39 @@ export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
   const github = yield* GitHubGraphQL;
   const query = `is:pr is:merged is:public author:${login} repo:${repository}`;
   yield* withinOneSearch(query);
-  const nodes = yield* allPages('the changes merged into this site', (after) =>
-    request(
-      'search the changes of this site',
-      github.publicMergedChanges({ query, after }),
-    ).pipe(Effect.map(searchPage)),
+  const subject = 'the changes merged into this site';
+  const nodes = yield* allPages(
+    subject,
+    (after) =>
+      request(
+        'search the changes of this site',
+        github.publicMergedChanges({ query, after }),
+      ).pipe(Effect.map(searchPage)),
+    (node) => node.number,
   );
+  const fetched = new Set(nodes.map((node) => node.number));
+  const absent = recorded.changes
+    .map((entry) => entry.number)
+    .filter((number) => !fetched.has(number));
+  if (absent.length > 0) {
+    return yield* new IncompleteDataError({
+      subject,
+      message: `GitHub did not return all of ${subject}: #${absent.join(', #')} ${absent.length === 1 ? 'is' : 'are'} recorded in site-verdicts.json but missing from the search.`,
+    });
+  }
   const known = new Map(
     recorded.changes.map((entry) => [entry.number, entry.verdict] as const),
   );
-  const recordBefore = DateTime.subtract(fetchedAt, {
-    days: recordedWithinDays,
-  });
-  const missing = nodes
-    .filter(
-      (node) =>
-        !known.has(node.number) &&
-        DateTime.isLessThan(node.mergedAt, recordBefore),
-    )
-    .map((node) => node.number)
-    .toSorted((a, b) => a - b);
-  if (mode === 'read' && missing.length > 0) {
+  const days = mode === 'read' ? recordedWithinDays : checksKeptDays;
+  const missing = unrecordedBefore(
+    nodes,
+    known,
+    DateTime.subtract(fetchedAt, { days }),
+  );
+  if (missing.length > 0) {
     return yield* new SiteVerdictMissingError({
       numbers: missing,
-      message: missingMessage(missing),
+      message: `The committed verdicts of this site's changes have no entry for #${missing.join(', #')}, which merged more than ${days} days ago. GitHub deletes the checks of a change about 410 days after they ran, so judging it again could change the site's record. ${mode === 'read' ? refreshHint : byHandHint}`,
     });
   }
   // A recorded change isn't judged again, which saves reading its checks.
@@ -116,13 +147,8 @@ export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
     failed: tally('failed'),
     unchecked: tally('unchecked'),
   };
-  // An entry stays when its change is missing from one search.
-  const fetched = new Set(changes.map((change) => change.number));
   const verdicts: SiteVerdicts = {
-    changes: [
-      ...recorded.changes.filter((entry) => !fetched.has(entry.number)),
-      ...changes,
-    ].toSorted((a, b) => a.number - b.number),
+    changes: changes.toSorted((a, b) => a.number - b.number),
   };
   return { record, verdicts };
 });

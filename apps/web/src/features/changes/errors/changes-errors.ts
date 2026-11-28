@@ -79,11 +79,11 @@ export class SiteVerdictsFileError extends Schema.TaggedError<SiteVerdictsFileEr
 ) {}
 
 /**
- * A change of the site's own repository is old enough that GitHub will soon
- * delete its checks, and the committed record has no verdict for it. Judged
- * without its checks it would change the site's record, so the run ends
- * until the local refresh records it. `numbers` are pull request numbers of
- * the public repository.
+ * A change of the site's own repository is old enough that GitHub may soon
+ * delete, or has deleted, its checks, and the committed record has no verdict
+ * for it. Judged without its checks it would change the site's record, so the
+ * run ends until the verdict is recorded. `numbers` are pull request numbers
+ * of the public repository.
  */
 export class SiteVerdictMissingError extends Schema.TaggedError<SiteVerdictMissingError>()(
   'SiteVerdictMissingError',

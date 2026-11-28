@@ -16,6 +16,7 @@ export const releaseAction = './.github/actions/app-release';
 export const fetchCommand = 'bun run --cwd apps/web changes:fetch';
 export const tokensVariable = 'CHANGES_GITHUB_TOKENS';
 export const ownersVariable = 'CHANGES_OWNERS';
+export const siteVerdictsVariable = 'CHANGES_SITE_VERDICTS';
 
 export const credentialSteps = [
   { id: 'changes-app-client-id', input: 'client-id', key: 'client_id' },

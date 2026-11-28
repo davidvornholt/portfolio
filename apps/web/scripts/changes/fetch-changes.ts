@@ -21,6 +21,11 @@ import {
   type Visibility,
 } from './merged-changes';
 import { fetchAcceptedElsewhere, fetchSiteRecord } from './repository-records';
+import {
+  readSiteVerdicts,
+  siteVerdictsUrl,
+  writeSiteVerdicts,
+} from './site-verdicts';
 import { checkedTokensAndOwners } from './token-coverage';
 
 const login = 'davidvornholt';
@@ -41,6 +46,16 @@ const rawTokens = Config.Redacted('CHANGES_GITHUB_TOKENS');
 // separated like the tokens. A public repository of any other owner counts
 // as someone else's project that accepted a change.
 const rawOwners = Config.String('CHANGES_OWNERS');
+
+// By default the fetch adds the verdicts of the site's new changes to the
+// committed `site-verdicts.json`, which is what a local refresh is for. The
+// production fetch sets `read`: it only reads the file and fails, rather than
+// judging a change again from checks GitHub may have deleted, once an old
+// change is missing from it.
+const siteVerdictsMode = Config.Literals(
+  ['read', 'record'],
+  'CHANGES_SITE_VERDICTS',
+).pipe(Config.withDefault('record'));
 
 const gitHub = (token: Redacted.Redacted) =>
   Layer.mergeAll(GitHubGraphQL.layer, GitHubRest.layer).pipe(
@@ -98,10 +113,15 @@ const fetchChanges = Effect.gen(function* () {
     gitHub,
   );
   const [firstToken] = tokens;
+  const mode = yield* siteVerdictsMode;
+  const recorded = yield* readSiteVerdicts(siteVerdictsUrl);
 
   const open = yield* Effect.gen(function* () {
     const visible = yield* changesAndAttempts(searchDays, 'public', new Set());
-    const site = yield* fetchSiteRecord(login, siteRepository, fetchedAt);
+    const site = yield* fetchSiteRecord(login, siteRepository, fetchedAt, {
+      recorded,
+      mode,
+    });
     const elsewhere = yield* fetchAcceptedElsewhere(login, owners);
     return { ...visible, site, elsewhere };
   }).pipe(Effect.provide(gitHub(firstToken)));
@@ -125,10 +145,13 @@ const fetchChanges = Effect.gen(function* () {
     dayCount,
     changes,
     attempts,
-    site: open.site,
+    site: open.site.record,
     elsewhere: open.elsewhere,
   });
   yield* writeSnapshot(snapshot);
+  if (mode === 'record') {
+    yield* writeSiteVerdicts(siteVerdictsUrl, open.site.verdicts);
+  }
   yield* Effect.logInfo(
     `Wrote ${snapshot.days.flatMap((day) => day.changes).length} changes and ${snapshot.days.flatMap((day) => day.sentBack).length} sent-back attempts for the ${dayCount} days up to ${snapshot.updatedOn}.`,
   );

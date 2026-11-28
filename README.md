@@ -17,6 +17,8 @@ Site and analytics configuration lives in `apps/web/src/config/`. The Umami webs
 
 The chart on the home page is drawn from `apps/web/src/features/changes/data/changes.json`. The committed copy is what development and PR previews show. Refresh it with `CHANGES_GITHUB_TOKENS="$(gh auth token)" CHANGES_OWNERS=<owners> bun run --cwd apps/web changes:fetch`, which takes a few minutes. `<owners>` is the list `publish-container.yml` passes: the accounts and organisations whose repositories are David’s own.
 
+The refresh also adds the verdict of each new change of this repository to `apps/web/src/features/changes/data/site-verdicts.json`, so the site’s own record keeps its verdicts after GitHub deletes their checks, about 410 days after they ran. The production fetch sets `CHANGES_SITE_VERDICTS=read`, so it only reads that file and fails once a change older than 300 days has no entry there: then run the refresh and commit both files.
+
 ## Deployment
 
 [personal-infra](https://github.com/davidvornholt/personal-infra) owns the host, configuration, and secrets for production at `https://david.vornholt.online`. Merging to `main` deploys: once Standards passes on the merge commit, the Publish container workflow releases that exact image to production. To return to the release before the current one, run the Roll back workflow; running it again returns to the newer release. After a daily publish the release before the current one is the same commit with the data of the day before, so Roll back refuses to run unless you tick `same-commit`, which returns only that data. It also refuses when the registry can't tell which commit an image was built from. To undo a code change after a daily publish, revert it on `main`.

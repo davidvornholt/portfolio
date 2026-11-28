@@ -12,6 +12,7 @@ import {
   type Parts,
   partsOf,
   releaseAction,
+  siteVerdictsVariable,
   sopsAction,
   sopsAgeKey,
   tokensVariable,
@@ -334,7 +335,14 @@ const fetchViolations = (parts: Parts): ReadonlyArray<string> => [
     ...same(
       `the keys of ${step.path}.env`,
       keysOf(at(step.step, 'env')),
-      sorted([tokensVariable, ownersVariable]),
+      sorted([tokensVariable, ownersVariable, siteVerdictsVariable]),
+    ),
+    // The checkout is thrown away, so the fetch only reads the committed
+    // verdicts, and fails instead of judging an old change again.
+    ...same(
+      `${step.path}.env.${siteVerdictsVariable}`,
+      at(step.step, 'env', siteVerdictsVariable),
+      'read',
     ),
     ...same(
       `${step.path}.env.${ownersVariable}`,

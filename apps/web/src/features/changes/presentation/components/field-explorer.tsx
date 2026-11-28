@@ -12,6 +12,7 @@ import {
 } from 'react';
 import {
   describeMark,
+  type MarkAddress,
   type MarkDescription,
 } from '@/features/changes/services/describe-mark';
 import type { Snapshot } from '@/features/changes/services/snapshot';
@@ -25,9 +26,41 @@ import {
 } from './field-marks';
 import { SelectionPanel } from './selection-panel';
 
-/** `pinned` keeps the selection when the pointer moves on. */
-type Selection = Readonly<{ index: number; pinned: boolean }>;
+/**
+ * `pinned` keeps the selection when the pointer moves on. The selection names
+ * the change rather than its place in the list of marks, because that list
+ * is measured again, and holds other weeks, whenever the chart changes its
+ * width.
+ */
+type Selection = Readonly<{ address: MarkAddress; pinned: boolean }>;
 type ElementRef = RefObject<HTMLDivElement | null>;
+
+const indexOf = (
+  marks: ReadonlyArray<FieldMark>,
+  selection: Selection | undefined,
+): number =>
+  selection === undefined
+    ? -1
+    : marks.findIndex(
+        (mark) =>
+          mark.date === selection.address.date &&
+          mark.kind === selection.address.kind &&
+          mark.position === selection.address.position,
+      );
+
+const selectionAt = (
+  marks: ReadonlyArray<FieldMark>,
+  index: number | undefined,
+  pinned: boolean,
+): Selection | undefined => {
+  const mark = index === undefined ? undefined : marks[index];
+  return mark === undefined
+    ? undefined
+    : {
+        address: { date: mark.date, kind: mark.kind, position: mark.position },
+        pinned,
+      };
+};
 
 // How far, in pixels, a pointer or a finger may be from a square to mean it.
 const hoverReach = 12;
@@ -113,8 +146,7 @@ const usePointerSelection = ({
       if (pinned || event.pointerType !== 'mouse' || inPanel(event)) {
         return;
       }
-      const index = markAt(event, hoverReach);
-      setSelection(index === undefined ? undefined : { index, pinned: false });
+      setSelection(selectionAt(marks, markAt(event, hoverReach), false));
     };
     const leave = (): void => {
       if (!pinned) {
@@ -125,8 +157,7 @@ const usePointerSelection = ({
       if (inPanel(event)) {
         return;
       }
-      const index = markAt(event, tapReach);
-      setSelection(index === undefined ? undefined : { index, pinned: true });
+      setSelection(selectionAt(marks, markAt(event, tapReach), true));
     };
     const pickNothing = (event: PointerEvent): void => {
       const outside =
@@ -251,18 +282,21 @@ export const FieldExplorer = ({
   const marks = useMarks(frameRef);
   const details = useDetails(selection !== undefined);
   const last = Math.max(marks.length - 1, 0);
-  const index = selection?.index ?? last;
-  const mark = selection === undefined ? undefined : marks[selection.index];
+  const found = indexOf(marks, selection);
+  const index = found === -1 ? last : found;
+  // A change of a week the chart no longer shows has no mark. It shows no
+  // panel and holds no pin, and appears again with its week.
+  const mark = found === -1 ? undefined : marks[found];
   const description =
     mark === undefined || details === undefined
       ? undefined
       : describeMark(details, mark);
-  const pinned = selection?.pinned === true;
+  const pinned = mark !== undefined && selection?.pinned === true;
   usePointerSelection({ frameRef, panelRef, marks, pinned, setSelection });
   usePlacement(frameRef, panelRef, mark);
-  useEscape(frameRef, selection !== undefined, setSelection);
+  useEscape(frameRef, mark !== undefined, setSelection);
   const stepTo = (target: number): void =>
-    setSelection({ index: Math.max(0, Math.min(target, last)), pinned: true });
+    setSelection(selectionAt(marks, Math.max(0, Math.min(target, last)), true));
 
   return (
     <div ref={frameRef} className="field-frame keeps-colors">
@@ -279,7 +313,11 @@ export const FieldExplorer = ({
         aria-valuetext={valueText(mark, description)}
         onChange={(event) => stepTo(Number(event.target.value))}
         onFocus={() =>
-          setSelection((current) => current ?? { index: last, pinned: true })
+          setSelection((current) =>
+            indexOf(marks, current) === -1
+              ? selectionAt(marks, last, true)
+              : current,
+          )
         }
         onKeyDown={(event) => {
           if (event.key === 'PageUp' || event.key === 'PageDown') {

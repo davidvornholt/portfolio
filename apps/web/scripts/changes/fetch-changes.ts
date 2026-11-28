@@ -47,14 +47,15 @@ const rawTokens = Config.Redacted('CHANGES_GITHUB_TOKENS');
 // as someone else's project that accepted a change.
 const rawOwners = Config.String('CHANGES_OWNERS');
 
-// `record` adds the verdicts of the site's new changes to the committed
-// `site-verdicts.json`, for the local refresh. The production fetch reads it
-// without writing, so it fails, rather than judging a change again from
-// checks GitHub may have deleted, once an old change is missing from it.
+// By default the fetch adds the verdicts of the site's new changes to the
+// committed `site-verdicts.json`, which is what a local refresh is for. The
+// production fetch sets `read`: it only reads the file and fails, rather than
+// judging a change again from checks GitHub may have deleted, once an old
+// change is missing from it.
 const siteVerdictsMode = Config.Literals(
   ['read', 'record'],
   'CHANGES_SITE_VERDICTS',
-).pipe(Config.withDefault('read'));
+).pipe(Config.withDefault('record'));
 
 const gitHub = (token: Redacted.Redacted) =>
   Layer.mergeAll(GitHubGraphQL.layer, GitHubRest.layer).pipe(

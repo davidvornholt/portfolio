@@ -441,6 +441,7 @@ jobs:
             ${{ steps.changes-token-fes-kirchheim.outputs.token }},
             ${{ steps.changes-token-cg-bibi.outputs.token }}
           CHANGES_OWNERS: davidvornholt,prosabridge,atrium-schule,fes-kirchheim,cg-bibi
+          CHANGES_SITE_VERDICTS: read
         run: bun run --cwd apps/web changes:fetch
 
       - name: Write the build line of the release

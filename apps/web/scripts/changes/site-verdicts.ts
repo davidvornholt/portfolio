@@ -14,11 +14,6 @@ const SiteVerdicts = Schema.Struct({
 export type SiteVerdict = typeof SiteVerdict.Type;
 export type SiteVerdicts = typeof SiteVerdicts.Type;
 
-/**
- * Whether the run may add verdicts to the committed record (`record`, the
- * local refresh) or only reads it (`read`, the production fetch, whose
- * checkout is thrown away).
- */
 export type SiteVerdictsMode = 'record' | 'read';
 
 /**

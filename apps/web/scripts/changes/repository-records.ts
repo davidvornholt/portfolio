@@ -48,7 +48,7 @@ const recordedWithinDays = 300;
 const checksKeptDays = 400;
 
 const refreshHint =
-  'Run the local changes:fetch refresh with CHANGES_SITE_VERDICTS=record and commit site-verdicts.json.';
+  'Run the local changes:fetch refresh and commit site-verdicts.json.';
 const byHandHint =
   "GitHub may have deleted its checks, so look up each verdict in the pull request's history and add it to site-verdicts.json by hand.";
 
@@ -122,7 +122,6 @@ export const fetchSiteRecord = Effect.fn('fetchSiteRecord')(function* (
       message: `The committed verdicts of this site's changes have no entry for #${missing.join(', #')}, which merged more than ${days} days ago. GitHub deletes the checks of a change about 410 days after they ran, so judging it again could change the site's record. ${mode === 'read' ? refreshHint : byHandHint}`,
     });
   }
-  // A recorded change isn't judged again, which saves reading its checks.
   const changes = yield* Effect.forEach(nodes, (node) => {
     const verdict = known.get(node.number);
     return verdict === undefined

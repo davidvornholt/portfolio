@@ -124,6 +124,13 @@ const furtherEdits: ReadonlyArray<Edit> = [
     },
   },
   {
+    name: 'the fetch may record verdicts instead of only reading them',
+    reports: 'env.CHANGES_SITE_VERDICTS is',
+    apply: (workflow) => {
+      tree(fetchOf(workflow), 'env').CHANGES_SITE_VERDICTS = 'record';
+    },
+  },
+  {
     name: 'the tokens stand in another order than the owners',
     reports: 'is not the token an earlier step mints for davidvornholt',
     apply: (workflow) => {
